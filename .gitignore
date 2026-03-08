@@ -1,0 +1,13 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+
+# macOS
+.DS_Store
+
+# Generated — rebuild with `xcodegen generate`
+MarkdownViewer.xcodeproj/

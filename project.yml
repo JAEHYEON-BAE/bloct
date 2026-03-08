@@ -1,0 +1,46 @@
+name: MarkdownViewer
+options:
+  bundleIdPrefix: com.personal
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16"
+
+targets:
+  MarkdownViewer:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Sources/MarkdownViewer
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.MarkdownViewer
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: Sources/MarkdownViewer/Info.plist
+      properties:
+        CFBundleName: MarkdownViewer
+        CFBundleDisplayName: Markdown Viewer
+        CFBundleDocumentTypes:
+          - CFBundleTypeExtensions:
+              - md
+              - markdown
+            CFBundleTypeName: Markdown Document
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - net.daringfireball.markdown
+              - public.plain-text
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: net.daringfireball.markdown
+            UTTypeDescription: Markdown
+            UTTypeConformsTo:
+              - public.text
+            UTTypeTagSpecification:
+              "public.filename-extension":
+                - md
+                - markdown
