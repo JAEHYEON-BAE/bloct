@@ -11,3 +11,7 @@ xcuserdata/
 
 # Generated — rebuild with `xcodegen generate`
 MarkdownViewer.xcodeproj/
+
+# Claude Code — local only
+CLAUDE.md
+.claude/
