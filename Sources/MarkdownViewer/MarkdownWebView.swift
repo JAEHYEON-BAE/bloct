@@ -18,8 +18,37 @@ struct MarkdownWebView: NSViewRepresentable {
         return content
     }()
 
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    class Coordinator: NSObject, WKNavigationDelegate {
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                     decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            guard navigationAction.navigationType == .linkActivated,
+                  let url = navigationAction.request.url else {
+                decisionHandler(.allow)
+                return
+            }
+            // Same-page anchor: fragment present, no real path (resolves to base URL)
+            if let fragment = url.fragment, url.path == "" || url.path == "/", url.query == nil {
+                decisionHandler(.cancel)
+                let safe = fragment.replacingOccurrences(of: "\\", with: "\\\\")
+                                   .replacingOccurrences(of: "'", with: "\\'")
+                webView.evaluateJavaScript(
+                    "var el=document.getElementById('\(safe)');if(el)el.scrollIntoView({behavior:'smooth'});",
+                    completionHandler: nil)
+                return
+            }
+            NSWorkspace.shared.open(url)
+            decisionHandler(.cancel)
+        }
+    }
+
     func makeNSView(context: Context) -> WKWebView {
-        WKWebView()
+        let webView = WKWebView()
+        webView.navigationDelegate = context.coordinator
+        return webView
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
@@ -73,6 +102,12 @@ struct MarkdownWebView: NSViewRepresentable {
                 const bytes = Uint8Array.from(atob('\(base64Markdown)'), c => c.charCodeAt(0));
                 const md = new TextDecoder().decode(bytes);
                 document.getElementById('content').innerHTML = marked.parse(md);
+                document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
+                    h.id = h.textContent.trim().toLowerCase()
+                        .replace(/[^\\w\\s-]/g, '')
+                        .trim()
+                        .replace(/\\s+/g, '-');
+                });
             </script>
         </body>
         </html>
