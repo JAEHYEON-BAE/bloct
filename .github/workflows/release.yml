@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-release:
     runs-on: macos-15
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -22,15 +24,14 @@ jobs:
       - name: Build Release
         run: |
           xcodebuild -project MarkdownViewer.xcodeproj \
-            -scheme MarkdownViewer \
+            -target MarkdownViewer \
             -configuration Release \
-            -derivedDataPath build \
-            build
+            CONFIGURATION_BUILD_DIR=build/Release
 
       - name: Zip app
         run: |
           ditto -c -k --keepParent \
-            build/Build/Products/Release/MarkdownViewer.app \
+            build/Release/MarkdownViewer.app \
             MarkdownViewer.zip
 
       - name: Create GitHub Release
