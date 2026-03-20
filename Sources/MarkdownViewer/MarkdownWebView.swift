@@ -3,6 +3,7 @@ import WebKit
 
 struct MarkdownWebView: NSViewRepresentable {
     let markdown: String
+    let zoomLevel: Double
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -23,6 +24,8 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate {
+        var lastMarkdown: String = ""
+
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard navigationAction.navigationType == .linkActivated,
@@ -48,11 +51,16 @@ struct MarkdownWebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let webView = WKWebView()
         webView.navigationDelegate = context.coordinator
+        webView.allowsMagnification = true
         return webView
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
-        webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
+        if context.coordinator.lastMarkdown != markdown {
+            context.coordinator.lastMarkdown = markdown
+            webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
+        }
+        webView.pageZoom = zoomLevel
     }
 
     private func buildHTML() -> String {
