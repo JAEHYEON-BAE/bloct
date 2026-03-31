@@ -135,7 +135,15 @@ struct MarkdownWebView: NSViewRepresentable {
                 };
                 marked.use({ breaks: false, gfm: true, extensions: [mathBlock, mathInline] });
                 const bytes = Uint8Array.from(atob('\(base64Markdown)'), c => c.charCodeAt(0));
-                const md = new TextDecoder().decode(bytes);
+                const raw = new TextDecoder().decode(bytes);
+                const md = raw.replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
+                    let style = '';
+                    const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
+                    const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
+                    if (w) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                    if (h) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                    return '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
+                });
                 document.getElementById('content').innerHTML = marked.parse(md);
                 document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
                     h.id = h.textContent.trim().toLowerCase()
