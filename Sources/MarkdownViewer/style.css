@@ -152,3 +152,9 @@ img {
 input[type="checkbox"] {
   margin-right: 0.5em;
 }
+
+@media print {
+  body {
+    font-size: 13px;
+  }
+}

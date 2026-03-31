@@ -54,20 +54,23 @@ struct ContentView: View {
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
 
-        webView.evaluateJavaScript("document.documentElement.scrollHeight") { result, _ in
-            let config = WKPDFConfiguration()
-            let height = (result as? CGFloat) ?? webView.bounds.height
-            config.rect = CGRect(x: 0, y: 0, width: webView.bounds.width, height: height)
-            webView.createPDF(configuration: config) { result in
-                switch result {
-                case .success(let data):
-                    try? data.write(to: url)
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        NSAlert(error: error).runModal()
-                    }
-                }
-            }
+        let printInfo = NSPrintInfo.shared.copy() as! NSPrintInfo
+        printInfo.topMargin = 36
+        printInfo.bottomMargin = 36
+        printInfo.leftMargin = 36
+        printInfo.rightMargin = 36
+        printInfo.horizontalPagination = .fit
+        printInfo.verticalPagination = .automatic
+        printInfo.jobDisposition = .save
+        printInfo.dictionary()[NSPrintInfo.AttributeKey.jobSavingURL] = url
+
+        let op = webView.printOperation(with: printInfo)
+        op.showsPrintPanel = false
+        op.showsProgressPanel = false
+        if let window = webView.window {
+            op.runModal(for: window, delegate: nil, didRun: nil, contextInfo: nil)
+        } else {
+            op.run()
         }
     }
 }
