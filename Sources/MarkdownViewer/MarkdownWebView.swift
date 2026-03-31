@@ -4,6 +4,7 @@ import WebKit
 struct MarkdownWebView: NSViewRepresentable {
     let markdown: String
     let zoomLevel: Double
+    let webViewStore: WebViewStore
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -52,6 +53,7 @@ struct MarkdownWebView: NSViewRepresentable {
         let webView = WKWebView()
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
+        webViewStore.webView = webView
         return webView
     }
 

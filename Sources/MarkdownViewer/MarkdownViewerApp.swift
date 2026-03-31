@@ -26,13 +26,30 @@ struct ZoomCommands: Commands {
     }
 }
 
+struct ExportCommands: Commands {
+    @FocusedValue(\.exportPDF) var exportPDF
+
+    var body: some Commands {
+        CommandGroup(after: .importExport) {
+            Button("Export as PDF…") {
+                exportPDF?()
+            }
+            .keyboardShortcut("e", modifiers: [.command, .shift])
+            .disabled(exportPDF == nil)
+        }
+    }
+}
+
 @main
 struct MarkdownViewerApp: App {
     var body: some Scene {
         DocumentGroup(viewing: MarkdownDocument.self) { file in
-            ContentView(document: file.document)
+            ContentView(document: file.document, fileURL: file.fileURL)
         }
         .defaultSize(width: 900, height: 1600)
-        .commands { ZoomCommands() }
+        .commands {
+            ZoomCommands()
+            ExportCommands()
+        }
     }
 }
