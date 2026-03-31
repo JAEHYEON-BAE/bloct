@@ -3,6 +3,7 @@ import WebKit
 
 struct MarkdownWebView: NSViewRepresentable {
     let markdown: String
+    let fileURL: URL?
     let zoomLevel: Double
     let webViewStore: WebViewStore
 
@@ -26,6 +27,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
     class Coordinator: NSObject, WKNavigationDelegate {
         var lastMarkdown: String = ""
+        var tempHTMLURL: URL?
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -47,12 +49,24 @@ struct MarkdownWebView: NSViewRepresentable {
             NSWorkspace.shared.open(url)
             decisionHandler(.cancel)
         }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            if let tmp = tempHTMLURL {
+                try? FileManager.default.removeItem(at: tmp)
+                tempHTMLURL = nil
+            }
+        }
     }
 
     func makeNSView(context: Context) -> WKWebView {
         let webView = WKWebView()
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
+        if #available(macOS 13.3, *) {
+            webView.isInspectable = true
+        } else {
+            webView.configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
+        }
         webViewStore.webView = webView
         return webView
     }
@@ -60,7 +74,18 @@ struct MarkdownWebView: NSViewRepresentable {
     func updateNSView(_ webView: WKWebView, context: Context) {
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
-            webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
+            if let fileURL = fileURL {
+                let dir = fileURL.deletingLastPathComponent()
+                let tmpURL = dir.appendingPathComponent(".mv_preview.html")
+                if (try? buildHTML().write(to: tmpURL, atomically: true, encoding: .utf8)) != nil {
+                    context.coordinator.tempHTMLURL = tmpURL
+                    webView.loadFileURL(tmpURL, allowingReadAccessTo: dir)
+                } else {
+                    webView.loadHTMLString(buildHTML(), baseURL: dir)
+                }
+            } else {
+                webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
+            }
         }
         webView.pageZoom = zoomLevel
     }

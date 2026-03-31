@@ -34,7 +34,7 @@ struct ContentView: View {
     private let webViewStore = WebViewStore()
 
     var body: some View {
-        MarkdownWebView(markdown: document.text, zoomLevel: zoomLevel, webViewStore: webViewStore)
+        MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, webViewStore: webViewStore)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .focusedValue(\.zoomLevel, $zoomLevel)
             .focusedValue(\.exportPDF, exportAsPDF)
