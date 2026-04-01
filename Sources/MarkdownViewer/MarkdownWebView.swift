@@ -140,9 +140,14 @@ struct MarkdownWebView: NSViewRepresentable {
                     let style = '';
                     const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
                     const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
+                    const a = attrs.match(/align\\s*=\\s*([^\\s,}]+)/);
                     if (w) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
                     if (h) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
-                    return '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
+                    const img = '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
+                    if (a && (a[1] === 'left' || a[1] === 'center' || a[1] === 'right')) {
+                        return '<div style="text-align:' + a[1] + '">' + img + '</div>';
+                    }
+                    return img;
                 });
                 document.getElementById('content').innerHTML = marked.parse(md);
                 document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
