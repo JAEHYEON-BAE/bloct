@@ -45,6 +45,67 @@ extension FocusedValues {
     }
 }
 
+// NSTextField subclass that requests focus in viewDidMoveToWindow,
+// which fires exactly once when the view is attached to a window.
+class FocusOnAppearTextField: NSTextField {
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard let win = window else { return }
+        DispatchQueue.main.async { [weak self, weak win] in
+            guard let self, let win else { return }
+            win.makeFirstResponder(self)
+        }
+    }
+}
+
+// NSTextField wrapper that calls makeFirstResponder directly,
+// bypassing SwiftUI's @FocusState which doesn't work in toolbar items.
+struct SearchTextField: NSViewRepresentable {
+    @Binding var text: String
+    var onSubmit: () -> Void
+    var onEscape: () -> Void
+
+    func makeNSView(context: Context) -> FocusOnAppearTextField {
+        let field = FocusOnAppearTextField()
+        field.placeholderString = "Find…"
+        field.bezelStyle = .roundedBezel
+        field.delegate = context.coordinator
+        field.focusRingType = .default
+        return field
+    }
+
+    func updateNSView(_ nsView: FocusOnAppearTextField, context: Context) {
+        if nsView.stringValue != text {
+            nsView.stringValue = text
+        }
+
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: SearchTextField
+        init(_ parent: SearchTextField) { self.parent = parent }
+
+        func controlTextDidChange(_ obj: Notification) {
+            guard let field = obj.object as? NSTextField else { return }
+            parent.text = field.stringValue
+        }
+
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            if commandSelector == #selector(NSResponder.insertNewline(_:)) {
+                parent.onSubmit()
+                return true
+            }
+            if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
+                parent.onEscape()
+                return true
+            }
+            return false
+        }
+    }
+}
+
 class WebViewStore {
     var webView: WKWebView?
 }
@@ -53,10 +114,9 @@ struct ContentView: View {
     let document: MarkdownDocument
     let fileURL: URL?
     @State private var zoomLevel: Double = 1.0
-    @State private var showTOC: Bool = true
+    @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
-    @FocusState private var searchFocused: Bool
     private let webViewStore = WebViewStore()
 
     var body: some View {
@@ -66,11 +126,6 @@ struct ContentView: View {
             .focusedValue(\.exportPDF, exportAsPDF)
             .focusedValue(\.showTOC, $showTOC)
             .focusedValue(\.showSearch, $showSearch)
-            .onChange(of: showSearch) { value in
-                if value {
-                    DispatchQueue.main.async { searchFocused = true }
-                }
-            }
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Toggle(isOn: $showTOC) {
@@ -82,11 +137,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .automatic) {
                     Button {
                         showSearch.toggle()
-                        if showSearch {
-                            searchFocused = true
-                        } else {
-                            searchText = ""
-                        }
+                        if !showSearch { searchText = "" }
                     } label: {
                         Label("Find", systemImage: "magnifyingglass")
                     }
@@ -95,17 +146,13 @@ struct ContentView: View {
                 if showSearch {
                     ToolbarItem(placement: .automatic) {
                         HStack(spacing: 4) {
-                            TextField("Find…", text: $searchText)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 180)
-                                .focused($searchFocused)
-                                .onSubmit { performFind(forward: true) }
-                                .onChange(of: searchText) { _ in performFind(forward: true) }
-                                .onKeyPress(.escape) {
-                                    showSearch = false
-                                    searchText = ""
-                                    return .handled
-                                }
+                            SearchTextField(
+                                text: $searchText,
+                                onSubmit: { performFind(forward: true) },
+                                onEscape: { showSearch = false; searchText = "" }
+                            )
+                            .frame(width: 180, height: 22)
+                            .onChange(of: searchText) { _ in performFind(forward: true) }
                             Button { performFind(forward: false) } label: {
                                 Image(systemName: "chevron.up")
                             }
