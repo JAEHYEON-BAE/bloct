@@ -38,7 +38,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 'background:var(--color-canvas-default,Canvas);' +
                 'border-right:1px solid var(--color-border-default,GrayText);' +
                 'padding:20px 14px;overflow-y:auto;z-index:100;box-sizing:border-box;' +
-                'transition:transform 0.3s ease;';
+                'overscroll-behavior:contain;transition:transform 0.3s ease;';
             headings.forEach(function(h) {
                 var level = parseInt(h.tagName[1]);
                 var fontSize = level === 1 ? '13.5px' : level === 2 ? '12px' : '11px';
