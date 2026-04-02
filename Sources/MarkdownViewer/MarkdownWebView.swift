@@ -75,16 +75,6 @@ struct MarkdownWebView: NSViewRepresentable {
                 decisionHandler(.allow)
                 return
             }
-            // Same-page anchor: fragment present, no real path (resolves to base URL)
-            if let fragment = url.fragment, url.path == "" || url.path == "/", url.query == nil {
-                decisionHandler(.cancel)
-                let safe = fragment.replacingOccurrences(of: "\\", with: "\\\\")
-                                   .replacingOccurrences(of: "'", with: "\\'")
-                webView.evaluateJavaScript(
-                    "var el=document.getElementById('\(safe)');if(el)el.scrollIntoView({behavior:'smooth'});",
-                    completionHandler: nil)
-                return
-            }
             NSWorkspace.shared.open(url)
             decisionHandler(.cancel)
         }
@@ -206,11 +196,24 @@ struct MarkdownWebView: NSViewRepresentable {
                     return img;
                 });
                 document.getElementById('content').innerHTML = marked.parse(md);
+                document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+                    var decoded = decodeURIComponent(a.getAttribute('href')).replace(/-+/g, '-');
+                    a.setAttribute('href', decoded);
+                });
                 document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
                     h.id = h.textContent.trim().toLowerCase()
-                        .replace(/[^\\w\\s-]/g, '')
+                        .replace(/[^\\p{L}\\p{N}\\s-]/gu, '')
                         .trim()
-                        .replace(/\\s+/g, '-');
+                        .replace(/\\s+/g, '-')
+                        .replace(/-+/g, '-');
+                });
+                document.addEventListener('click', function(e) {
+                    var a = e.target.closest('a[href^="#"]');
+                    if (!a) return;
+                    e.preventDefault();
+                    var fragment = decodeURIComponent(a.getAttribute('href').slice(1));
+                    var el = document.getElementById(fragment);
+                    if (el) el.scrollIntoView({behavior: 'smooth'});
                 });
             </script>
         </body>
