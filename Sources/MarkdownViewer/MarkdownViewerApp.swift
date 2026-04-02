@@ -40,6 +40,20 @@ struct ExportCommands: Commands {
     }
 }
 
+struct TOCCommands: Commands {
+    @FocusedValue(\.showTOC) var showTOC
+
+    var body: some Commands {
+        CommandGroup(after: .toolbar) {
+            Button(showTOC?.wrappedValue == true ? "Hide Table of Contents" : "Show Table of Contents") {
+                showTOC?.wrappedValue.toggle()
+            }
+            .keyboardShortcut("t", modifiers: [.command, .shift])
+            .disabled(showTOC == nil)
+        }
+    }
+}
+
 @main
 struct MarkdownViewerApp: App {
     var body: some Scene {
@@ -50,6 +64,7 @@ struct MarkdownViewerApp: App {
         .commands {
             ZoomCommands()
             ExportCommands()
+            TOCCommands()
         }
     }
 }

@@ -23,6 +23,17 @@ extension FocusedValues {
     }
 }
 
+struct ShowTOCKey: FocusedValueKey {
+    typealias Value = Binding<Bool>
+}
+
+extension FocusedValues {
+    var showTOC: Binding<Bool>? {
+        get { self[ShowTOCKey.self] }
+        set { self[ShowTOCKey.self] = newValue }
+    }
+}
+
 class WebViewStore {
     var webView: WKWebView?
 }
@@ -31,13 +42,24 @@ struct ContentView: View {
     let document: MarkdownDocument
     let fileURL: URL?
     @State private var zoomLevel: Double = 1.0
+    @State private var showTOC: Bool = true
     private let webViewStore = WebViewStore()
 
     var body: some View {
-        MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, webViewStore: webViewStore)
+        MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .focusedValue(\.zoomLevel, $zoomLevel)
             .focusedValue(\.exportPDF, exportAsPDF)
+            .focusedValue(\.showTOC, $showTOC)
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    Toggle(isOn: $showTOC) {
+                        Label("Table of Contents", systemImage: "list.bullet")
+                    }
+                    .toggleStyle(.button)
+                    .help("Toggle Table of Contents (⇧⌘T)")
+                }
+            }
     }
 
     private func exportAsPDF() {

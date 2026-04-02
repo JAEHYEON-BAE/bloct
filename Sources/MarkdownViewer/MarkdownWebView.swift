@@ -5,6 +5,7 @@ struct MarkdownWebView: NSViewRepresentable {
     let markdown: String
     let fileURL: URL?
     let zoomLevel: Double
+    let showTOC: Bool
     let webViewStore: WebViewStore
 
     private static let markedJS: String = {
@@ -25,8 +26,46 @@ struct MarkdownWebView: NSViewRepresentable {
         Coordinator()
     }
 
+    private static let tocWidth = "220px"
+    private static let tocScript = """
+        (function() {
+            if (document.getElementById('toc')) return;
+            var headings = document.querySelectorAll('h1,h2,h3');
+            if (headings.length < 2) return;
+            var toc = document.createElement('nav');
+            toc.id = 'toc';
+            toc.style.cssText = 'position:fixed;top:0;left:0;width:220px;height:100vh;' +
+                'background:var(--color-canvas-default,Canvas);' +
+                'border-right:1px solid var(--color-border-default,GrayText);' +
+                'padding:20px 14px;overflow-y:auto;z-index:100;box-sizing:border-box;' +
+                'transition:transform 0.3s ease;';
+            headings.forEach(function(h) {
+                var level = parseInt(h.tagName[1]);
+                var fontSize = level === 1 ? '13.5px' : level === 2 ? '12px' : '11px';
+                var fontWeight = level === 1 ? '600' : '400';
+                var opacity = level === 3 ? '0.7' : '1';
+                var a = document.createElement('a');
+                a.href = '#' + h.id;
+                a.textContent = h.textContent;
+                a.style.cssText = 'display:block;padding-left:' + (level-1)*12 + 'px;' +
+                    'margin:4px 0;color:var(--color-fg-default,CanvasText);text-decoration:none;' +
+                    'font-size:' + fontSize + ';font-weight:' + fontWeight + ';opacity:' + opacity + ';' +
+                    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;';
+                a.onmouseenter = function() { this.style.opacity = String(parseFloat(opacity) * 0.6); };
+                a.onmouseleave = function() { this.style.opacity = opacity; };
+                a.onclick = function(e) { e.preventDefault(); h.scrollIntoView({behavior:'smooth'}); };
+                toc.appendChild(a);
+            });
+            document.body.appendChild(toc);
+            document.body.style.paddingLeft = '220px';
+            document.body.style.transition = 'padding-left 0.3s ease';
+        })();
+    """
+
     class Coordinator: NSObject, WKNavigationDelegate {
         var lastMarkdown: String = ""
+        var showTOC: Bool = true
+        var lastShowTOC: Bool = true
         var tempHTMLURL: URL?
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
@@ -55,6 +94,13 @@ struct MarkdownWebView: NSViewRepresentable {
                 try? FileManager.default.removeItem(at: tmp)
                 tempHTMLURL = nil
             }
+            webView.evaluateJavaScript(MarkdownWebView.tocScript, completionHandler: nil)
+            if !showTOC {
+                // Instant hide on load (no animation)
+                webView.evaluateJavaScript(
+                    "(function(){var t=document.getElementById('toc');if(t){t.style.transition='none';t.style.transform='translateX(-220px)';t.style.pointerEvents='none';document.body.style.transition='none';document.body.style.paddingLeft='';}})();",
+                    completionHandler: nil)
+            }
         }
     }
 
@@ -72,8 +118,10 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
+        context.coordinator.showTOC = showTOC
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
+            context.coordinator.lastShowTOC = showTOC
             if let fileURL = fileURL {
                 let dir = fileURL.deletingLastPathComponent()
                 let tmpURL = dir.appendingPathComponent(".mv_preview.html")
@@ -86,6 +134,14 @@ struct MarkdownWebView: NSViewRepresentable {
             } else {
                 webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
             }
+        } else if context.coordinator.lastShowTOC != showTOC {
+            context.coordinator.lastShowTOC = showTOC
+            let transform = showTOC ? "translateX(0)" : "translateX(-220px)"
+            let pointer = showTOC ? "auto" : "none"
+            let padding = showTOC ? "220px" : ""
+            webView.evaluateJavaScript(
+                "(function(){var t=document.getElementById('toc');if(t){t.style.transition='transform 0.3s ease';t.style.transform='\(transform)';t.style.pointerEvents='\(pointer)';document.body.style.transition='padding-left 0.3s ease';document.body.style.paddingLeft='\(padding)';}})();",
+                completionHandler: nil)
         }
         webView.pageZoom = zoomLevel
     }
