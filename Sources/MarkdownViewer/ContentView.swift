@@ -56,6 +56,7 @@ struct ContentView: View {
     @State private var showTOC: Bool = true
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
+    @FocusState private var searchFocused: Bool
     private let webViewStore = WebViewStore()
 
     var body: some View {
@@ -65,6 +66,9 @@ struct ContentView: View {
             .focusedValue(\.exportPDF, exportAsPDF)
             .focusedValue(\.showTOC, $showTOC)
             .focusedValue(\.showSearch, $showSearch)
+            .onChange(of: showSearch) { value in
+                if value { searchFocused = true }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Toggle(isOn: $showTOC) {
@@ -76,7 +80,11 @@ struct ContentView: View {
                 ToolbarItem(placement: .automatic) {
                     Button {
                         showSearch.toggle()
-                        if !showSearch { searchText = "" }
+                        if showSearch {
+                            searchFocused = true
+                        } else {
+                            searchText = ""
+                        }
                     } label: {
                         Label("Find", systemImage: "magnifyingglass")
                     }
@@ -88,8 +96,14 @@ struct ContentView: View {
                             TextField("Find…", text: $searchText)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 180)
+                                .focused($searchFocused)
                                 .onSubmit { performFind(forward: true) }
                                 .onChange(of: searchText) { _ in performFind(forward: true) }
+                                .onKeyPress(.escape) {
+                                    showSearch = false
+                                    searchText = ""
+                                    return .handled
+                                }
                             Button { performFind(forward: false) } label: {
                                 Image(systemName: "chevron.up")
                             }
