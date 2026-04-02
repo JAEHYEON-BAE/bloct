@@ -34,6 +34,17 @@ extension FocusedValues {
     }
 }
 
+struct ShowSearchKey: FocusedValueKey {
+    typealias Value = Binding<Bool>
+}
+
+extension FocusedValues {
+    var showSearch: Binding<Bool>? {
+        get { self[ShowSearchKey.self] }
+        set { self[ShowSearchKey.self] = newValue }
+    }
+}
+
 class WebViewStore {
     var webView: WKWebView?
 }
@@ -43,6 +54,8 @@ struct ContentView: View {
     let fileURL: URL?
     @State private var zoomLevel: Double = 1.0
     @State private var showTOC: Bool = true
+    @State private var showSearch: Bool = false
+    @State private var searchText: String = ""
     private let webViewStore = WebViewStore()
 
     var body: some View {
@@ -51,6 +64,7 @@ struct ContentView: View {
             .focusedValue(\.zoomLevel, $zoomLevel)
             .focusedValue(\.exportPDF, exportAsPDF)
             .focusedValue(\.showTOC, $showTOC)
+            .focusedValue(\.showSearch, $showSearch)
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Toggle(isOn: $showTOC) {
@@ -59,7 +73,51 @@ struct ContentView: View {
                     .toggleStyle(.button)
                     .help("Toggle Table of Contents (⇧⌘T)")
                 }
+                ToolbarItem(placement: .automatic) {
+                    Button {
+                        showSearch.toggle()
+                        if !showSearch { searchText = "" }
+                    } label: {
+                        Label("Find", systemImage: "magnifyingglass")
+                    }
+                    .help("Find in Document (⌘F)")
+                }
+                if showSearch {
+                    ToolbarItem(placement: .automatic) {
+                        HStack(spacing: 4) {
+                            TextField("Find…", text: $searchText)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 180)
+                                .onSubmit { performFind(forward: true) }
+                                .onChange(of: searchText) { _ in performFind(forward: true) }
+                            Button { performFind(forward: false) } label: {
+                                Image(systemName: "chevron.up")
+                            }
+                            .help("Previous match")
+                            Button { performFind(forward: true) } label: {
+                                Image(systemName: "chevron.down")
+                            }
+                            .help("Next match")
+                            Button {
+                                showSearch = false
+                                searchText = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                            }
+                            .help("Close")
+                        }
+                    }
+                }
             }
+    }
+
+    private func performFind(forward: Bool) {
+        guard let webView = webViewStore.webView, !searchText.isEmpty else { return }
+        let config = WKFindConfiguration()
+        config.backwards = !forward
+        config.wraps = true
+        config.caseSensitive = false
+        webView.find(searchText, configuration: config) { _ in }
     }
 
     private func exportAsPDF() {

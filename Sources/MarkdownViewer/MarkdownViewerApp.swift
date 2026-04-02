@@ -54,6 +54,20 @@ struct TOCCommands: Commands {
     }
 }
 
+struct FindCommands: Commands {
+    @FocusedValue(\.showSearch) var showSearch
+
+    var body: some Commands {
+        CommandGroup(after: .toolbar) {
+            Button("Find…") {
+                showSearch?.wrappedValue = true
+            }
+            .keyboardShortcut("f", modifiers: .command)
+            .disabled(showSearch == nil)
+        }
+    }
+}
+
 @main
 struct MarkdownViewerApp: App {
     var body: some Scene {
@@ -65,6 +79,7 @@ struct MarkdownViewerApp: App {
             ZoomCommands()
             ExportCommands()
             TOCCommands()
+            FindCommands()
         }
     }
 }
