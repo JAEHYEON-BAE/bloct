@@ -67,7 +67,9 @@ struct ContentView: View {
             .focusedValue(\.showTOC, $showTOC)
             .focusedValue(\.showSearch, $showSearch)
             .onChange(of: showSearch) { value in
-                if value { searchFocused = true }
+                if value {
+                    DispatchQueue.main.async { searchFocused = true }
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .navigation) {
