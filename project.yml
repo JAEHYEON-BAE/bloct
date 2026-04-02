@@ -5,6 +5,16 @@ options:
     macOS: "14.0"
   xcodeVersion: "16"
 
+schemes:
+  MarkdownViewer:
+    build:
+      targets:
+        MarkdownViewer: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
 targets:
   MarkdownViewer:
     type: application

@@ -62,21 +62,26 @@ struct MarkdownWebView: NSViewRepresentable {
         })();
     """
 
-    class Coordinator: NSObject, WKNavigationDelegate {
+    // Weak wrapper to break the retain cycle between WKUserContentController and Coordinator.
+    private class WeakMessageHandler: NSObject, WKScriptMessageHandler {
+        weak var target: WKScriptMessageHandler?
+        init(_ target: WKScriptMessageHandler) { self.target = target }
+        func userContentController(_ ucc: WKUserContentController, didReceive message: WKScriptMessage) {
+            target?.userContentController(ucc, didReceive: message)
+        }
+    }
+
+    class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var lastMarkdown: String = ""
         var showTOC: Bool = true
         var lastShowTOC: Bool = true
         var tempHTMLURL: URL?
 
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
-                     decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            guard navigationAction.navigationType == .linkActivated,
-                  let url = navigationAction.request.url else {
-                decisionHandler(.allow)
-                return
-            }
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            guard message.name == "openExternal",
+                  let urlString = message.body as? String,
+                  let url = URL(string: urlString) else { return }
             NSWorkspace.shared.open(url)
-            decisionHandler(.cancel)
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -95,7 +100,9 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> WKWebView {
-        let webView = WKWebView()
+        let config = WKWebViewConfiguration()
+        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "openExternal")
+        let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
         #if DEBUG
@@ -217,6 +224,16 @@ struct MarkdownWebView: NSViewRepresentable {
                     var el = document.getElementById(fragment);
                     if (el) el.scrollIntoView({behavior: 'smooth'});
                 });
+                document.addEventListener('click', function(e) {
+                    var a = e.target.closest('a[href]');
+                    if (!a) return;
+                    var href = a.getAttribute('href');
+                    if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.webkit.messageHandlers.openExternal.postMessage(href);
+                    }
+                }, true);
             </script>
         </body>
         </html>
