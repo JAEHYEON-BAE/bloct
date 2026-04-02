@@ -8,6 +8,7 @@ xcuserdata/
 
 # macOS
 .DS_Store
+._*
 
 # Generated — rebuild with `xcodegen generate`
 MarkdownViewer.xcodeproj/
@@ -16,6 +17,9 @@ MarkdownViewer.xcodeproj/
 CLAUDE.md
 .claude/
 BUILD.md
+
+# Local-only branch files
+PIPELINES.md
 
 # Release Data
 Release/
