@@ -98,11 +98,13 @@ struct MarkdownWebView: NSViewRepresentable {
         let webView = WKWebView()
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
+        #if DEBUG
         if #available(macOS 13.3, *) {
             webView.isInspectable = true
         } else {
             webView.configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
         }
+        #endif
         webViewStore.webView = webView
         return webView
     }

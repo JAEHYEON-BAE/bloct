@@ -15,6 +15,7 @@ MarkdownViewer.xcodeproj/
 # Claude Code — local only
 CLAUDE.md
 .claude/
+BUILD.md
 
 # Release Data
 Release/
