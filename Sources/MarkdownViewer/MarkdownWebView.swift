@@ -7,6 +7,7 @@ struct MarkdownWebView: NSViewRepresentable {
     let zoomLevel: Double
     let showTOC: Bool
     let webViewStore: WebViewStore
+    var onCloseTOC: () -> Void = {}
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -31,7 +32,6 @@ struct MarkdownWebView: NSViewRepresentable {
         (function() {
             if (document.getElementById('toc')) return;
             var headings = document.querySelectorAll('h1,h2,h3');
-            if (headings.length < 2) return;
             var toc = document.createElement('nav');
             toc.id = 'toc';
             toc.style.cssText = 'position:fixed;top:0;left:0;width:220px;height:100vh;' +
@@ -76,8 +76,13 @@ struct MarkdownWebView: NSViewRepresentable {
         var showTOC: Bool = true
         var lastShowTOC: Bool = true
         var tempHTMLURL: URL?
+        var onCloseTOC: () -> Void = {}
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if message.name == "closeTOC" {
+                DispatchQueue.main.async { [weak self] in self?.onCloseTOC() }
+                return
+            }
             guard message.name == "openExternal",
                   let urlString = message.body as? String,
                   let url = URL(string: urlString) else { return }
@@ -102,6 +107,7 @@ struct MarkdownWebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "openExternal")
+        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "closeTOC")
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
@@ -118,6 +124,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.showTOC = showTOC
+        context.coordinator.onCloseTOC = onCloseTOC
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
             context.coordinator.lastShowTOC = showTOC
@@ -234,6 +241,58 @@ struct MarkdownWebView: NSViewRepresentable {
                         window.webkit.messageHandlers.openExternal.postMessage(href);
                     }
                 }, true);
+                document.addEventListener('click', function(e) {
+                    var toc = document.getElementById('toc');
+                    if (toc && !toc.contains(e.target) && toc.style.transform !== 'translateX(-220px)') {
+                        window.webkit.messageHandlers.closeTOC.postMessage(null);
+                    }
+                });
+                window._mvSearch = (function() {
+                    var marks = [], idx = 0;
+                    function clear() {
+                        document.querySelectorAll('mark.mv-hl').forEach(function(m) {
+                            var p = m.parentNode;
+                            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+                        });
+                        marks = []; idx = 0;
+                    }
+                    function highlight(text) {
+                        clear();
+                        if (!text) return;
+                        var lo = text.toLowerCase();
+                        var root = document.getElementById('content') || document.body;
+                        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+                        var nodes = [], n;
+                        while ((n = walker.nextNode())) nodes.push(n);
+                        var ranges = [];
+                        nodes.forEach(function(node) {
+                            var t = node.textContent, lt = t.toLowerCase(), i = 0;
+                            while ((i = lt.indexOf(lo, i)) !== -1) { ranges.push({node: node, start: i, end: i + lo.length}); i++; }
+                        });
+                        for (var r = ranges.length - 1; r >= 0; r--) {
+                            try {
+                                var rng = document.createRange();
+                                rng.setStart(ranges[r].node, ranges[r].start);
+                                rng.setEnd(ranges[r].node, ranges[r].end);
+                                var m = document.createElement('mark');
+                                m.className = 'mv-hl';
+                                m.style.cssText = 'background:#FFD700;color:#000;border-radius:2px;padding:0 1px;';
+                                rng.surroundContents(m);
+                                marks.unshift(m);
+                            } catch(e) {}
+                        }
+                        idx = 0;
+                        if (marks.length) { marks[0].style.background = '#FF8C00'; marks[0].scrollIntoView({behavior:'smooth',block:'center'}); }
+                    }
+                    function navigate(fwd) {
+                        if (!marks.length) return;
+                        marks[idx].style.background = '#FFD700';
+                        idx = (idx + (fwd ? 1 : marks.length - 1)) % marks.length;
+                        marks[idx].style.background = '#FF8C00';
+                        marks[idx].scrollIntoView({behavior:'smooth',block:'center'});
+                    }
+                    return {highlight: highlight, navigate: navigate, clear: clear};
+                })();
             </script>
         </body>
         </html>

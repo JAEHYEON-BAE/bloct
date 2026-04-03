@@ -120,12 +120,15 @@ struct ContentView: View {
     private let webViewStore = WebViewStore()
 
     var body: some View {
-        MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore)
+        MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false })
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .focusedValue(\.zoomLevel, $zoomLevel)
             .focusedValue(\.exportPDF, exportAsPDF)
             .focusedValue(\.showTOC, $showTOC)
             .focusedValue(\.showSearch, $showSearch)
+            .onChange(of: showSearch) { visible in
+                if !visible { clearHighlights() }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Toggle(isOn: $showTOC) {
@@ -152,7 +155,7 @@ struct ContentView: View {
                                 onEscape: { showSearch = false; searchText = "" }
                             )
                             .frame(width: 180, height: 22)
-                            .onChange(of: searchText) { _ in performFind(forward: true) }
+                            .onChange(of: searchText) { _ in updateHighlights() }
                             Button { performFind(forward: false) } label: {
                                 Image(systemName: "chevron.up")
                             }
@@ -174,13 +177,24 @@ struct ContentView: View {
             }
     }
 
+    private func clearHighlights() {
+        webViewStore.webView?.evaluateJavaScript("window._mvSearch.clear();", completionHandler: nil)
+        if let webView = webViewStore.webView {
+            webView.window?.makeFirstResponder(webView)
+        }
+    }
+
+    private func updateHighlights() {
+        guard let webView = webViewStore.webView else { return }
+        let escaped = searchText
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "'", with: "\\'")
+        webView.evaluateJavaScript("window._mvSearch.highlight('\(escaped)');", completionHandler: nil)
+    }
+
     private func performFind(forward: Bool) {
         guard let webView = webViewStore.webView, !searchText.isEmpty else { return }
-        let config = WKFindConfiguration()
-        config.backwards = !forward
-        config.wraps = true
-        config.caseSensitive = false
-        webView.find(searchText, configuration: config) { _ in }
+        webView.evaluateJavaScript("window._mvSearch.navigate(\(forward ? "true" : "false"));", completionHandler: nil)
     }
 
     private func exportAsPDF() {
