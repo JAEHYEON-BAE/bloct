@@ -293,6 +293,64 @@ struct MarkdownWebView: NSViewRepresentable {
                     }
                     return {highlight: highlight, navigate: navigate, clear: clear};
                 })();
+
+                // Copy selection as markdown
+                function _mvHtmlToMd(node) {
+                    if (node.nodeType === 3) return node.textContent;
+                    if (node.nodeType !== 1) return '';
+                    var tag = node.tagName.toLowerCase();
+                    var ch = Array.from(node.childNodes).map(_mvHtmlToMd).join('');
+                    switch(tag) {
+                        case 'h1': return '# ' + ch.trim() + '\\n\\n';
+                        case 'h2': return '## ' + ch.trim() + '\\n\\n';
+                        case 'h3': return '### ' + ch.trim() + '\\n\\n';
+                        case 'h4': return '#### ' + ch.trim() + '\\n\\n';
+                        case 'h5': return '##### ' + ch.trim() + '\\n\\n';
+                        case 'h6': return '###### ' + ch.trim() + '\\n\\n';
+                        case 'strong': case 'b': return '**' + ch + '**';
+                        case 'em': case 'i': return '*' + ch + '*';
+                        case 'code':
+                            if (node.parentElement && node.parentElement.tagName.toLowerCase() === 'pre') return ch;
+                            return '`' + ch + '`';
+                        case 'pre': {
+                            var c = node.querySelector('code');
+                            var lang = c ? ((c.className.match(/language-(\\S+)/) || [])[1] || '') : '';
+                            return '```' + lang + '\\n' + (c ? c.textContent : ch) + '\\n```\\n\\n';
+                        }
+                        case 'a': return '[' + ch + '](' + (node.getAttribute('href') || '') + ')';
+                        case 'img': return '![' + (node.getAttribute('alt') || '') + '](' + (node.getAttribute('src') || '') + ')';
+                        case 'p': return ch.trim() + '\\n\\n';
+                        case 'br': return '\\n';
+                        case 'hr': return '---\\n\\n';
+                        case 'blockquote': return ch.split('\\n').map(function(l){return '> '+l;}).join('\\n') + '\\n\\n';
+                        case 'ul': return Array.from(node.children).map(function(li){return '- '+_mvHtmlToMd(li).trim();}).join('\\n') + '\\n\\n';
+                        case 'ol': return Array.from(node.children).map(function(li,i){return (i+1)+'. '+_mvHtmlToMd(li).trim();}).join('\\n') + '\\n\\n';
+                        case 'table': {
+                            var rows = Array.from(node.querySelectorAll('tr'));
+                            if (!rows.length) return ch;
+                            var mdRows = rows.map(function(row){
+                                var cells = Array.from(row.querySelectorAll('th,td')).map(function(cell){return _mvHtmlToMd(cell).trim();});
+                                return '| ' + cells.join(' | ') + ' |';
+                            });
+                            var colCount = Array.from(rows[0].querySelectorAll('th,td')).length;
+                            var sep = '| ' + Array(colCount).fill('---').join(' | ') + ' |';
+                            mdRows.splice(1, 0, sep);
+                            return mdRows.join('\\n') + '\\n\\n';
+                        }
+                        case 'del': case 's': return '~~' + ch + '~~';
+                        default: return ch;
+                    }
+                }
+                document.addEventListener('copy', function(e) {
+                    var sel = window.getSelection();
+                    if (!sel || sel.isCollapsed) return;
+                    var frag = sel.getRangeAt(0).cloneContents();
+                    var wrap = document.createElement('div');
+                    wrap.appendChild(frag);
+                    var md = _mvHtmlToMd(wrap).replace(/\\n{3,}/g, '\\n\\n').trim();
+                    e.clipboardData.setData('text/plain', md);
+                    e.preventDefault();
+                });
             </script>
         </body>
         </html>
