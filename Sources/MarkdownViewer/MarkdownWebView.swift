@@ -171,47 +171,53 @@ struct MarkdownWebView: NSViewRepresentable {
                 <div id="content"></div>
             </article>
             <script>
-                const mathBlock = {
-                    name: 'mathBlock',
+                // figureCaption handles *[...]*  blocks so the outer * are never seen by the italic rule
+                const figureCaption = {
+                    name: 'figureCaption',
                     level: 'block',
-                    start(src) { return src.indexOf('$$'); },
+                    start(src) { return src.indexOf('*['); },
                     tokenizer(src) {
-                        const match = src.match(/^\\$\\$([^]+?)\\$\\$/);
-                        if (match) return { type: 'mathBlock', raw: match[0], text: match[1].trim() };
+                        const match = src.match(/^\\*\\[([\\s\\S]*?)\\]\\*[ \\t]*(?:\\n|$)/);
+                        if (match) return { type: 'figureCaption', raw: match[0], text: match[1] };
                     },
                     renderer(token) {
-                        return '<p>' + katex.renderToString(token.text, { throwOnError: false, displayMode: true }) + '</p>';
+                        return '<p class="figure-caption">' + marked.parseInline(token.text) + '</p>\\n';
                     }
                 };
-                const mathInline = {
-                    name: 'mathInline',
-                    level: 'inline',
-                    start(src) { return src.indexOf('$'); },
-                    tokenizer(src) {
-                        const match = src.match(/^\\$([^\\$\\n]+?)\\$/);
-                        if (match) return { type: 'mathInline', raw: match[0], text: match[1].trim() };
-                    },
-                    renderer(token) {
-                        return katex.renderToString(token.text, { throwOnError: false, displayMode: false });
-                    }
-                };
-                marked.use({ breaks: false, gfm: true, extensions: [mathBlock, mathInline] });
+                marked.use({ breaks: false, gfm: true, extensions: [figureCaption] });
                 const bytes = Uint8Array.from(atob('\(base64Markdown)'), c => c.charCodeAt(0));
                 const raw = new TextDecoder().decode(bytes);
-                const md = raw.replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
-                    let style = '';
-                    const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
-                    const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
-                    const a = attrs.match(/align\\s*=\\s*([^\\s,}]+)/);
-                    if (w) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
-                    if (h) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
-                    const img = '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
-                    if (a && (a[1] === 'left' || a[1] === 'center' || a[1] === 'right')) {
-                        return '<div style="text-align:' + a[1] + '">' + img + '</div>';
-                    }
-                    return img;
+                // Extract math before markdown parsing so $...$ / $$...$$ are never seen by
+                // marked — this prevents * and _ inside math from triggering italic/bold rules.
+                const mathStore = [];
+                let md = raw
+                    .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
+                        let style = '';
+                        const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
+                        const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
+                        const a = attrs.match(/align\\s*=\\s*([^\\s,}]+)/);
+                        if (w) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                        if (h) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                        const img = '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
+                        if (a && (a[1] === 'left' || a[1] === 'center' || a[1] === 'right')) {
+                            return '<div style="text-align:' + a[1] + '">' + img + '</div>';
+                        }
+                        return img;
+                    })
+                    .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(_, tex) {
+                        mathStore.push({ display: true, tex: tex.trim() });
+                        return '\\n\\nMVMATH' + (mathStore.length - 1) + 'X\\n\\n';
+                    })
+                    .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
+                        mathStore.push({ display: false, tex: tex.trim() });
+                        return 'MVMATH' + (mathStore.length - 1) + 'X';
+                    });
+                let html = marked.parse(md);
+                html = html.replace(/MVMATH(\\d+)X/g, function(_, i) {
+                    const item = mathStore[+i];
+                    return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display });
                 });
-                document.getElementById('content').innerHTML = marked.parse(md);
+                document.getElementById('content').innerHTML = html;
                 document.querySelectorAll('a[href^="#"]').forEach(function(a) {
                     var decoded = decodeURIComponent(a.getAttribute('href')).replace(/-+/g, '-');
                     a.setAttribute('href', decoded);

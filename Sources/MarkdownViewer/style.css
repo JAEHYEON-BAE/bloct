@@ -153,6 +153,15 @@ input[type="checkbox"] {
   margin-right: 0.5em;
 }
 
+/* Figure captions (*[...]*) */
+.figure-caption {
+  font-style: italic;
+  color: var(--color-fg-muted, #666);
+  font-size: 0.9em;
+  text-align: center;
+  margin: 0.5em 0 1.2em;
+}
+
 @media print {
   body {
     font-size: 12.5px;
