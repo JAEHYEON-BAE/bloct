@@ -77,10 +77,17 @@ struct MarkdownWebView: NSViewRepresentable {
         var lastShowTOC: Bool = true
         var tempHTMLURL: URL?
         var onCloseTOC: () -> Void = {}
+        var fileURL: URL?
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "closeTOC" {
                 DispatchQueue.main.async { [weak self] in self?.onCloseTOC() }
+                return
+            }
+            if message.name == "scrollPosition" {
+                if let y = message.body as? Double, let url = fileURL {
+                    UserDefaults.standard.set(y, forKey: "scrollPos:\(url.path)")
+                }
                 return
             }
             guard message.name == "openExternal",
@@ -101,6 +108,27 @@ struct MarkdownWebView: NSViewRepresentable {
                     "(function(){var t=document.getElementById('toc');if(t){t.style.transition='none';t.style.transform='translateX(-220px)';t.style.pointerEvents='none';document.body.style.transition='none';document.body.style.paddingLeft='';}})();",
                     completionHandler: nil)
             }
+            // Restore saved scroll position
+            if let url = fileURL {
+                let savedY = UserDefaults.standard.double(forKey: "scrollPos:\(url.path)")
+                if savedY > 0 {
+                    webView.evaluateJavaScript(
+                        "setTimeout(function(){ window.scrollTo({ top: \(savedY), behavior: 'smooth' }); }, 100);",
+                        completionHandler: nil)
+                }
+            }
+            // Install debounced scroll listener
+            webView.evaluateJavaScript("""
+                (function() {
+                    var t;
+                    window.addEventListener('scroll', function() {
+                        clearTimeout(t);
+                        t = setTimeout(function() {
+                            window.webkit.messageHandlers.scrollPosition.postMessage(window.scrollY);
+                        }, 400);
+                    }, { passive: true });
+                })();
+                """, completionHandler: nil)
         }
     }
 
@@ -108,6 +136,7 @@ struct MarkdownWebView: NSViewRepresentable {
         let config = WKWebViewConfiguration()
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "openExternal")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "closeTOC")
+        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "scrollPosition")
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
@@ -125,6 +154,7 @@ struct MarkdownWebView: NSViewRepresentable {
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.showTOC = showTOC
         context.coordinator.onCloseTOC = onCloseTOC
+        context.coordinator.fileURL = fileURL
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
             context.coordinator.lastShowTOC = showTOC
