@@ -240,12 +240,16 @@ struct MarkdownWebView: NSViewRepresentable {
                     })
                     .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
                         mathStore.push({ display: false, tex: tex.trim() });
-                        return 'MVMATH' + (mathStore.length - 1) + 'X';
+                        return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
                     });
                 let html = marked.parse(md);
                 html = html.replace(/MVMATH(\\d+)X/g, function(_, i) {
                     const item = mathStore[+i];
                     return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display });
+                });
+                html = html.replace(/<mvmath data-i="(\\d+)"><\\/mvmath>/g, function(_, i) {
+                    const item = mathStore[+i];
+                    return katex.renderToString(item.tex, { throwOnError: false, displayMode: false });
                 });
                 document.getElementById('content').innerHTML = html;
                 document.querySelectorAll('a[href^="#"]').forEach(function(a) {
