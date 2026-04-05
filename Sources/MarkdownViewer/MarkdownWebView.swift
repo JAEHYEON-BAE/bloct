@@ -335,6 +335,17 @@ struct MarkdownWebView: NSViewRepresentable {
                     if (node.nodeType === 3) return node.textContent;
                     if (node.nodeType !== 1) return '';
                     var tag = node.tagName.toLowerCase();
+                    // KaTeX math: restore original LaTeX from MathML annotation
+                    if (tag === 'span') {
+                        if (node.classList.contains('katex-display')) {
+                            var ann = node.querySelector('annotation[encoding="application/x-tex"]');
+                            if (ann) return '$$' + ann.textContent.trim() + '$$\\n\\n';
+                        }
+                        if (node.classList.contains('katex')) {
+                            var ann = node.querySelector('annotation[encoding="application/x-tex"]');
+                            if (ann) return '$' + ann.textContent.trim() + '$';
+                        }
+                    }
                     var ch = Array.from(node.childNodes).map(_mvHtmlToMd).join('');
                     switch(tag) {
                         case 'h1': return '# ' + ch.trim() + '\\n\\n';
