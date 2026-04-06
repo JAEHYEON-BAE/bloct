@@ -34,9 +34,9 @@ struct MarkdownWebView: NSViewRepresentable {
             var headings = document.querySelectorAll('h1,h2,h3');
             var toc = document.createElement('nav');
             toc.id = 'toc';
-            toc.style.cssText = 'position:fixed;top:0;left:0;width:220px;height:100vh;' +
+            toc.style.cssText = 'position:fixed;top:0;right:0;width:220px;height:100vh;' +
                 'background:var(--color-canvas-default,Canvas);' +
-                'border-right:1px solid var(--color-border-default,GrayText);' +
+                'border-left:1px solid var(--color-border-default,GrayText);' +
                 'padding:20px 14px;overflow-y:auto;z-index:100;box-sizing:border-box;' +
                 'overscroll-behavior:contain;transition:transform 0.3s ease;';
             headings.forEach(function(h) {
@@ -57,8 +57,8 @@ struct MarkdownWebView: NSViewRepresentable {
                 toc.appendChild(a);
             });
             document.body.appendChild(toc);
-            document.body.style.paddingLeft = '220px';
-            document.body.style.transition = 'padding-left 0.3s ease';
+            document.body.style.paddingRight = '220px';
+            document.body.style.transition = 'padding-right 0.3s ease';
         })();
     """
 
@@ -105,7 +105,7 @@ struct MarkdownWebView: NSViewRepresentable {
             if !showTOC {
                 // Instant hide on load (no animation)
                 webView.evaluateJavaScript(
-                    "(function(){var t=document.getElementById('toc');if(t){t.style.transition='none';t.style.transform='translateX(-220px)';t.style.pointerEvents='none';document.body.style.transition='none';document.body.style.paddingLeft='';}})();",
+                    "(function(){var t=document.getElementById('toc');if(t){t.style.transition='none';t.style.transform='translateX(220px)';t.style.pointerEvents='none';document.body.style.transition='none';document.body.style.paddingRight='';}})();",
                     completionHandler: nil)
             }
             // Restore saved scroll position
@@ -218,7 +218,7 @@ struct MarkdownWebView: NSViewRepresentable {
             }
         } else if context.coordinator.lastShowTOC != showTOC {
             context.coordinator.lastShowTOC = showTOC
-            let transform = showTOC ? "translateX(0)" : "translateX(-220px)"
+            let transform = showTOC ? "translateX(0)" : "translateX(220px)"
             let pointer = showTOC ? "auto" : "none"
             let padding = showTOC ? "220px" : ""
             let js = """
@@ -245,22 +245,22 @@ struct MarkdownWebView: NSViewRepresentable {
                 if (anchor) {
                     var anchorTop = anchor.getBoundingClientRect().top;
                     var prevTransform = t.style.transform;
-                    var prevPadding = document.body.style.paddingLeft;
+                    var prevPadding = document.body.style.paddingRight;
                     t.style.transition = 'none';
                     document.body.style.transition = 'none';
                     t.style.transform = '\(transform)';
-                    document.body.style.paddingLeft = '\(padding)';
+                    document.body.style.paddingRight = '\(padding)';
                     delta = anchor.getBoundingClientRect().top - anchorTop; // forced reflow
                     t.style.transform = prevTransform;
-                    document.body.style.paddingLeft = prevPadding;
+                    document.body.style.paddingRight = prevPadding;
                     void document.body.getBoundingClientRect(); // force restore reflow
                 }
                 // Start the TOC animation and scroll correction simultaneously.
                 t.style.transition = 'transform 0.3s ease';
                 t.style.transform = '\(transform)';
                 t.style.pointerEvents = '\(pointer)';
-                document.body.style.transition = 'padding-left 0.3s ease';
-                document.body.style.paddingLeft = '\(padding)';
+                document.body.style.transition = 'padding-right 0.3s ease';
+                document.body.style.paddingRight = '\(padding)';
                 if (Math.abs(delta) > 0.5) { window.scrollBy({ top: delta, behavior: 'smooth' }); }
             })();
             """
@@ -370,7 +370,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 }, true);
                 document.addEventListener('click', function(e) {
                     var toc = document.getElementById('toc');
-                    if (toc && !toc.contains(e.target) && toc.style.transform !== 'translateX(-220px)') {
+                    if (toc && !toc.contains(e.target) && toc.style.transform !== 'translateX(220px)') {
                         window.webkit.messageHandlers.closeTOC.postMessage(null);
                     }
                 });

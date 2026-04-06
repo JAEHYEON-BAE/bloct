@@ -45,6 +45,17 @@ extension FocusedValues {
     }
 }
 
+struct ShowRawEditorKey: FocusedValueKey {
+    typealias Value = Binding<Bool>
+}
+
+extension FocusedValues {
+    var showRawEditor: Binding<Bool>? {
+        get { self[ShowRawEditorKey.self] }
+        set { self[ShowRawEditorKey.self] = newValue }
+    }
+}
+
 // NSTextField subclass that requests focus in viewDidMoveToWindow,
 // which fires exactly once when the view is attached to a window.
 class FocusOnAppearTextField: NSTextField {
@@ -110,6 +121,64 @@ class WebViewStore {
     var webView: WKWebView?
 }
 
+class DragHandleNSView: NSView {
+    var onDragChanged: ((CGFloat) -> Void)?
+
+    override init(frame: NSRect) {
+        super.init(frame: frame)
+        let pan = NSPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        addGestureRecognizer(pan)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: .resizeLeftRight)
+    }
+
+    @objc private func handlePan(_ pan: NSPanGestureRecognizer) {
+        guard pan.state == .changed else { return }
+        let delta = pan.translation(in: nil).x
+        pan.setTranslation(.zero, in: nil)
+        onDragChanged?(delta)
+    }
+}
+
+struct DragHandleView: NSViewRepresentable {
+    var onDragChanged: (CGFloat) -> Void
+
+    func makeNSView(context: Context) -> DragHandleNSView {
+        let v = DragHandleNSView()
+        v.onDragChanged = onDragChanged
+        return v
+    }
+    func updateNSView(_ nsView: DragHandleNSView, context: Context) {
+        nsView.onDragChanged = onDragChanged
+    }
+}
+
+struct RawTextView: NSViewRepresentable {
+    let text: String
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scrollView = NSTextView.scrollableTextView()
+        let textView = scrollView.documentView as! NSTextView
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.font = .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        textView.textContainerInset = NSSize(width: 12, height: 12)
+        textView.backgroundColor = .textBackgroundColor
+        textView.string = text
+        return scrollView
+    }
+
+    func updateNSView(_ nsView: NSScrollView, context: Context) {
+        let textView = nsView.documentView as! NSTextView
+        if textView.string != text {
+            textView.string = text
+        }
+    }
+}
+
 struct ContentView: View {
     let document: MarkdownDocument
     let fileURL: URL?
@@ -117,25 +186,51 @@ struct ContentView: View {
     @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
+    @State private var showRawEditor: Bool = false
+    @State private var rawPaneWidth: CGFloat = 320
     private let webViewStore = WebViewStore()
 
     var body: some View {
-        MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false })
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .focusedValue(\.zoomLevel, $zoomLevel)
-            .focusedValue(\.exportPDF, exportAsPDF)
-            .focusedValue(\.showTOC, $showTOC)
-            .focusedValue(\.showSearch, $showSearch)
-            .onChange(of: showSearch) { visible in
-                if !visible { clearHighlights() }
+        HStack(spacing: 0) {
+            RawTextView(text: document.text)
+                .frame(width: showRawEditor ? rawPaneWidth : 0)
+                .clipped()
+            // Divider: 1px visual line inside an 8px ZStack so the drag target has a real layout frame
+            ZStack {
+                Color(NSColor.separatorColor).frame(width: 1)
+                DragHandleView(onDragChanged: { delta in
+                    rawPaneWidth = max(160, min(800, rawPaneWidth + delta))
+                })
             }
-            .toolbar {
+            .frame(width: showRawEditor ? 8 : 0)
+            .opacity(showRawEditor ? 1 : 0)
+            MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false })
+                .frame(minWidth: 300, maxWidth: .infinity)
+        }
+        .animation(.easeInOut(duration: 0.3), value: showRawEditor)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .focusedValue(\.zoomLevel, $zoomLevel)
+        .focusedValue(\.exportPDF, exportAsPDF)
+        .focusedValue(\.showTOC, $showTOC)
+        .focusedValue(\.showSearch, $showSearch)
+        .focusedValue(\.showRawEditor, $showRawEditor)
+        .onChange(of: showSearch) { visible in
+            if !visible { clearHighlights() }
+        }
+        .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Toggle(isOn: $showTOC) {
                         Label("Table of Contents", systemImage: "list.bullet")
                     }
                     .toggleStyle(.button)
                     .help("Toggle Table of Contents (⇧⌘T)")
+                }
+                ToolbarItem(placement: .navigation) {
+                    Toggle(isOn: $showRawEditor) {
+                        Label("Raw Markdown", systemImage: "doc.plaintext")
+                    }
+                    .toggleStyle(.button)
+                    .help("Toggle Raw Markdown View (⇧⌘R)")
                 }
                 ToolbarItem(placement: .automatic) {
                     Button {

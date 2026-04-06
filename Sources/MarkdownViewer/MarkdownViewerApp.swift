@@ -68,6 +68,20 @@ struct FindCommands: Commands {
     }
 }
 
+struct RawEditorCommands: Commands {
+    @FocusedValue(\.showRawEditor) var showRawEditor
+
+    var body: some Commands {
+        CommandGroup(after: .toolbar) {
+            Button(showRawEditor?.wrappedValue == true ? "Hide Raw Markdown" : "Show Raw Markdown") {
+                showRawEditor?.wrappedValue.toggle()
+            }
+            .keyboardShortcut("r", modifiers: [.command, .shift])
+            .disabled(showRawEditor == nil)
+        }
+    }
+}
+
 @main
 struct MarkdownViewerApp: App {
     var body: some Scene {
@@ -80,6 +94,7 @@ struct MarkdownViewerApp: App {
             ExportCommands()
             TOCCommands()
             FindCommands()
+            RawEditorCommands()
         }
     }
 }
