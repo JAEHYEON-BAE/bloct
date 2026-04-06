@@ -129,6 +129,52 @@ struct MarkdownWebView: NSViewRepresentable {
                     }, { passive: true });
                 })();
                 """, completionHandler: nil)
+            // Install resize scroll-anchor: keeps the first visible block element
+            // at the same viewport position as the user drags the window edge.
+            webView.evaluateJavaScript("""
+                (function() {
+                    var _anchor = null, _anchorTop = 0, _tid = null, _raf = null;
+                    function _findAnchor() {
+                        var x = Math.floor(window.innerWidth * 0.5);
+                        for (var y = 2; y < window.innerHeight * 0.4; y += 4) {
+                            var el = document.elementFromPoint(x, y);
+                            while (el && el !== document.body && el !== document.documentElement) {
+                                var d = window.getComputedStyle(el).display;
+                                if (d === 'block' || d === 'list-item' || d === 'table' || d === 'flex') {
+                                    return el;
+                                }
+                                el = el.parentElement;
+                            }
+                        }
+                        return null;
+                    }
+                    window.addEventListener('resize', function() {
+                        if (!_anchor) {
+                            _anchor = _findAnchor();
+                            if (_anchor) _anchorTop = _anchor.getBoundingClientRect().top;
+                        } else {
+                            // Batch corrections to one per animation frame so rapid resize events
+                            // don't queue multiple scroll calls. Each correction is instant so
+                            // the content appears locked to the viewport edge while dragging.
+                            cancelAnimationFrame(_raf);
+                            _raf = requestAnimationFrame(function() {
+                                var delta = _anchor.getBoundingClientRect().top - _anchorTop;
+                                if (Math.abs(delta) > 0.5) window.scrollBy(0, delta);
+                            });
+                        }
+                        clearTimeout(_tid);
+                        _tid = setTimeout(function() {
+                            // Once the drag stops, apply a final smooth correction for any
+                            // residual drift that accumulated during the live resize.
+                            if (_anchor) {
+                                var delta = _anchor.getBoundingClientRect().top - _anchorTop;
+                                if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: 'smooth' });
+                            }
+                            _anchor = null;
+                        }, 150);
+                    }, { passive: true });
+                })();
+                """, completionHandler: nil)
         }
     }
 
@@ -175,9 +221,50 @@ struct MarkdownWebView: NSViewRepresentable {
             let transform = showTOC ? "translateX(0)" : "translateX(-220px)"
             let pointer = showTOC ? "auto" : "none"
             let padding = showTOC ? "220px" : ""
-            webView.evaluateJavaScript(
-                "(function(){var t=document.getElementById('toc');if(t){t.style.transition='transform 0.3s ease';t.style.transform='\(transform)';t.style.pointerEvents='\(pointer)';document.body.style.transition='padding-left 0.3s ease';document.body.style.paddingLeft='\(padding)';}})();",
-                completionHandler: nil)
+            let js = """
+            (function(){
+                var t = document.getElementById('toc');
+                if (!t) return;
+                // Find the first block-level element at the top of the viewport.
+                var anchor = null;
+                var x = Math.floor(window.innerWidth * 0.5);
+                outer: for (var y = 2; y < window.innerHeight * 0.4; y += 4) {
+                    var el = document.elementFromPoint(x, y);
+                    while (el && el !== document.body && el !== document.documentElement) {
+                        var d = window.getComputedStyle(el).display;
+                        if (d === 'block' || d === 'list-item' || d === 'table' || d === 'flex') {
+                            anchor = el; break outer;
+                        }
+                        el = el.parentElement;
+                    }
+                }
+                // Predict the scroll delta by peeking at the final layout state.
+                // All DOM reads/writes here are synchronous with no async break, so
+                // the browser never paints the intermediate state — no visible flicker.
+                var delta = 0;
+                if (anchor) {
+                    var anchorTop = anchor.getBoundingClientRect().top;
+                    var prevTransform = t.style.transform;
+                    var prevPadding = document.body.style.paddingLeft;
+                    t.style.transition = 'none';
+                    document.body.style.transition = 'none';
+                    t.style.transform = '\(transform)';
+                    document.body.style.paddingLeft = '\(padding)';
+                    delta = anchor.getBoundingClientRect().top - anchorTop; // forced reflow
+                    t.style.transform = prevTransform;
+                    document.body.style.paddingLeft = prevPadding;
+                    void document.body.getBoundingClientRect(); // force restore reflow
+                }
+                // Start the TOC animation and scroll correction simultaneously.
+                t.style.transition = 'transform 0.3s ease';
+                t.style.transform = '\(transform)';
+                t.style.pointerEvents = '\(pointer)';
+                document.body.style.transition = 'padding-left 0.3s ease';
+                document.body.style.paddingLeft = '\(padding)';
+                if (Math.abs(delta) > 0.5) { window.scrollBy({ top: delta, behavior: 'smooth' }); }
+            })();
+            """
+            webView.evaluateJavaScript(js, completionHandler: nil)
         }
         webView.pageZoom = zoomLevel
     }
