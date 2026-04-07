@@ -7,6 +7,7 @@ struct MarkdownWebView: NSViewRepresentable {
     let zoomLevel: Double
     let showTOC: Bool
     let webViewStore: WebViewStore
+    let syncCoordinator: ScrollSyncCoordinator
     var onCloseTOC: () -> Void = {}
 
     private static let markedJS: String = {
@@ -78,6 +79,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var tempHTMLURL: URL?
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
+        var scrollSyncCoordinator: ScrollSyncCoordinator?
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "closeTOC" {
@@ -87,6 +89,14 @@ struct MarkdownWebView: NSViewRepresentable {
             if message.name == "scrollPosition" {
                 if let y = message.body as? Double, let url = fileURL {
                     UserDefaults.standard.set(y, forKey: "scrollPos:\(url.path)")
+                }
+                return
+            }
+            if message.name == "syncLine" {
+                if let line = message.body as? Int {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.scrollSyncCoordinator?.onPreviewScrolled(toLine: line)
+                    }
                 }
                 return
             }
@@ -117,15 +127,20 @@ struct MarkdownWebView: NSViewRepresentable {
                         completionHandler: nil)
                 }
             }
-            // Install debounced scroll listener
+            // Install debounced scroll listener (saves position + sends sync line)
             webView.evaluateJavaScript("""
                 (function() {
                     var t;
                     window.addEventListener('scroll', function() {
+                        if (window._mvSync && window._mvSync._busy) return;
                         clearTimeout(t);
                         t = setTimeout(function() {
                             window.webkit.messageHandlers.scrollPosition.postMessage(window.scrollY);
-                        }, 400);
+                            if (window._mvSync) {
+                                var line = window._mvSync.getLineAtScrollY(window.scrollY);
+                                if (line > 0) window.webkit.messageHandlers.syncLine.postMessage(line);
+                            }
+                        }, 200);
                     }, { passive: true });
                 })();
                 """, completionHandler: nil)
@@ -183,6 +198,7 @@ struct MarkdownWebView: NSViewRepresentable {
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "openExternal")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "closeTOC")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "scrollPosition")
+        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "syncLine")
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
@@ -194,6 +210,8 @@ struct MarkdownWebView: NSViewRepresentable {
         }
         #endif
         webViewStore.webView = webView
+        syncCoordinator.webView = webView
+        context.coordinator.scrollSyncCoordinator = syncCoordinator
         return webView
     }
 
@@ -201,6 +219,7 @@ struct MarkdownWebView: NSViewRepresentable {
         context.coordinator.showTOC = showTOC
         context.coordinator.onCloseTOC = onCloseTOC
         context.coordinator.fileURL = fileURL
+        context.coordinator.scrollSyncCoordinator = syncCoordinator
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
             context.coordinator.lastShowTOC = showTOC
@@ -350,6 +369,63 @@ struct MarkdownWebView: NSViewRepresentable {
                         .replace(/\\s+/g, '-')
                         .replace(/-+/g, '-');
                 });
+                // Annotate top-level block elements with data-line for scroll sync.
+                // Split raw source on blank lines to find each block's starting line number.
+                (function() {
+                    var blocks = raw.split(/\\n\\n+/);
+                    var lineNums = [];
+                    var n = 1;
+                    blocks.forEach(function(b) {
+                        lineNums.push(n);
+                        n += (b.match(/\\n/g) || []).length + 2;
+                    });
+                    var els = Array.from(document.getElementById('content').children);
+                    els.forEach(function(el, i) {
+                        el.setAttribute('data-line', lineNums[Math.min(i, lineNums.length - 1)] || 1);
+                    });
+                    function getAnchors() {
+                        return Array.from(document.querySelectorAll('#content > [data-line]')).map(function(el) {
+                            return { line: +el.getAttribute('data-line'), top: el.getBoundingClientRect().top + window.scrollY };
+                        });
+                    }
+                    window._mvSync = {
+                        _busy: false,
+                        scrollToLine: function(targetLine) {
+                            var self = this;
+                            self._busy = true;
+                            var a = getAnchors();
+                            if (!a.length) { self._busy = false; return; }
+                            var scrollY = a[0].top;
+                            if (targetLine >= a[a.length - 1].line) {
+                                scrollY = a[a.length - 1].top;
+                            } else {
+                                for (var i = 0; i < a.length - 1; i++) {
+                                    if (a[i].line <= targetLine && a[i + 1].line > targetLine) {
+                                        var p = (targetLine - a[i].line) / (a[i + 1].line - a[i].line);
+                                        scrollY = a[i].top + p * (a[i + 1].top - a[i].top);
+                                        break;
+                                    }
+                                }
+                            }
+                            window.scrollTo({ top: Math.max(0, scrollY), behavior: 'smooth' });
+                            setTimeout(function() { self._busy = false; }, 600);
+                        },
+                        getLineAtScrollY: function(scrollY) {
+                            var a = getAnchors();
+                            if (!a.length) return 1;
+                            var line = a[0].line;
+                            for (var i = 0; i < a.length - 1; i++) {
+                                if (a[i].top <= scrollY && a[i + 1].top > scrollY) {
+                                    var p = (scrollY - a[i].top) / (a[i + 1].top - a[i].top);
+                                    return Math.round(a[i].line + p * (a[i + 1].line - a[i].line));
+                                }
+                                if (a[i].top <= scrollY) line = a[i].line;
+                            }
+                            if (a[a.length - 1].top <= scrollY) line = a[a.length - 1].line;
+                            return line;
+                        }
+                    };
+                })();
                 document.addEventListener('click', function(e) {
                     var a = e.target.closest('a[href^="#"]');
                     if (!a) return;

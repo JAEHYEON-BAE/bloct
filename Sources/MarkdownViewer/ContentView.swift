@@ -121,6 +121,62 @@ class WebViewStore {
     var webView: WKWebView?
 }
 
+class ScrollSyncCoordinator {
+    weak var textView: NSTextView?
+    weak var webView: WKWebView?
+
+    /// Called when the raw NSTextView scrolls (user-initiated).
+    func onRawScrolled(scrollView: NSScrollView) {
+        guard let tv = scrollView.documentView as? NSTextView, let wv = webView else { return }
+        let line = topVisibleLine(in: tv, scrollView: scrollView)
+        wv.evaluateJavaScript("window._mvSync && window._mvSync.scrollToLine(\(line));", completionHandler: nil)
+    }
+
+    /// Called when the preview WebView sends a syncLine message.
+    func onPreviewScrolled(toLine line: Int) {
+        guard let tv = textView else { return }
+        scrollTextView(tv, toLine: line)
+    }
+
+    private func topVisibleLine(in textView: NSTextView, scrollView: NSScrollView) -> Int {
+        let visibleOrigin = scrollView.contentView.bounds.origin
+        let inset = textView.textContainerInset
+        let y = max(0, visibleOrigin.y - inset.height + 2)
+        let point = NSPoint(x: inset.width + 1, y: y)
+        guard let lm = textView.layoutManager, let tc = textView.textContainer,
+              lm.numberOfGlyphs > 0 else { return 1 }
+        let glyphIdx = lm.glyphIndex(for: point, in: tc, fractionOfDistanceThroughGlyph: nil)
+        let charIdx = lm.characterIndexForGlyph(at: min(glyphIdx, lm.numberOfGlyphs - 1))
+        let nsStr = textView.string as NSString
+        var lineNum = 1
+        for i in 0..<min(charIdx, nsStr.length) {
+            if nsStr.character(at: i) == 10 { lineNum += 1 }
+        }
+        return lineNum
+    }
+
+    private func scrollTextView(_ textView: NSTextView, toLine targetLine: Int) {
+        guard targetLine > 1 else {
+            textView.enclosingScrollView?.documentView?.scroll(.zero)
+            return
+        }
+        let nsStr = textView.string as NSString
+        var lineNum = 1
+        var charIdx = 0
+        while charIdx < nsStr.length {
+            if lineNum >= targetLine { break }
+            if nsStr.character(at: charIdx) == 10 { lineNum += 1 }
+            charIdx += 1
+        }
+        guard let lm = textView.layoutManager, let tc = textView.textContainer else { return }
+        let glyphRange = lm.glyphRange(forCharacterRange: NSRange(location: charIdx, length: 0), actualCharacterRange: nil)
+        let rect = lm.boundingRect(forGlyphRange: glyphRange, in: tc)
+        let inset = textView.textContainerInset
+        let scrollY = max(0, rect.origin.y + inset.height)
+        textView.enclosingScrollView?.documentView?.scroll(NSPoint(x: 0, y: scrollY))
+    }
+}
+
 class DragHandleNSView: NSView {
     var onDragChanged: ((CGFloat) -> Void)?
 
@@ -158,6 +214,19 @@ struct DragHandleView: NSViewRepresentable {
 
 struct RawTextView: NSViewRepresentable {
     let text: String
+    let syncCoordinator: ScrollSyncCoordinator
+
+    func makeCoordinator() -> Coordinator { Coordinator(syncCoordinator) }
+
+    class Coordinator: NSObject {
+        let sync: ScrollSyncCoordinator
+        init(_ sync: ScrollSyncCoordinator) { self.sync = sync }
+
+        @objc func scrollViewDidLiveScroll(_ note: Notification) {
+            guard let sv = note.object as? NSScrollView else { return }
+            sync.onRawScrolled(scrollView: sv)
+        }
+    }
 
     func makeNSView(context: Context) -> NSScrollView {
         let scrollView = NSTextView.scrollableTextView()
@@ -168,6 +237,13 @@ struct RawTextView: NSViewRepresentable {
         textView.textContainerInset = NSSize(width: 12, height: 12)
         textView.backgroundColor = .textBackgroundColor
         textView.string = text
+        syncCoordinator.textView = textView
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.scrollViewDidLiveScroll(_:)),
+            name: NSScrollView.didLiveScrollNotification,
+            object: scrollView
+        )
         return scrollView
     }
 
@@ -175,6 +251,7 @@ struct RawTextView: NSViewRepresentable {
         let textView = nsView.documentView as! NSTextView
         if textView.string != text {
             textView.string = text
+            syncCoordinator.textView = textView
         }
     }
 }
@@ -189,10 +266,11 @@ struct ContentView: View {
     @State private var showRawEditor: Bool = false
     @State private var rawPaneWidth: CGFloat = 320
     private let webViewStore = WebViewStore()
+    private let syncCoordinator = ScrollSyncCoordinator()
 
     var body: some View {
         HStack(spacing: 0) {
-            RawTextView(text: document.text)
+            RawTextView(text: document.text, syncCoordinator: syncCoordinator)
                 .frame(width: showRawEditor ? rawPaneWidth : 0)
                 .clipped()
             // Divider: 1px visual line inside an 8px ZStack so the drag target has a real layout frame
@@ -204,7 +282,7 @@ struct ContentView: View {
             }
             .frame(width: showRawEditor ? 8 : 0)
             .opacity(showRawEditor ? 1 : 0)
-            MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false })
+            MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, syncCoordinator: syncCoordinator, onCloseTOC: { showTOC = false })
                 .frame(minWidth: 300, maxWidth: .infinity)
         }
         .animation(.easeInOut(duration: 0.3), value: showRawEditor)
