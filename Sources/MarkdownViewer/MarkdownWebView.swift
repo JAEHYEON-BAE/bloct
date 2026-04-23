@@ -320,7 +320,20 @@ struct MarkdownWebView: NSViewRepresentable {
                         return '<p class="figure-caption">' + marked.parseInline(token.text) + '</p>\\n';
                     }
                 };
+                const noStrikethrough = {
+                    extensions: [{
+                        name: 'del',
+                        level: 'inline',
+                        start(src) { return src.indexOf('~'); },
+                        tokenizer(src) {
+                            const match = src.match(/^~+[\\s\\S]*?~+/);
+                            if (match) return { type: 'del', raw: match[0], text: match[0] };
+                        },
+                        renderer(token) { return token.text; }
+                    }]
+                };
                 marked.use({ breaks: false, gfm: true, extensions: [figureCaption] });
+                marked.use(noStrikethrough);
                 const bytes = Uint8Array.from(atob('\(base64Markdown)'), c => c.charCodeAt(0));
                 const raw = new TextDecoder().decode(bytes);
                 // Extract math before markdown parsing so $...$ / $$...$$ are never seen by
