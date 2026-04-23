@@ -220,11 +220,20 @@ struct RawTextView: NSViewRepresentable {
 
     class Coordinator: NSObject {
         let sync: ScrollSyncCoordinator
+
         init(_ sync: ScrollSyncCoordinator) { self.sync = sync }
 
         @objc func scrollViewDidLiveScroll(_ note: Notification) {
             guard let sv = note.object as? NSScrollView else { return }
             sync.onRawScrolled(scrollView: sv)
+        }
+
+        @objc func scrollViewFrameChanged(_ note: Notification) {
+            guard let sv = note.object as? NSScrollView else { return }
+            let pad = sv.bounds.height * 0.7
+            if pad > 0 {
+                sv.contentInsets = NSEdgeInsets(top: 0, left: 0, bottom: pad, right: 0)
+            }
         }
     }
 
@@ -238,10 +247,18 @@ struct RawTextView: NSViewRepresentable {
         textView.backgroundColor = .textBackgroundColor
         textView.string = text
         syncCoordinator.textView = textView
+        scrollView.automaticallyAdjustsContentInsets = false
+        scrollView.postsFrameChangedNotifications = true
         NotificationCenter.default.addObserver(
             context.coordinator,
             selector: #selector(Coordinator.scrollViewDidLiveScroll(_:)),
             name: NSScrollView.didLiveScrollNotification,
+            object: scrollView
+        )
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.scrollViewFrameChanged(_:)),
+            name: NSView.frameDidChangeNotification,
             object: scrollView
         )
         return scrollView

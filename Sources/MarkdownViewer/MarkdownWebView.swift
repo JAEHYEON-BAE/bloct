@@ -383,21 +383,29 @@ struct MarkdownWebView: NSViewRepresentable {
                         .replace(/-+/g, '-');
                 });
                 // Annotate top-level block elements with data-line for scroll sync.
-                // Split raw source on blank lines to find each block's starting line number.
+                // Use a separator-preserving split so multi-blank-line gaps are counted accurately.
                 (function() {
-                    var blocks = raw.split(/\\n\\n+/);
                     var lineNums = [];
                     var n = 1;
-                    blocks.forEach(function(b) {
-                        lineNums.push(n);
-                        n += (b.match(/\\n/g) || []).length + 2;
+                    marked.lexer(raw).forEach(function(t) {
+                        var lc = (t.raw.match(/\\n/g) || []).length;
+                        if (t.type === 'space') { n += lc; } else { lineNums.push(n); n += lc; }
                     });
                     var els = Array.from(document.getElementById('content').children);
                     els.forEach(function(el, i) {
                         el.setAttribute('data-line', lineNums[Math.min(i, lineNums.length - 1)] || 1);
                     });
+                    // Add per-row anchors inside tables so sync doesn't coarsely interpolate
+                    // across the whole table: each <tr> gets the raw line it corresponds to.
+                    document.querySelectorAll('#content table').forEach(function(table) {
+                        var L = +table.getAttribute('data-line') || 1;
+                        Array.from(table.querySelectorAll('tr')).forEach(function(tr, i) {
+                            // header row → L, separator is L+1 (not rendered), data rows → L+1+i
+                            tr.setAttribute('data-line', i === 0 ? L : L + 1 + i);
+                        });
+                    });
                     function getAnchors() {
-                        return Array.from(document.querySelectorAll('#content > [data-line]')).map(function(el) {
+                        return Array.from(document.querySelectorAll('#content > [data-line], #content tr[data-line]')).map(function(el) {
                             return { line: +el.getAttribute('data-line'), top: el.getBoundingClientRect().top + window.scrollY };
                         });
                     }
