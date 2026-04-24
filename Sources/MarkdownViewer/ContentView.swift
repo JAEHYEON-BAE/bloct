@@ -126,7 +126,7 @@ class ScrollSyncCoordinator {
     weak var webView: WKWebView?
 
     /// Called when the raw NSTextView scrolls (user-initiated).
-    func onRawScrolled(scrollView: NSScrollView) {
+    @MainActor func onRawScrolled(scrollView: NSScrollView) {
         guard let tv = scrollView.documentView as? NSTextView, let wv = webView else { return }
         let line = topVisibleLine(in: tv, scrollView: scrollView)
         wv.evaluateJavaScript("window._mvSync && window._mvSync.scrollToLine(\(line));", completionHandler: nil)
@@ -138,7 +138,7 @@ class ScrollSyncCoordinator {
         scrollTextView(tv, toLine: line)
     }
 
-    private func topVisibleLine(in textView: NSTextView, scrollView: NSScrollView) -> Int {
+    @MainActor private func topVisibleLine(in textView: NSTextView, scrollView: NSScrollView) -> Int {
         let visibleOrigin = scrollView.contentView.bounds.origin
         let inset = textView.textContainerInset
         let y = max(0, visibleOrigin.y - inset.height + 2)
@@ -218,7 +218,7 @@ struct RawTextView: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator(syncCoordinator) }
 
-    class Coordinator: NSObject {
+    @MainActor class Coordinator: NSObject {
         let sync: ScrollSyncCoordinator
 
         init(_ sync: ScrollSyncCoordinator) { self.sync = sync }
@@ -228,7 +228,7 @@ struct RawTextView: NSViewRepresentable {
             sync.onRawScrolled(scrollView: sv)
         }
 
-        @MainActor @objc func scrollViewFrameChanged(_ note: Notification) {
+        @objc func scrollViewFrameChanged(_ note: Notification) {
             guard let sv = note.object as? NSScrollView else { return }
             let pad = sv.bounds.height * 0.7
             if pad > 0 {
@@ -309,7 +309,7 @@ struct ContentView: View {
         .focusedValue(\.showTOC, $showTOC)
         .focusedValue(\.showSearch, $showSearch)
         .focusedValue(\.showRawEditor, $showRawEditor)
-        .onChange(of: showSearch) { visible in
+        .onChange(of: showSearch) { _, visible in
             if !visible { clearHighlights() }
         }
         .toolbar {
@@ -345,7 +345,7 @@ struct ContentView: View {
                                 onEscape: { showSearch = false; searchText = "" }
                             )
                             .frame(width: 180, height: 22)
-                            .onChange(of: searchText) { _ in updateHighlights() }
+                            .onChange(of: searchText) { updateHighlights() }
                             Button { performFind(forward: false) } label: {
                                 Image(systemName: "chevron.up")
                             }
