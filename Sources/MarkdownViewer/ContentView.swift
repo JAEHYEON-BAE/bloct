@@ -133,7 +133,7 @@ class ScrollSyncCoordinator {
     }
 
     /// Called when the preview WebView sends a syncLine message.
-    func onPreviewScrolled(toLine line: Int) {
+    @MainActor func onPreviewScrolled(toLine line: Int) {
         guard let tv = textView else { return }
         scrollTextView(tv, toLine: line)
     }
@@ -155,7 +155,7 @@ class ScrollSyncCoordinator {
         return lineNum
     }
 
-    private func scrollTextView(_ textView: NSTextView, toLine targetLine: Int) {
+    @MainActor private func scrollTextView(_ textView: NSTextView, toLine targetLine: Int) {
         guard targetLine > 1 else {
             textView.enclosingScrollView?.documentView?.scroll(.zero)
             return
@@ -228,7 +228,7 @@ struct RawTextView: NSViewRepresentable {
             sync.onRawScrolled(scrollView: sv)
         }
 
-        @objc func scrollViewFrameChanged(_ note: Notification) {
+        @MainActor @objc func scrollViewFrameChanged(_ note: Notification) {
             guard let sv = note.object as? NSScrollView else { return }
             let pad = sv.bounds.height * 0.7
             if pad > 0 {
