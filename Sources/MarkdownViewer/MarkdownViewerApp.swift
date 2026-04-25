@@ -83,11 +83,11 @@ struct UndoCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .undoRedo) {
             Button("Undo") {
-                NSApp.sendAction(Selector(("undo:")), to: nil, from: nil)
+                NSApp.keyWindow?.undoManager?.undo()
             }
             .keyboardShortcut("z", modifiers: .command)
             Button("Redo") {
-                NSApp.sendAction(Selector(("redo:")), to: nil, from: nil)
+                NSApp.keyWindow?.undoManager?.redo()
             }
             .keyboardShortcut("z", modifiers: [.command, .shift])
         }

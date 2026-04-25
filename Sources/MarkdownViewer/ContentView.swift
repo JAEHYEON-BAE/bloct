@@ -121,6 +121,27 @@ class WebViewStore {
     var webView: WKWebView?
 }
 
+@MainActor
+final class DocumentState: ObservableObject {
+    @Published var text: String = ""
+    weak var undoManager: UndoManager?
+
+    func load(_ initialText: String) {
+        text = initialText
+        undoManager?.removeAllActions()
+    }
+
+    func commit(_ newText: String) {
+        guard newText != text else { return }
+        let old = text
+        text = newText
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.commit(old)
+        }
+        undoManager?.setActionName("Typing")
+    }
+}
+
 // MARK: - Window close interception
 
 private class CloseProxy: NSObject, NSWindowDelegate {
@@ -177,19 +198,23 @@ private struct WindowCloseHandler: NSViewRepresentable {
 struct ContentView: View {
     let document: MarkdownDocument
     let fileURL: URL?
+    @StateObject private var docState = DocumentState()
+    @Environment(\.undoManager) var undoManager
     @State private var zoomLevel: Double = 1.0
     @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
-    @State private var editableText: String = ""
     @State private var showCloseWarning: Bool = false
     @State private var closeProxy: CloseProxy? = nil
     private let webViewStore = WebViewStore()
 
     var body: some View {
-        MarkdownWebView(markdown: editableText, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { editableText = $0 })
+        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { docState.commit($0) })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear { editableText = document.text }
+        .onAppear {
+            docState.undoManager = undoManager
+            docState.load(document.text)
+        }
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
         .focusedValue(\.showTOC, $showTOC)
@@ -200,7 +225,7 @@ struct ContentView: View {
         }
         .background(
             WindowCloseHandler(
-                hasUnsavedChanges: editableText != document.text,
+                hasUnsavedChanges: docState.text != document.text,
                 onIntercept: { showCloseWarning = true },
                 onReady: { proxy in DispatchQueue.main.async { closeProxy = proxy } }
             )
@@ -270,7 +295,7 @@ struct ContentView: View {
 
     private func saveDocument() {
         guard let url = fileURL else { return }
-        try? editableText.write(to: url, atomically: true, encoding: .utf8)
+        try? docState.text.write(to: url, atomically: true, encoding: .utf8)
     }
 
     private func clearHighlights() {
