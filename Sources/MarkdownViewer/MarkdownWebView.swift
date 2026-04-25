@@ -381,7 +381,10 @@ struct MarkdownWebView: NSViewRepresentable {
                     if (window._mvActiveEl) { return; }
                     // Extract math before markdown parsing so $...$ / $$...$$ are never seen by
                     // marked — this prevents * and _ inside math from triggering italic/bold rules.
+                    // Code spans/blocks are protected first so $-signs inside backticks are not
+                    // treated as math delimiters.
                     var mathStore = [];
+                    var codeStore = [];
                     var md = raw
                         .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
                             let style = '';
@@ -396,6 +399,14 @@ struct MarkdownWebView: NSViewRepresentable {
                             }
                             return img;
                         })
+                        .replace(/^(`{3,}|~{3,})[^\\n]*\\n[\\s\\S]*?\\n\\1[ \\t]*$/mg, function(match) {
+                            codeStore.push(match);
+                            return 'MVCODE' + (codeStore.length - 1) + 'X';
+                        })
+                        .replace(/`+[^`\\n]*`+/g, function(match) {
+                            codeStore.push(match);
+                            return 'MVCODE' + (codeStore.length - 1) + 'X';
+                        })
                         .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(_, tex) {
                             mathStore.push({ display: true, tex: tex.trim() });
                             return '\\n\\nMVMATH' + (mathStore.length - 1) + 'X\\n\\n';
@@ -403,6 +414,9 @@ struct MarkdownWebView: NSViewRepresentable {
                         .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
                             mathStore.push({ display: false, tex: tex.trim() });
                             return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
+                        })
+                        .replace(/MVCODE(\\d+)X/g, function(_, i) {
+                            return codeStore[+i];
                         });
                     // Lines that are only a marker + optional spaces (no content) should
                     // render as the literal marker text, not as empty headings/bullets/blockquotes.
