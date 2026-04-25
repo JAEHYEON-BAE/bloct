@@ -175,9 +175,6 @@ private struct WindowCloseHandler: NSViewRepresentable {
 }
 
 struct ContentView: View {
-    // TODO: Replace with real auth/subscription check
-    private let isPro: Bool = true
-
     let document: MarkdownDocument
     let fileURL: URL?
     @State private var zoomLevel: Double = 1.0
@@ -272,8 +269,6 @@ struct ContentView: View {
     }
 
     private func saveDocument() {
-        // TODO: Replace with real auth/subscription check
-        guard isPro else { return }
         guard let url = fileURL else { return }
         try? editableText.write(to: url, atomically: true, encoding: .utf8)
     }
