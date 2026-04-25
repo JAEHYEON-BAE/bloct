@@ -68,12 +68,52 @@ struct FindCommands: Commands {
     }
 }
 
+struct CloseDocumentCommands: Commands {
+    var body: some Commands {
+        CommandGroup(after: .newItem) {
+            Button("Close") {
+                NSApp.keyWindow?.performClose(nil)
+            }
+            .keyboardShortcut("w", modifiers: .command)
+        }
+    }
+}
+
+struct UndoCommands: Commands {
+    var body: some Commands {
+        CommandGroup(replacing: .undoRedo) {
+            Button("Undo") {
+                NSApp.sendAction(Selector(("undo:")), to: nil, from: nil)
+            }
+            .keyboardShortcut("z", modifiers: .command)
+            Button("Redo") {
+                NSApp.sendAction(Selector(("redo:")), to: nil, from: nil)
+            }
+            .keyboardShortcut("z", modifiers: [.command, .shift])
+        }
+    }
+}
+
+struct SaveCommands: Commands {
+    @FocusedValue(\.saveDocument) var saveDocument
+
+    var body: some Commands {
+        CommandGroup(replacing: .saveItem) {
+            Button("Save") {
+                saveDocument?()
+            }
+            .keyboardShortcut("s", modifiers: .command)
+            .disabled(saveDocument == nil)
+        }
+    }
+}
+
 struct RawEditorCommands: Commands {
     @FocusedValue(\.showRawEditor) var showRawEditor
 
     var body: some Commands {
         CommandGroup(after: .toolbar) {
-            Button(showRawEditor?.wrappedValue == true ? "Hide Raw Markdown" : "Show Raw Markdown") {
+            Button(showRawEditor?.wrappedValue == true ? "Close Editor" : "Open Editor") {
                 showRawEditor?.wrappedValue.toggle()
             }
             .keyboardShortcut("r", modifiers: [.command, .shift])
@@ -90,11 +130,14 @@ struct MarkdownViewerApp: App {
         }
         .defaultSize(width: 900, height: 1600)
         .commands {
+            CloseDocumentCommands()
+            UndoCommands()
             ZoomCommands()
             ExportCommands()
             TOCCommands()
             FindCommands()
             RawEditorCommands()
+            SaveCommands()
         }
     }
 }

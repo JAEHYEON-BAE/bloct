@@ -56,6 +56,17 @@ extension FocusedValues {
     }
 }
 
+struct SaveDocumentKey: FocusedValueKey {
+    typealias Value = () -> Void
+}
+
+extension FocusedValues {
+    var saveDocument: (() -> Void)? {
+        get { self[SaveDocumentKey.self] }
+        set { self[SaveDocumentKey.self] = newValue }
+    }
+}
+
 // NSTextField subclass that requests focus in viewDidMoveToWindow,
 // which fires exactly once when the view is attached to a window.
 class FocusOnAppearTextField: NSTextField {
@@ -212,16 +223,80 @@ struct DragHandleView: NSViewRepresentable {
     }
 }
 
+// MARK: - Window close interception
+
+private class CloseProxy: NSObject, NSWindowDelegate {
+    weak var window: NSWindow?
+    weak var next: NSWindowDelegate?
+    var bypass = false
+    var hasUnsavedChanges: () -> Bool = { false }
+    var onIntercept: () -> Void = {}
+
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        if bypass { bypass = false; return true }
+        if hasUnsavedChanges() { onIntercept(); return false }
+        return next?.windowShouldClose?(sender) ?? true
+    }
+
+    override func responds(to sel: Selector!) -> Bool {
+        super.responds(to: sel) || (next?.responds(to: sel) ?? false)
+    }
+    override func forwardingTarget(for sel: Selector!) -> Any? {
+        next?.responds(to: sel) == true ? next : super.forwardingTarget(for: sel)
+    }
+}
+
+private class CloseHandlerView: NSView {
+    var proxy: CloseProxy?
+    var onReady: ((CloseProxy) -> Void)?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard let win = window, proxy == nil else { return }
+        let p = CloseProxy()
+        p.window = win
+        p.next = win.delegate
+        win.delegate = p
+        proxy = p
+        onReady?(p)
+    }
+}
+
+private struct WindowCloseHandler: NSViewRepresentable {
+    var hasUnsavedChanges: Bool
+    var onIntercept: () -> Void
+    var onReady: (CloseProxy) -> Void
+
+    func makeNSView(context: Context) -> CloseHandlerView { CloseHandlerView() }
+
+    func updateNSView(_ v: CloseHandlerView, context: Context) {
+        if v.proxy == nil { v.onReady = onReady }
+        v.proxy?.hasUnsavedChanges = { hasUnsavedChanges }
+        v.proxy?.onIntercept = onIntercept
+    }
+}
+
+// MARK: - Raw text view
+
 struct RawTextView: NSViewRepresentable {
     let text: String
+    let isEditable: Bool
     let syncCoordinator: ScrollSyncCoordinator
+    var onTextChange: ((String) -> Void)?
 
     func makeCoordinator() -> Coordinator { Coordinator(syncCoordinator) }
 
-    @MainActor class Coordinator: NSObject {
+    @MainActor class Coordinator: NSObject, NSTextViewDelegate {
         let sync: ScrollSyncCoordinator
+        var onTextChange: ((String) -> Void)?
 
         init(_ sync: ScrollSyncCoordinator) { self.sync = sync }
+
+        func textDidChange(_ notification: Notification) {
+            guard let tv = notification.object as? NSTextView else { return }
+            onTextChange?(tv.string)
+            if let sv = tv.enclosingScrollView { updateMinSize(scrollView: sv, textView: tv) }
+        }
 
         @objc func scrollViewDidLiveScroll(_ note: Notification) {
             guard let sv = note.object as? NSScrollView else { return }
@@ -229,23 +304,35 @@ struct RawTextView: NSViewRepresentable {
         }
 
         @objc func scrollViewFrameChanged(_ note: Notification) {
-            guard let sv = note.object as? NSScrollView else { return }
-            let pad = sv.bounds.height * 0.7
-            if pad > 0 {
-                sv.contentInsets = NSEdgeInsets(top: 0, left: 0, bottom: pad, right: 0)
-            }
+            guard let sv = note.object as? NSScrollView,
+                  let tv = sv.documentView as? NSTextView else { return }
+            updateMinSize(scrollView: sv, textView: tv)
+        }
+
+        // Ensures the text view always covers the full pane (cursor tracking everywhere)
+        // and maintains 70% of pane height as empty scroll-past-end space.
+        private func updateMinSize(scrollView: NSScrollView, textView: NSTextView) {
+            let viewHeight = scrollView.bounds.height
+            guard viewHeight > 0,
+                  let lm = textView.layoutManager,
+                  let tc = textView.textContainer else { return }
+            lm.ensureLayout(for: tc)
+            let contentHeight = lm.usedRect(for: tc).height + textView.textContainerInset.height * 2
+            textView.minSize = NSSize(width: 0, height: max(viewHeight, contentHeight + viewHeight * 0.7))
         }
     }
 
     func makeNSView(context: Context) -> NSScrollView {
         let scrollView = NSTextView.scrollableTextView()
         let textView = scrollView.documentView as! NSTextView
-        textView.isEditable = false
+        textView.isEditable = isEditable
         textView.isSelectable = true
+        textView.allowsUndo = true
         textView.font = .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         textView.textContainerInset = NSSize(width: 12, height: 12)
         textView.backgroundColor = .textBackgroundColor
         textView.string = text
+        textView.delegate = context.coordinator
         syncCoordinator.textView = textView
         scrollView.automaticallyAdjustsContentInsets = false
         scrollView.postsFrameChangedNotifications = true
@@ -266,6 +353,10 @@ struct RawTextView: NSViewRepresentable {
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         let textView = nsView.documentView as! NSTextView
+        context.coordinator.onTextChange = onTextChange
+        if textView.isEditable != isEditable {
+            textView.isEditable = isEditable
+        }
         if textView.string != text {
             textView.string = text
             syncCoordinator.textView = textView
@@ -274,22 +365,44 @@ struct RawTextView: NSViewRepresentable {
 }
 
 struct ContentView: View {
+    // TODO: Replace with real auth/subscription check
+    private let isPro: Bool = true
+
     let document: MarkdownDocument
     let fileURL: URL?
     @State private var zoomLevel: Double = 1.0
     @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
-    @State private var showRawEditor: Bool = false
     @State private var rawPaneWidth: CGFloat = 320
+    @State private var editableText: String = ""
+    @State private var isEditing: Bool = false
+    @State private var showUpgradeAlert: Bool = false
+    @State private var showCloseWarning: Bool = false
+    @State private var closeProxy: CloseProxy? = nil
     private let webViewStore = WebViewStore()
     private let syncCoordinator = ScrollSyncCoordinator()
 
+    private var editToggle: Binding<Bool> {
+        Binding(
+            get: { isEditing },
+            set: { newVal in
+                guard isPro else { showUpgradeAlert = true; return }
+                isEditing = newVal
+            }
+        )
+    }
+
     var body: some View {
         HStack(spacing: 0) {
-            RawTextView(text: document.text, syncCoordinator: syncCoordinator)
-                .frame(width: showRawEditor ? rawPaneWidth : 0)
-                .clipped()
+            RawTextView(
+                text: editableText,
+                isEditable: isEditing,
+                syncCoordinator: syncCoordinator,
+                onTextChange: { editableText = $0 }
+            )
+            .frame(width: isEditing ? rawPaneWidth : 0)
+            .clipped()
             // Divider: 1px visual line inside an 8px ZStack so the drag target has a real layout frame
             ZStack {
                 Color(NSColor.separatorColor).frame(width: 1)
@@ -297,20 +410,49 @@ struct ContentView: View {
                     rawPaneWidth = max(160, min(800, rawPaneWidth + delta))
                 })
             }
-            .frame(width: showRawEditor ? 8 : 0)
-            .opacity(showRawEditor ? 1 : 0)
-            MarkdownWebView(markdown: document.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, syncCoordinator: syncCoordinator, onCloseTOC: { showTOC = false })
+            .frame(width: isEditing ? 8 : 0)
+            .opacity(isEditing ? 1 : 0)
+            MarkdownWebView(markdown: editableText, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, syncCoordinator: syncCoordinator, onCloseTOC: { showTOC = false })
                 .frame(minWidth: 300, maxWidth: .infinity)
         }
-        .animation(.easeInOut(duration: 0.3), value: showRawEditor)
+        .animation(.easeInOut(duration: 0.3), value: isEditing)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear { editableText = document.text }
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
         .focusedValue(\.showTOC, $showTOC)
         .focusedValue(\.showSearch, $showSearch)
-        .focusedValue(\.showRawEditor, $showRawEditor)
+        .focusedValue(\.showRawEditor, editToggle)
+        .focusedValue(\.saveDocument, saveDocument)
         .onChange(of: showSearch) { _, visible in
             if !visible { clearHighlights() }
+        }
+        .background(
+            WindowCloseHandler(
+                hasUnsavedChanges: isEditing && editableText != document.text,
+                onIntercept: { showCloseWarning = true },
+                onReady: { proxy in DispatchQueue.main.async { closeProxy = proxy } }
+            )
+            .frame(width: 0, height: 0)
+        )
+        .alert("Upgrade to Pro", isPresented: $showUpgradeAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Editing and saving are Pro features. Upgrade to unlock them.")
+        }
+        .alert("Unsaved Changes", isPresented: $showCloseWarning) {
+            Button("Save") {
+                saveDocument()
+                closeProxy?.bypass = true
+                closeProxy?.window?.close()
+            }
+            Button("Don't Save", role: .destructive) {
+                closeProxy?.bypass = true
+                closeProxy?.window?.close()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Do you want to save your changes before closing?")
         }
         .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -321,11 +463,11 @@ struct ContentView: View {
                     .help("Toggle Table of Contents (⇧⌘T)")
                 }
                 ToolbarItem(placement: .navigation) {
-                    Toggle(isOn: $showRawEditor) {
-                        Label("Raw Markdown", systemImage: "doc.plaintext")
+                    Toggle(isOn: editToggle) {
+                        Label("Edit", systemImage: "pencil")
                     }
                     .toggleStyle(.button)
-                    .help("Toggle Raw Markdown View (⇧⌘R)")
+                    .help("Toggle Edit Mode (⇧⌘R)")
                 }
                 ToolbarItem(placement: .automatic) {
                     Button {
@@ -365,6 +507,13 @@ struct ContentView: View {
                     }
                 }
             }
+    }
+
+    private func saveDocument() {
+        // TODO: Replace with real auth/subscription check
+        guard isPro else { showUpgradeAlert = true; return }
+        guard let url = fileURL else { return }
+        try? editableText.write(to: url, atomically: true, encoding: .utf8)
     }
 
     private func clearHighlights() {

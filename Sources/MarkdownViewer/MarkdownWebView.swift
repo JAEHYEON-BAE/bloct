@@ -80,6 +80,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
         var scrollSyncCoordinator: ScrollSyncCoordinator?
+        var isPageLoaded: Bool = false
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "closeTOC" {
@@ -107,10 +108,11 @@ struct MarkdownWebView: NSViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            if let tmp = tempHTMLURL {
-                try? FileManager.default.removeItem(at: tmp)
-                tempHTMLURL = nil
-            }
+            isPageLoaded = true
+            // Do NOT delete tempHTMLURL here — WKWebView's sandboxed content process
+            // needs the origin file to exist in order to resolve and load local images
+            // (file:// src attributes) throughout the page's lifetime. The file is
+            // deleted just before the next load starts (see updateNSView).
             webView.evaluateJavaScript(MarkdownWebView.tocScript, completionHandler: nil)
             if !showTOC {
                 // Instant hide on load (no animation)
@@ -223,17 +225,29 @@ struct MarkdownWebView: NSViewRepresentable {
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
             context.coordinator.lastShowTOC = showTOC
-            if let fileURL = fileURL {
-                let dir = fileURL.deletingLastPathComponent()
-                let tmpURL = dir.appendingPathComponent(".mv_preview.html")
-                if (try? buildHTML().write(to: tmpURL, atomically: true, encoding: .utf8)) != nil {
-                    context.coordinator.tempHTMLURL = tmpURL
-                    webView.loadFileURL(tmpURL, allowingReadAccessTo: dir)
-                } else {
-                    webView.loadHTMLString(buildHTML(), baseURL: dir)
-                }
+            if context.coordinator.isPageLoaded {
+                // Live edit: update only the content in-place, no page reload, scroll is preserved
+                let base64 = Data(markdown.utf8).base64EncodedString()
+                webView.evaluateJavaScript("window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
             } else {
-                webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
+                // Delete the previous temp file now that a new load is starting
+                if let prev = context.coordinator.tempHTMLURL {
+                    try? FileManager.default.removeItem(at: prev)
+                    context.coordinator.tempHTMLURL = nil
+                }
+                context.coordinator.isPageLoaded = false
+                if let fileURL = fileURL {
+                    let dir = fileURL.deletingLastPathComponent()
+                    let tmpURL = dir.appendingPathComponent(".mv_preview.html")
+                    if (try? buildHTML().write(to: tmpURL, atomically: true, encoding: .utf8)) != nil {
+                        context.coordinator.tempHTMLURL = tmpURL
+                        webView.loadFileURL(tmpURL, allowingReadAccessTo: dir)
+                    } else {
+                        webView.loadHTMLString(buildHTML(), baseURL: dir)
+                    }
+                } else {
+                    webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
+                }
             }
         } else if context.coordinator.lastShowTOC != showTOC {
             context.coordinator.lastShowTOC = showTOC
@@ -334,57 +348,59 @@ struct MarkdownWebView: NSViewRepresentable {
                 };
                 marked.use({ breaks: false, gfm: true, extensions: [figureCaption] });
                 marked.use(noStrikethrough);
-                const bytes = Uint8Array.from(atob('\(base64Markdown)'), c => c.charCodeAt(0));
-                const raw = new TextDecoder().decode(bytes);
-                // Extract math before markdown parsing so $...$ / $$...$$ are never seen by
-                // marked — this prevents * and _ inside math from triggering italic/bold rules.
-                const mathStore = [];
-                let md = raw
-                    .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
-                        let style = '';
-                        const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
-                        const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
-                        const a = attrs.match(/align\\s*=\\s*([^\\s,}]+)/);
-                        if (w) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
-                        if (h) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
-                        const img = '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
-                        if (a && (a[1] === 'left' || a[1] === 'center' || a[1] === 'right')) {
-                            return '<div style="text-align:' + a[1] + '">' + img + '</div>';
-                        }
-                        return img;
-                    })
-                    .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(_, tex) {
-                        mathStore.push({ display: true, tex: tex.trim() });
-                        return '\\n\\nMVMATH' + (mathStore.length - 1) + 'X\\n\\n';
-                    })
-                    .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
-                        mathStore.push({ display: false, tex: tex.trim() });
-                        return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
+
+                // Render markdown (base64-encoded) into #content without touching scroll position.
+                // Called once on initial load, then on every live edit keystroke from Swift.
+                window._mvRender = function(base64md) {
+                    var bytes = Uint8Array.from(atob(base64md), c => c.charCodeAt(0));
+                    var raw = new TextDecoder().decode(bytes);
+                    // Extract math before markdown parsing so $...$ / $$...$$ are never seen by
+                    // marked — this prevents * and _ inside math from triggering italic/bold rules.
+                    var mathStore = [];
+                    var md = raw
+                        .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
+                            let style = '';
+                            const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
+                            const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
+                            const a = attrs.match(/align\\s*=\\s*([^\\s,}]+)/);
+                            if (w) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                            if (h) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                            const img = '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
+                            if (a && (a[1] === 'left' || a[1] === 'center' || a[1] === 'right')) {
+                                return '<div style="text-align:' + a[1] + '">' + img + '</div>';
+                            }
+                            return img;
+                        })
+                        .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(_, tex) {
+                            mathStore.push({ display: true, tex: tex.trim() });
+                            return '\\n\\nMVMATH' + (mathStore.length - 1) + 'X\\n\\n';
+                        })
+                        .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
+                            mathStore.push({ display: false, tex: tex.trim() });
+                            return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
+                        });
+                    var html = marked.parse(md);
+                    html = html.replace(/MVMATH(\\d+)X/g, function(_, i) {
+                        const item = mathStore[+i];
+                        return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display });
                     });
-                let html = marked.parse(md);
-                html = html.replace(/MVMATH(\\d+)X/g, function(_, i) {
-                    const item = mathStore[+i];
-                    return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display });
-                });
-                html = html.replace(/<mvmath data-i="(\\d+)"><\\/mvmath>/g, function(_, i) {
-                    const item = mathStore[+i];
-                    return katex.renderToString(item.tex, { throwOnError: false, displayMode: false });
-                });
-                document.getElementById('content').innerHTML = html;
-                document.querySelectorAll('a[href^="#"]').forEach(function(a) {
-                    var decoded = decodeURIComponent(a.getAttribute('href')).replace(/-+/g, '-');
-                    a.setAttribute('href', decoded);
-                });
-                document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
-                    h.id = h.textContent.trim().toLowerCase()
-                        .replace(/[^\\p{L}\\p{N}\\s-]/gu, '')
-                        .trim()
-                        .replace(/\\s+/g, '-')
-                        .replace(/-+/g, '-');
-                });
-                // Annotate top-level block elements with data-line for scroll sync.
-                // Use a separator-preserving split so multi-blank-line gaps are counted accurately.
-                (function() {
+                    html = html.replace(/<mvmath data-i="(\\d+)"><\\/mvmath>/g, function(_, i) {
+                        const item = mathStore[+i];
+                        return katex.renderToString(item.tex, { throwOnError: false, displayMode: false });
+                    });
+                    document.getElementById('content').innerHTML = html;
+                    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+                        var decoded = decodeURIComponent(a.getAttribute('href')).replace(/-+/g, '-');
+                        a.setAttribute('href', decoded);
+                    });
+                    document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
+                        h.id = h.textContent.trim().toLowerCase()
+                            .replace(/[^\\p{L}\\p{N}\\s-]/gu, '')
+                            .trim()
+                            .replace(/\\s+/g, '-')
+                            .replace(/-+/g, '-');
+                    });
+                    // Annotate top-level block elements with data-line for scroll sync.
                     var lineNums = [];
                     var n = 1;
                     marked.lexer(raw).forEach(function(t) {
@@ -400,53 +416,57 @@ struct MarkdownWebView: NSViewRepresentable {
                     document.querySelectorAll('#content table').forEach(function(table) {
                         var L = +table.getAttribute('data-line') || 1;
                         Array.from(table.querySelectorAll('tr')).forEach(function(tr, i) {
-                            // header row → L, separator is L+1 (not rendered), data rows → L+1+i
                             tr.setAttribute('data-line', i === 0 ? L : L + 1 + i);
                         });
                     });
-                    function getAnchors() {
-                        return Array.from(document.querySelectorAll('#content > [data-line], #content tr[data-line]')).map(function(el) {
-                            return { line: +el.getAttribute('data-line'), top: el.getBoundingClientRect().top + window.scrollY };
-                        });
-                    }
-                    window._mvSync = {
-                        _busy: false,
-                        scrollToLine: function(targetLine) {
-                            var self = this;
-                            self._busy = true;
-                            var a = getAnchors();
-                            if (!a.length) { self._busy = false; return; }
-                            var scrollY = a[0].top;
-                            if (targetLine >= a[a.length - 1].line) {
-                                scrollY = a[a.length - 1].top;
-                            } else {
-                                for (var i = 0; i < a.length - 1; i++) {
-                                    if (a[i].line <= targetLine && a[i + 1].line > targetLine) {
-                                        var p = (targetLine - a[i].line) / (a[i + 1].line - a[i].line);
-                                        scrollY = a[i].top + p * (a[i + 1].top - a[i].top);
-                                        break;
-                                    }
-                                }
-                            }
-                            window.scrollTo({ top: Math.max(0, scrollY), behavior: 'smooth' });
-                            setTimeout(function() { self._busy = false; }, 600);
-                        },
-                        getLineAtScrollY: function(scrollY) {
-                            var a = getAnchors();
-                            if (!a.length) return 1;
-                            var line = a[0].line;
+                };
+
+                // Initial render
+                window._mvRender('\(base64Markdown)');
+
+                // Scroll sync helpers — read live DOM positions so they work after any _mvRender call.
+                function _mvGetAnchors() {
+                    return Array.from(document.querySelectorAll('#content > [data-line], #content tr[data-line]')).map(function(el) {
+                        return { line: +el.getAttribute('data-line'), top: el.getBoundingClientRect().top + window.scrollY };
+                    });
+                }
+                window._mvSync = {
+                    _busy: false,
+                    scrollToLine: function(targetLine) {
+                        var self = this;
+                        self._busy = true;
+                        var a = _mvGetAnchors();
+                        if (!a.length) { self._busy = false; return; }
+                        var scrollY = a[0].top;
+                        if (targetLine >= a[a.length - 1].line) {
+                            scrollY = a[a.length - 1].top;
+                        } else {
                             for (var i = 0; i < a.length - 1; i++) {
-                                if (a[i].top <= scrollY && a[i + 1].top > scrollY) {
-                                    var p = (scrollY - a[i].top) / (a[i + 1].top - a[i].top);
-                                    return Math.round(a[i].line + p * (a[i + 1].line - a[i].line));
+                                if (a[i].line <= targetLine && a[i + 1].line > targetLine) {
+                                    var p = (targetLine - a[i].line) / (a[i + 1].line - a[i].line);
+                                    scrollY = a[i].top + p * (a[i + 1].top - a[i].top);
+                                    break;
                                 }
-                                if (a[i].top <= scrollY) line = a[i].line;
                             }
-                            if (a[a.length - 1].top <= scrollY) line = a[a.length - 1].line;
-                            return line;
                         }
-                    };
-                })();
+                        window.scrollTo({ top: Math.max(0, scrollY), behavior: 'smooth' });
+                        setTimeout(function() { self._busy = false; }, 600);
+                    },
+                    getLineAtScrollY: function(scrollY) {
+                        var a = _mvGetAnchors();
+                        if (!a.length) return 1;
+                        var line = a[0].line;
+                        for (var i = 0; i < a.length - 1; i++) {
+                            if (a[i].top <= scrollY && a[i + 1].top > scrollY) {
+                                var p = (scrollY - a[i].top) / (a[i + 1].top - a[i].top);
+                                return Math.round(a[i].line + p * (a[i + 1].line - a[i].line));
+                            }
+                            if (a[i].top <= scrollY) line = a[i].line;
+                        }
+                        if (a[a.length - 1].top <= scrollY) line = a[a.length - 1].line;
+                        return line;
+                    }
+                };
                 document.addEventListener('click', function(e) {
                     var a = e.target.closest('a[href^="#"]');
                     if (!a) return;
