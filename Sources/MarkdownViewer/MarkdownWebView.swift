@@ -218,6 +218,9 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
+        // Refresh store references — ContentView recreates these on every render.
+        webViewStore.webView = webView
+        syncCoordinator.webView = webView
         context.coordinator.showTOC = showTOC
         context.coordinator.onCloseTOC = onCloseTOC
         context.coordinator.fileURL = fileURL
@@ -379,6 +382,12 @@ struct MarkdownWebView: NSViewRepresentable {
                             mathStore.push({ display: false, tex: tex.trim() });
                             return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
                         });
+                    // Lines that are only a marker + optional spaces (no content) should
+                    // render as the literal marker text, not as empty headings/bullets/blockquotes.
+                    // Wrapping in <span> makes marked pass the line through as raw HTML.
+                    md = md.replace(/^(#{1,6}|[-*+]|>|\\d+[.)])[ \\t]*$/mg, function(_, m) {
+                        return '<span>' + m.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
+                    });
                     var html = marked.parse(md);
                     html = html.replace(/MVMATH(\\d+)X/g, function(_, i) {
                         const item = mathStore[+i];

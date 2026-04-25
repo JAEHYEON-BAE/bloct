@@ -354,12 +354,14 @@ struct RawTextView: NSViewRepresentable {
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         let textView = nsView.documentView as! NSTextView
         context.coordinator.onTextChange = onTextChange
+        // Always refresh the coordinator reference — ContentView recreates syncCoordinator
+        // on every render (it's a plain `let`), so new instances arrive here with textView = nil.
+        syncCoordinator.textView = textView
         if textView.isEditable != isEditable {
             textView.isEditable = isEditable
         }
         if textView.string != text {
             textView.string = text
-            syncCoordinator.textView = textView
         }
     }
 }
