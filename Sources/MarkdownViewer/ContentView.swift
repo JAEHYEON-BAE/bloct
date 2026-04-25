@@ -196,7 +196,7 @@ private struct WindowCloseHandler: NSViewRepresentable {
 }
 
 struct ContentView: View {
-    let document: MarkdownDocument
+    @Binding var document: MarkdownDocument
     let fileURL: URL?
     @StateObject private var docState = DocumentState()
     @Environment(\.undoManager) var undoManager
@@ -204,16 +204,20 @@ struct ContentView: View {
     @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
+    @State private var originalText: String = ""
     @State private var showCloseWarning: Bool = false
     @State private var closeProxy: CloseProxy? = nil
     private let webViewStore = WebViewStore()
 
+    private var hasUnsavedChanges: Bool { docState.text != originalText }
+
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { docState.commit($0) })
+        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             docState.undoManager = undoManager
             docState.load(document.text)
+            originalText = document.text
         }
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
@@ -225,7 +229,7 @@ struct ContentView: View {
         }
         .background(
             WindowCloseHandler(
-                hasUnsavedChanges: docState.text != document.text,
+                hasUnsavedChanges: hasUnsavedChanges,
                 onIntercept: { showCloseWarning = true },
                 onReady: { proxy in DispatchQueue.main.async { closeProxy = proxy } }
             )
@@ -238,6 +242,7 @@ struct ContentView: View {
                 closeProxy?.window?.close()
             }
             Button("Don't Save", role: .destructive) {
+                document.text = originalText
                 closeProxy?.bypass = true
                 closeProxy?.window?.close()
             }
@@ -293,9 +298,21 @@ struct ContentView: View {
             }
     }
 
+    private func commitEdit(_ newText: String) {
+        docState.commit(newText)
+        document.text = newText
+    }
+
     private func saveDocument() {
-        guard let url = fileURL else { return }
-        try? docState.text.write(to: url, atomically: true, encoding: .utf8)
+        let docState = self.docState
+        webViewStore.webView?.evaluateJavaScript(
+            "window._mvCloseEditor && window._mvCloseEditor(true);"
+        ) { _, _ in
+            DispatchQueue.main.async {
+                self.originalText = docState.text
+                NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
+            }
+        }
     }
 
     private func clearHighlights() {
