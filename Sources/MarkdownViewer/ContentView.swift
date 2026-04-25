@@ -136,7 +136,7 @@ final class DocumentState: ObservableObject {
         let old = text
         text = newText
         undoManager?.registerUndo(withTarget: self) { target in
-            target.commit(old)
+            MainActor.assumeIsolated { target.commit(old) }
         }
         undoManager?.setActionName("Typing")
     }
