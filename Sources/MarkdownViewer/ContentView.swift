@@ -45,17 +45,6 @@ extension FocusedValues {
     }
 }
 
-struct ShowRawEditorKey: FocusedValueKey {
-    typealias Value = Binding<Bool>
-}
-
-extension FocusedValues {
-    var showRawEditor: Binding<Bool>? {
-        get { self[ShowRawEditorKey.self] }
-        set { self[ShowRawEditorKey.self] = newValue }
-    }
-}
-
 struct SaveDocumentKey: FocusedValueKey {
     typealias Value = () -> Void
 }
@@ -132,97 +121,6 @@ class WebViewStore {
     var webView: WKWebView?
 }
 
-class ScrollSyncCoordinator {
-    weak var textView: NSTextView?
-    weak var webView: WKWebView?
-
-    /// Called when the raw NSTextView scrolls (user-initiated).
-    @MainActor func onRawScrolled(scrollView: NSScrollView) {
-        guard let tv = scrollView.documentView as? NSTextView, let wv = webView else { return }
-        let line = topVisibleLine(in: tv, scrollView: scrollView)
-        wv.evaluateJavaScript("window._mvSync && window._mvSync.scrollToLine(\(line));", completionHandler: nil)
-    }
-
-    /// Called when the preview WebView sends a syncLine message.
-    @MainActor func onPreviewScrolled(toLine line: Int) {
-        guard let tv = textView else { return }
-        scrollTextView(tv, toLine: line)
-    }
-
-    @MainActor private func topVisibleLine(in textView: NSTextView, scrollView: NSScrollView) -> Int {
-        let visibleOrigin = scrollView.contentView.bounds.origin
-        let inset = textView.textContainerInset
-        let y = max(0, visibleOrigin.y - inset.height + 2)
-        let point = NSPoint(x: inset.width + 1, y: y)
-        guard let lm = textView.layoutManager, let tc = textView.textContainer,
-              lm.numberOfGlyphs > 0 else { return 1 }
-        let glyphIdx = lm.glyphIndex(for: point, in: tc, fractionOfDistanceThroughGlyph: nil)
-        let charIdx = lm.characterIndexForGlyph(at: min(glyphIdx, lm.numberOfGlyphs - 1))
-        let nsStr = textView.string as NSString
-        var lineNum = 1
-        for i in 0..<min(charIdx, nsStr.length) {
-            if nsStr.character(at: i) == 10 { lineNum += 1 }
-        }
-        return lineNum
-    }
-
-    @MainActor private func scrollTextView(_ textView: NSTextView, toLine targetLine: Int) {
-        guard targetLine > 1 else {
-            textView.enclosingScrollView?.documentView?.scroll(.zero)
-            return
-        }
-        let nsStr = textView.string as NSString
-        var lineNum = 1
-        var charIdx = 0
-        while charIdx < nsStr.length {
-            if lineNum >= targetLine { break }
-            if nsStr.character(at: charIdx) == 10 { lineNum += 1 }
-            charIdx += 1
-        }
-        guard let lm = textView.layoutManager, let tc = textView.textContainer else { return }
-        let glyphRange = lm.glyphRange(forCharacterRange: NSRange(location: charIdx, length: 0), actualCharacterRange: nil)
-        let rect = lm.boundingRect(forGlyphRange: glyphRange, in: tc)
-        let inset = textView.textContainerInset
-        let scrollY = max(0, rect.origin.y + inset.height)
-        textView.enclosingScrollView?.documentView?.scroll(NSPoint(x: 0, y: scrollY))
-    }
-}
-
-class DragHandleNSView: NSView {
-    var onDragChanged: ((CGFloat) -> Void)?
-
-    override init(frame: NSRect) {
-        super.init(frame: frame)
-        let pan = NSPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        addGestureRecognizer(pan)
-    }
-    required init?(coder: NSCoder) { fatalError() }
-
-    override func resetCursorRects() {
-        addCursorRect(bounds, cursor: .resizeLeftRight)
-    }
-
-    @objc private func handlePan(_ pan: NSPanGestureRecognizer) {
-        guard pan.state == .changed else { return }
-        let delta = pan.translation(in: nil).x
-        pan.setTranslation(.zero, in: nil)
-        onDragChanged?(delta)
-    }
-}
-
-struct DragHandleView: NSViewRepresentable {
-    var onDragChanged: (CGFloat) -> Void
-
-    func makeNSView(context: Context) -> DragHandleNSView {
-        let v = DragHandleNSView()
-        v.onDragChanged = onDragChanged
-        return v
-    }
-    func updateNSView(_ nsView: DragHandleNSView, context: Context) {
-        nsView.onDragChanged = onDragChanged
-    }
-}
-
 // MARK: - Window close interception
 
 private class CloseProxy: NSObject, NSWindowDelegate {
@@ -276,96 +174,6 @@ private struct WindowCloseHandler: NSViewRepresentable {
     }
 }
 
-// MARK: - Raw text view
-
-struct RawTextView: NSViewRepresentable {
-    let text: String
-    let isEditable: Bool
-    let syncCoordinator: ScrollSyncCoordinator
-    var onTextChange: ((String) -> Void)?
-
-    func makeCoordinator() -> Coordinator { Coordinator(syncCoordinator) }
-
-    @MainActor class Coordinator: NSObject, NSTextViewDelegate {
-        let sync: ScrollSyncCoordinator
-        var onTextChange: ((String) -> Void)?
-
-        init(_ sync: ScrollSyncCoordinator) { self.sync = sync }
-
-        func textDidChange(_ notification: Notification) {
-            guard let tv = notification.object as? NSTextView else { return }
-            onTextChange?(tv.string)
-            if let sv = tv.enclosingScrollView { updateMinSize(scrollView: sv, textView: tv) }
-        }
-
-        @objc func scrollViewDidLiveScroll(_ note: Notification) {
-            guard let sv = note.object as? NSScrollView else { return }
-            sync.onRawScrolled(scrollView: sv)
-        }
-
-        @objc func scrollViewFrameChanged(_ note: Notification) {
-            guard let sv = note.object as? NSScrollView,
-                  let tv = sv.documentView as? NSTextView else { return }
-            updateMinSize(scrollView: sv, textView: tv)
-        }
-
-        // Ensures the text view always covers the full pane (cursor tracking everywhere)
-        // and maintains 70% of pane height as empty scroll-past-end space.
-        private func updateMinSize(scrollView: NSScrollView, textView: NSTextView) {
-            let viewHeight = scrollView.bounds.height
-            guard viewHeight > 0,
-                  let lm = textView.layoutManager,
-                  let tc = textView.textContainer else { return }
-            lm.ensureLayout(for: tc)
-            let contentHeight = lm.usedRect(for: tc).height + textView.textContainerInset.height * 2
-            textView.minSize = NSSize(width: 0, height: max(viewHeight, contentHeight + viewHeight * 0.7))
-        }
-    }
-
-    func makeNSView(context: Context) -> NSScrollView {
-        let scrollView = NSTextView.scrollableTextView()
-        let textView = scrollView.documentView as! NSTextView
-        textView.isEditable = isEditable
-        textView.isSelectable = true
-        textView.allowsUndo = true
-        textView.font = .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
-        textView.textContainerInset = NSSize(width: 12, height: 12)
-        textView.backgroundColor = .textBackgroundColor
-        textView.string = text
-        textView.delegate = context.coordinator
-        syncCoordinator.textView = textView
-        scrollView.automaticallyAdjustsContentInsets = false
-        scrollView.postsFrameChangedNotifications = true
-        NotificationCenter.default.addObserver(
-            context.coordinator,
-            selector: #selector(Coordinator.scrollViewDidLiveScroll(_:)),
-            name: NSScrollView.didLiveScrollNotification,
-            object: scrollView
-        )
-        NotificationCenter.default.addObserver(
-            context.coordinator,
-            selector: #selector(Coordinator.scrollViewFrameChanged(_:)),
-            name: NSView.frameDidChangeNotification,
-            object: scrollView
-        )
-        return scrollView
-    }
-
-    func updateNSView(_ nsView: NSScrollView, context: Context) {
-        let textView = nsView.documentView as! NSTextView
-        context.coordinator.onTextChange = onTextChange
-        // Always refresh the coordinator reference — ContentView recreates syncCoordinator
-        // on every render (it's a plain `let`), so new instances arrive here with textView = nil.
-        syncCoordinator.textView = textView
-        if textView.isEditable != isEditable {
-            textView.isEditable = isEditable
-        }
-        if textView.string != text {
-            textView.string = text
-        }
-    }
-}
-
 struct ContentView: View {
     // TODO: Replace with real auth/subscription check
     private let isPro: Bool = true
@@ -376,72 +184,31 @@ struct ContentView: View {
     @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
-    @State private var rawPaneWidth: CGFloat = 320
     @State private var editableText: String = ""
-    @State private var isEditing: Bool = false
-    @State private var showUpgradeAlert: Bool = false
     @State private var showCloseWarning: Bool = false
     @State private var closeProxy: CloseProxy? = nil
     private let webViewStore = WebViewStore()
-    private let syncCoordinator = ScrollSyncCoordinator()
-
-    private var editToggle: Binding<Bool> {
-        Binding(
-            get: { isEditing },
-            set: { newVal in
-                guard isPro else { showUpgradeAlert = true; return }
-                isEditing = newVal
-            }
-        )
-    }
 
     var body: some View {
-        HStack(spacing: 0) {
-            RawTextView(
-                text: editableText,
-                isEditable: isEditing,
-                syncCoordinator: syncCoordinator,
-                onTextChange: { editableText = $0 }
-            )
-            .frame(width: isEditing ? rawPaneWidth : 0)
-            .clipped()
-            // Divider: 1px visual line inside an 8px ZStack so the drag target has a real layout frame
-            ZStack {
-                Color(NSColor.separatorColor).frame(width: 1)
-                DragHandleView(onDragChanged: { delta in
-                    rawPaneWidth = max(160, min(800, rawPaneWidth + delta))
-                })
-            }
-            .frame(width: isEditing ? 8 : 0)
-            .opacity(isEditing ? 1 : 0)
-            MarkdownWebView(markdown: editableText, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, syncCoordinator: syncCoordinator, onCloseTOC: { showTOC = false })
-                .frame(minWidth: 300, maxWidth: .infinity)
-        }
-        .animation(.easeInOut(duration: 0.3), value: isEditing)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        MarkdownWebView(markdown: editableText, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { editableText = $0 })
+            .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { editableText = document.text }
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
         .focusedValue(\.showTOC, $showTOC)
         .focusedValue(\.showSearch, $showSearch)
-        .focusedValue(\.showRawEditor, editToggle)
         .focusedValue(\.saveDocument, saveDocument)
         .onChange(of: showSearch) { _, visible in
             if !visible { clearHighlights() }
         }
         .background(
             WindowCloseHandler(
-                hasUnsavedChanges: isEditing && editableText != document.text,
+                hasUnsavedChanges: editableText != document.text,
                 onIntercept: { showCloseWarning = true },
                 onReady: { proxy in DispatchQueue.main.async { closeProxy = proxy } }
             )
             .frame(width: 0, height: 0)
         )
-        .alert("Upgrade to Pro", isPresented: $showUpgradeAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Editing and saving are Pro features. Upgrade to unlock them.")
-        }
         .alert("Unsaved Changes", isPresented: $showCloseWarning) {
             Button("Save") {
                 saveDocument()
@@ -463,13 +230,6 @@ struct ContentView: View {
                     }
                     .toggleStyle(.button)
                     .help("Toggle Table of Contents (⇧⌘T)")
-                }
-                ToolbarItem(placement: .navigation) {
-                    Toggle(isOn: editToggle) {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    .toggleStyle(.button)
-                    .help("Toggle Edit Mode (⇧⌘R)")
                 }
                 ToolbarItem(placement: .automatic) {
                     Button {
@@ -513,7 +273,7 @@ struct ContentView: View {
 
     private func saveDocument() {
         // TODO: Replace with real auth/subscription check
-        guard isPro else { showUpgradeAlert = true; return }
+        guard isPro else { return }
         guard let url = fileURL else { return }
         try? editableText.write(to: url, atomically: true, encoding: .utf8)
     }

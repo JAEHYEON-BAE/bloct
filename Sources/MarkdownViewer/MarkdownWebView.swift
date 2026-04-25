@@ -7,8 +7,8 @@ struct MarkdownWebView: NSViewRepresentable {
     let zoomLevel: Double
     let showTOC: Bool
     let webViewStore: WebViewStore
-    let syncCoordinator: ScrollSyncCoordinator
     var onCloseTOC: () -> Void = {}
+    var onTextCommit: (String) -> Void = { _ in }
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -31,35 +31,46 @@ struct MarkdownWebView: NSViewRepresentable {
     private static let tocWidth = "220px"
     private static let tocScript = """
         (function() {
-            if (document.getElementById('toc')) return;
-            var headings = document.querySelectorAll('h1,h2,h3');
-            var toc = document.createElement('nav');
-            toc.id = 'toc';
-            toc.style.cssText = 'position:fixed;top:0;right:0;width:220px;height:100vh;' +
-                'background:var(--color-canvas-default,Canvas);' +
-                'border-left:1px solid var(--color-border-default,GrayText);' +
-                'padding:20px 14px;overflow-y:auto;z-index:100;box-sizing:border-box;' +
-                'overscroll-behavior:contain;transition:transform 0.3s ease;';
-            headings.forEach(function(h) {
-                var level = parseInt(h.tagName[1]);
-                var fontSize = level === 1 ? '13.5px' : level === 2 ? '12px' : '11px';
-                var fontWeight = level === 1 ? '600' : '400';
-                var opacity = level === 3 ? '0.7' : '1';
-                var a = document.createElement('a');
-                a.href = '#' + h.id;
-                a.textContent = h.textContent;
-                a.style.cssText = 'display:block;padding-left:' + (level-1)*12 + 'px;' +
-                    'margin:4px 0;color:var(--color-fg-default,CanvasText);text-decoration:none;' +
-                    'font-size:' + fontSize + ';font-weight:' + fontWeight + ';opacity:' + opacity + ';' +
-                    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;';
-                a.onmouseenter = function() { this.style.opacity = String(parseFloat(opacity) * 0.6); };
-                a.onmouseleave = function() { this.style.opacity = opacity; };
-                a.onclick = function(e) { e.preventDefault(); h.scrollIntoView({behavior:'smooth'}); };
-                toc.appendChild(a);
-            });
-            document.body.appendChild(toc);
-            document.body.style.paddingRight = '220px';
-            document.body.style.transition = 'padding-right 0.3s ease';
+            if (!window._mvBuildTOC) {
+                window._mvBuildTOC = function() {
+                    var headings = document.querySelectorAll('h1,h2,h3');
+                    var toc = document.getElementById('toc');
+                    var isNew = !toc;
+                    if (isNew) {
+                        toc = document.createElement('nav');
+                        toc.id = 'toc';
+                        toc.style.cssText = 'position:fixed;top:0;left:0;width:220px;height:100vh;' +
+                            'background:var(--color-canvas-default,Canvas);' +
+                            'border-right:1px solid var(--color-border-default,GrayText);' +
+                            'padding:20px 14px;overflow-y:auto;z-index:100;box-sizing:border-box;' +
+                            'overscroll-behavior:contain;transition:transform 0.3s ease;';
+                    }
+                    toc.innerHTML = '';
+                    headings.forEach(function(h) {
+                        var level = parseInt(h.tagName[1]);
+                        var fontSize = level === 1 ? '13.5px' : level === 2 ? '12px' : '11px';
+                        var fontWeight = level === 1 ? '600' : '400';
+                        var opacity = level === 3 ? '0.7' : '1';
+                        var a = document.createElement('a');
+                        a.href = '#' + h.id;
+                        a.textContent = h.textContent;
+                        a.style.cssText = 'display:block;padding-left:' + (level-1)*12 + 'px;' +
+                            'margin:4px 0;color:var(--color-fg-default,CanvasText);text-decoration:none;' +
+                            'font-size:' + fontSize + ';font-weight:' + fontWeight + ';opacity:' + opacity + ';' +
+                            'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;';
+                        a.onmouseenter = function() { this.style.opacity = String(parseFloat(opacity) * 0.6); };
+                        a.onmouseleave = function() { this.style.opacity = opacity; };
+                        a.onclick = function(e) { e.preventDefault(); h.scrollIntoView({behavior:'smooth'}); };
+                        toc.appendChild(a);
+                    });
+                    if (isNew) {
+                        document.body.appendChild(toc);
+                        document.body.style.paddingLeft = '220px';
+                        document.body.style.transition = 'padding-left 0.3s ease';
+                    }
+                };
+            }
+            window._mvBuildTOC();
         })();
     """
 
@@ -79,8 +90,8 @@ struct MarkdownWebView: NSViewRepresentable {
         var tempHTMLURL: URL?
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
-        var scrollSyncCoordinator: ScrollSyncCoordinator?
         var isPageLoaded: Bool = false
+        var onTextCommit: ((String) -> Void)?
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "closeTOC" {
@@ -93,11 +104,11 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
                 return
             }
-            if message.name == "syncLine" {
-                if let line = message.body as? Int {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.scrollSyncCoordinator?.onPreviewScrolled(toLine: line)
-                    }
+            if message.name == "commitEdit" {
+                if let base64 = message.body as? String,
+                   let data = Data(base64Encoded: base64),
+                   let text = String(data: data, encoding: .utf8) {
+                    DispatchQueue.main.async { [weak self] in self?.onTextCommit?(text) }
                 }
                 return
             }
@@ -117,7 +128,7 @@ struct MarkdownWebView: NSViewRepresentable {
             if !showTOC {
                 // Instant hide on load (no animation)
                 webView.evaluateJavaScript(
-                    "(function(){var t=document.getElementById('toc');if(t){t.style.transition='none';t.style.transform='translateX(220px)';t.style.pointerEvents='none';document.body.style.transition='none';document.body.style.paddingRight='';}})();",
+                    "(function(){var t=document.getElementById('toc');if(t){t.style.transition='none';t.style.transform='translateX(-220px)';t.style.pointerEvents='none';document.body.style.transition='none';document.body.style.paddingLeft='';}})();",
                     completionHandler: nil)
             }
             // Restore saved scroll position
@@ -129,19 +140,14 @@ struct MarkdownWebView: NSViewRepresentable {
                         completionHandler: nil)
                 }
             }
-            // Install debounced scroll listener (saves position + sends sync line)
+            // Install debounced scroll listener (saves position)
             webView.evaluateJavaScript("""
                 (function() {
                     var t;
                     window.addEventListener('scroll', function() {
-                        if (window._mvSync && window._mvSync._busy) return;
                         clearTimeout(t);
                         t = setTimeout(function() {
                             window.webkit.messageHandlers.scrollPosition.postMessage(window.scrollY);
-                            if (window._mvSync) {
-                                var line = window._mvSync.getLineAtScrollY(window.scrollY);
-                                if (line > 0) window.webkit.messageHandlers.syncLine.postMessage(line);
-                            }
                         }, 200);
                     }, { passive: true });
                 })();
@@ -200,7 +206,7 @@ struct MarkdownWebView: NSViewRepresentable {
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "openExternal")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "closeTOC")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "scrollPosition")
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "syncLine")
+        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "commitEdit")
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
@@ -212,19 +218,15 @@ struct MarkdownWebView: NSViewRepresentable {
         }
         #endif
         webViewStore.webView = webView
-        syncCoordinator.webView = webView
-        context.coordinator.scrollSyncCoordinator = syncCoordinator
         return webView
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
-        // Refresh store references — ContentView recreates these on every render.
         webViewStore.webView = webView
-        syncCoordinator.webView = webView
         context.coordinator.showTOC = showTOC
         context.coordinator.onCloseTOC = onCloseTOC
         context.coordinator.fileURL = fileURL
-        context.coordinator.scrollSyncCoordinator = syncCoordinator
+        context.coordinator.onTextCommit = { text in onTextCommit(text) }
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
             context.coordinator.lastShowTOC = showTOC
@@ -254,7 +256,7 @@ struct MarkdownWebView: NSViewRepresentable {
             }
         } else if context.coordinator.lastShowTOC != showTOC {
             context.coordinator.lastShowTOC = showTOC
-            let transform = showTOC ? "translateX(0)" : "translateX(220px)"
+            let transform = showTOC ? "translateX(0)" : "translateX(-220px)"
             let pointer = showTOC ? "auto" : "none"
             let padding = showTOC ? "220px" : ""
             let js = """
@@ -275,28 +277,26 @@ struct MarkdownWebView: NSViewRepresentable {
                     }
                 }
                 // Predict the scroll delta by peeking at the final layout state.
-                // All DOM reads/writes here are synchronous with no async break, so
-                // the browser never paints the intermediate state — no visible flicker.
                 var delta = 0;
                 if (anchor) {
                     var anchorTop = anchor.getBoundingClientRect().top;
                     var prevTransform = t.style.transform;
-                    var prevPadding = document.body.style.paddingRight;
+                    var prevPadding = document.body.style.paddingLeft;
                     t.style.transition = 'none';
                     document.body.style.transition = 'none';
                     t.style.transform = '\(transform)';
-                    document.body.style.paddingRight = '\(padding)';
+                    document.body.style.paddingLeft = '\(padding)';
                     delta = anchor.getBoundingClientRect().top - anchorTop; // forced reflow
                     t.style.transform = prevTransform;
-                    document.body.style.paddingRight = prevPadding;
+                    document.body.style.paddingLeft = prevPadding;
                     void document.body.getBoundingClientRect(); // force restore reflow
                 }
                 // Start the TOC animation and scroll correction simultaneously.
                 t.style.transition = 'transform 0.3s ease';
                 t.style.transform = '\(transform)';
                 t.style.pointerEvents = '\(pointer)';
-                document.body.style.transition = 'padding-right 0.3s ease';
-                document.body.style.paddingRight = '\(padding)';
+                document.body.style.transition = 'padding-left 0.3s ease';
+                document.body.style.paddingLeft = '\(padding)';
                 if (Math.abs(delta) > 0.5) { window.scrollBy({ top: delta, behavior: 'smooth' }); }
             })();
             """
@@ -315,6 +315,26 @@ struct MarkdownWebView: NSViewRepresentable {
             <meta charset="UTF-8">
             <meta name="color-scheme" content="light dark">
             <style>\(Self.css)</style>
+            <style>
+                #content { cursor: text; }
+                #content a { cursor: pointer; }
+                .mv-hr-wrap { padding: 10px 0; border-radius: 4px; transition: background 0.15s; }
+                .mv-hr-wrap:hover { background: rgba(128,128,128,0.07); }
+                .mv-hr-wrap hr { margin: 0; }
+                article.markdown-body { padding-bottom: 40vh; }
+                #mv-append-zone { height: 1.5em; }
+                #mv-block-editor {
+                    display: block; width: 100%; box-sizing: border-box;
+                    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+                    font-size: 0.9em; line-height: 1.6; padding: 8px 12px; margin: 2px 0;
+                    border: 2px solid #0969da; border-radius: 6px;
+                    background: #f6f8fa; color: inherit;
+                    resize: none; outline: none; overflow: hidden; tab-size: 4;
+                }
+                @media (prefers-color-scheme: dark) {
+                    #mv-block-editor { background: #161b22; border-color: #388bfd; }
+                }
+            </style>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
             <script>\(Self.markedJS)</script>
             <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
@@ -357,6 +377,8 @@ struct MarkdownWebView: NSViewRepresentable {
                 window._mvRender = function(base64md) {
                     var bytes = Uint8Array.from(atob(base64md), c => c.charCodeAt(0));
                     var raw = new TextDecoder().decode(bytes);
+                    window._mvRawLines = raw.split('\\n');
+                    if (window._mvActiveEl) { return; }
                     // Extract math before markdown parsing so $...$ / $$...$$ are never seen by
                     // marked — this prevents * and _ inside math from triggering italic/bold rules.
                     var mathStore = [];
@@ -409,7 +431,7 @@ struct MarkdownWebView: NSViewRepresentable {
                             .replace(/\\s+/g, '-')
                             .replace(/-+/g, '-');
                     });
-                    // Annotate top-level block elements with data-line for scroll sync.
+                    // Annotate top-level block elements with data-line for click-to-edit.
                     var lineNums = [];
                     var n = 1;
                     marked.lexer(raw).forEach(function(t) {
@@ -428,54 +450,162 @@ struct MarkdownWebView: NSViewRepresentable {
                             tr.setAttribute('data-line', i === 0 ? L : L + 1 + i);
                         });
                     });
+                    // Wrap <hr> elements in a taller div to make them easier to click.
+                    document.querySelectorAll('#content hr').forEach(function(hr) {
+                        var line = hr.getAttribute('data-line');
+                        var wrap = document.createElement('div');
+                        wrap.className = 'mv-hr-wrap';
+                        if (line) { wrap.setAttribute('data-line', line); hr.removeAttribute('data-line'); }
+                        hr.parentNode.insertBefore(wrap, hr);
+                        wrap.appendChild(hr);
+                    });
+                    // Always append a clickable empty zone so the user can add content at the end.
+                    var appendZone = document.createElement('div');
+                    appendZone.id = 'mv-append-zone';
+                    appendZone.className = 'mv-placeholder';
+                    appendZone.setAttribute('data-line', String(window._mvRawLines.length + 1));
+                    document.getElementById('content').appendChild(appendZone);
+                    // Rebuild TOC to reflect any heading changes from this render.
+                    if (window._mvBuildTOC) window._mvBuildTOC();
                 };
 
                 // Initial render
                 window._mvRender('\(base64Markdown)');
 
-                // Scroll sync helpers — read live DOM positions so they work after any _mvRender call.
-                function _mvGetAnchors() {
-                    return Array.from(document.querySelectorAll('#content > [data-line], #content tr[data-line]')).map(function(el) {
-                        return { line: +el.getAttribute('data-line'), top: el.getBoundingClientRect().top + window.scrollY };
-                    });
+                // Count visible characters from blockEl start to caret position.
+                function _mvCharOffset(blockEl, caretNode, caretOffset) {
+                    var offset = 0;
+                    var walker = document.createTreeWalker(blockEl, NodeFilter.SHOW_TEXT, null);
+                    var node;
+                    while ((node = walker.nextNode())) {
+                        if (node === caretNode) { return offset + caretOffset; }
+                        offset += node.textContent.length;
+                    }
+                    return offset;
                 }
-                window._mvSync = {
-                    _busy: false,
-                    scrollToLine: function(targetLine) {
-                        var self = this;
-                        self._busy = true;
-                        var a = _mvGetAnchors();
-                        if (!a.length) { self._busy = false; return; }
-                        var scrollY = a[0].top;
-                        if (targetLine >= a[a.length - 1].line) {
-                            scrollY = a[a.length - 1].top;
-                        } else {
-                            for (var i = 0; i < a.length - 1; i++) {
-                                if (a[i].line <= targetLine && a[i + 1].line > targetLine) {
-                                    var p = (targetLine - a[i].line) / (a[i + 1].line - a[i].line);
-                                    scrollY = a[i].top + p * (a[i + 1].top - a[i].top);
-                                    break;
-                                }
-                            }
-                        }
-                        window.scrollTo({ top: Math.max(0, scrollY), behavior: 'smooth' });
-                        setTimeout(function() { self._busy = false; }, 600);
-                    },
-                    getLineAtScrollY: function(scrollY) {
-                        var a = _mvGetAnchors();
-                        if (!a.length) return 1;
-                        var line = a[0].line;
-                        for (var i = 0; i < a.length - 1; i++) {
-                            if (a[i].top <= scrollY && a[i + 1].top > scrollY) {
-                                var p = (scrollY - a[i].top) / (a[i + 1].top - a[i].top);
-                                return Math.round(a[i].line + p * (a[i + 1].line - a[i].line));
-                            }
-                            if (a[i].top <= scrollY) line = a[i].line;
-                        }
-                        if (a[a.length - 1].top <= scrollY) line = a[a.length - 1].line;
-                        return line;
+
+                // Block editing state
+                window._mvRawLines = window._mvRawLines || [];
+                window._mvActiveEl = null;
+                window._mvActiveStartLine = -1;
+                window._mvActiveEndLine = -1;
+
+                // Close the inline block editor. commit=true posts the full text to Swift.
+                window._mvCloseEditor = function(commit) {
+                    var ta = document.getElementById('mv-block-editor');
+                    var prevEl = window._mvActiveEl;
+                    var wasAppendZone = prevEl && prevEl.id === 'mv-append-zone';
+                    if (ta) ta.remove();
+                    if (prevEl) {
+                        if (prevEl.classList.contains('mv-placeholder')) prevEl.remove();
+                        else prevEl.style.display = '';
+                    }
+                    window._mvActiveEl = null;
+                    if (commit) {
+                        var text = window._mvRawLines.join('\\n');
+                        var encoded = btoa(unescape(encodeURIComponent(text)));
+                        window.webkit.messageHandlers.commitEdit.postMessage(encoded);
+                    }
+                    // Re-add the append zone if it was the one being edited.
+                    // If _mvRender fires (text changed), it will replace this with a fresh one.
+                    // If nothing changed, _mvRender won't fire, so we restore it manually here.
+                    if (wasAppendZone && !document.getElementById('mv-append-zone')) {
+                        var az = document.createElement('div');
+                        az.id = 'mv-append-zone';
+                        az.className = 'mv-placeholder';
+                        az.setAttribute('data-line', String(window._mvRawLines.length + 1));
+                        var c = document.getElementById('content');
+                        if (c) c.appendChild(az);
                     }
                 };
+
+                // Replace a block element with an inline textarea for direct markdown editing.
+                window._mvStartBlockEdit = function(blockEl, charOffset) {
+                    if (window._mvActiveEl === blockEl) return;
+                    if (window._mvActiveEl) window._mvCloseEditor(true);
+
+                    var startLine = +blockEl.getAttribute('data-line') - 1;
+                    var nextEl = blockEl.nextElementSibling;
+                    while (nextEl && !nextEl.hasAttribute('data-line')) nextEl = nextEl.nextElementSibling;
+                    var endLine = nextEl ? +nextEl.getAttribute('data-line') - 1 : window._mvRawLines.length;
+
+                    window._mvActiveEl = blockEl;
+                    window._mvActiveStartLine = startLine;
+                    window._mvActiveEndLine = endLine;
+
+                    var blockRaw = window._mvRawLines.slice(startLine, endLine).join('\\n');
+                    var ta = document.createElement('textarea');
+                    ta.id = 'mv-block-editor';
+                    ta.value = blockRaw;
+                    ta.spellcheck = true;
+
+                    var blockHeight = blockEl.offsetHeight;
+                    var savedScroll = window.scrollY;
+                    blockEl.style.display = 'none';
+                    blockEl.parentNode.insertBefore(ta, blockEl.nextSibling);
+                    ta.style.height = Math.max(blockHeight, ta.scrollHeight) + 'px';
+                    window.scrollTo(0, savedScroll);
+                    ta.focus();
+                    var pos = Math.min(charOffset || 0, ta.value.length);
+                    ta.setSelectionRange(pos, pos);
+
+                    ta.addEventListener('input', function() {
+                        var newLines = ta.value.split('\\n');
+                        window._mvRawLines = window._mvRawLines.slice(0, window._mvActiveStartLine)
+                            .concat(newLines)
+                            .concat(window._mvRawLines.slice(window._mvActiveEndLine));
+                        window._mvActiveEndLine = window._mvActiveStartLine + newLines.length;
+                        ta.style.height = 'auto';
+                        ta.style.height = ta.scrollHeight + 'px';
+                    });
+                    ta.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') { e.preventDefault(); window._mvCloseEditor(true); }
+                    });
+                    ta.addEventListener('blur', function() {
+                        // Defer so a click on another block fires _mvStartBlockEdit first,
+                        // letting it take ownership before this cleanup runs.
+                        setTimeout(function() {
+                            if (window._mvActiveEl === blockEl) window._mvCloseEditor(true);
+                        }, 0);
+                    });
+                };
+
+                // Click in the bottom padding area — forward to the append zone.
+                document.addEventListener('click', function(e) {
+                    var az = document.getElementById('mv-append-zone');
+                    if (!az) return;
+                    var content = document.getElementById('content');
+                    if (!content) return;
+                    if (content.contains(e.target)) return; // handled by content listener
+                    var contentBottom = content.getBoundingClientRect().bottom;
+                    if (e.clientY >= contentBottom) window._mvStartBlockEdit(az, 0);
+                });
+
+                // Click anywhere in the preview to start inline block editing.
+                document.getElementById('content').addEventListener('click', function(e) {
+                    if (e.target.closest('a')) return;
+                    if (e.target.id === 'mv-block-editor' || e.target.closest('#mv-block-editor')) return;
+                    var el = e.target;
+                    var content = document.getElementById('content');
+                    var blockEl = null;
+                    while (el && el !== content) {
+                        if (el.hasAttribute('data-line')) { blockEl = el; break; }
+                        el = el.parentElement;
+                    }
+                    if (!blockEl) return;
+                    // Table rows have data-line too, but we want to edit the whole table at once.
+                    if (blockEl.tagName === 'TR') {
+                        var tbl = blockEl.closest('table');
+                        if (tbl && tbl.hasAttribute('data-line')) blockEl = tbl;
+                    }
+                    var charOffset = 0;
+                    var caret = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
+                    if (caret && blockEl.contains(caret.startContainer)) {
+                        charOffset = _mvCharOffset(blockEl, caret.startContainer, caret.startOffset);
+                    }
+                    window._mvStartBlockEdit(blockEl, charOffset);
+                });
+
                 document.addEventListener('click', function(e) {
                     var a = e.target.closest('a[href^="#"]');
                     if (!a) return;
@@ -496,7 +626,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 }, true);
                 document.addEventListener('click', function(e) {
                     var toc = document.getElementById('toc');
-                    if (toc && !toc.contains(e.target) && toc.style.transform !== 'translateX(220px)') {
+                    if (toc && !toc.contains(e.target) && toc.style.transform !== 'translateX(-220px)') {
                         window.webkit.messageHandlers.closeTOC.postMessage(null);
                     }
                 });
