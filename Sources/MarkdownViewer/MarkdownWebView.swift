@@ -499,7 +499,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         for (var i = 0; i < blocks.length; i++) {
                             if (+blocks[i].getAttribute('data-start') >= targetLine) {
                                 window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: starting edit on block[' + i + ']');
-                                window._mvStartBlockEdit(blocks[i], 0);
+                                window._mvStartBlockEdit(blocks[i], 0, true);
                                 found = true;
                                 break;
                             }
@@ -513,7 +513,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         var found = false;
                         for (var i = blocks.length - 1; i >= 0; i--) {
                             if (+blocks[i].getAttribute('data-end') <= targetLine) {
-                                window._mvStartBlockEdit(blocks[i], 0);
+                                window._mvStartBlockEdit(blocks[i], 0, true);
                                 found = true;
                                 break;
                             }
@@ -572,7 +572,7 @@ struct MarkdownWebView: NSViewRepresentable {
                                 if (+blocks[i].getAttribute('data-end') <= savedStartLine) { target = blocks[i]; break; }
                             }
                         }
-                        if (target) window._mvStartBlockEdit(target, 0);
+                        if (target) window._mvStartBlockEdit(target, 0, true);
                     }
                     if (commit && prevEl) {
                         if (focusNext && wasDirty) {
@@ -609,7 +609,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 };
 
                 // Replace a .mv-block with an inline textarea for direct markdown editing.
-                window._mvStartBlockEdit = function(blockEl, charOffset) {
+                window._mvStartBlockEdit = function(blockEl, charOffset, scrollTo) {
                     if (window._mvActiveEl === blockEl) return;
                     if (window._mvActiveEl) window._mvCloseEditor(true);
 
@@ -630,7 +630,12 @@ struct MarkdownWebView: NSViewRepresentable {
                     blockEl.style.display = 'none';
                     blockEl.parentNode.insertBefore(ta, blockEl.nextSibling);
                     ta.style.height = ta.scrollHeight + 'px';
-                    window.scrollTo(0, savedScroll);
+                    if (scrollTo) {
+                        var targetY = ta.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.3;
+                        window.scrollTo({ top: targetY, behavior: 'smooth' });
+                    } else {
+                        window.scrollTo(0, savedScroll);
+                    }
                     ta.focus();
                     var pos = Math.min(charOffset || 0, ta.value.length);
                     ta.setSelectionRange(pos, pos);
