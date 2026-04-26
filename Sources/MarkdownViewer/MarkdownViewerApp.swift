@@ -109,17 +109,43 @@ struct SaveCommands: Commands {
 }
 
 
+struct QuitCommands: Commands {
+    var body: some Commands {
+        CommandGroup(replacing: .appTermination) {
+            Button("Quit MarkdownViewer") {
+                let unsaved = NSApp.windows.filter {
+                    ($0.delegate as? CloseProxy)?.hasUnsavedChanges() == true
+                }
+                if unsaved.isEmpty {
+                    NSApp.terminate(nil)
+                } else {
+                    unsaved.forEach { w in
+                        if !w.isVisible { w.makeKeyAndOrderFront(nil) }
+                        (w.delegate as? CloseProxy)?.onIntercept()
+                    }
+                }
+            }
+            .keyboardShortcut("q", modifiers: .command)
+        }
+    }
+}
+
+// Safety net for quit paths that bypass the menu (e.g. dock right-click → Quit).
+// The main ⌘Q path is handled by QuitCommands above, before SwiftUI can hide windows.
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         let docWindows = NSApp.windows.filter { $0.delegate is CloseProxy }
         guard !docWindows.isEmpty else { return .terminateNow }
 
-        let anyUnsaved = docWindows.contains {
+        let unsaved = docWindows.filter {
             ($0.delegate as? CloseProxy)?.hasUnsavedChanges() == true
         }
-        guard anyUnsaved else { return .terminateNow }
+        guard !unsaved.isEmpty else { return .terminateNow }
 
-        docWindows.forEach { $0.performClose(nil) }
+        unsaved.forEach { w in
+            if !w.isVisible { w.makeKeyAndOrderFront(nil) }
+            (w.delegate as? CloseProxy)?.onIntercept()
+        }
         return .terminateCancel
     }
 }
@@ -141,6 +167,7 @@ struct MarkdownViewerApp: App {
             TOCCommands()
             FindCommands()
             SaveCommands()
+            QuitCommands()
         }
     }
 }
