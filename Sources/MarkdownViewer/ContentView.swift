@@ -313,14 +313,17 @@ struct ContentView: View {
     private func discardAndClose() {
         let proxy = closeProxy
         webViewStore.webView?.evaluateJavaScript(
-            "window._mvCloseEditor && window._mvCloseEditor(false);",
-            completionHandler: nil
-        )
-        document.text = originalText
-        proxy?.hasUnsavedChanges = { false }
-        proxy?.bypass = true
-        proxy?.window?.close()
-        if AppDelegate.isQuitting { handleQuit() }
+            "window._mvCloseEditor && window._mvCloseEditor(false);"
+        ) { _, _ in
+            DispatchQueue.main.async {
+                self.document.text = self.originalText  // revert so autosave preserves original
+                self.originalText = self.docState.text  // clear dirty flag (docState.text now == originalText)
+                proxy?.hasUnsavedChanges = { false }
+                proxy?.bypass = true
+                proxy?.window?.close()
+                if AppDelegate.isQuitting { handleQuit() }
+            }
+        }
     }
 
     private func commitEdit(_ newText: String) {
