@@ -212,7 +212,7 @@ struct ContentView: View {
     private var hasUnsavedChanges: Bool { docState.text != originalText }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) })
+        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onSave: { saveDocument() }, onSaveOnly: { saveFileOnly() })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             docState.undoManager = undoManager
@@ -313,6 +313,13 @@ struct ContentView: View {
                 NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
             }
         }
+    }
+
+    // Save the file without closing any active editor. Used by commitEditAndSave,
+    // where the edit is already committed and the next block may already be open.
+    private func saveFileOnly() {
+        originalText = docState.text
+        NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
     }
 
     private func clearHighlights() {
