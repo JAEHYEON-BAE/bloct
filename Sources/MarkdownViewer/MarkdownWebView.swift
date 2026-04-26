@@ -499,7 +499,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         for (var i = 0; i < blocks.length; i++) {
                             if (+blocks[i].getAttribute('data-start') >= targetLine) {
                                 window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: starting edit on block[' + i + ']');
-                                window._mvStartBlockEdit(blocks[i], 0, true);
+                                window._mvStartBlockEdit(blocks[i], Infinity, true);
                                 found = true;
                                 break;
                             }
@@ -507,7 +507,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         if (!found) {
                             window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: no next block found, opening append zone');
                             var az = document.getElementById('mv-append-zone');
-                            if (az) window._mvStartBlockEdit(az, 0, true);
+                            if (az) window._mvStartBlockEdit(az, Infinity, true);
                         }
                     }
                     if (window._mvPendingPrevEditLine !== undefined) {
@@ -517,7 +517,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         var found = false;
                         for (var i = blocks.length - 1; i >= 0; i--) {
                             if (+blocks[i].getAttribute('data-end') <= targetLine) {
-                                window._mvStartBlockEdit(blocks[i], 0, true);
+                                window._mvStartBlockEdit(blocks[i], Infinity, true);
                                 found = true;
                                 break;
                             }
@@ -576,10 +576,10 @@ struct MarkdownWebView: NSViewRepresentable {
                                 if (+blocks[i].getAttribute('data-end') <= savedStartLine) { target = blocks[i]; break; }
                             }
                         }
-                        if (target) window._mvStartBlockEdit(target, 0, true);
+                        if (target) window._mvStartBlockEdit(target, Infinity, true);
                         else if (focusNext) {
                             var az = document.getElementById('mv-append-zone');
-                            if (az) window._mvStartBlockEdit(az, 0, true);
+                            if (az) window._mvStartBlockEdit(az, Infinity, true);
                         }
                     }
                     if (commit && prevEl) {
