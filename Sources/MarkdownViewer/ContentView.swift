@@ -207,12 +207,13 @@ struct ContentView: View {
     @State private var originalText: String = ""
     @State private var showCloseWarning: Bool = false
     @State private var closeProxy: CloseProxy? = nil
+    @State private var isBlockEditorActive: Bool = false
     private let webViewStore = WebViewStore()
 
-    private var hasUnsavedChanges: Bool { docState.text != originalText }
+    private var hasUnsavedChanges: Bool { docState.text != originalText || isBlockEditorActive }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onSave: { saveDocument() }, onSaveOnly: { saveFileOnly() })
+        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onSave: { saveDocument() }, onSaveOnly: { saveFileOnly() }, onEditorActiveChanged: { isBlockEditorActive = $0 })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             docState.undoManager = undoManager
@@ -236,16 +237,8 @@ struct ContentView: View {
             .frame(width: 0, height: 0)
         )
         .alert("Unsaved Changes", isPresented: $showCloseWarning) {
-            Button("Save") {
-                saveDocument()
-                closeProxy?.bypass = true
-                closeProxy?.window?.close()
-            }
-            Button("Don't Save", role: .destructive) {
-                document.text = originalText
-                closeProxy?.bypass = true
-                closeProxy?.window?.close()
-            }
+            Button("Save") { saveAndClose() }
+            Button("Don't Save", role: .destructive) { discardAndClose() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Do you want to save your changes before closing?")
@@ -296,6 +289,32 @@ struct ContentView: View {
                     }
                 }
             }
+    }
+
+    private func saveAndClose() {
+        let proxy = closeProxy
+        let docState = self.docState
+        webViewStore.webView?.evaluateJavaScript(
+            "window._mvCloseEditor && window._mvCloseEditor(true);"
+        ) { _, _ in
+            DispatchQueue.main.async {
+                self.originalText = docState.text
+                NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
+                proxy?.bypass = true
+                proxy?.window?.close()
+            }
+        }
+    }
+
+    private func discardAndClose() {
+        let proxy = closeProxy
+        webViewStore.webView?.evaluateJavaScript(
+            "window._mvCloseEditor && window._mvCloseEditor(false);",
+            completionHandler: nil
+        )
+        document.text = originalText
+        proxy?.bypass = true
+        proxy?.window?.close()
     }
 
     private func commitEdit(_ newText: String) {

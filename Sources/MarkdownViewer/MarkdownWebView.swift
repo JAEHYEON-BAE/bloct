@@ -11,6 +11,7 @@ struct MarkdownWebView: NSViewRepresentable {
     var onTextCommit: (String) -> Void = { _ in }
     var onSave: (() -> Void)? = nil
     var onSaveOnly: (() -> Void)? = nil
+    var onEditorActiveChanged: (Bool) -> Void = { _ in }
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -96,6 +97,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var onTextCommit: ((String) -> Void)?
         var onSave: (() -> Void)?
         var onSaveOnly: (() -> Void)?
+        var onEditorActiveChanged: ((Bool) -> Void)?
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "closeTOC" {
@@ -124,6 +126,12 @@ struct MarkdownWebView: NSViewRepresentable {
                         self?.onTextCommit?(text)
                         self?.onSaveOnly?()
                     }
+                }
+                return
+            }
+            if message.name == "editorActive" {
+                if let active = message.body as? Bool {
+                    DispatchQueue.main.async { [weak self] in self?.onEditorActiveChanged?(active) }
                 }
                 return
             }
@@ -227,6 +235,7 @@ struct MarkdownWebView: NSViewRepresentable {
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "scrollPosition")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "commitEdit")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "commitEditAndSave")
+        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "editorActive")
         config.userContentController.add(WeakMessageHandler(context.coordinator), name: "debug")
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -250,6 +259,7 @@ struct MarkdownWebView: NSViewRepresentable {
         context.coordinator.onTextCommit = { text in onTextCommit(text) }
         context.coordinator.onSave = onSave
         context.coordinator.onSaveOnly = onSaveOnly
+        context.coordinator.onEditorActiveChanged = onEditorActiveChanged
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
             context.coordinator.lastShowTOC = showTOC
@@ -562,6 +572,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         else prevEl.style.display = '';
                     }
                     window._mvActiveEl = null;
+                    window.webkit.messageHandlers.editorActive.postMessage(false);
                     // If no edits were made, _mvRender won't fire (text unchanged),
                     // so focus the target block immediately while the DOM is still intact.
                     if ((focusNext || focusPrev) && !wasDirty) {
@@ -627,6 +638,7 @@ struct MarkdownWebView: NSViewRepresentable {
                     var start = +blockEl.getAttribute('data-start');
                     var end = +blockEl.getAttribute('data-end');
                     window._mvActiveEl = blockEl;
+                    window.webkit.messageHandlers.editorActive.postMessage(true);
                     window._mvActiveStartLine = start;
                     window._mvActiveEndLine = end;
 
