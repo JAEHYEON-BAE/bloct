@@ -157,6 +157,10 @@ class CloseProxy: NSObject, NSWindowDelegate {
         return next?.windowShouldClose?(sender) ?? true
     }
 
+    func windowWillClose(_ notification: Notification) {
+        next?.windowWillClose?(notification)
+    }
+
     override func responds(to sel: Selector!) -> Bool {
         super.responds(to: sel) || (next?.responds(to: sel) ?? false)
     }
