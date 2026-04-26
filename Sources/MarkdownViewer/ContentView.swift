@@ -239,7 +239,9 @@ struct ContentView: View {
         .alert("Unsaved Changes", isPresented: $showCloseWarning) {
             Button("Save") { saveAndClose() }
             Button("Don't Save", role: .destructive) { discardAndClose() }
-            Button("Cancel", role: .cancel) {}
+            Button("Cancel", role: .cancel) {
+                AppDelegate.isQuitting = false
+            }
         } message: {
             Text("Do you want to save your changes before closing?")
         }
@@ -303,7 +305,7 @@ struct ContentView: View {
                 proxy?.hasUnsavedChanges = { false }
                 proxy?.bypass = true
                 proxy?.window?.close()
-                handleQuit()
+                if AppDelegate.isQuitting { handleQuit() }
             }
         }
     }
@@ -318,7 +320,7 @@ struct ContentView: View {
         proxy?.hasUnsavedChanges = { false }
         proxy?.bypass = true
         proxy?.window?.close()
-        handleQuit()
+        if AppDelegate.isQuitting { handleQuit() }
     }
 
     private func commitEdit(_ newText: String) {
