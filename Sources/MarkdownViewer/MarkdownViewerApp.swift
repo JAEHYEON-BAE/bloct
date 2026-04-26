@@ -109,21 +109,26 @@ struct SaveCommands: Commands {
 }
 
 
+@MainActor
+func handleQuit() {
+    let unsaved = NSApp.windows.filter {
+        ($0.delegate as? CloseProxy)?.hasUnsavedChanges() == true
+    }
+    if unsaved.isEmpty {
+        NSApp.terminate(nil)
+    } else {
+        unsaved.forEach { w in
+            if !w.isVisible { w.makeKeyAndOrderFront(nil) }
+            (w.delegate as? CloseProxy)?.onIntercept()
+        }
+    }
+}
+
 struct QuitCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .appTermination) {
             Button("Quit MarkdownViewer") {
-                let unsaved = NSApp.windows.filter {
-                    ($0.delegate as? CloseProxy)?.hasUnsavedChanges() == true
-                }
-                if unsaved.isEmpty {
-                    NSApp.terminate(nil)
-                } else {
-                    unsaved.forEach { w in
-                        if !w.isVisible { w.makeKeyAndOrderFront(nil) }
-                        (w.delegate as? CloseProxy)?.onIntercept()
-                    }
-                }
+                handleQuit()
             }
             .keyboardShortcut("q", modifiers: .command)
         }

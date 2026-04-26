@@ -300,8 +300,10 @@ struct ContentView: View {
             DispatchQueue.main.async {
                 self.originalText = docState.text
                 NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
+                proxy?.hasUnsavedChanges = { false }
                 proxy?.bypass = true
                 proxy?.window?.close()
+                handleQuit()
             }
         }
     }
@@ -313,8 +315,10 @@ struct ContentView: View {
             completionHandler: nil
         )
         document.text = originalText
+        proxy?.hasUnsavedChanges = { false }
         proxy?.bypass = true
         proxy?.window?.close()
+        handleQuit()
     }
 
     private func commitEdit(_ newText: String) {
