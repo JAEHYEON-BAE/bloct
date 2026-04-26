@@ -305,7 +305,7 @@ struct ContentView: View {
         ) { _, _ in
             DispatchQueue.main.async {
                 self.originalText = docState.text
-                NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
+                proxy?.window?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
                 proxy?.hasUnsavedChanges = { false }
                 proxy?.bypass = true
                 proxy?.window?.close()
