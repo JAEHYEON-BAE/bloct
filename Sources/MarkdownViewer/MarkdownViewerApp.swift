@@ -109,8 +109,25 @@ struct SaveCommands: Commands {
 }
 
 
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let docWindows = NSApp.windows.filter { $0.delegate is CloseProxy }
+        guard !docWindows.isEmpty else { return .terminateNow }
+
+        let anyUnsaved = docWindows.contains {
+            ($0.delegate as? CloseProxy)?.hasUnsavedChanges() == true
+        }
+        guard anyUnsaved else { return .terminateNow }
+
+        docWindows.forEach { $0.performClose(nil) }
+        return .terminateCancel
+    }
+}
+
 @main
 struct MarkdownViewerApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     var body: some Scene {
         DocumentGroup(newDocument: MarkdownDocument()) { file in
             ContentView(document: file.$document, fileURL: file.fileURL)

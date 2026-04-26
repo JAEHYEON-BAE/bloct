@@ -144,7 +144,7 @@ final class DocumentState: ObservableObject {
 
 // MARK: - Window close interception
 
-private class CloseProxy: NSObject, NSWindowDelegate {
+class CloseProxy: NSObject, NSWindowDelegate {
     weak var window: NSWindow?
     weak var next: NSWindowDelegate?
     var bypass = false
