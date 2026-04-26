@@ -318,9 +318,7 @@ struct MarkdownWebView: NSViewRepresentable {
             <style>
                 #content { cursor: text; }
                 #content a { cursor: pointer; }
-                .mv-hr-wrap { padding: 10px 0; border-radius: 4px; transition: background 0.15s; }
-                .mv-hr-wrap:hover { background: rgba(128,128,128,0.07); }
-                .mv-hr-wrap hr { margin: 0; }
+                .mv-block { display: contents; }
                 article.markdown-body { padding-bottom: 40vh; }
                 #mv-append-zone { height: 1.5em; }
                 #mv-block-editor {
@@ -372,20 +370,10 @@ struct MarkdownWebView: NSViewRepresentable {
                 marked.use({ breaks: false, gfm: true, extensions: [figureCaption] });
                 marked.use(noStrikethrough);
 
-                // Render markdown (base64-encoded) into #content without touching scroll position.
-                // Called once on initial load, then on every live edit keystroke from Swift.
-                window._mvRender = function(base64md) {
-                    var bytes = Uint8Array.from(atob(base64md), c => c.charCodeAt(0));
-                    var raw = new TextDecoder().decode(bytes);
-                    window._mvRawLines = raw.split('\\n');
-                    if (window._mvActiveEl) { return; }
-                    // Extract math before markdown parsing so $...$ / $$...$$ are never seen by
-                    // marked — this prevents * and _ inside math from triggering italic/bold rules.
-                    // Code spans/blocks are protected first so $-signs inside backticks are not
-                    // treated as math delimiters.
-                    var mathStore = [];
-                    var codeStore = [];
-                    var md = raw
+                // Render one block's raw text through the math/code pipeline and return HTML.
+                function _mvRenderOneBlock(blockRaw) {
+                    var mathStore = [], codeStore = [];
+                    var md = blockRaw
                         .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
                             let style = '';
                             const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
@@ -400,27 +388,26 @@ struct MarkdownWebView: NSViewRepresentable {
                             return img;
                         })
                         .replace(/^(`{3,}|~{3,})[^\\n]*\\n[\\s\\S]*?\\n\\1[ \\t]*$/mg, function(match) {
-                            codeStore.push(match);
-                            return 'MVCODE' + (codeStore.length - 1) + 'X';
+                            codeStore.push(match); return 'MVCODE' + (codeStore.length - 1) + 'X';
                         })
                         .replace(/`+[^`\\n]*`+/g, function(match) {
-                            codeStore.push(match);
-                            return 'MVCODE' + (codeStore.length - 1) + 'X';
+                            codeStore.push(match); return 'MVCODE' + (codeStore.length - 1) + 'X';
                         })
-                        .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(_, tex) {
+                        .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(match, tex, offset, str) {
+                            var before = str.substring(0, offset);
+                            var after = str.substring(offset + match.length);
+                            var blankBefore = /\\n[ \\t]*\\n[ \\t]*$/.test(before) || /^[ \\t]*$/.test(before);
+                            var blankAfter = /^[ \\t]*\\n[ \\t]*\\n/.test(after) || /^[ \\t]*$/.test(after);
+                            var isBlock = blankBefore && blankAfter;
                             mathStore.push({ display: true, tex: tex.trim() });
-                            return '\\n\\nMVMATH' + (mathStore.length - 1) + 'X\\n\\n';
+                            var ph = 'MVMATH' + (mathStore.length - 1) + 'X';
+                            return isBlock ? '\\n\\n' + ph + '\\n\\n' : ph;
                         })
                         .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
                             mathStore.push({ display: false, tex: tex.trim() });
                             return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
                         })
-                        .replace(/MVCODE(\\d+)X/g, function(_, i) {
-                            return codeStore[+i];
-                        });
-                    // Lines that are only a marker + optional spaces (no content) should
-                    // render as the literal marker text, not as empty headings/bullets/blockquotes.
-                    // Wrapping in <span> makes marked pass the line through as raw HTML.
+                        .replace(/MVCODE(\\d+)X/g, function(_, i) { return codeStore[+i]; });
                     md = md.replace(/^(#{1,6}|[-*+]|>|\\d+[.)])[ \\t]*$/mg, function(_, m) {
                         return '<span>' + m.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
                     });
@@ -433,7 +420,39 @@ struct MarkdownWebView: NSViewRepresentable {
                         const item = mathStore[+i];
                         return katex.renderToString(item.tex, { throwOnError: false, displayMode: false });
                     });
-                    document.getElementById('content').innerHTML = html;
+                    return html;
+                }
+
+                // Render markdown (base64-encoded) into #content without touching scroll position.
+                // Called once on initial load, then on every live edit keystroke from Swift.
+                window._mvRender = function(base64md) {
+                    var bytes = Uint8Array.from(atob(base64md), c => c.charCodeAt(0));
+                    var raw = new TextDecoder().decode(bytes);
+                    window._mvRawLines = raw.split('\\n');
+                    if (window._mvActiveEl) { return; }
+
+                    // Split raw into blocks: contiguous non-empty lines separated by blank lines.
+                    var blocks = [];
+                    var bStart = -1;
+                    window._mvRawLines.forEach(function(line, i) {
+                        if (line.trim() === '') {
+                            if (bStart !== -1) { blocks.push({ start: bStart, end: i }); bStart = -1; }
+                        } else {
+                            if (bStart === -1) bStart = i;
+                        }
+                    });
+                    if (bStart !== -1) blocks.push({ start: bStart, end: window._mvRawLines.length });
+
+                    // Render each block independently and wrap in a .mv-block container.
+                    var fullHtml = blocks.map(function(b) {
+                        var blockText = window._mvRawLines.slice(b.start, b.end).join('\\n');
+                        return '<div class="mv-block" data-start="' + b.start + '" data-end="' + b.end + '">'
+                            + _mvRenderOneBlock(blockText) + '</div>';
+                    }).join('');
+                    fullHtml += '<div id="mv-append-zone" class="mv-placeholder" data-start="'
+                        + window._mvRawLines.length + '" data-end="' + window._mvRawLines.length + '"></div>';
+                    document.getElementById('content').innerHTML = fullHtml;
+
                     document.querySelectorAll('a[href^="#"]').forEach(function(a) {
                         var decoded = decodeURIComponent(a.getAttribute('href')).replace(/-+/g, '-');
                         a.setAttribute('href', decoded);
@@ -445,41 +464,6 @@ struct MarkdownWebView: NSViewRepresentable {
                             .replace(/\\s+/g, '-')
                             .replace(/-+/g, '-');
                     });
-                    // Annotate top-level block elements with data-line for click-to-edit.
-                    var lineNums = [];
-                    var n = 1;
-                    marked.lexer(raw).forEach(function(t) {
-                        var lc = (t.raw.match(/\\n/g) || []).length;
-                        if (t.type === 'space') { n += lc; } else { lineNums.push(n); n += lc; }
-                    });
-                    var els = Array.from(document.getElementById('content').children);
-                    els.forEach(function(el, i) {
-                        el.setAttribute('data-line', lineNums[Math.min(i, lineNums.length - 1)] || 1);
-                    });
-                    // Add per-row anchors inside tables so sync doesn't coarsely interpolate
-                    // across the whole table: each <tr> gets the raw line it corresponds to.
-                    document.querySelectorAll('#content table').forEach(function(table) {
-                        var L = +table.getAttribute('data-line') || 1;
-                        Array.from(table.querySelectorAll('tr')).forEach(function(tr, i) {
-                            tr.setAttribute('data-line', i === 0 ? L : L + 1 + i);
-                        });
-                    });
-                    // Wrap <hr> elements in a taller div to make them easier to click.
-                    document.querySelectorAll('#content hr').forEach(function(hr) {
-                        var line = hr.getAttribute('data-line');
-                        var wrap = document.createElement('div');
-                        wrap.className = 'mv-hr-wrap';
-                        if (line) { wrap.setAttribute('data-line', line); hr.removeAttribute('data-line'); }
-                        hr.parentNode.insertBefore(wrap, hr);
-                        wrap.appendChild(hr);
-                    });
-                    // Always append a clickable empty zone so the user can add content at the end.
-                    var appendZone = document.createElement('div');
-                    appendZone.id = 'mv-append-zone';
-                    appendZone.className = 'mv-placeholder';
-                    appendZone.setAttribute('data-line', String(window._mvRawLines.length + 1));
-                    document.getElementById('content').appendChild(appendZone);
-                    // Rebuild TOC to reflect any heading changes from this render.
                     if (window._mvBuildTOC) window._mvBuildTOC();
                 };
 
@@ -516,48 +500,51 @@ struct MarkdownWebView: NSViewRepresentable {
                     }
                     window._mvActiveEl = null;
                     if (commit) {
+                        // When appending new content at the end, insert a blank line before it
+                        // so the new content forms its own block instead of merging with the last.
+                        var s = window._mvActiveStartLine;
+                        if (wasAppendZone && s > 0
+                                && window._mvRawLines.length > s
+                                && window._mvRawLines[s - 1].trim() !== '') {
+                            window._mvRawLines.splice(s, 0, '');
+                        }
                         var text = window._mvRawLines.join('\\n');
                         var encoded = btoa(unescape(encodeURIComponent(text)));
                         window.webkit.messageHandlers.commitEdit.postMessage(encoded);
                     }
-                    // Re-add the append zone if it was the one being edited.
-                    // If _mvRender fires (text changed), it will replace this with a fresh one.
-                    // If nothing changed, _mvRender won't fire, so we restore it manually here.
+                    // Re-add the append zone if it was being edited and _mvRender didn't fire.
                     if (wasAppendZone && !document.getElementById('mv-append-zone')) {
                         var az = document.createElement('div');
                         az.id = 'mv-append-zone';
                         az.className = 'mv-placeholder';
-                        az.setAttribute('data-line', String(window._mvRawLines.length + 1));
+                        az.setAttribute('data-start', String(window._mvRawLines.length));
+                        az.setAttribute('data-end', String(window._mvRawLines.length));
                         var c = document.getElementById('content');
                         if (c) c.appendChild(az);
                     }
                 };
 
-                // Replace a block element with an inline textarea for direct markdown editing.
+                // Replace a .mv-block with an inline textarea for direct markdown editing.
                 window._mvStartBlockEdit = function(blockEl, charOffset) {
                     if (window._mvActiveEl === blockEl) return;
                     if (window._mvActiveEl) window._mvCloseEditor(true);
 
-                    var startLine = +blockEl.getAttribute('data-line') - 1;
-                    var nextEl = blockEl.nextElementSibling;
-                    while (nextEl && !nextEl.hasAttribute('data-line')) nextEl = nextEl.nextElementSibling;
-                    var endLine = nextEl ? +nextEl.getAttribute('data-line') - 1 : window._mvRawLines.length;
-
+                    var start = +blockEl.getAttribute('data-start');
+                    var end = +blockEl.getAttribute('data-end');
                     window._mvActiveEl = blockEl;
-                    window._mvActiveStartLine = startLine;
-                    window._mvActiveEndLine = endLine;
+                    window._mvActiveStartLine = start;
+                    window._mvActiveEndLine = end;
 
-                    var blockRaw = window._mvRawLines.slice(startLine, endLine).join('\\n');
+                    var blockRaw = window._mvRawLines.slice(start, end).join('\\n');
                     var ta = document.createElement('textarea');
                     ta.id = 'mv-block-editor';
                     ta.value = blockRaw;
                     ta.spellcheck = true;
 
-                    var blockHeight = blockEl.offsetHeight;
                     var savedScroll = window.scrollY;
                     blockEl.style.display = 'none';
                     blockEl.parentNode.insertBefore(ta, blockEl.nextSibling);
-                    ta.style.height = Math.max(blockHeight, ta.scrollHeight) + 'px';
+                    ta.style.height = ta.scrollHeight + 'px';
                     window.scrollTo(0, savedScroll);
                     ta.focus();
                     var pos = Math.min(charOffset || 0, ta.value.length);
@@ -590,28 +577,17 @@ struct MarkdownWebView: NSViewRepresentable {
                     if (!az) return;
                     var content = document.getElementById('content');
                     if (!content) return;
-                    if (content.contains(e.target)) return; // handled by content listener
+                    if (content.contains(e.target)) return;
                     var contentBottom = content.getBoundingClientRect().bottom;
                     if (e.clientY >= contentBottom) window._mvStartBlockEdit(az, 0);
                 });
 
-                // Click anywhere in the preview to start inline block editing.
+                // Click anywhere in the preview to start block editing.
                 document.getElementById('content').addEventListener('click', function(e) {
                     if (e.target.closest('a')) return;
                     if (e.target.id === 'mv-block-editor' || e.target.closest('#mv-block-editor')) return;
-                    var el = e.target;
-                    var content = document.getElementById('content');
-                    var blockEl = null;
-                    while (el && el !== content) {
-                        if (el.hasAttribute('data-line')) { blockEl = el; break; }
-                        el = el.parentElement;
-                    }
+                    var blockEl = e.target.closest('.mv-block, #mv-append-zone');
                     if (!blockEl) return;
-                    // Table rows have data-line too, but we want to edit the whole table at once.
-                    if (blockEl.tagName === 'TR') {
-                        var tbl = blockEl.closest('table');
-                        if (tbl && tbl.hasAttribute('data-line')) blockEl = tbl;
-                    }
                     var charOffset = 0;
                     var caret = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
                     if (caret && blockEl.contains(caret.startContainer)) {
