@@ -504,7 +504,11 @@ struct MarkdownWebView: NSViewRepresentable {
                                 break;
                             }
                         }
-                        if (!found) window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: no next block found');
+                        if (!found) {
+                            window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: no next block found, opening append zone');
+                            var az = document.getElementById('mv-append-zone');
+                            if (az) window._mvStartBlockEdit(az, 0, true);
+                        }
                     }
                     if (window._mvPendingPrevEditLine !== undefined) {
                         var targetLine = window._mvPendingPrevEditLine;
@@ -573,8 +577,23 @@ struct MarkdownWebView: NSViewRepresentable {
                             }
                         }
                         if (target) window._mvStartBlockEdit(target, 0, true);
+                        else if (focusNext) {
+                            var az = document.getElementById('mv-append-zone');
+                            if (az) window._mvStartBlockEdit(az, 0, true);
+                        }
                     }
                     if (commit && prevEl) {
+                        // Insert the blank separator first so savedEndLine can be adjusted
+                        // before _mvPendingNextEditLine is set — otherwise the +1 shift from
+                        // the splice would make the pending line land on the new block's start,
+                        // causing it to be re-opened instead of advancing to the append zone.
+                        var s = window._mvActiveStartLine;
+                        if (wasAppendZone && s > 0
+                                && window._mvRawLines.length > s
+                                && window._mvRawLines[s - 1].trim() !== '') {
+                            window._mvRawLines.splice(s, 0, '');
+                            savedEndLine += 1;
+                        }
                         if (focusNext && wasDirty) {
                             window._mvPendingNextEditLine = savedEndLine;
                             window.webkit.messageHandlers.debug.postMessage('[MV] _mvCloseEditor: dirty, set _mvPendingNextEditLine=' + window._mvPendingNextEditLine);
@@ -582,14 +601,6 @@ struct MarkdownWebView: NSViewRepresentable {
                         if (focusPrev && wasDirty) {
                             window._mvPendingPrevEditLine = savedStartLine;
                             window.webkit.messageHandlers.debug.postMessage('[MV] _mvCloseEditor: dirty, set _mvPendingPrevEditLine=' + window._mvPendingPrevEditLine);
-                        }
-                        // When appending new content at the end, insert a blank line before it
-                        // so the new content forms its own block instead of merging with the last.
-                        var s = window._mvActiveStartLine;
-                        if (wasAppendZone && s > 0
-                                && window._mvRawLines.length > s
-                                && window._mvRawLines[s - 1].trim() !== '') {
-                            window._mvRawLines.splice(s, 0, '');
                         }
                         var text = window._mvRawLines.join('\\n');
                         var encoded = btoa(unescape(encodeURIComponent(text)));
