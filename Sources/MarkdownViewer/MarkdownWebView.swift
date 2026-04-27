@@ -472,11 +472,25 @@ struct MarkdownWebView: NSViewRepresentable {
                     window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender called: activeEl=' + (window._mvActiveEl ? window._mvActiveEl.id || 'block' : 'null') + ' pendingNextLine=' + window._mvPendingNextEditLine + ' dirty=' + window._mvBlockDirty);
                     if (window._mvActiveEl) { window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: bailed (editor active)'); return; }
 
-                    // Split raw into blocks: contiguous non-empty lines separated by blank lines.
+                    // Split raw into blocks, keeping fenced code and math blocks intact.
                     var blocks = [];
                     var bStart = -1;
+                    var inFence = false, fenceChar = '', fenceLen = 0, inMathBlock = false;
                     window._mvRawLines.forEach(function(line, i) {
-                        if (line.trim() === '') {
+                        var trimmed = line.trim();
+                        if (!inMathBlock) {
+                            var fm = trimmed.match(/^(`{3,}|~{3,})/);
+                            if (fm) {
+                                var ch = fm[1][0], len = fm[1].length;
+                                if (!inFence) {
+                                    inFence = true; fenceChar = ch; fenceLen = len;
+                                } else if (ch === fenceChar && len >= fenceLen && trimmed.replace(new RegExp('^' + fenceChar + '+'), '') === '') {
+                                    inFence = false;
+                                }
+                            }
+                        }
+                        if (!inFence && trimmed === '$$') { inMathBlock = !inMathBlock; }
+                        if (!inFence && !inMathBlock && trimmed === '') {
                             if (bStart !== -1) { blocks.push({ start: bStart, end: i }); bStart = -1; }
                         } else {
                             if (bStart === -1) bStart = i;
