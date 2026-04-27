@@ -674,16 +674,16 @@ struct MarkdownWebView: NSViewRepresentable {
                         ta.style.height = ta.scrollHeight + 'px';
                     });
                     ta.addEventListener('keydown', function(e) {
-                        if (e.key === 'Escape') { e.preventDefault(); window._mvCloseEditor(true, true); }
+                        if (e.key === 'Escape') { e.preventDefault(); window._mvCloseEditor(true, false); }
                         if (e.key === 'Enter' && e.metaKey && !e.shiftKey) {
                             e.preventDefault();
                             window.webkit.messageHandlers.debug.postMessage('[MV] Cmd+Enter: activeStartLine=' + window._mvActiveStartLine + ' activeEndLine=' + window._mvActiveEndLine + ' dirty=' + window._mvBlockDirty);
-                            window._mvCloseEditor(true, true, true, false);
+                            window._mvCloseEditor(true, false, true, false);
                         }
                         if (e.key === 'Enter' && e.metaKey && e.shiftKey) {
                             e.preventDefault();
                             window.webkit.messageHandlers.debug.postMessage('[MV] Shift+Cmd+Enter: activeStartLine=' + window._mvActiveStartLine + ' activeEndLine=' + window._mvActiveEndLine + ' dirty=' + window._mvBlockDirty);
-                            window._mvCloseEditor(true, true, false, true);
+                            window._mvCloseEditor(true, false, false, true);
                         }
                     });
                     ta.addEventListener('blur', function() {
