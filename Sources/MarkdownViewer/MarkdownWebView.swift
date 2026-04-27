@@ -448,7 +448,9 @@ struct MarkdownWebView: NSViewRepresentable {
                             return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
                         })
                         .replace(/MVCODE(\\d+)X/g, function(_, i) { return codeStore[+i]; });
+                    var _hasBlockquote = /^>/m.test(md);
                     md = md.replace(/^(#{1,6}|[-*+]|>|\\d+[.)])[ \\t]*$/mg, function(_, m) {
+                        if (m === '>' && _hasBlockquote) return m;
                         return '<span>' + m.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
                     });
                     var html = marked.parse(md);
