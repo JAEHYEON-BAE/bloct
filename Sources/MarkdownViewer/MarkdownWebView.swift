@@ -6,6 +6,7 @@ struct MarkdownWebView: NSViewRepresentable {
     let fileURL: URL?
     let zoomLevel: Double
     let showTOC: Bool
+    let isEditMode: Bool
     let webViewStore: WebViewStore
     var onCloseTOC: () -> Void = {}
     var onTextCommit: (String) -> Void = { _ in }
@@ -90,6 +91,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var lastMarkdown: String = ""
         var showTOC: Bool = true
         var lastShowTOC: Bool = true
+        var lastEditMode: Bool = false
         var tempHTMLURL: URL?
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
@@ -260,6 +262,11 @@ struct MarkdownWebView: NSViewRepresentable {
         context.coordinator.onSave = onSave
         context.coordinator.onSaveOnly = onSaveOnly
         context.coordinator.onEditorActiveChanged = onEditorActiveChanged
+        if context.coordinator.lastEditMode != isEditMode {
+            context.coordinator.lastEditMode = isEditMode
+            let flag = isEditMode ? "true" : "false"
+            webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(\(flag));", completionHandler: nil)
+        }
         if context.coordinator.lastMarkdown != markdown {
             context.coordinator.lastMarkdown = markdown
             context.coordinator.lastShowTOC = showTOC
@@ -695,8 +702,17 @@ struct MarkdownWebView: NSViewRepresentable {
                     });
                 };
 
+                // Edit mode flag — toggled by Swift via _mvSetEditMode.
+                window._mvEditMode = false;
+                window._mvSetEditMode = function(on) {
+                    window._mvEditMode = on;
+                    document.getElementById('content').style.cursor = on ? 'text' : '';
+                    if (!on && window._mvActiveEl) window._mvCloseEditor(true);
+                };
+
                 // Click in the bottom padding area — forward to the append zone.
                 document.addEventListener('click', function(e) {
+                    if (!window._mvEditMode) return;
                     var az = document.getElementById('mv-append-zone');
                     if (!az) return;
                     var content = document.getElementById('content');
@@ -708,6 +724,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
                 // Click anywhere in the preview to start block editing.
                 document.getElementById('content').addEventListener('click', function(e) {
+                    if (!window._mvEditMode) return;
                     if (e.target.closest('a')) return;
                     if (e.target.id === 'mv-block-editor' || e.target.closest('#mv-block-editor')) return;
                     var blockEl = e.target.closest('.mv-block, #mv-append-zone');

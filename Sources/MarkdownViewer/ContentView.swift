@@ -212,12 +212,13 @@ struct ContentView: View {
     @State private var showCloseWarning: Bool = false
     @State private var closeProxy: CloseProxy? = nil
     @State private var isBlockEditorActive: Bool = false
+    @State private var isEditMode: Bool = false
     private let webViewStore = WebViewStore()
 
     private var hasUnsavedChanges: Bool { docState.text != originalText || isBlockEditorActive }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onSave: { saveDocument() }, onSaveOnly: { saveFileOnly() }, onEditorActiveChanged: { isBlockEditorActive = $0 })
+        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onSave: { saveDocument() }, onSaveOnly: { saveFileOnly() }, onEditorActiveChanged: { isBlockEditorActive = $0 })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             docState.undoManager = undoManager
@@ -256,6 +257,16 @@ struct ContentView: View {
                     }
                     .toggleStyle(.button)
                     .help("Toggle Table of Contents (⇧⌘T)")
+                }
+                ToolbarItem(placement: .automatic) {
+                    Button {
+                        isEditMode.toggle()
+                        if !isEditMode { isBlockEditorActive = false }
+                    } label: {
+                        Label(isEditMode ? "Read Mode" : "Edit Mode",
+                              systemImage: isEditMode ? "pencil.slash" : "pencil")
+                    }
+                    .help(isEditMode ? "Switch to Read Mode" : "Switch to Edit Mode")
                 }
                 ToolbarItem(placement: .automatic) {
                     Button {
