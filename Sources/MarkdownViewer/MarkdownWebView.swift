@@ -359,6 +359,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 #content { cursor: text; }
                 #content a { cursor: pointer; }
                 .mv-block { display: contents; }
+                .mv-block:has(> hr:only-child) { display: block; min-height: 2em; }
                 article.markdown-body { padding-bottom: 40vh; }
                 #mv-append-zone { height: 1.5em; }
                 #mv-block-editor {
