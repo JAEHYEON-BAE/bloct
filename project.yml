@@ -1,4 +1,4 @@
-name: MarkdownViewer
+name: Bloct
 options:
   bundleIdPrefix: com.personal
   deploymentTarget:
@@ -6,35 +6,35 @@ options:
   xcodeVersion: "16"
 
 schemes:
-  MarkdownViewer:
+  Bloct:
     build:
       targets:
-        MarkdownViewer: all
+        Bloct: all
     run:
       config: Debug
     archive:
       config: Release
 
 targets:
-  MarkdownViewer:
+  Bloct:
     type: application
     platform: macOS
     deploymentTarget: "14.0"
     sources:
-      - path: Sources/MarkdownViewer
+      - path: Sources/Bloct
     settings:
       base:
         SWIFT_VERSION: "6.0"
-        PRODUCT_BUNDLE_IDENTIFIER: com.personal.MarkdownViewer
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.Bloct
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGNING_REQUIRED: "NO"
         CODE_SIGNING_ALLOWED: "NO"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     info:
-      path: Sources/MarkdownViewer/Info.plist
+      path: Sources/Bloct/Info.plist
       properties:
-        CFBundleName: MarkdownViewer
-        CFBundleDisplayName: Markdown Viewer
+        CFBundleName: Bloct
+        CFBundleDisplayName: Bloct
         CFBundleDocumentTypes:
           - CFBundleTypeExtensions:
               - md

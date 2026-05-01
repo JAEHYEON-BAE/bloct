@@ -1,4 +1,4 @@
-# MarkdownViewer
+# Bloct
 
 A native macOS app for viewing and editing Markdown files with a clean, live preview.
 
@@ -8,11 +8,11 @@ A native macOS app for viewing and editing Markdown files with a clean, live pre
 
 ## Installation
 
-1. Download `MarkdownViewer.zip` from the latest [Releases](../../releases) page
-2. Unzip and drag `MarkdownViewer.app` to `/Applications`
+1. Download `Bloct.zip` from the latest [Releases](../../releases) page
+2. Unzip and drag `Bloct.app` to `/Applications`
 3. **First launch — Gatekeeper bypass (required, one-time):**
-   - Right-click `MarkdownViewer.app` → **Open** → click **Open** in the dialog
-   - *Alternative:* run `xattr -cr /Applications/MarkdownViewer.app` in Terminal, then open normally
+   - Right-click `Bloct.app` → **Open** → click **Open** in the dialog
+   - *Alternative:* run `xattr -cr /Applications/Bloct.app` in Terminal, then open normally
 
 > The app is unsigned (no Apple Developer account), so macOS Gatekeeper will block a normal double-click on the first launch. The steps above bypass this once; subsequent launches work normally.
 
@@ -51,6 +51,6 @@ Fully adapts to macOS Light and Dark appearance.
 
 ## Usage
 
-- Double-click any `.md` file to open it in MarkdownViewer
+- Double-click any `.md` file to open it in Bloct
 - Drag a `.md` file onto the app icon
 - Use **File → Open** from within the app

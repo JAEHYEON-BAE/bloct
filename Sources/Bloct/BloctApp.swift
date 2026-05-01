@@ -129,7 +129,7 @@ func handleQuit() {
 struct QuitCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .appTermination) {
-            Button("Quit MarkdownViewer") {
+            Button("Quit Bloct") {
                 handleQuit()
             }
             .keyboardShortcut("q", modifiers: .command)
@@ -160,7 +160,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct MarkdownViewerApp: App {
+struct BloctApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {

@@ -23,21 +23,21 @@ jobs:
 
       - name: Build Release
         run: |
-          xcodebuild -project MarkdownViewer.xcodeproj \
-            -target MarkdownViewer \
+          xcodebuild -project Bloct.xcodeproj \
+            -target Bloct \
             -configuration Release \
             CONFIGURATION_BUILD_DIR=build/Release
 
       - name: Zip app
         run: |
           ditto -c -k --keepParent \
-            build/Release/MarkdownViewer.app \
-            MarkdownViewer.zip
+            build/Release/Bloct.app \
+            Bloct.zip
 
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.ref_name }} MarkdownViewer.zip \
-            --title "MarkdownViewer ${{ github.ref_name }}" \
+          gh release create ${{ github.ref_name }} Bloct.zip \
+            --title "Bloct ${{ github.ref_name }}" \
             --generate-notes
