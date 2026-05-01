@@ -8,13 +8,22 @@ A native macOS app for viewing and editing Markdown files with a clean, live pre
 
 ## Installation
 
+### Homebrew (recommended)
+
+```sh
+brew tap JAEHYEON-BAE/tap
+brew install --cask bloct
+```
+
+### Manual
+
 1. Download `Bloct.zip` from the latest [Releases](../../releases) page
 2. Unzip and drag `Bloct.app` to `/Applications`
-3. **First launch — Gatekeeper bypass (required, one-time):**
-   - Right-click `Bloct.app` → **Open** → click **Open** in the dialog
-   - *Alternative:* run `xattr -cr /Applications/Bloct.app` in Terminal, then open normally
-
-> The app is unsigned (no Apple Developer account), so macOS Gatekeeper will block a normal double-click on the first launch. The steps above bypass this once; subsequent launches work normally.
+3. Run the following in Terminal to bypass Gatekeeper (required once, as the app is unsigned):
+   ```sh
+   xattr -cr /Applications/Bloct.app
+   ```
+4. Open Bloct normally from `/Applications`
 
 ## Features
 
