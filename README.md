@@ -11,9 +11,9 @@ A native macOS app for viewing and editing Markdown files with a clean, live pre
 ### Homebrew (recommended - just copy and paste in your terminal)
 
 ```sh
-brew tap JAEHYEON-BAE/tap;
-brew install --cask bloct;
-xattr -cr /Applications/Bloct.app;
+brew tap JAEHYEON-BAE/tap
+brew install --cask bloct
+xattr -cr /Applications/Bloct.app
 ```
 
 ### Manual
