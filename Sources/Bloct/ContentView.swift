@@ -260,13 +260,16 @@ struct ContentView: View {
                     .help("Toggle Table of Contents (⇧⌘T)")
                 }
                 ToolbarItem(placement: .automatic) {
-                    Button {
-                        isEditMode.toggle()
-                        if !isEditMode { isBlockEditorActive = false }
-                    } label: {
-                        Label(isEditMode ? "Read Mode" : "Edit Mode",
-                              systemImage: isEditMode ? "pencil.slash" : "pencil")
+                    Toggle(isOn: Binding(
+                        get: { isEditMode },
+                        set: { newValue in
+                            isEditMode = newValue
+                            if !newValue { isBlockEditorActive = false }
+                        }
+                    )) {
+                        Label("Edit Mode", systemImage: "pencil")
                     }
+                    .toggleStyle(.button)
                     .help(isEditMode ? "Switch to Read Mode" : "Switch to Edit Mode")
                 }
                 ToolbarItem(placement: .automatic) {
