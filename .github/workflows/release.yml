@@ -41,3 +41,35 @@ jobs:
           gh release create ${{ github.ref_name }} Bloct.zip \
             --title "Bloct ${{ github.ref_name }}" \
             --generate-notes
+
+      - name: Update Homebrew Tap
+        env:
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+        run: |
+          VERSION=${{ github.ref_name }}
+          VERSION_NUM=${VERSION#v}
+          SHA=$(shasum -a 256 Bloct.zip | awk '{print $1}')
+
+          git clone https://x-access-token:${TAP_GITHUB_TOKEN}@github.com/JAEHYEON-BAE/homebrew-tap.git tap-repo
+          mkdir -p tap-repo/Casks
+
+          cat > tap-repo/Casks/bloct.rb << CASK
+          cask "bloct" do
+            version "${VERSION_NUM}"
+            sha256 "${SHA}"
+
+            url "https://github.com/JAEHYEON-BAE/bloct/releases/download/v#{version}/Bloct.zip"
+            name "Bloct"
+            desc "Native macOS markdown viewer and editor"
+            homepage "https://github.com/JAEHYEON-BAE/bloct"
+
+            app "Bloct.app"
+          end
+          CASK
+
+          cd tap-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/bloct.rb
+          git diff --cached --quiet || git commit -m "Update Bloct to ${VERSION_NUM}"
+          git push
