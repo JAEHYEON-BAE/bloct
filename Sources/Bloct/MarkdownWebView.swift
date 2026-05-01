@@ -88,7 +88,7 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
-        var lastMarkdown: String = ""
+        var lastMarkdown: String? = nil
         var showTOC: Bool = true
         var lastShowTOC: Bool = true
         var lastEditMode: Bool = false
@@ -96,6 +96,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
         var isPageLoaded: Bool = false
+        var pendingAutoFocus: Bool = false
         var onTextCommit: ((String) -> Void)?
         var onSave: (() -> Void)?
         var onSaveOnly: (() -> Void)?
@@ -227,6 +228,16 @@ struct MarkdownWebView: NSViewRepresentable {
                     }, { passive: true });
                 })();
                 """, completionHandler: nil)
+            if pendingAutoFocus {
+                pendingAutoFocus = false
+                webView.evaluateJavaScript("""
+                    window._mvSetEditMode && window._mvSetEditMode(true);
+                    (function() {
+                        var el = document.querySelector('.mv-block') || document.getElementById('mv-append-zone');
+                        if (el && window._mvStartBlockEdit) window._mvStartBlockEdit(el, 0, false);
+                    })();
+                    """, completionHandler: nil)
+            }
         }
     }
 
@@ -291,6 +302,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         webView.loadHTMLString(buildHTML(), baseURL: dir)
                     }
                 } else {
+                    context.coordinator.pendingAutoFocus = true
                     webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
                 }
             }

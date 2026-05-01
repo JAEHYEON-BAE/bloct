@@ -224,6 +224,7 @@ struct ContentView: View {
             docState.undoManager = undoManager
             docState.load(document.text)
             originalText = document.text
+            if fileURL == nil { isEditMode = true }
         }
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
