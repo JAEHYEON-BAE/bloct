@@ -420,8 +420,52 @@ struct MarkdownWebView: NSViewRepresentable {
                         renderer(token) { return token.text; }
                     }]
                 };
+                // Override strong tokenizer: CommonMark's punctuation-flanking rule rejects
+                // closing ** when preceded by ) and followed by a non-space/non-punct char
+                // (e.g. a Korean letter). We only require content not to start/end with whitespace.
+                const permissiveStrong = {
+                    extensions: [{
+                        name: 'strong',
+                        level: 'inline',
+                        start(src) { return src.indexOf('**'); },
+                        tokenizer(src) {
+                            const match = /^\\*\\*(?!\\s)((?:[^*\\\\]|\\\\[\\s\\S]|\\*(?!\\*))*?)(?<!\\s)\\*\\*(?!\\*)/.exec(src);
+                            if (match && match[1]) {
+                                return {
+                                    type: 'strong',
+                                    raw: match[0],
+                                    text: match[1],
+                                    tokens: this.lexer.inlineTokens(match[1])
+                                };
+                            }
+                        }
+                    }]
+                };
+                // Same fix for em: closing * preceded by ) and followed by a letter also fails.
+                const permissiveEm = {
+                    extensions: [{
+                        name: 'em',
+                        level: 'inline',
+                        start(src) { return src.indexOf('*'); },
+                        tokenizer(src) {
+                            // Skip ** (handled by permissiveStrong)
+                            if (/^\\*\\*/.test(src)) return;
+                            const match = /^\\*(?!\\s)((?:[^*\\\\]|\\\\[\\s\\S])*?)(?<!\\s)\\*(?!\\*)/.exec(src);
+                            if (match && match[1]) {
+                                return {
+                                    type: 'em',
+                                    raw: match[0],
+                                    text: match[1],
+                                    tokens: this.lexer.inlineTokens(match[1])
+                                };
+                            }
+                        }
+                    }]
+                };
                 marked.use({ breaks: false, gfm: true, extensions: [figureCaption] });
                 marked.use(noStrikethrough);
+                marked.use(permissiveStrong);
+                marked.use(permissiveEm);
 
                 // Render one block's raw text through the math/code pipeline and return HTML.
                 function _mvRenderOneBlock(blockRaw) {
