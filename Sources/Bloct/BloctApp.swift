@@ -109,20 +109,28 @@ struct SaveCommands: Commands {
 }
 
 
+// Shows the unsaved-changes alert on every window that needs it and marks the app
+// as quitting, so each Save / Don't Save continues the quit. Returns false if there
+// is nothing unsaved.
 @MainActor
-func handleQuit() {
+private func interceptUnsavedWindowsForQuit() -> Bool {
     let unsaved = NSApp.windows.filter {
         ($0.delegate as? CloseProxy)?.hasUnsavedChanges() == true
     }
-    if unsaved.isEmpty {
+    guard !unsaved.isEmpty else { return false }
+    AppDelegate.isQuitting = true
+    unsaved.forEach { w in
+        if !w.isVisible { w.makeKeyAndOrderFront(nil) }
+        (w.delegate as? CloseProxy)?.onIntercept()
+    }
+    return true
+}
+
+@MainActor
+func handleQuit() {
+    if !interceptUnsavedWindowsForQuit() {
         AppDelegate.isQuitting = false
         NSApp.terminate(nil)
-    } else {
-        AppDelegate.isQuitting = true
-        unsaved.forEach { w in
-            if !w.isVisible { w.makeKeyAndOrderFront(nil) }
-            (w.delegate as? CloseProxy)?.onIntercept()
-        }
     }
 }
 
@@ -143,19 +151,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor static var isQuitting = false
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        let docWindows = NSApp.windows.filter { $0.delegate is CloseProxy }
-        guard !docWindows.isEmpty else { return .terminateNow }
+        interceptUnsavedWindowsForQuit() ? .terminateCancel : .terminateNow
+    }
 
-        let unsaved = docWindows.filter {
-            ($0.delegate as? CloseProxy)?.hasUnsavedChanges() == true
-        }
-        guard !unsaved.isEmpty else { return .terminateNow }
-
-        unsaved.forEach { w in
-            if !w.isVisible { w.makeKeyAndOrderFront(nil) }
-            (w.delegate as? CloseProxy)?.onIntercept()
-        }
-        return .terminateCancel
+    func applicationWillTerminate(_ notification: Notification) {
+        MarkdownWebView.removeAllPreviewFiles()
     }
 }
 

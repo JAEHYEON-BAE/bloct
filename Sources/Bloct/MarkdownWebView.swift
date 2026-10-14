@@ -10,9 +10,7 @@ struct MarkdownWebView: NSViewRepresentable {
     let webViewStore: WebViewStore
     var onCloseTOC: () -> Void = {}
     var onTextCommit: (String) -> Void = { _ in }
-    var onSave: (() -> Void)? = nil
-    var onSaveOnly: (() -> Void)? = nil
-    var onEditorActiveChanged: (Bool) -> Void = { _ in }
+    var onEditorDirtyChanged: (Bool) -> Void = { _ in }
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -32,7 +30,15 @@ struct MarkdownWebView: NSViewRepresentable {
         Coordinator()
     }
 
-    private static let tocWidth = "220px"
+    // Number of open documents using each `.mv_preview.html` file. Documents in the
+    // same folder share one file, so it is only deleted when the last one closes.
+    @MainActor private static var previewFileUsers: [URL: Int] = [:]
+
+    @MainActor static func removeAllPreviewFiles() {
+        for url in previewFileUsers.keys { try? FileManager.default.removeItem(at: url) }
+        previewFileUsers.removeAll()
+    }
+
     private static let tocScript = """
         (function() {
             if (!window._mvBuildTOC) {
@@ -44,8 +50,8 @@ struct MarkdownWebView: NSViewRepresentable {
                         toc = document.createElement('nav');
                         toc.id = 'toc';
                         toc.style.cssText = 'position:fixed;top:0;left:0;width:220px;height:100vh;' +
-                            'background:var(--color-canvas-default,Canvas);' +
-                            'border-right:1px solid var(--color-border-default,GrayText);' +
+                            'background:var(--color-bg);' +
+                            'border-right:1px solid var(--color-border);' +
                             'padding:20px 14px;overflow-y:auto;z-index:100;box-sizing:border-box;' +
                             'overscroll-behavior:contain;transition:transform 0.3s ease;';
                     }
@@ -59,7 +65,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         a.href = '#' + h.id;
                         a.textContent = h.textContent;
                         a.style.cssText = 'display:block;padding-left:' + (level-1)*12 + 'px;' +
-                            'margin:4px 0;color:var(--color-fg-default,CanvasText);text-decoration:none;' +
+                            'margin:4px 0;color:var(--color-text);text-decoration:none;' +
                             'font-size:' + fontSize + ';font-weight:' + fontWeight + ';opacity:' + opacity + ';' +
                             'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;';
                         a.onmouseenter = function() { this.style.opacity = String(parseFloat(opacity) * 0.6); };
@@ -98,54 +104,33 @@ struct MarkdownWebView: NSViewRepresentable {
         var isPageLoaded: Bool = false
         var pendingAutoFocus: Bool = false
         var onTextCommit: ((String) -> Void)?
-        var onSave: (() -> Void)?
-        var onSaveOnly: (() -> Void)?
-        var onEditorActiveChanged: ((Bool) -> Void)?
+        var onEditorDirtyChanged: ((Bool) -> Void)?
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            if message.name == "closeTOC" {
+            switch message.name {
+            case "closeTOC":
                 DispatchQueue.main.async { [weak self] in self?.onCloseTOC() }
-                return
-            }
-            if message.name == "scrollPosition" {
+            case "scrollPosition":
                 if let y = message.body as? Double, let url = fileURL {
                     UserDefaults.standard.set(y, forKey: "scrollPos:\(url.path)")
                 }
-                return
-            }
-            if message.name == "commitEdit" {
+            case "commitEdit":
                 if let base64 = message.body as? String,
                    let data = Data(base64Encoded: base64),
                    let text = String(data: data, encoding: .utf8) {
                     DispatchQueue.main.async { [weak self] in self?.onTextCommit?(text) }
                 }
-                return
-            }
-            if message.name == "commitEditAndSave" {
-                if let base64 = message.body as? String,
-                   let data = Data(base64Encoded: base64),
-                   let text = String(data: data, encoding: .utf8) {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onTextCommit?(text)
-                        self?.onSaveOnly?()
-                    }
+            case "editorDirty":
+                if let dirty = message.body as? Bool {
+                    DispatchQueue.main.async { [weak self] in self?.onEditorDirtyChanged?(dirty) }
                 }
-                return
-            }
-            if message.name == "editorActive" {
-                if let active = message.body as? Bool {
-                    DispatchQueue.main.async { [weak self] in self?.onEditorActiveChanged?(active) }
+            case "openExternal":
+                if let urlString = message.body as? String, let url = URL(string: urlString) {
+                    NSWorkspace.shared.open(url)
                 }
-                return
+            default:
+                break
             }
-            if message.name == "debug" {
-                print("[MV-JS] \(message.body)")
-                return
-            }
-            guard message.name == "openExternal",
-                  let urlString = message.body as? String,
-                  let url = URL(string: urlString) else { return }
-            NSWorkspace.shared.open(url)
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -153,7 +138,7 @@ struct MarkdownWebView: NSViewRepresentable {
             // Do NOT delete tempHTMLURL here — WKWebView's sandboxed content process
             // needs the origin file to exist in order to resolve and load local images
             // (file:// src attributes) throughout the page's lifetime. The file is
-            // deleted just before the next load starts (see updateNSView).
+            // deleted when the last document using it closes (see dismantleNSView).
             webView.evaluateJavaScript(MarkdownWebView.tocScript, completionHandler: nil)
             if !showTOC {
                 // Instant hide on load (no animation)
@@ -184,9 +169,11 @@ struct MarkdownWebView: NSViewRepresentable {
                 """, completionHandler: nil)
             // Install resize scroll-anchor: keeps the first visible block element
             // at the same viewport position as the user drags the window edge.
+            // _findAnchor is also exposed for the TOC toggle (see updateNSView).
             webView.evaluateJavaScript("""
                 (function() {
                     var _anchor = null, _anchorTop = 0, _tid = null, _raf = null;
+                    window._mvFindAnchor = _findAnchor;
                     function _findAnchor() {
                         var x = Math.floor(window.innerWidth * 0.5);
                         for (var y = 2; y < window.innerHeight * 0.4; y += 4) {
@@ -228,10 +215,13 @@ struct MarkdownWebView: NSViewRepresentable {
                     }, { passive: true });
                 })();
                 """, completionHandler: nil)
+            // Edit-mode changes made before the page finished loading were dropped; apply now.
+            if lastEditMode {
+                webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(true);", completionHandler: nil)
+            }
             if pendingAutoFocus {
                 pendingAutoFocus = false
                 webView.evaluateJavaScript("""
-                    window._mvSetEditMode && window._mvSetEditMode(true);
                     (function() {
                         var el = document.querySelector('.mv-block') || document.getElementById('mv-append-zone');
                         if (el && window._mvStartBlockEdit) window._mvStartBlockEdit(el, 0, false);
@@ -243,13 +233,10 @@ struct MarkdownWebView: NSViewRepresentable {
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "openExternal")
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "closeTOC")
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "scrollPosition")
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "commitEdit")
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "commitEditAndSave")
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "editorActive")
-        config.userContentController.add(WeakMessageHandler(context.coordinator), name: "debug")
+        let handler = WeakMessageHandler(context.coordinator)
+        for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty"] {
+            config.userContentController.add(handler, name: name)
+        }
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
@@ -264,50 +251,64 @@ struct MarkdownWebView: NSViewRepresentable {
         return webView
     }
 
-    func updateNSView(_ webView: WKWebView, context: Context) {
-        webViewStore.webView = webView
-        context.coordinator.showTOC = showTOC
-        context.coordinator.onCloseTOC = onCloseTOC
-        context.coordinator.fileURL = fileURL
-        context.coordinator.onTextCommit = { text in onTextCommit(text) }
-        context.coordinator.onSave = onSave
-        context.coordinator.onSaveOnly = onSaveOnly
-        context.coordinator.onEditorActiveChanged = onEditorActiveChanged
-        if context.coordinator.lastEditMode != isEditMode {
-            context.coordinator.lastEditMode = isEditMode
-            let flag = isEditMode ? "true" : "false"
-            webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(\(flag));", completionHandler: nil)
+    static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        guard let url = coordinator.tempHTMLURL else { return }
+        coordinator.tempHTMLURL = nil
+        let remaining = (previewFileUsers[url] ?? 1) - 1
+        if remaining > 0 {
+            previewFileUsers[url] = remaining
+        } else {
+            previewFileUsers[url] = nil
+            try? FileManager.default.removeItem(at: url)
         }
-        if context.coordinator.lastMarkdown != markdown {
-            context.coordinator.lastMarkdown = markdown
-            context.coordinator.lastShowTOC = showTOC
-            if context.coordinator.isPageLoaded {
+    }
+
+    func updateNSView(_ webView: WKWebView, context: Context) {
+        let coordinator = context.coordinator
+        webViewStore.webView = webView
+        coordinator.showTOC = showTOC
+        coordinator.onCloseTOC = onCloseTOC
+        coordinator.fileURL = fileURL
+        coordinator.onTextCommit = onTextCommit
+        coordinator.onEditorDirtyChanged = onEditorDirtyChanged
+        if coordinator.lastEditMode != isEditMode {
+            coordinator.lastEditMode = isEditMode
+            // Before the page has loaded, didFinish applies lastEditMode instead.
+            if coordinator.isPageLoaded {
+                let flag = isEditMode ? "true" : "false"
+                webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(\(flag));", completionHandler: nil)
+            }
+        }
+        if coordinator.lastMarkdown != markdown {
+            coordinator.lastMarkdown = markdown
+            if coordinator.isPageLoaded {
                 // Live edit: update only the content in-place, no page reload, scroll is preserved
                 let base64 = Data(markdown.utf8).base64EncodedString()
                 webView.evaluateJavaScript("window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
             } else {
-                // Delete the previous temp file now that a new load is starting
-                if let prev = context.coordinator.tempHTMLURL {
-                    try? FileManager.default.removeItem(at: prev)
-                    context.coordinator.tempHTMLURL = nil
-                }
-                context.coordinator.isPageLoaded = false
+                // didFinish applies the current TOC state, so no toggle animation is needed.
+                coordinator.lastShowTOC = showTOC
+                let html = buildHTML()
                 if let fileURL = fileURL {
                     let dir = fileURL.deletingLastPathComponent()
                     let tmpURL = dir.appendingPathComponent(".mv_preview.html")
-                    if (try? buildHTML().write(to: tmpURL, atomically: true, encoding: .utf8)) != nil {
-                        context.coordinator.tempHTMLURL = tmpURL
+                    if (try? html.write(to: tmpURL, atomically: true, encoding: .utf8)) != nil {
+                        if coordinator.tempHTMLURL != tmpURL {
+                            coordinator.tempHTMLURL = tmpURL
+                            Self.previewFileUsers[tmpURL, default: 0] += 1
+                        }
                         webView.loadFileURL(tmpURL, allowingReadAccessTo: dir)
                     } else {
-                        webView.loadHTMLString(buildHTML(), baseURL: dir)
+                        webView.loadHTMLString(html, baseURL: dir)
                     }
                 } else {
-                    context.coordinator.pendingAutoFocus = true
-                    webView.loadHTMLString(buildHTML(), baseURL: URL(string: "https://cdn.jsdelivr.net"))
+                    coordinator.pendingAutoFocus = true
+                    webView.loadHTMLString(html, baseURL: URL(string: "https://cdn.jsdelivr.net"))
                 }
             }
-        } else if context.coordinator.lastShowTOC != showTOC {
-            context.coordinator.lastShowTOC = showTOC
+        }
+        if coordinator.lastShowTOC != showTOC {
+            coordinator.lastShowTOC = showTOC
             let transform = showTOC ? "translateX(0)" : "translateX(-220px)"
             let pointer = showTOC ? "auto" : "none"
             let padding = showTOC ? "220px" : ""
@@ -315,19 +316,8 @@ struct MarkdownWebView: NSViewRepresentable {
             (function(){
                 var t = document.getElementById('toc');
                 if (!t) return;
-                // Find the first block-level element at the top of the viewport.
-                var anchor = null;
-                var x = Math.floor(window.innerWidth * 0.5);
-                outer: for (var y = 2; y < window.innerHeight * 0.4; y += 4) {
-                    var el = document.elementFromPoint(x, y);
-                    while (el && el !== document.body && el !== document.documentElement) {
-                        var d = window.getComputedStyle(el).display;
-                        if (d === 'block' || d === 'list-item' || d === 'table' || d === 'flex') {
-                            anchor = el; break outer;
-                        }
-                        el = el.parentElement;
-                    }
-                }
+                // First block-level element at the top of the viewport.
+                var anchor = window._mvFindAnchor ? window._mvFindAnchor() : null;
                 // Predict the scroll delta by peeking at the final layout state.
                 var delta = 0;
                 if (anchor) {
@@ -354,7 +344,9 @@ struct MarkdownWebView: NSViewRepresentable {
             """
             webView.evaluateJavaScript(js, completionHandler: nil)
         }
-        webView.pageZoom = zoomLevel
+        if webView.pageZoom != zoomLevel {
+            webView.pageZoom = zoomLevel
+        }
     }
 
     private func buildHTML() -> String {
@@ -368,11 +360,8 @@ struct MarkdownWebView: NSViewRepresentable {
             <meta name="color-scheme" content="light dark">
             <style>\(Self.css)</style>
             <style>
-                #content { cursor: text; }
-                #content a { cursor: pointer; }
                 .mv-block { display: contents; }
                 .mv-block:has(> hr:only-child) { display: block; min-height: 2em; }
-                article.markdown-body { padding-bottom: 40vh; }
                 #mv-append-zone { height: 1.5em; }
                 #mv-block-editor {
                     display: block; width: 100%; box-sizing: border-box;
@@ -511,25 +500,31 @@ struct MarkdownWebView: NSViewRepresentable {
                         return '<span>' + m.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
                     });
                     var html = marked.parse(md);
-                    html = html.replace(/MVMATH(\\d+)X/g, function(_, i) {
-                        const item = mathStore[+i];
-                        return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display });
-                    });
-                    html = html.replace(/<mvmath data-i="(\\d+)"><\\/mvmath>/g, function(_, i) {
-                        const item = mathStore[+i];
-                        return katex.renderToString(item.tex, { throwOnError: false, displayMode: false });
+                    html = html.replace(/MVMATH(\\d+)X|<mvmath data-i="(\\d+)"><\\/mvmath>/g, function(_, i, j) {
+                        return _mvRenderMath(mathStore[+(i || j)]);
                     });
                     return html;
                 }
 
-                // Render markdown (base64-encoded) into #content without touching scroll position.
-                // Called once on initial load, then on every live edit keystroke from Swift.
-                window._mvRender = function(base64md) {
-                    var bytes = Uint8Array.from(atob(base64md), c => c.charCodeAt(0));
-                    var raw = new TextDecoder().decode(bytes);
+                // KaTeX comes from a CDN; when offline it is undefined, so fall back to the
+                // raw TeX instead of throwing and leaving the whole document blank.
+                function _mvRenderMath(item) {
+                    if (typeof katex === 'undefined') {
+                        var d = item.display ? '$$' : '$';
+                        return (d + item.tex + d).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                    }
+                    return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display });
+                }
+
+                function _mvSafeDecodeURI(s) {
+                    try { return decodeURIComponent(s); } catch (e) { return s; }
+                }
+
+                // Rebuild #content from raw markdown without touching scroll position.
+                // Also makes _mvRawLines (the line model used by block editing) match the DOM.
+                function _mvRenderRaw(raw) {
                     window._mvRawLines = raw.split('\\n');
-                    window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender called: activeEl=' + (window._mvActiveEl ? window._mvActiveEl.id || 'block' : 'null') + ' pendingNextLine=' + window._mvPendingNextEditLine + ' dirty=' + window._mvBlockDirty);
-                    if (window._mvActiveEl) { window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: bailed (editor active)'); return; }
+                    window._mvStale = false;
 
                     // Split raw into blocks, keeping fenced code and math blocks intact.
                     var blocks = [];
@@ -563,15 +558,15 @@ struct MarkdownWebView: NSViewRepresentable {
                         return '<div class="mv-block" data-start="' + b.start + '" data-end="' + b.end + '">'
                             + _mvRenderOneBlock(blockText) + '</div>';
                     }).join('');
-                    fullHtml += '<div id="mv-append-zone" class="mv-placeholder" data-start="'
+                    fullHtml += '<div id="mv-append-zone" data-start="'
                         + window._mvRawLines.length + '" data-end="' + window._mvRawLines.length + '"></div>';
-                    document.getElementById('content').innerHTML = fullHtml;
+                    var content = document.getElementById('content');
+                    content.innerHTML = fullHtml;
 
-                    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
-                        var decoded = decodeURIComponent(a.getAttribute('href')).replace(/-+/g, '-');
-                        a.setAttribute('href', decoded);
+                    content.querySelectorAll('a[href^="#"]').forEach(function(a) {
+                        a.setAttribute('href', _mvSafeDecodeURI(a.getAttribute('href')).replace(/-+/g, '-'));
                     });
-                    document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
+                    content.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h) {
                         h.id = h.textContent.trim().toLowerCase()
                             .replace(/[^\\p{L}\\p{N}\\s-]/gu, '')
                             .trim()
@@ -579,41 +574,23 @@ struct MarkdownWebView: NSViewRepresentable {
                             .replace(/-+/g, '-');
                     });
                     if (window._mvBuildTOC) window._mvBuildTOC();
+                    if (window._mvSearch) window._mvSearch.refresh();
+                }
 
-                    if (window._mvPendingNextEditLine !== undefined) {
-                        var targetLine = window._mvPendingNextEditLine;
-                        window._mvPendingNextEditLine = undefined;
-                        var blocks = document.querySelectorAll('.mv-block');
-                        window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: focusNext targetLine=' + targetLine + ' blockCount=' + blocks.length);
-                        var found = false;
-                        for (var i = 0; i < blocks.length; i++) {
-                            if (+blocks[i].getAttribute('data-start') >= targetLine) {
-                                window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: starting edit on block[' + i + ']');
-                                window._mvStartBlockEdit(blocks[i], Infinity, true);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: no next block found, opening append zone');
-                            var az = document.getElementById('mv-append-zone');
-                            if (az) window._mvStartBlockEdit(az, Infinity, true);
-                        }
+                // Called by Swift with the base64-encoded document on initial load and
+                // whenever the document text changes (commit echo, undo/redo).
+                window._mvRender = function(base64md) {
+                    var bytes = Uint8Array.from(atob(base64md), c => c.charCodeAt(0));
+                    var raw = new TextDecoder().decode(bytes);
+                    var current = window._mvRawLines ? window._mvRawLines.join('\\n') : null;
+                    if (raw === current && !window._mvStale) return;  // already rendered locally
+                    if (window._mvActiveEl) {
+                        // Rebuilding #content would destroy the open editor. Keep it if it has
+                        // edits (_mvCloseEditor re-renders later); otherwise drop it, e.g. on undo.
+                        if (window._mvBlockDirty) { window._mvStale = true; return; }
+                        window._mvCloseEditor(false);
                     }
-                    if (window._mvPendingPrevEditLine !== undefined) {
-                        var targetLine = window._mvPendingPrevEditLine;
-                        window._mvPendingPrevEditLine = undefined;
-                        var blocks = document.querySelectorAll('.mv-block');
-                        var found = false;
-                        for (var i = blocks.length - 1; i >= 0; i--) {
-                            if (+blocks[i].getAttribute('data-end') <= targetLine) {
-                                window._mvStartBlockEdit(blocks[i], Infinity, true);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) window.webkit.messageHandlers.debug.postMessage('[MV] _mvRender: no prev block found');
-                    }
+                    _mvRenderRaw(raw);
                 };
 
                 // Initial render
@@ -631,94 +608,90 @@ struct MarkdownWebView: NSViewRepresentable {
                     return offset;
                 }
 
+                // First rendered block that covers or follows a raw line index.
+                function _mvBlockAtLine(line) {
+                    var blocks = document.querySelectorAll('#content .mv-block');
+                    for (var i = 0; i < blocks.length; i++) {
+                        if (+blocks[i].getAttribute('data-end') > line) return blocks[i];
+                    }
+                    return document.getElementById('mv-append-zone');
+                }
+
                 // Block editing state
-                window._mvRawLines = window._mvRawLines || [];
                 window._mvActiveEl = null;
                 window._mvActiveStartLine = -1;
                 window._mvActiveEndLine = -1;
+                window._mvBlockDirty = false;
 
                 // Close the inline block editor. commit=true posts the full text to Swift.
-                window._mvCloseEditor = function(commit, save, focusNext, focusPrev) {
+                // focusNext / focusPrev then open the following / preceding block.
+                window._mvCloseEditor = function(commit, focusNext, focusPrev) {
                     var ta = document.getElementById('mv-block-editor');
                     var prevEl = window._mvActiveEl;
                     var wasAppendZone = prevEl && prevEl.id === 'mv-append-zone';
-                    var wasDirty = !!window._mvBlockDirty;
+                    var wasDirty = window._mvBlockDirty;
                     var savedStartLine = window._mvActiveStartLine;
                     var savedEndLine = window._mvActiveEndLine;
                     window._mvBlockDirty = false;
                     if (ta) ta.remove();
-                    if (prevEl) {
-                        if (prevEl.classList.contains('mv-placeholder')) prevEl.remove();
-                        else prevEl.style.display = '';
-                    }
+                    if (prevEl) prevEl.style.display = '';
                     window._mvActiveEl = null;
-                    window.webkit.messageHandlers.editorActive.postMessage(false);
-                    // If no edits were made, _mvRender won't fire (text unchanged),
-                    // so focus the target block immediately while the DOM is still intact.
-                    if ((focusNext || focusPrev) && !wasDirty) {
-                        var blocks = document.querySelectorAll('.mv-block');
+                    if (wasDirty) window.webkit.messageHandlers.editorDirty.postMessage(false);
+                    if (commit && prevEl) {
+                        // Text typed into the append zone needs a blank separator line so it
+                        // doesn't merge into the previous block.
+                        if (wasAppendZone && savedStartLine > 0
+                                && window._mvRawLines.length > savedStartLine
+                                && window._mvRawLines[savedStartLine - 1].trim() !== '') {
+                            window._mvRawLines.splice(savedStartLine, 0, '');
+                            savedEndLine += 1;
+                        }
+                        var text = window._mvRawLines.join('\\n');
+                        window.webkit.messageHandlers.commitEdit.postMessage(btoa(unescape(encodeURIComponent(text))));
+                    }
+                    // Re-render immediately so every block's data-start/data-end matches
+                    // _mvRawLines again; Swift's echo _mvRender with the same text is a no-op.
+                    if ((commit && wasDirty) || window._mvStale) {
+                        _mvRenderRaw(window._mvRawLines.join('\\n'));
+                    }
+                    if (focusNext || focusPrev) {
+                        var blocks = document.querySelectorAll('#content .mv-block');
                         var target = null;
                         if (focusNext) {
                             for (var i = 0; i < blocks.length; i++) {
                                 if (+blocks[i].getAttribute('data-start') >= savedEndLine) { target = blocks[i]; break; }
                             }
+                            if (!target) target = document.getElementById('mv-append-zone');
                         } else {
                             for (var i = blocks.length - 1; i >= 0; i--) {
                                 if (+blocks[i].getAttribute('data-end') <= savedStartLine) { target = blocks[i]; break; }
                             }
                         }
                         if (target) window._mvStartBlockEdit(target, Infinity, true);
-                        else if (focusNext) {
-                            var az = document.getElementById('mv-append-zone');
-                            if (az) window._mvStartBlockEdit(az, Infinity, true);
-                        }
-                    }
-                    if (commit && prevEl) {
-                        // Insert the blank separator first so savedEndLine can be adjusted
-                        // before _mvPendingNextEditLine is set — otherwise the +1 shift from
-                        // the splice would make the pending line land on the new block's start,
-                        // causing it to be re-opened instead of advancing to the append zone.
-                        var s = window._mvActiveStartLine;
-                        if (wasAppendZone && s > 0
-                                && window._mvRawLines.length > s
-                                && window._mvRawLines[s - 1].trim() !== '') {
-                            window._mvRawLines.splice(s, 0, '');
-                            savedEndLine += 1;
-                        }
-                        if (focusNext && wasDirty) {
-                            window._mvPendingNextEditLine = savedEndLine;
-                            window.webkit.messageHandlers.debug.postMessage('[MV] _mvCloseEditor: dirty, set _mvPendingNextEditLine=' + window._mvPendingNextEditLine);
-                        }
-                        if (focusPrev && wasDirty) {
-                            window._mvPendingPrevEditLine = savedStartLine;
-                            window.webkit.messageHandlers.debug.postMessage('[MV] _mvCloseEditor: dirty, set _mvPendingPrevEditLine=' + window._mvPendingPrevEditLine);
-                        }
-                        var text = window._mvRawLines.join('\\n');
-                        var encoded = btoa(unescape(encodeURIComponent(text)));
-                        var handler = save ? 'commitEditAndSave' : 'commitEdit';
-                        window.webkit.messageHandlers[handler].postMessage(encoded);
-                    }
-                    // Re-add the append zone if it was being edited and _mvRender didn't fire.
-                    if (wasAppendZone && !document.getElementById('mv-append-zone')) {
-                        var az = document.createElement('div');
-                        az.id = 'mv-append-zone';
-                        az.className = 'mv-placeholder';
-                        az.setAttribute('data-start', String(window._mvRawLines.length));
-                        az.setAttribute('data-end', String(window._mvRawLines.length));
-                        var c = document.getElementById('content');
-                        if (c) c.appendChild(az);
                     }
                 };
 
                 // Replace a .mv-block with an inline textarea for direct markdown editing.
                 window._mvStartBlockEdit = function(blockEl, charOffset, scrollTo) {
                     if (window._mvActiveEl === blockEl) return;
-                    if (window._mvActiveEl) window._mvCloseEditor(true);
+                    if (window._mvActiveEl) {
+                        // Closing the open editor may re-render #content and detach blockEl.
+                        // Remember its line, shifted by the lines the closed edit added or
+                        // removed, so the matching block can be found in the new DOM.
+                        var prevEnd = +window._mvActiveEl.getAttribute('data-end');
+                        var line = +blockEl.getAttribute('data-start');
+                        if (line >= prevEnd) line += window._mvActiveEndLine - prevEnd;
+                        var isAppendZone = blockEl.id === 'mv-append-zone';
+                        window._mvCloseEditor(true);
+                        if (!blockEl.isConnected) {
+                            blockEl = isAppendZone ? document.getElementById('mv-append-zone') : _mvBlockAtLine(line);
+                            if (!blockEl) return;
+                        }
+                    }
 
                     var start = +blockEl.getAttribute('data-start');
                     var end = +blockEl.getAttribute('data-end');
                     window._mvActiveEl = blockEl;
-                    window.webkit.messageHandlers.editorActive.postMessage(true);
                     window._mvActiveStartLine = start;
                     window._mvActiveEndLine = end;
 
@@ -744,7 +717,10 @@ struct MarkdownWebView: NSViewRepresentable {
                     ta.setSelectionRange(pos, pos);
 
                     ta.addEventListener('input', function() {
-                        window._mvBlockDirty = true;
+                        if (!window._mvBlockDirty) {
+                            window._mvBlockDirty = true;
+                            window.webkit.messageHandlers.editorDirty.postMessage(true);
+                        }
                         var newLines = ta.value.split('\\n');
                         window._mvRawLines = window._mvRawLines.slice(0, window._mvActiveStartLine)
                             .concat(newLines)
@@ -754,16 +730,14 @@ struct MarkdownWebView: NSViewRepresentable {
                         ta.style.height = ta.scrollHeight + 'px';
                     });
                     ta.addEventListener('keydown', function(e) {
-                        if (e.key === 'Escape') { e.preventDefault(); window._mvCloseEditor(true, false); }
+                        if (e.key === 'Escape') { e.preventDefault(); window._mvCloseEditor(true); }
                         if (e.key === 'Enter' && e.metaKey && !e.shiftKey) {
                             e.preventDefault();
-                            window.webkit.messageHandlers.debug.postMessage('[MV] Cmd+Enter: activeStartLine=' + window._mvActiveStartLine + ' activeEndLine=' + window._mvActiveEndLine + ' dirty=' + window._mvBlockDirty);
-                            window._mvCloseEditor(true, false, true, false);
+                            window._mvCloseEditor(true, true, false);
                         }
                         if (e.key === 'Enter' && e.metaKey && e.shiftKey) {
                             e.preventDefault();
-                            window.webkit.messageHandlers.debug.postMessage('[MV] Shift+Cmd+Enter: activeStartLine=' + window._mvActiveStartLine + ' activeEndLine=' + window._mvActiveEndLine + ' dirty=' + window._mvBlockDirty);
-                            window._mvCloseEditor(true, false, false, true);
+                            window._mvCloseEditor(true, false, true);
                         }
                     });
                     ta.addEventListener('blur', function() {
@@ -814,7 +788,7 @@ struct MarkdownWebView: NSViewRepresentable {
                     var a = e.target.closest('a[href^="#"]');
                     if (!a) return;
                     e.preventDefault();
-                    var fragment = decodeURIComponent(a.getAttribute('href').slice(1));
+                    var fragment = _mvSafeDecodeURI(a.getAttribute('href').slice(1));
                     var el = document.getElementById(fragment);
                     if (el) el.scrollIntoView({behavior: 'smooth'});
                 });
@@ -835,18 +809,19 @@ struct MarkdownWebView: NSViewRepresentable {
                     }
                 });
                 window._mvSearch = (function() {
-                    var marks = [], idx = 0;
-                    function clear() {
+                    var marks = [], idx = 0, term = '';
+                    function removeMarks() {
                         document.querySelectorAll('mark.mv-hl').forEach(function(m) {
                             var p = m.parentNode;
                             if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
                         });
                         marks = []; idx = 0;
                     }
-                    function highlight(text) {
-                        clear();
-                        if (!text) return;
-                        var lo = text.toLowerCase();
+                    function highlight(text, keepScroll) {
+                        removeMarks();
+                        term = text || '';
+                        if (!term) return;
+                        var lo = term.toLowerCase();
                         var root = document.getElementById('content') || document.body;
                         var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
                         var nodes = [], n;
@@ -869,8 +844,14 @@ struct MarkdownWebView: NSViewRepresentable {
                             } catch(e) {}
                         }
                         idx = 0;
-                        if (marks.length) { marks[0].style.background = '#FF8C00'; marks[0].scrollIntoView({behavior:'smooth',block:'center'}); }
+                        if (marks.length) {
+                            marks[0].style.background = '#FF8C00';
+                            if (!keepScroll) marks[0].scrollIntoView({behavior:'smooth',block:'center'});
+                        }
                     }
+                    // Re-apply the current search after #content is re-rendered.
+                    function refresh() { if (term) highlight(term, true); }
+                    function clear() { term = ''; removeMarks(); }
                     function navigate(fwd) {
                         if (!marks.length) return;
                         marks[idx].style.background = '#FFD700';
@@ -878,7 +859,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         marks[idx].style.background = '#FF8C00';
                         marks[idx].scrollIntoView({behavior:'smooth',block:'center'});
                     }
-                    return {highlight: highlight, navigate: navigate, clear: clear};
+                    return {highlight: highlight, navigate: navigate, clear: clear, refresh: refresh};
                 })();
 
                 // Copy selection as markdown

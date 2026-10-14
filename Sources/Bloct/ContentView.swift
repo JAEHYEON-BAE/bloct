@@ -89,7 +89,6 @@ struct SearchTextField: NSViewRepresentable {
         if nsView.stringValue != text {
             nsView.stringValue = text
         }
-
     }
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -123,12 +122,11 @@ class WebViewStore {
 
 @MainActor
 final class DocumentState: ObservableObject {
-    @Published var text: String = ""
+    @Published var text: String
     weak var undoManager: UndoManager?
 
-    func load(_ initialText: String) {
-        text = initialText
-        undoManager?.removeAllActions()
+    init(text: String) {
+        self.text = text
     }
 
     func commit(_ newText: String) {
@@ -202,37 +200,48 @@ private struct WindowCloseHandler: NSViewRepresentable {
 struct ContentView: View {
     @Binding var document: MarkdownDocument
     let fileURL: URL?
-    @StateObject private var docState = DocumentState()
+    @StateObject private var docState: DocumentState
     @Environment(\.undoManager) var undoManager
     @State private var zoomLevel: Double = 1.0
     @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
     @State private var searchText: String = ""
-    @State private var originalText: String = ""
+    @State private var originalText: String
     @State private var showCloseWarning: Bool = false
     @State private var closeProxy: CloseProxy? = nil
-    @State private var isBlockEditorActive: Bool = false
-    @State private var isEditMode: Bool = false
-    private let webViewStore = WebViewStore()
+    @State private var isBlockEditorDirty: Bool = false
+    @State private var isEditMode: Bool
+    @State private var webViewStore = WebViewStore()
 
-    private var hasUnsavedChanges: Bool { docState.text != originalText || isBlockEditorActive }
+    // State is seeded here rather than in onAppear so the web view's first load already
+    // has the document text (otherwise it loads an empty page, then reloads).
+    init(document: Binding<MarkdownDocument>, fileURL: URL?) {
+        _document = document
+        self.fileURL = fileURL
+        let text = document.wrappedValue.text
+        _docState = StateObject(wrappedValue: DocumentState(text: text))
+        _originalText = State(initialValue: text)
+        _isEditMode = State(initialValue: fileURL == nil)
+    }
+
+    private var hasUnsavedChanges: Bool { docState.text != originalText || isBlockEditorDirty }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onSave: { saveDocument() }, onSaveOnly: { saveFileOnly() }, onEditorActiveChanged: { isBlockEditorActive = $0 })
+        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             docState.undoManager = undoManager
-            docState.load(document.text)
-            originalText = document.text
-            if fileURL == nil { isEditMode = true }
         }
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
         .focusedValue(\.showTOC, $showTOC)
         .focusedValue(\.showSearch, $showSearch)
-        .focusedValue(\.saveDocument, saveDocument)
+        .focusedValue(\.saveDocument, { saveDocument() })
         .onChange(of: showSearch) { _, visible in
-            if !visible { clearHighlights() }
+            if !visible {
+                searchText = ""
+                clearHighlights()
+            }
         }
         .background(
             WindowCloseHandler(
@@ -264,7 +273,7 @@ struct ContentView: View {
                         get: { isEditMode },
                         set: { newValue in
                             isEditMode = newValue
-                            if !newValue { isBlockEditorActive = false }
+                            if !newValue { isBlockEditorDirty = false }
                         }
                     )) {
                         Label("Edit Mode", systemImage: "pencil")
@@ -275,7 +284,6 @@ struct ContentView: View {
                 ToolbarItem(placement: .automatic) {
                     Button {
                         showSearch.toggle()
-                        if !showSearch { searchText = "" }
                     } label: {
                         Label("Find", systemImage: "magnifyingglass")
                     }
@@ -287,7 +295,7 @@ struct ContentView: View {
                             SearchTextField(
                                 text: $searchText,
                                 onSubmit: { performFind(forward: true) },
-                                onEscape: { showSearch = false; searchText = "" }
+                                onEscape: { showSearch = false }
                             )
                             .frame(width: 180, height: 22)
                             .onChange(of: searchText) { updateHighlights() }
@@ -301,7 +309,6 @@ struct ContentView: View {
                             .help("Next match")
                             Button {
                                 showSearch = false
-                                searchText = ""
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                             }
@@ -314,18 +321,11 @@ struct ContentView: View {
 
     private func saveAndClose() {
         let proxy = closeProxy
-        let docState = self.docState
-        webViewStore.webView?.evaluateJavaScript(
-            "window._mvCloseEditor && window._mvCloseEditor(true);"
-        ) { _, _ in
-            DispatchQueue.main.async {
-                self.originalText = docState.text
-                proxy?.window?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
-                proxy?.hasUnsavedChanges = { false }
-                proxy?.bypass = true
-                proxy?.window?.close()
-                if AppDelegate.isQuitting { handleQuit() }
-            }
+        saveDocument {
+            proxy?.hasUnsavedChanges = { false }
+            proxy?.bypass = true
+            proxy?.window?.close()
+            if AppDelegate.isQuitting { handleQuit() }
         }
     }
 
@@ -336,7 +336,7 @@ struct ContentView: View {
         ) { _, _ in
             DispatchQueue.main.async {
                 self.document.text = self.originalText  // revert so autosave preserves original
-                self.originalText = self.docState.text  // clear dirty flag (docState.text now == originalText)
+                self.originalText = self.docState.text  // make docState.text == originalText to clear the dirty flag
                 proxy?.hasUnsavedChanges = { false }
                 proxy?.bypass = true
                 proxy?.window?.close()
@@ -350,23 +350,19 @@ struct ContentView: View {
         document.text = newText
     }
 
-    private func saveDocument() {
+    // Commits any open block editor, saves the document, then runs `completion`.
+    private func saveDocument(then completion: (() -> Void)? = nil) {
         let docState = self.docState
+        let window = closeProxy?.window ?? NSApp.keyWindow
         webViewStore.webView?.evaluateJavaScript(
             "window._mvCloseEditor && window._mvCloseEditor(true);"
         ) { _, _ in
             DispatchQueue.main.async {
                 self.originalText = docState.text
-                NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
+                (window?.windowController?.document as? NSDocument)?.save(nil)
+                completion?()
             }
         }
-    }
-
-    // Save the file without closing any active editor. Used by commitEditAndSave,
-    // where the edit is already committed and the next block may already be open.
-    private func saveFileOnly() {
-        originalText = docState.text
-        NSApp.keyWindow?.windowController?.document?.perform(#selector(NSDocument.save(_:)), with: nil)
     }
 
     private func clearHighlights() {
@@ -377,11 +373,14 @@ struct ContentView: View {
     }
 
     private func updateHighlights() {
-        guard let webView = webViewStore.webView else { return }
-        let escaped = searchText
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "'", with: "\\'")
-        webView.evaluateJavaScript("window._mvSearch.highlight('\(escaped)');", completionHandler: nil)
+        // Pass the query as an argument so quotes, backslashes and newlines need no escaping.
+        webViewStore.webView?.callAsyncJavaScript(
+            "window._mvSearch.highlight(text);",
+            arguments: ["text": searchText],
+            in: nil,
+            in: .page,
+            completionHandler: nil
+        )
     }
 
     private func performFind(forward: Bool) {
