@@ -19,6 +19,13 @@ struct MarkdownWebView: NSViewRepresentable {
         return content
     }()
 
+    private static let purifyJS: String = {
+        guard let url = Bundle.main.url(forResource: "purify.min", withExtension: "js"),
+              let content = try? String(contentsOf: url, encoding: .utf8)
+        else { return "" }
+        return content
+    }()
+
     private static let css: String = {
         guard let url = Bundle.main.url(forResource: "style", withExtension: "css"),
               let content = try? String(contentsOf: url, encoding: .utf8)
@@ -99,10 +106,14 @@ struct MarkdownWebView: NSViewRepresentable {
         var fileURL: URL?
         var isPageLoaded: Bool = false
         var pendingAutoFocus: Bool = false
+        var inlinePageURL: URL?
+        var pendingPageLoad = false
         var onTextCommit: ((String) -> Void)?
         var onEditorDirtyChanged: ((Bool) -> Void)?
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            guard message.frameInfo.isMainFrame,
+                  let url = message.webView?.url, isPreviewURL(url) else { return }
             switch message.name {
             case "closeTOC":
                 DispatchQueue.main.async { [weak self] in self?.onCloseTOC() }
@@ -121,12 +132,38 @@ struct MarkdownWebView: NSViewRepresentable {
                     DispatchQueue.main.async { [weak self] in self?.onEditorDirtyChanged?(dirty) }
                 }
             case "openExternal":
-                if let urlString = message.body as? String, let url = URL(string: urlString) {
+                if let urlString = message.body as? String, let url = URL(string: urlString),
+                   ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
                     NSWorkspace.shared.open(url)
                 }
             default:
                 break
             }
+        }
+
+        private func isPreviewURL(_ url: URL) -> Bool {
+            if url.absoluteString == "about:blank" || url == inlinePageURL { return true }
+            return ([tempHTMLURL].compactMap { $0 } + supersededHTMLURLs).contains(url)
+        }
+
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                     decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {
+            guard let url = navigationAction.request.url else {
+                decisionHandler(.cancel)
+                return
+            }
+            if pendingPageLoad, navigationAction.targetFrame?.isMainFrame == true,
+               navigationAction.navigationType == .other, isPreviewURL(url) {
+                pendingPageLoad = false
+                decisionHandler(.allow)
+                return
+            }
+            // Do not let untrusted documents replace the page that owns the bridge.
+            if navigationAction.navigationType == .linkActivated,
+               ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
+                NSWorkspace.shared.open(url)
+            }
+            decisionHandler(.cancel)
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -290,13 +327,18 @@ struct MarkdownWebView: NSViewRepresentable {
                             coordinator.supersededHTMLURLs.append(previous)
                         }
                         coordinator.tempHTMLURL = tmpURL
+                        coordinator.pendingPageLoad = true
                         webView.loadFileURL(tmpURL, allowingReadAccessTo: dir)
                     } catch {
+                        coordinator.inlinePageURL = dir
+                        coordinator.pendingPageLoad = true
                         webView.loadHTMLString(html, baseURL: dir)
                     }
                 } else {
                     coordinator.pendingAutoFocus = true
-                    webView.loadHTMLString(html, baseURL: URL(string: "https://cdn.jsdelivr.net"))
+                    coordinator.inlinePageURL = URL(string: "about:blank")
+                    coordinator.pendingPageLoad = true
+                    webView.loadHTMLString(html, baseURL: nil)
                 }
             }
         }
@@ -342,14 +384,16 @@ struct MarkdownWebView: NSViewRepresentable {
         }
     }
 
-    private func buildHTML() -> String {
+    func buildHTML() -> String {
         let base64Markdown = Data(markdown.utf8).base64EncodedString()
+        let nonce = UUID().uuidString
 
         return """
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-\(nonce)'; script-src-attr 'none'; style-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css; font-src https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/; img-src file: data: https: http:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
             <meta name="color-scheme" content="light dark">
             <style>\(Self.css)</style>
             <style>
@@ -369,14 +413,45 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
             </style>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-            <script>\(Self.markedJS)</script>
-            <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+            <script nonce="\(nonce)">\(Self.purifyJS)</script>
+            <script nonce="\(nonce)">\(Self.markedJS)</script>
+            <script nonce="\(nonce)" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
         </head>
         <body>
             <article class="markdown-body">
                 <div id="content"></div>
             </article>
-            <script>
+            <script nonce="\(nonce)">
+                // Fail closed if the bundled sanitizer is unavailable.
+                if (typeof DOMPurify === 'undefined' || !DOMPurify.isSupported) {
+                    throw new Error('HTML sanitizer unavailable');
+                }
+                DOMPurify.addHook('uponSanitizeAttribute', function(node, data) {
+                    // User HTML must not impersonate the editor's own block containers.
+                    if (node.tagName === 'IMG' && data.attrName === 'src') {
+                        try {
+                            if (new URL(data.attrValue, document.baseURI).protocol === 'file:') {
+                                data.forceKeepAttr = true;
+                            }
+                        } catch (_) { data.keepAttr = false; }
+                    }
+                    if (data.attrName === 'class') {
+                        data.attrValue = data.attrValue.split(/\\s+/).filter(function(c) {
+                            return !c.startsWith('mv-') && c !== 'markdown-body';
+                        }).join(' ');
+                    }
+                });
+                function _mvSanitize(html) {
+                    return DOMPurify.sanitize(html, {
+                        ALLOW_DATA_ATTR: false,
+                        ADD_TAGS: ['annotation'],
+                        ADD_ATTR: ['encoding'],
+                        FORBID_TAGS: ['style', 'form', 'textarea', 'select', 'button', 'iframe',
+                                      'object', 'embed', 'base', 'link', 'meta', 'template'],
+                        FORBID_ATTR: ['id', 'name', 'srcset', 'autofocus', 'contenteditable']
+                    });
+                }
+
                 // figureCaption handles *[...]*  blocks so the outer * are never seen by the italic rule
                 const figureCaption = {
                     name: 'figureCaption',
@@ -452,25 +527,38 @@ struct MarkdownWebView: NSViewRepresentable {
                 // Render one block's raw text through the math/code pipeline and return HTML.
                 function _mvRenderOneBlock(blockRaw) {
                     var mathStore = [], codeStore = [];
+                    // Choose a per-render namespace absent from the original source.
+                    // Literal MVCODE/MVMATH strings are ordinary document text.
+                    var prefix;
+                    do { prefix = 'MV' + Math.random().toString(36).slice(2) + 'Q'; }
+                    while (blockRaw.includes(prefix));
+                    var codePattern = new RegExp(prefix + 'CODE([0-9]+)X', 'g');
+                    var mathPattern = new RegExp(prefix + 'MATH([0-9]+)X', 'g');
                     var md = blockRaw
                         .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
                             let style = '';
                             const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
                             const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
                             const a = attrs.match(/align\\s*=\\s*([^\\s,}]+)/);
-                            if (w) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
-                            if (h) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
-                            const img = '<img src="' + src + '" alt="' + alt + '"' + (style ? ' style="' + style + '"' : '') + '>';
+                            if (w && /^(?:[0-9]+(?:\\.[0-9]+)?)(?:px|%|em|rem|vw|vh)?$/.test(w[1])) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                            if (h && /^(?:[0-9]+(?:\\.[0-9]+)?)(?:px|%|em|rem|vw|vh)?$/.test(h[1])) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
+                            const img = document.createElement('img');
+                            img.setAttribute('src', src);
+                            img.setAttribute('alt', alt);
+                            if (style) img.setAttribute('style', style);
                             if (a && (a[1] === 'left' || a[1] === 'center' || a[1] === 'right')) {
-                                return '<div style="text-align:' + a[1] + '">' + img + '</div>';
+                                const wrapper = document.createElement('div');
+                                wrapper.style.textAlign = a[1];
+                                wrapper.appendChild(img);
+                                return wrapper.outerHTML;
                             }
-                            return img;
+                            return img.outerHTML;
                         })
                         .replace(/^(`{3,}|~{3,})[^\\n]*\\n[\\s\\S]*?\\n\\1[ \\t]*$/mg, function(match) {
-                            codeStore.push(match); return 'MVCODE' + (codeStore.length - 1) + 'X';
+                            codeStore.push(match); return prefix + 'CODE' + (codeStore.length - 1) + 'X';
                         })
                         .replace(/`+[^`\\n]*`+/g, function(match) {
-                            codeStore.push(match); return 'MVCODE' + (codeStore.length - 1) + 'X';
+                            codeStore.push(match); return prefix + 'CODE' + (codeStore.length - 1) + 'X';
                         })
                         .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(match, tex, offset, str) {
                             var before = str.substring(0, offset);
@@ -479,24 +567,24 @@ struct MarkdownWebView: NSViewRepresentable {
                             var blankAfter = /^[ \\t]*\\n[ \\t]*\\n/.test(after) || /^[ \\t]*$/.test(after);
                             var isBlock = blankBefore && blankAfter;
                             mathStore.push({ display: true, tex: tex.trim() });
-                            var ph = 'MVMATH' + (mathStore.length - 1) + 'X';
+                            var ph = prefix + 'MATH' + (mathStore.length - 1) + 'X';
                             return isBlock ? '\\n\\n' + ph + '\\n\\n' : ph;
                         })
                         .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
                             mathStore.push({ display: false, tex: tex.trim() });
-                            return '<mvmath data-i="' + (mathStore.length - 1) + '"></mvmath>';
+                            return prefix + 'MATH' + (mathStore.length - 1) + 'X';
                         })
-                        .replace(/MVCODE(\\d+)X/g, function(_, i) { return codeStore[+i]; });
+                        .replace(codePattern, function(match, i) { return codeStore[+i] ?? match; });
                     var _hasBlockquote = /^>/m.test(md);
                     md = md.replace(/^(#{1,6}|[-*+]|>|\\d+[.)])[ \\t]*$/mg, function(_, m) {
                         if (m === '>' && _hasBlockquote) return m;
                         return '<span>' + m.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
                     });
                     var html = marked.parse(md);
-                    html = html.replace(/MVMATH(\\d+)X|<mvmath data-i="(\\d+)"><\\/mvmath>/g, function(_, i, j) {
-                        return _mvRenderMath(mathStore[+(i || j)]);
+                    html = html.replace(mathPattern, function(match, i) {
+                        return mathStore[+i] ? _mvRenderMath(mathStore[+i]) : match;
                     });
-                    return html;
+                    return _mvSanitize(html);
                 }
 
                 // KaTeX comes from a CDN; when offline it is undefined, so fall back to the
