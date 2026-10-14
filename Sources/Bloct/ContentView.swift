@@ -120,26 +120,6 @@ class WebViewStore {
     var webView: WKWebView?
 }
 
-@MainActor
-final class DocumentState: ObservableObject {
-    @Published var text: String
-    weak var undoManager: UndoManager?
-
-    init(text: String) {
-        self.text = text
-    }
-
-    func commit(_ newText: String) {
-        guard newText != text else { return }
-        let old = text
-        text = newText
-        undoManager?.registerUndo(withTarget: self) { target in
-            MainActor.assumeIsolated { target.commit(old) }
-        }
-        undoManager?.setActionName("Typing")
-    }
-}
-
 // MARK: - Window close interception
 
 class CloseProxy: NSObject, NSWindowDelegate {
@@ -210,6 +190,7 @@ struct ContentView: View {
     @State private var showCloseWarning: Bool = false
     @State private var closeProxy: CloseProxy? = nil
     @State private var isBlockEditorDirty: Bool = false
+    @State private var isSaving = false
     @State private var isEditMode: Bool
     @State private var webViewStore = WebViewStore()
 
@@ -219,7 +200,7 @@ struct ContentView: View {
         _document = document
         self.fileURL = fileURL
         let text = document.wrappedValue.text
-        _docState = StateObject(wrappedValue: DocumentState(text: text))
+        _docState = StateObject(wrappedValue: DocumentState(document: document))
         _originalText = State(initialValue: text)
         _isEditMode = State(initialValue: fileURL == nil)
     }
@@ -335,8 +316,7 @@ struct ContentView: View {
             "window._mvCloseEditor && window._mvCloseEditor(false);"
         ) { _, _ in
             DispatchQueue.main.async {
-                self.document.text = self.originalText  // revert so autosave preserves original
-                self.originalText = self.docState.text  // make docState.text == originalText to clear the dirty flag
+                self.docState.restore(self.originalText)
                 proxy?.hasUnsavedChanges = { false }
                 proxy?.bypass = true
                 proxy?.window?.close()
@@ -347,20 +327,50 @@ struct ContentView: View {
 
     private func commitEdit(_ newText: String) {
         docState.commit(newText)
-        document.text = newText
     }
 
-    // Commits any open block editor, saves the document, then runs `completion`.
+    // Take an explicit JS snapshot: native message delivery need not finish before
+    // evaluateJavaScript's completion. Save the same text that the editor committed.
     private func saveDocument(then completion: (() -> Void)? = nil) {
-        let docState = self.docState
-        let window = closeProxy?.window ?? NSApp.keyWindow
-        webViewStore.webView?.evaluateJavaScript(
-            "window._mvCloseEditor && window._mvCloseEditor(true);"
-        ) { _, _ in
+        guard !isSaving else { return }
+        guard let webView = webViewStore.webView,
+              let nativeDocument = (closeProxy?.window ?? NSApp.keyWindow)?
+                .windowController?.document as? NSDocument else {
+            AppDelegate.isQuitting = false
+            NSApp.presentError(CocoaError(.fileWriteUnknown))
+            return
+        }
+        isSaving = true
+        webView.evaluateJavaScript("""
+            (() => {
+                if (!window._mvCloseEditor || !window._mvRawLines) throw new Error('Editor not ready');
+                window._mvCloseEditor(true);
+                return window._mvRawLines.join('\\n');
+            })();
+            """) { result, error in
             DispatchQueue.main.async {
-                self.originalText = docState.text
-                (window?.windowController?.document as? NSDocument)?.save(nil)
-                completion?()
+                guard error == nil, let text = result as? String else {
+                    self.isSaving = false
+                    AppDelegate.isQuitting = false
+                    NSApp.presentError(error ?? CocoaError(.fileWriteUnknown))
+                    return
+                }
+                self.docState.commit(text)
+                DocumentSaveOperation.save(nativeDocument) { success in
+                    self.isSaving = false
+                    guard success else {
+                        AppDelegate.isQuitting = false
+                        return
+                    }
+                    self.originalText = text
+                    // A later edit must not be discarded by save-and-close.
+                    if self.docState.text == text && !self.isBlockEditorDirty {
+                        completion?()
+                    } else if completion != nil {
+                        AppDelegate.isQuitting = false
+                        self.showCloseWarning = true
+                    }
+                }
             }
         }
     }

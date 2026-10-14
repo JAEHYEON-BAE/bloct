@@ -10,6 +10,7 @@ xcuserdata/
 .DS_Store
 ._*
 .mv_preview.html
+.mv_preview-*.html
 
 # Generated — rebuild with `xcodegen generate`
 Bloct.xcodeproj/

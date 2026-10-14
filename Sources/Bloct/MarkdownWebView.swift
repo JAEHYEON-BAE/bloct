@@ -30,13 +30,8 @@ struct MarkdownWebView: NSViewRepresentable {
         Coordinator()
     }
 
-    // Number of open documents using each `.mv_preview.html` file. Documents in the
-    // same folder share one file, so it is only deleted when the last one closes.
-    @MainActor private static var previewFileUsers: [URL: Int] = [:]
-
     @MainActor static func removeAllPreviewFiles() {
-        for url in previewFileUsers.keys { try? FileManager.default.removeItem(at: url) }
-        previewFileUsers.removeAll()
+        PreviewFiles.removeAll()
     }
 
     private static let tocScript = """
@@ -99,6 +94,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var lastShowTOC: Bool = true
         var lastEditMode: Bool = false
         var tempHTMLURL: URL?
+        var supersededHTMLURLs: [URL] = []
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
         var isPageLoaded: Bool = false
@@ -138,7 +134,7 @@ struct MarkdownWebView: NSViewRepresentable {
             // Do NOT delete tempHTMLURL here — WKWebView's sandboxed content process
             // needs the origin file to exist in order to resolve and load local images
             // (file:// src attributes) throughout the page's lifetime. The file is
-            // deleted when the last document using it closes (see dismantleNSView).
+            // deleted when this WebView is dismantled.
             webView.evaluateJavaScript(MarkdownWebView.tocScript, completionHandler: nil)
             if !showTOC {
                 // Instant hide on load (no animation)
@@ -252,15 +248,10 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
-        guard let url = coordinator.tempHTMLURL else { return }
+        for url in coordinator.supersededHTMLURLs { PreviewFiles.remove(url) }
+        coordinator.supersededHTMLURLs.removeAll()
+        if let url = coordinator.tempHTMLURL { PreviewFiles.remove(url) }
         coordinator.tempHTMLURL = nil
-        let remaining = (previewFileUsers[url] ?? 1) - 1
-        if remaining > 0 {
-            previewFileUsers[url] = remaining
-        } else {
-            previewFileUsers[url] = nil
-            try? FileManager.default.removeItem(at: url)
-        }
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
@@ -291,14 +282,16 @@ struct MarkdownWebView: NSViewRepresentable {
                 let html = buildHTML()
                 if let fileURL = fileURL {
                     let dir = fileURL.deletingLastPathComponent()
-                    let tmpURL = dir.appendingPathComponent(".mv_preview.html")
-                    if (try? html.write(to: tmpURL, atomically: true, encoding: .utf8)) != nil {
-                        if coordinator.tempHTMLURL != tmpURL {
-                            coordinator.tempHTMLURL = tmpURL
-                            Self.previewFileUsers[tmpURL, default: 0] += 1
+                    do {
+                        let tmpURL = try PreviewFiles.create(html: html, in: dir)
+                        // During initial navigation a second load may supersede the first.
+                        // Retain both origins until the WebView is dismantled.
+                        if let previous = coordinator.tempHTMLURL {
+                            coordinator.supersededHTMLURLs.append(previous)
                         }
+                        coordinator.tempHTMLURL = tmpURL
                         webView.loadFileURL(tmpURL, allowingReadAccessTo: dir)
-                    } else {
+                    } catch {
                         webView.loadHTMLString(html, baseURL: dir)
                     }
                 } else {
