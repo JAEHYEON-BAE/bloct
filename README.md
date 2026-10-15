@@ -83,3 +83,11 @@ To verify a downloaded release without installing it:
 ```sh
 python3 scripts/verify-release.py Bloct.zip
 ```
+
+Homebrew cask updates are handled by the `Sync Bloct` workflow in
+[JAEHYEON-BAE/homebrew-tap](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/workflows/sync-bloct.yml).
+It checks the latest stable release every 15 minutes, verifies the ZIP SHA256,
+and updates its own repository with a short-lived `GITHUB_TOKEN`; no personal
+access token is required. GitHub may delay scheduled runs. If GitHub disables
+scheduled workflows after a long period of repository inactivity, re-enable the
+workflow and use **Run workflow** to synchronize immediately.

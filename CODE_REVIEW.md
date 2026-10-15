@@ -6,7 +6,17 @@
 - 현재 기준: `67263f1` — SDK 27 배포 고정 및 검증, 앱 구현은 `e40a84b`
 - 구현 기준: 이번 작업(Undo·폐기·저장 스냅샷), `f062c65`(파일 보호), `ac191f7`(HTML 안전성·자리표시자)
 - 범위: `Sources/Bloct/`, `Tests/`, `Info.plist`, `project.yml`, README 및 기존 빌드·검증 기록
-- 이번 작업: SDK 27.0 고정·최소 macOS 14.0·Universal 검증과 v1.7.2 GitHub/Homebrew 배포 완료. 자동 tap 인증 실패는 22번에 남깁니다.
+- 이번 작업: 22번의 tap 푸시 인증 실패 원인 확인 및 개인 토큰이 필요 없는 동기화 방식 준비. 사용자 승인 후 tap 커밋·푸시 완료, 실제 Actions 검증 진행 중입니다.
+
+## 22번 Homebrew 인증 실패 조사·수정 — 2026-10-15
+
+- **실제 원인 확인:** Safari의 기존 GitHub 로그인으로 [실패 작업 로그](https://github.com/JAEHYEON-BAE/bloct/actions/runs/38697357543/job/116296982094#step:7:38)를 읽었습니다. clone 및 `Update Bloct to 1.7.2` 로컬 커밋은 성공했고, 이어지는 **git push**가 `Invalid username or token. Password authentication is not supported for Git operations.` 및 `Authentication failed`로 거절됐습니다. 토큰 값 누락이나 앱 빌드 오류가 아닙니다. 만료·폐기·오입력 중 어떤 사유인지는 로그만으로 구분하지 않습니다.
+- 로컬 `gh auth status`도 저장된 기본 토큰을 invalid로 보고했습니다. 이 토큰과 Actions의 `TAP_GITHUB_TOKEN`이 동일하다는 근거는 없으므로 별개로 취급합니다. CLI의 로그 접근은 403이지만 브라우저의 기존 로그인으로 오류 원문을 확인했습니다.
+- **준비한 수정:** app 저장소의 개인 토큰을 사용하는 cross-repository push 단계를 제거합니다. 대신 tap 저장소의 `Sync Bloct` 워크플로가 자체 `GITHUB_TOKEN`으로 자기 저장소만 갱신합니다. GitHub가 매 실행마다 단기 토큰을 발급하므로 개인 토큰 갱신이 필요하지 않습니다. 기존 Secret이나 계정 인증 정보는 변경하지 않았습니다.
+- 동기화 시점: tap의 기본 브랜치에서 15분 간격(UTC 매시 7·22·37·52분), 수동 Run workflow, 동기화 코드 변경 시 실행합니다. 최신 정식 릴리스만 사용하며 공개 ZIP의 SHA256과 GitHub asset digest를 비교합니다. GitHub 스케줄은 지연될 수 있고, 장기간 저장소 활동이 없으면 비활성화될 수 있으므로 그 경우 재활성화/수동 실행이 필요합니다. 즉시 cross-repository push와 다른 운영 방식입니다.
+- 로컬 검증: 최신 실제 1.7.2 ZIP 체크섬 및 cask 일치 확인. 정상 업데이트·멱등 재실행·손상된 다운로드 보존·다운그레이드 차단·prerelease 차단을 4개 테스트로 검증했습니다. 두 워크플로 YAML 파싱과 diff 검사도 통과했습니다.
+- 준비 위치: app 저장소 `.github/workflows/release.yml`, `README.md`; tap 임시 체크아웃 `/private/tmp/bloct-tap-v1.7.1/`의 `.github/workflows/sync-bloct.yml`, `scripts/sync-bloct.py`, `scripts/test_sync_bloct.py`.
+- **현재 상태: 사용자 승인 후 tap 커밋 `8c7f5ce` 푸시 완료, [최초 자동 실행 38698858043](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/38698858043) 검증 진행 중.** app 저장소의 직접 push 제거 변경도 함께 반영합니다. 실제 원격 결과 확인 전에는 완료 처리하지 않습니다.
 
 ## v1.7.2 SDK 통일 및 배포 — 2026-10-15
 
@@ -135,7 +145,7 @@ Mac mini의 별도 Debug 앱에서 접근성 API·키보드로 실제 창을 조
 | 19 | README의 검색 키보드 조작과 불일치 | 미해결 | 낮음 / Return modifier·방향키 처리 코드 확인 |
 | 20 | 초기 이중 로드가 정책에 막혀 빈 화면 | **미해결, 알려진 실패 2개** | **다음 작업 1순위** / 이번 호스팅 테스트 재현 |
 | 21 | 외부 문서 변경이 편집 상태에 반영되지 않음 | 미해결, 실제 파일 재로드 검증 필요 | **높음: 데이터 정합성 조사 우선** / 단방향 Binding 동기화 코드 확인 |
-| 22 | Release의 Homebrew tap 자동 갱신 실패 | 미해결, v1.7.2도 수동 복구 완료 | 중간 / 인증 헤더 분리 후에도 exit 128. 정확한 원인 확인 및 토큰 권한 점검 필요 |
+| 22 | Release의 Homebrew tap 자동 갱신 실패 | 로컬 수정 완료, 커밋·푸시/원격 검증 대기 | git push 토큰 인증 거절 확인. tap 자체 단기 토큰 기반 동기화로 전환 준비 |
 | 23 | 로컬·Homebrew 배포 SDK 불일치 | 구현·배포 검증 완료(2026-10-15) | v1.7.2 공개 ZIP의 두 CPU 모두 SDK 27.0·최소 OS 14.0 검증, 원격 cask 갱신 |
 
 ## 기존 구현 기반과 남은 검증
@@ -164,12 +174,7 @@ DOMPurify 3.4.17을 번들로 포함하고 파싱·수식 처리 후 HTML을 정
 
 ### 22. Homebrew tap 자동 갱신 실패
 
-- 발견: 2026-10-15, `v1.7.1` 및 `v1.7.2` 태그의 Release 실행에서 앱 릴리스는 성공했지만 마지막 tap 갱신이 exit 128로 실패했습니다. 기대 결과는 원격 `Casks/bloct.rb`가 태그 버전·ZIP SHA256으로 자동 갱신되는 것입니다.
-- 영향: tag/main 푸시와 GitHub Release 생성만으로 Homebrew 배포 완료를 보장할 수 없습니다. 두 릴리스 모두 SSH로 tap을 수동 갱신했으며 현재 배포 버전은 1.7.2입니다.
-- 조사 한계: 현재 GitHub API 자격으로 작업 로그 조회가 403(관리자 권한 요구)으로 거절됐습니다. 로그를 읽지 못했으므로 `TAP_GITHUB_TOKEN`의 만료·권한 문제 또는 clone/push 실패 중 어느 원인인지 단정하지 않습니다.
-- 다음 조치: 권한 있는 Actions 로그에서 실패 명령을 확인하고, 필요하면 사용자가 저장소 Secret의 토큰 유효기간과 tap 쓰기 권한을 확인합니다. 토큰 값은 문서·로그·소스에 기록하지 않습니다.
-- 완료 기준: 후속 정상 릴리스에서 기존 태그·릴리스를 덮어쓰지 않고 자동 tap 갱신 성공, 원격 cask 버전·체크섬 일치 확인. 현재 실패한 실행 전체를 무작정 재실행하면 이미 생성된 릴리스와 충돌할 수 있습니다.
-
+현재 근거와 수정 설계는 상단의 “22번 Homebrew 인증 실패 조사·수정 준비”를 기준으로 합니다. 기존 개인 토큰의 git push 인증 거절은 실제 로그로 확인됐습니다. 로컬 검사만 완료했으며 다음 수용 기준은 원격 tap 워크플로의 실행·체크섬 검사·GITHUB_TOKEN push 성공입니다. 승인 전에는 기존 v1.7.2 배포 상태를 유지합니다. 실패한 옛 Release 실행을 그대로 다시 실행하면 이미 생성된 릴리스와 충돌하므로 재실행하지 않습니다.
 
 ### 20. 초기 이중 로드 회귀
 
