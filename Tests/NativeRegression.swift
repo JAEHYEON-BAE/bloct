@@ -27,28 +27,65 @@ private final class ControlledDocument: NSDocument {
 @main
 struct NativeRegression {
     @MainActor static func main() throws {
-        let undo = UndoManager()
-        undo.groupsByEvent = false
+        var draftBacking = MarkdownDocument(text: "saved")
+        let draft = DocumentState(document: Binding(get: { draftBacking }, set: { draftBacking = $0 }))
+        draft.commit("unconfirmed draft")
+        precondition(draftBacking.text == "saved", "Unconfirmed edits must not reach FileDocument autosave or its Undo stack")
+
         var backing = MarkdownDocument(text: "original")
-        var bindingUndoRegistrations = 0
+        var fileModelWrites = 0
         let binding = Binding(get: { backing }, set: { value in
-            if undo.isUndoRegistrationEnabled { bindingUndoRegistrations += 1 }
+            // Count every publication to the file model; draft edits must not publish.
+            fileModelWrites += 1
             backing = value
         })
         let state = DocumentState(document: binding)
-        state.undoManager = undo
-        undo.beginUndoGrouping()
-        state.commit("edited")
-        undo.endUndoGrouping()
-        precondition(state.text == "edited" && backing.text == "edited")
+        let undo = state.undoManager
+        state.commit("A")
+        state.commit("B")
+        state.commit("B") // Save's JS snapshot must not register another edit.
+        precondition(state.text == "B" && backing.text == "original" && fileModelWrites == 0)
         undo.undo()
-        precondition(state.text == "original" && backing.text == "original", "Undo must update the file model")
+        precondition(state.text == "A", "First Undo must undo exactly one block commit")
+        undo.undo()
+        precondition(state.text == "original" && !undo.canUndo, "Two edits must take exactly two Undo steps")
         undo.redo()
-        precondition(state.text == "edited" && backing.text == "edited", "Redo must update the file model")
-        precondition(bindingUndoRegistrations == 0, "Binding updates must not duplicate undo actions")
-        state.restore("original")
-        precondition(backing.text == "original" && state.text == "original" && !undo.canUndo)
-        print("PASS: commit, Undo, Redo and discard keep the file model synchronized")
+        precondition(state.text == "A")
+        undo.redo()
+        precondition(state.text == "B" && !undo.canRedo)
+        state.stageForSave(state.text)
+        precondition(backing.text == "B" && fileModelWrites == 1)
+        // A later edit must not mutate the snapshot an in-flight save is writing.
+        state.commit("C while saving")
+        precondition(backing.text == "B" && state.text == "C while saving")
+        state.restore("B")
+        precondition(backing.text == "B" && state.text == "B" && !undo.canUndo)
+        state.commit("failed save draft")
+        state.stageForSave(state.text)
+        state.stageForSave("B") // Cancellation/failure restores only the file snapshot.
+        precondition(state.text == "failed save draft" && backing.text == "B")
+        state.restore("B")
+        let writesBeforeDiscard = fileModelWrites
+        print("PASS: exactly one Undo per commit, Redo, isolated save snapshots and discard")
+
+        // Drain a run-loop turn as FileDocument would: abandoned edits must never
+        // be delivered to a delayed model setter or an autosave consumer.
+        for _ in 0..<25 {
+            state.commit("abandoned")
+            state.restore("B")
+            RunLoop.current.run(until: Date().addingTimeInterval(0.001))
+            precondition(backing.text == "B" && fileModelWrites == writesBeforeDiscard)
+        }
+        print("PASS: 25 delayed discard cycles never publish abandoned drafts")
+
+        var stagedCalls = 0
+        let staged = StagedDocumentSave(text: "snapshot") { stagedCalls += 1 }
+        staged.run()
+        staged.run()
+        precondition(stagedCalls == 0, "Save must wait until the view update has completed")
+        RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+        precondition(stagedCalls == 1, "Repeated view updates must start the save only once")
+        print("PASS: staged save starts once after the SwiftUI observation boundary")
 
         for success in [false, true] {
             let document = ControlledDocument()

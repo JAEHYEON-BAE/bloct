@@ -1,0 +1,2 @@
+main/NativeRegression.swift:33: Precondition failed: Unconfirmed edits must not reach FileDocument autosave or its Undo stack
+Tests/run-native.sh: line 10: 52219 Trace/BPT trap: 5       "$output_dir/native-regression"

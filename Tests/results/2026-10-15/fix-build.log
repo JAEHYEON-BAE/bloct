@@ -1,0 +1,4 @@
+Debug: BUILD SUCCEEDED
+2026-10-15 15:40:03.942 appintentsmetadataprocessor[53122:3194461] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+Release: BUILD SUCCEEDED
+2026-10-15 15:40:06.486 appintentsmetadataprocessor[53139:3194608] warning: Metadata extraction skipped, no AppIntents.framework dependency found

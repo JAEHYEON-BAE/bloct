@@ -69,10 +69,11 @@ struct FindCommands: Commands {
 }
 
 struct CloseDocumentCommands: Commands {
+    @FocusedValue(\.closeDocument) var closeDocument
     var body: some Commands {
         CommandGroup(after: .newItem) {
             Button("Close") {
-                NSApp.keyWindow?.performClose(nil)
+                closeDocument?()
             }
             .keyboardShortcut("w", modifiers: .command)
         }
@@ -80,14 +81,16 @@ struct CloseDocumentCommands: Commands {
 }
 
 struct UndoCommands: Commands {
+    @FocusedValue(\.documentUndo) var documentUndo
+    @FocusedValue(\.documentRedo) var documentRedo
     var body: some Commands {
         CommandGroup(replacing: .undoRedo) {
             Button("Undo") {
-                NSApp.keyWindow?.undoManager?.undo()
+                documentUndo?()
             }
             .keyboardShortcut("z", modifiers: .command)
             Button("Redo") {
-                NSApp.keyWindow?.undoManager?.redo()
+                documentRedo?()
             }
             .keyboardShortcut("z", modifiers: [.command, .shift])
         }
@@ -109,9 +112,8 @@ struct SaveCommands: Commands {
 }
 
 
-// Shows the unsaved-changes alert on every window that needs it and marks the app
-// as quitting, so each Save / Don't Save continues the quit. Returns false if there
-// is nothing unsaved.
+// Prompt one document at a time. Save / Don't Save continues the quit; Cancel
+// stops the sequence without leaving alerts attached to the other windows.
 @MainActor
 private func interceptUnsavedWindowsForQuit() -> Bool {
     let unsaved = NSApp.windows.filter {
@@ -119,9 +121,9 @@ private func interceptUnsavedWindowsForQuit() -> Bool {
     }
     guard !unsaved.isEmpty else { return false }
     AppDelegate.isQuitting = true
-    unsaved.forEach { w in
-        if !w.isVisible { w.makeKeyAndOrderFront(nil) }
-        (w.delegate as? CloseProxy)?.onIntercept()
+    if let window = unsaved.first {
+        window.makeKeyAndOrderFront(nil)
+        (window.delegate as? CloseProxy)?.onIntercept()
     }
     return true
 }

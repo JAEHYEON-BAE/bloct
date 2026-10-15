@@ -1,0 +1,133 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-hosted-tests.QXuYXd/HostedRegression.app: 1 (Operation not permitted)
+PASS: ASCII folder: page loads
+PASS: ASCII folder: editor commits reach Swift
+PASS: ASCII folder: relative image loads
+PASS: ASCII folder: one unique preview file is written
+PASS: ASCII folder: preview file is removed on close
+PASS: ASCII folder: existing .mv_preview.html is untouched
+PASS: Korean folder with spaces: page loads
+PASS: Korean folder with spaces: editor commits reach Swift
+PASS: Korean folder with spaces: relative image loads
+PASS: Korean folder with spaces: one unique preview file is written
+PASS: Korean folder with spaces: preview file is removed on close
+PASS: Korean folder with spaces: existing .mv_preview.html is untouched
+PASS: folder with # % and tilde: page loads
+PASS: folder with # % and tilde: editor commits reach Swift
+PASS: folder with # % and tilde: relative image loads
+PASS: folder with # % and tilde: one unique preview file is written
+PASS: folder with # % and tilde: preview file is removed on close
+PASS: folder with # % and tilde: existing .mv_preview.html is untouched
+PASS: NFD-normalized Korean folder: page loads
+PASS: NFD-normalized Korean folder: editor commits reach Swift
+PASS: NFD-normalized Korean folder: relative image loads
+PASS: NFD-normalized Korean folder: one unique preview file is written
+PASS: NFD-normalized Korean folder: preview file is removed on close
+PASS: NFD-normalized Korean folder: existing .mv_preview.html is untouched
+PASS: read-only folder: page loads
+PASS: read-only folder: editor commits reach Swift
+SKIP: read-only folder: relative image loads (not available through the loadHTMLString fallback)
+PASS: read-only folder: no preview file is written
+PASS: read-only folder: preview file is removed on close
+PASS: read-only folder: existing .mv_preview.html is untouched
+PASS: folder opened through a symlink: page loads
+PASS: folder opened through a symlink: editor commits reach Swift
+PASS: folder opened through a symlink: relative image loads
+PASS: folder opened through a symlink: one unique preview file is written
+PASS: folder opened through a symlink: preview file is removed on close
+PASS: folder opened through a symlink: existing .mv_preview.html is untouched
+PASS: new document: page loads
+PASS: new document: editor commits reach Swift
+PASS: navigation: clicking a relative .md link keeps the editor page
+PASS: navigation: clicking a #fragment link keeps the editor page
+PASS: navigation: script navigation to a local file keeps the editor page
+PASS: navigation: script navigation to about:blank keeps the editor page
+PASS: navigation: location.reload() keeps the editor page
+PASS: navigation: history.pushState then back keeps the editor page
+PASS: navigation: bridge still works afterwards
+XFAIL: double load in the same run loop (file): page shows the latest text [CODE_REVIEW #20] -> h1=<no page> url=nil
+PASS: double load in the same run loop (file): every preview file is removed on close
+XFAIL: double load in the same run loop (new document): page shows the latest text [CODE_REVIEW #20] -> h1=<no page> url=nil
+PASS: double load 150 ms later (file): page shows the latest text
+PASS: double load 150 ms later (file): bridge works
+PASS: double load 150 ms later (file): every preview file is removed on close
+PASS: double load 150 ms later (new document): page shows the latest text
+PASS: double load 150 ms later (new document): bridge works
+PASS: block-editing: 1a editor opens on clicked block
+PASS: block-editing: 1b next editor shows "para b"
+PASS: block-editing: 1c commit keeps blank lines
+PASS: block-editing: 1d second commit correct
+PASS: block-editing: 1e no stray editor left
+PASS: block-editing: 2a dirty editor survives echo
+PASS: block-editing: 2b dirty editor survives external render
+PASS: block-editing: 2c raw lines not clobbered
+PASS: block-editing: 2d content re-rendered after close
+PASS: block-editing: 2e clean editor dropped for undo
+PASS: block-editing: 2f undo content rendered
+PASS: block-editing: 3a cmd+enter after multi-line edit opens para b
+PASS: block-editing: 3b shift+cmd+enter returns to edited block
+PASS: block-editing: 3c cmd+enter on last block opens append zone
+PASS: block-editing: 3d append zone gets a blank separator
+PASS: block-editing: 3e exactly one append zone
+PASS: block-editing: 4a click alone is not dirty
+PASS: block-editing: 4b one true per edit session
+PASS: block-editing: 4c false after commit
+PASS: block-editing: 5a escape closes editor
+PASS: block-editing: 5b escape commits text
+PASS: block-editing: 6a inline math rendered by KaTeX
+PASS: block-editing: 6b display math rendered by KaTeX
+PASS: block-editing: 6c offline: render does not throw
+PASS: block-editing: 6d offline: document still renders
+PASS: block-editing: 6e offline: inline math falls back to text
+PASS: block-editing: 6f offline: block math falls back to text
+PASS: block-editing: 6g malformed anchor does not throw
+PASS: block-editing: 6h malformed anchor still renders
+PASS: block-editing: 6i fence and math blocks stay whole
+PASS: block-editing: 6j fenced code keeps its blank line
+PASS: block-editing: 7a highlights 3 matches
+PASS: block-editing: 7b re-applied after re-render
+PASS: block-editing: 7c navigate marks one current match
+PASS: block-editing: 7d cleared search stays cleared
+PASS: block-editing: 7e odd query does not throw
+PASS: block-editing: 8a caption exists
+PASS: block-editing: 8b caption uses the muted color token
+PASS: block-editing: 8c TOC built
+PASS: block-editing: 8d TOC background is opaque
+PASS: block-editing: 8e TOC link color resolves
+PASS: block-editing: 8f read mode: no text cursor on content
+PASS: block-editing: 8g edit mode: text cursor
+PASS: block-editing: 9a no editor opens in read mode
+PASS: block-editing: 10a copy produces inline markdown
+PASS: block-editing: 10b copy produces list markdown
+PASS: sanitizer: blocks mixed-case javascript: href
+PASS: sanitizer: blocks entity-encoded javascript: href
+PASS: sanitizer: blocks whitespace-prefixed javascript: href
+PASS: sanitizer: blocks markdown link to javascript:
+PASS: sanitizer: blocks svg xlink:href javascript:
+PASS: sanitizer: blocks mXSS math/mglyph/style
+PASS: sanitizer: blocks mXSS noscript attribute
+PASS: sanitizer: blocks details ontoggle
+PASS: sanitizer: blocks input autofocus onfocus
+PASS: sanitizer: blocks object and embed
+PASS: sanitizer: blocks data:text/html link
+PASS: sanitizer: blocks svg animate href
+PASS: sanitizer: blocks style element
+PASS: sanitizer: blocks img srcset
+PASS: sanitizer: blocks button formaction
+PASS: sanitizer: blocks spoofed #content and #mv-append-zone
+PASS: sanitizer: blocks spoofed search highlight class
+PASS: sanitizer: keeps task-list checkboxes
+PASS: sanitizer: keeps details/summary
+PASS: sanitizer: keeps sub/sup/kbd/u/br
+PASS: sanitizer: keeps README-style align and width
+PASS: sanitizer: keeps inline style attribute
+PASS: sanitizer: keeps table column alignment
+PASS: sanitizer: keeps code language class (used by copy as Markdown)
+PASS: sanitizer: keeps figure-caption class
+PASS: sanitizer: assigns heading id after sanitizing
+PASS: sanitizer: keeps anchor, mailto, relative and https links
+PASS: sanitizer: keeps KaTeX MathML annotation and HTML
+PASS: sanitizer: copy as Markdown restores TeX source
+PASS: sanitizer: KaTeX web fonts load under CSP
+PASS: sanitizer: no CSP violations while rendering legitimate content
+
+127 passed, 0 failed, 2 known failures, 0 unexpected passes, 1 skipped

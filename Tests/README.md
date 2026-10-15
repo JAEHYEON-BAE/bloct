@@ -7,9 +7,13 @@ sh Tests/run-native.sh
 ```
 
 The native harness compiles production state, save callback, and preview-file code.
-It verifies Undo/Redo against the FileDocument binding, callback lifetime and
-success/failure propagation using a controlled NSDocument, and real temporary-file
-creation/cleanup without overwriting an existing `.mv_preview.html`.
+It verifies that two block commits take exactly two Undo/Redo steps, drafts do not
+reach the FileDocument binding until Save, in-flight snapshots remain isolated,
+cancelled snapshots can roll back without losing the draft, and 25 discard cycles
+never publish abandoned edits. It also checks idempotent staging after a view-update
+boundary, callback lifetime and success/failure propagation using a controlled
+NSDocument, and real temporary-file creation/cleanup without overwriting an existing
+`.mv_preview.html`.
 
 It does not drive Save panels, permission dialogs, or multi-window quit flows.
 Build the app after `xcodegen generate` to check SwiftUI integration as well.

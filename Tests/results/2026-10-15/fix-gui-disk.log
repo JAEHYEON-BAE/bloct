@@ -1,0 +1,11 @@
+Disk assertions after the CUA-driven GUI scenarios documented in CODE_REVIEW.md.
+PASS: discard1.md matches expected saved/discarded contents
+PASS: discard2.md matches expected saved/discarded contents
+PASS: discard3.md matches expected saved/discarded contents
+PASS: multi-save.md matches expected saved/discarded contents
+PASS: multi-discard.md matches expected saved/discarded contents
+PASS: undo.md matches expected saved/discarded contents
+PASS: new-cancel.md matches expected saved/discarded contents
+PASS: readonly/failure.md matches expected saved/discarded contents
+PASS: temporary readonly folder permissions restored to 0755
+PASS: final rebuilt Debug app restores two edits in exactly two Undo steps and exits without an unsaved prompt

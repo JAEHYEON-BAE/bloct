@@ -56,6 +56,25 @@ extension FocusedValues {
     }
 }
 
+struct DocumentUndoKey: FocusedValueKey { typealias Value = () -> Void }
+struct DocumentRedoKey: FocusedValueKey { typealias Value = () -> Void }
+struct CloseDocumentKey: FocusedValueKey { typealias Value = () -> Void }
+
+extension FocusedValues {
+    var documentUndo: (() -> Void)? {
+        get { self[DocumentUndoKey.self] }
+        set { self[DocumentUndoKey.self] = newValue }
+    }
+    var documentRedo: (() -> Void)? {
+        get { self[DocumentRedoKey.self] }
+        set { self[DocumentRedoKey.self] = newValue }
+    }
+    var closeDocument: (() -> Void)? {
+        get { self[CloseDocumentKey.self] }
+        set { self[CloseDocumentKey.self] = newValue }
+    }
+}
+
 // NSTextField subclass that requests focus in viewDidMoveToWindow,
 // which fires exactly once when the view is attached to a window.
 class FocusOnAppearTextField: NSTextField {
@@ -156,10 +175,13 @@ private class CloseHandlerView: NSView {
         guard let win = window, proxy == nil else { return }
         let p = CloseProxy()
         p.window = win
-        p.next = win.delegate
-        win.delegate = p
         proxy = p
-        onReady?(p)
+        DispatchQueue.main.async { [weak self, weak win] in
+            guard let self, let win else { return }
+            p.next = win.delegate
+            win.delegate = p
+            self.onReady?(p)
+        }
     }
 }
 
@@ -181,7 +203,6 @@ struct ContentView: View {
     @Binding var document: MarkdownDocument
     let fileURL: URL?
     @StateObject private var docState: DocumentState
-    @Environment(\.undoManager) var undoManager
     @State private var zoomLevel: Double = 1.0
     @State private var showTOC: Bool = false
     @State private var showSearch: Bool = false
@@ -191,6 +212,7 @@ struct ContentView: View {
     @State private var closeProxy: CloseProxy? = nil
     @State private var isBlockEditorDirty: Bool = false
     @State private var isSaving = false
+    @State private var stagedSave: StagedDocumentSave?
     @State private var isEditMode: Bool
     @State private var webViewStore = WebViewStore()
 
@@ -210,14 +232,24 @@ struct ContentView: View {
     var body: some View {
         MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear {
-            docState.undoManager = undoManager
-        }
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
         .focusedValue(\.showTOC, $showTOC)
         .focusedValue(\.showSearch, $showSearch)
         .focusedValue(\.saveDocument, { saveDocument() })
+        .focusedValue(\.documentUndo, { replayEdit(redo: false) })
+        .focusedValue(\.documentRedo, { replayEdit(redo: true) })
+        .focusedValue(\.closeDocument, {
+            guard !isSaving else { return }
+            if hasUnsavedChanges { showCloseWarning = true }
+            else { closeProxy?.window?.performClose(nil) }
+        })
+        .onChange(of: hasUnsavedChanges) { _, dirty in
+            closeProxy?.window?.isDocumentEdited = dirty
+        }
+        .onChange(of: document.text) { _, text in
+            if let stagedSave, stagedSave.text == text { stagedSave.run() }
+        }
         .onChange(of: showSearch) { _, visible in
             if !visible {
                 searchText = ""
@@ -226,9 +258,12 @@ struct ContentView: View {
         }
         .background(
             WindowCloseHandler(
-                hasUnsavedChanges: hasUnsavedChanges,
-                onIntercept: { showCloseWarning = true },
-                onReady: { proxy in DispatchQueue.main.async { closeProxy = proxy } }
+                hasUnsavedChanges: hasUnsavedChanges || isSaving,
+                onIntercept: { if !isSaving { showCloseWarning = true } },
+                onReady: { proxy in
+                    closeProxy = proxy
+                    proxy.window?.isDocumentEdited = hasUnsavedChanges
+                }
             )
             .frame(width: 0, height: 0)
         )
@@ -334,7 +369,7 @@ struct ContentView: View {
     private func saveDocument(then completion: (() -> Void)? = nil) {
         guard !isSaving else { return }
         guard let webView = webViewStore.webView,
-              let nativeDocument = (closeProxy?.window ?? NSApp.keyWindow)?
+              let nativeDocument = closeProxy?.window?
                 .windowController?.document as? NSDocument else {
             AppDelegate.isQuitting = false
             NSApp.presentError(CocoaError(.fileWriteUnknown))
@@ -356,23 +391,47 @@ struct ContentView: View {
                     return
                 }
                 self.docState.commit(text)
-                DocumentSaveOperation.save(nativeDocument) { success in
-                    self.isSaving = false
-                    guard success else {
-                        AppDelegate.isQuitting = false
-                        return
-                    }
-                    self.originalText = text
-                    // A later edit must not be discarded by save-and-close.
-                    if self.docState.text == text && !self.isBlockEditorDirty {
-                        completion?()
-                    } else if completion != nil {
-                        AppDelegate.isQuitting = false
-                        self.showCloseWarning = true
+                let request = StagedDocumentSave(text: text) {
+                    DocumentSaveOperation.save(nativeDocument) { success in
+                        self.isSaving = false
+                        self.stagedSave = nil
+                        guard success else {
+                            self.docState.stageForSave(self.originalText)
+                            nativeDocument.updateChangeCount(.changeCleared)
+                            AppDelegate.isQuitting = false
+                            return
+                        }
+                        self.originalText = text
+                        // A later edit must not be discarded by save-and-close.
+                        if self.docState.text == text && !self.isBlockEditorDirty {
+                            completion?()
+                        } else if completion != nil {
+                            AppDelegate.isQuitting = false
+                            self.showCloseWarning = true
+                        }
+                        if completion == nil && AppDelegate.isQuitting { handleQuit() }
                     }
                 }
+                self.stagedSave = request
+                if self.document.text == text { request.run() }
+                else { self.docState.stageForSave(text) }
             }
         }
+    }
+
+    private func replayEdit(redo: Bool) {
+        // Let an active textarea keep its native character-level editing history.
+        webViewStore.webView?.evaluateJavaScript("""
+            (() => {
+                if (!document.getElementById('mv-block-editor')) return false;
+                document.execCommand('\(redo ? "redo" : "undo")');
+                return true;
+            })();
+            """) { handled, error in
+                guard error == nil, (handled as? Bool) == false else { return }
+                if redo { docState.undoManager.redo() }
+                else { docState.undoManager.undo() }
+            }
     }
 
     private func clearHighlights() {

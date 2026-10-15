@@ -4,33 +4,37 @@ import SwiftUI
 final class DocumentState: ObservableObject {
     @Published private(set) var text: String
     private let document: Binding<MarkdownDocument>
-    weak var undoManager: UndoManager?
+    // FileDocument registers its own asynchronous undo actions. Draft edits use an
+    // independent stack so those actions cannot add invisible undo steps.
+    let undoManager = UndoManager()
 
     init(document: Binding<MarkdownDocument>) {
         self.document = document
         text = document.wrappedValue.text
+        undoManager.groupsByEvent = false
     }
 
-    private func apply(_ newText: String) {
-        // This state owns undo registration; do not also register the binding update.
-        undoManager?.disableUndoRegistration()
-        document.wrappedValue.text = newText
-        undoManager?.enableUndoRegistration()
-        text = newText
+    // Only explicit Save may publish a draft to the file model. In particular,
+    // closing a window must never let FileDocument autosave an abandoned draft.
+    func stageForSave(_ snapshot: String) {
+        document.wrappedValue.text = snapshot
     }
 
     func commit(_ newText: String) {
         guard newText != text else { return }
         let old = text
-        apply(newText)
-        undoManager?.registerUndo(withTarget: self) { target in
+        text = newText
+        let isReplaying = undoManager.isUndoing || undoManager.isRedoing
+        if !isReplaying { undoManager.beginUndoGrouping() }
+        undoManager.registerUndo(withTarget: self) { target in
             MainActor.assumeIsolated { target.commit(old) }
         }
-        undoManager?.setActionName("Typing")
+        undoManager.setActionName("Typing")
+        if !isReplaying { undoManager.endUndoGrouping() }
     }
 
     func restore(_ savedText: String) {
-        apply(savedText)
-        undoManager?.removeAllActions(withTarget: self)
+        text = savedText
+        undoManager.removeAllActions()
     }
 }

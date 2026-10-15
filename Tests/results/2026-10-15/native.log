@@ -1,0 +1,3 @@
+PASS: commit, Undo, Redo and discard keep the file model synchronized
+PASS: save completion waits, forwards failure/success and releases its delegate
+PASS: independent previews, owned cleanup and preservation of existing files
