@@ -7,32 +7,30 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: macos-15
+    runs-on: xcode-27
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
     permissions:
       contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Install XcodeGen
         run: brew install xcodegen
 
-      - name: Generate Xcode project
-        run: xcodegen generate
-
-      - name: Build Release
-        run: |
-          xcodebuild -project Bloct.xcodeproj \
-            -target Bloct \
-            -configuration Release \
-            CONFIGURATION_BUILD_DIR=build/Release
+      - name: Build and verify Release (SDK 27.0, minimum macOS 14.0)
+        run: sh scripts/build-release.sh
 
       - name: Zip app
         run: |
           ditto -c -k --keepParent \
             build/Release/Bloct.app \
             Bloct.zip
+          python3 scripts/verify-release.py Bloct.zip
 
       - name: Create GitHub Release
         env:
@@ -46,6 +44,7 @@ jobs:
         env:
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
         run: |
+          test -n "$TAP_GITHUB_TOKEN" || { echo "TAP_GITHUB_TOKEN is missing" >&2; exit 1; }
           VERSION=${{ github.ref_name }}
           VERSION_NUM=${VERSION#v}
           SHA=$(shasum -a 256 Bloct.zip | awk '{print $1}')
