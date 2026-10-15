@@ -64,3 +64,22 @@ Fully adapts to macOS Light and Dark appearance.
 - Double-click any `.md` file to open it in Bloct
 - Drag a `.md` file onto the app icon
 - Use **File → Open** from within the app
+
+## Building a release
+
+Release builds require Xcode 27.0 with the macOS 27.0 SDK and XcodeGen:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer sh scripts/build-release.sh
+```
+
+The shared local/CI script builds a Universal app for Intel and Apple Silicon while
+keeping the minimum runtime at macOS 14.0. It rejects a different Xcode/SDK and
+verifies each binary slice before publishing. GitHub Actions uses the `xcode-27`
+runner; pushing a new `v*.*.*` tag starts the release workflow.
+
+To verify a downloaded release without installing it:
+
+```sh
+python3 scripts/verify-release.py Bloct.zip
+```
