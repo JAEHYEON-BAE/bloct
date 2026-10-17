@@ -78,6 +78,10 @@ keeping the minimum runtime at macOS 14.0. It rejects a different Xcode/SDK and
 verifies each binary slice before publishing. GitHub Actions uses the `xcode-27`
 runner; pushing a new `v*.*.*` tag starts the release workflow.
 
+After a bug fix or feature implementation, a request to commit and push includes
+bumping the app version, pushing a new version tag, and verifying the GitHub
+Release, published ZIP and Homebrew synchronization. See [AGENTS.md](AGENTS.md).
+
 To verify a downloaded release without installing it:
 
 ```sh

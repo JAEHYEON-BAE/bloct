@@ -35,6 +35,8 @@ targets:
       properties:
         CFBundleName: Bloct
         CFBundleDisplayName: Bloct
+        CFBundleShortVersionString: "1.7.3"
+        CFBundleVersion: "1.7.3"
         CFBundleDocumentTypes:
           - CFBundleTypeExtensions:
               - md
