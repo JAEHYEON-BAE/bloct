@@ -2,7 +2,7 @@
 
 이 문서는 오류·버그의 증상, 조사, 수정 및 검증 결과를 관리합니다. 최근 구현과 향후 기능 계획은 [구현 현황 및 계획](IMPLEMENTATION_PLAN.md)에서 관리합니다. 기존 검토 문서의 버그 번호와 검증 근거를 유지합니다.
 
-> **2026-10-17 구현·해당 범위 검증 완료: 21번 외부 변경·재읽기.** 별도 버튼 없이 `⌘R`·우클릭 `Reload`를 지원하고, 로컬 수정이 없으면 외부 변경을 자동 반영합니다. 미저장 입력은 충돌 선택으로 보호하며 저장·삭제·폐기 경로를 검사했습니다. Native 8그룹, WebKit 15개, 상대 이미지 70개 통과. Hosted 134 통과·기존 20번 XFAIL 2개 유지. 실제 DocumentGroup GUI·디스크 결과는 아래 21번에 기록합니다. 다음 수정은 20번 → 4·17번입니다. 이번 수정은 v1.7.4 릴리스 대상이며 배포 검증 상태는 아래 v1.7.4 항목에서 관리합니다.
+> **2026-10-17 구현·해당 범위 검증 완료: 21번 외부 변경·재읽기.** 별도 버튼 없이 `⌘R`·우클릭 `Reload`를 지원하고, 로컬 수정이 없으면 외부 변경을 자동 반영합니다. 미저장 입력은 충돌 선택으로 보호하며 저장·삭제·폐기 경로를 검사했습니다. Native 8그룹, WebKit 15개, 상대 이미지 70개 통과. Hosted 134 통과·기존 20번 XFAIL 2개 유지. 실제 DocumentGroup GUI·디스크 결과는 아래 21번에 기록합니다. 다음 수정은 20번 → 4·17번입니다. [v1.7.4 릴리스](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.4)·공개 ZIP·Homebrew 1.7.4 검증까지 완료했습니다.
 
 > **2026-10-17 사용자 정책 반영: 16번 재분류.** 빈 줄로 목록·문단을 별도 블록으로 나누는 B·C는 의도된 동작이며 수정 대상에서 제외합니다. A의 참조 링크 지원은 정의를 쉽게 확인·편집하는 수단을 마련할 때까지 **보류**합니다. [확인 문서](Tests/fixtures/bug-16-block-context.md)를 이에 맞춰 갱신했으며 앱 코드는 수정하지 않았습니다.
 
@@ -11,10 +11,10 @@
 > **과거 기록 — 2026-10-15 수정·재검증 완료:** GUI 수용 보고서의 연속 Undo 무반응 단계와 간헐 폐기 실패를 수정했습니다. 편집 버퍼와 전용 Undo를 FileDocument에서 분리하고, 명시적 Save의 스냅샷만 문서 모델에 반영합니다. 실제 GUI의 Undo/Redo·저장·폐기·취소·권한 오류·다중 창 종료를 재검증했습니다. 아래에 구현과 근거를 기록하며, 기존 GUI 보고서는 수정 전 관찰 기록으로 보존합니다.
 
 - 최신화: 2026-10-17 — 21번 구현·자동 회귀·실제 GUI 검증 결과 반영. 16번 보류와 v1.7.3 배포 기록 유지
-- 문서 정리 시 확인한 HEAD: `3eb7080`. 배포 SDK 기준은 `67263f1`, Undo·폐기 수정은 `e40a84b`
+- 과거 문서 정리 시 확인한 HEAD: `3eb7080`. 배포 SDK 기준은 `67263f1`, Undo·폐기 수정은 `e40a84b`
 - 구현 기준: `e40a84b`(Undo·폐기·저장 스냅샷), `f062c65`(파일 보호), `ac191f7`(HTML 안전성·자리표시자)
 - 범위: `Sources/Bloct/`, `Tests/`, `Info.plist`, `project.yml`, README 및 기존 빌드·검증 기록
-- 이번 작업: 문서·16번 재현 자료를 먼저 `ec1a670`으로 커밋한 뒤 21번 구현·테스트 앱 빌드·GUI 검증. 사용자 후속 요청으로 코드·테스트·결과 문서와 앱 버전 1.7.4를 커밋·태그·푸시하여 릴리스합니다. 설치 앱 교체는 제외
+- 이번 작업: 문서·16번 재현 자료를 먼저 `ec1a670`으로 커밋한 뒤 21번 구현·테스트 앱 빌드·GUI 검증. 사용자 후속 요청으로 코드·테스트·결과 문서와 앱 버전 1.7.4를 커밋·태그·푸시하고 릴리스·Homebrew 검증 완료. 설치 앱 교체는 제외
 
 ## 24. 상대경로 이미지 로드 실패
 
@@ -110,10 +110,14 @@ sh Tests/run-relative-images.sh /private/tmp/bloct-relative-images-check
 
 ## v1.7.4 외부 변경·Reload 릴리스 — 2026-10-17
 
-- 상태: **로컬 Universal Release/ZIP 검증 완료 / 태그 푸시·원격 배포 검증 대기**. 최신 정식 태그 v1.7.3을 확인하고 21번 버그 수정의 패치 버전을 1.7.4로 올렸습니다. 이전 문서 선행 커밋 `ec1a670`과 이번 구현·검사·사용 설명을 포함합니다.
+- 상태: **v1.7.4 릴리스·공개 산출물·Homebrew 1.7.4 반영 검증 완료**. 최신 정식 태그 v1.7.3을 확인하고 21번 버그 수정의 패치 버전을 1.7.4로 올렸습니다. 이전 문서 선행 커밋 `ec1a670`과 이번 구현·검사·사용 설명을 포함합니다.
 - 기능·근거: `⌘R`·우클릭 Reload·미편집 자동 갱신·저장 충돌 및 삭제/폐기 보호. Native 8그룹·WebKit 15개·상대 이미지 70개 통과, Hosted 134 통과·기존 20번 XFAIL 2개 유지 및 실제 GUI 확인. 상세 결과와 미검증 범위는 21번을 참조합니다.
 - 로컬 결과: 표시/빌드 버전 **1.7.4**, arm64·x86_64 모두 SDK 27.0·최소 macOS 14.0 검사 통과. [빌드 로그](Tests/results/2026-10-17/release-1.7.4-local-build.log), [ZIP/버전 검사](Tests/results/2026-10-17/release-1.7.4-local.json).
-- 배포 기준: Xcode/SDK 27.0, 최소 macOS 14.0, arm64·x86_64 Universal. GitHub 태그 워크플로로 Release/ZIP을 게시한 뒤 공개 ZIP의 앱 버전·SDK·최소 OS·아키텍처·SHA256과 Homebrew cask를 확인합니다. 아직 미실행한 단계를 완료로 표시하지 않습니다.
+- 릴리스 태그 커밋: [`0ff3e30`](https://github.com/JAEHYEON-BAE/bloct/commit/0ff3e30797f63e5d4643ed232125589d810ff76d). 문서 선행 `ec1a670`과 구현·검증·버전 메타데이터를 main 및 `v1.7.4`로 푸시했습니다.
+- 원격 결과: [Release 실행 39035597204](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39035597204) **success**, [Release v1.7.4](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.4) 게시 완료. [단계별 결과](Tests/results/2026-10-17/release-1.7.4-actions.json).
+- 공개 ZIP을 다운로드해 표시/빌드 버전 **1.7.4**, **Intel·Apple Silicon / SDK 27.0 / 최소 macOS 14.0**을 확인했습니다. SHA256은 `ca115b98f3209ceea554e9b8edc5ab6f9f7f89e921c488091a600071177294f9`로 GitHub asset digest와 같습니다. [산출물 검사](Tests/results/2026-10-17/release-1.7.4-published.json), [릴리스 메타데이터](Tests/results/2026-10-17/release-1.7.4-published-metadata.json).
+- Homebrew: [Sync Bloct 실행 39035721637](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39035721637) **success**. 자체 GITHUB_TOKEN으로 cask **1.7.3 → 1.7.4** 변경 커밋 [`fa2ae75`](https://github.com/JAEHYEON-BAE/homebrew-tap/commit/fa2ae7583cff8a78884cd6e41b782d6a545d1908)·푸시 완료. 원격 cask SHA256도 공개 ZIP·GitHub digest와 일치하고 Ruby 문법 검사 통과. [실행 결과](Tests/results/2026-10-17/release-1.7.4-tap-actions.json), [변경 diff](Tests/results/2026-10-17/release-1.7.4-tap-commit.json), [로그](Tests/results/2026-10-17/release-1.7.4-tap.log), [cask](Tests/results/2026-10-17/release-1.7.4-bloct-cask.rb), [체크섬 비교](Tests/results/2026-10-17/release-1.7.4-checksums.json). 이번 릴리스는 수동 dispatch로 확인했으며 예약 시점 자체를 새로 검증한 것은 아닙니다.
+- 배포 기준: Xcode/SDK 27.0, 최소 macOS 14.0, arm64·x86_64 Universal. 태그의 코드는 `0ff3e30`으로 고정하고, 배포 확인 문서·원시 결과는 후속 문서 커밋으로 main에 반영합니다.
 - 범위: 설치된 `/Applications/Bloct.app` 교체는 요청 범위에 포함하지 않습니다. 공개 Release 바이너리의 실제 GUI·macOS 14 실제 기기·한국어 IME와 지연시킨 동시 저장 등은 별도 미검증입니다.
 
 ## v1.7.3 상대경로 이미지 릴리스 — 2026-10-17
@@ -306,7 +310,7 @@ DOMPurify 3.4.17을 번들로 포함하고 파싱·수식 처리 후 HTML을 정
 
 ### 21. 외부 문서 변경과 편집 상태의 불일치
 
-- 날짜·상태: **2026-10-17 / 구현·자동 회귀·실제 DocumentGroup GUI의 해당 범위 검증 완료**. 우선 처리 완료이며 다음 작업은 20번 → 4·17번입니다. 사용자의 후속 커밋·태그·푸시 요청에 따라 v1.7.4로 릴리스합니다.
+- 날짜·상태: **2026-10-17 / 구현·자동 회귀·실제 DocumentGroup GUI의 해당 범위 검증 완료**. 우선 처리 완료이며 다음 작업은 20번 → 4·17번입니다. 사용자의 후속 커밋·태그·푸시 요청에 따라 v1.7.4 릴리스·배포 검증까지 완료했습니다.
 - 수정 전 원인: `DocumentState`가 최초 Binding만 읽고 `ContentView`의 Binding 변경 관찰은 저장 요청만 실행했습니다. 외부 내용을 편집 버퍼·`originalText`·미리보기로 수용하는 경로와 수동 재읽기가 없었습니다. 원래 버전의 GUI 덮어쓰기 재현은 별도 실행하지 않았으며, 이 원인은 소스로 확인했습니다.
 - 요구사항: 별도 메뉴/도구막대 버튼 없이 `⌘R`·우클릭 `Reload`, 수정 없는 문서의 자동 hot reload, 활성 textarea·미저장 블록 편집 보호, 편집·저장 경계의 외부 변경 확인입니다. 빈 줄 블록 정책·16번 보류·탐색/브리지 보안·24번 이미지 로더를 유지합니다.
 

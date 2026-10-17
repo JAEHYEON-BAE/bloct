@@ -1,0 +1,101 @@
+{
+  "sha": "fa2ae7583cff8a78884cd6e41b782d6a545d1908",
+  "node_id": "C_kwDOSRbUOtoAKGZhMmFlNzU4M2NmZjhhNzg4ODRjZDZlNDFiNzgyZDZhNTQ1ZDE5MDg",
+  "commit": {
+    "author": {
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "date": "2026-10-17T13:14:14Z"
+    },
+    "committer": {
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "date": "2026-10-17T13:14:14Z"
+    },
+    "message": "Sync Bloct with latest stable release",
+    "tree": {
+      "sha": "e7bd43c9493a18344ccf7d5026ba729adf229250",
+      "url": "https://api.github.com/repos/JAEHYEON-BAE/homebrew-tap/git/trees/e7bd43c9493a18344ccf7d5026ba729adf229250"
+    },
+    "url": "https://api.github.com/repos/JAEHYEON-BAE/homebrew-tap/git/commits/fa2ae7583cff8a78884cd6e41b782d6a545d1908",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "url": "https://api.github.com/repos/JAEHYEON-BAE/homebrew-tap/commits/fa2ae7583cff8a78884cd6e41b782d6a545d1908",
+  "html_url": "https://github.com/JAEHYEON-BAE/homebrew-tap/commit/fa2ae7583cff8a78884cd6e41b782d6a545d1908",
+  "comments_url": "https://api.github.com/repos/JAEHYEON-BAE/homebrew-tap/commits/fa2ae7583cff8a78884cd6e41b782d6a545d1908/comments",
+  "author": {
+    "login": "github-actions[bot]",
+    "id": 41898282,
+    "node_id": "MDM6Qm90NDE4OTgyODI=",
+    "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+    "html_url": "https://github.com/apps/github-actions",
+    "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+    "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+    "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+    "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+    "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+    "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+    "type": "Bot",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "github-actions[bot]",
+    "id": 41898282,
+    "node_id": "MDM6Qm90NDE4OTgyODI=",
+    "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+    "html_url": "https://github.com/apps/github-actions",
+    "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+    "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+    "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+    "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+    "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+    "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+    "type": "Bot",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "2bf8523557cfa3937a6462b28741d3190795d44c",
+      "url": "https://api.github.com/repos/JAEHYEON-BAE/homebrew-tap/commits/2bf8523557cfa3937a6462b28741d3190795d44c",
+      "html_url": "https://github.com/JAEHYEON-BAE/homebrew-tap/commit/2bf8523557cfa3937a6462b28741d3190795d44c"
+    }
+  ],
+  "stats": {
+    "total": 4,
+    "additions": 2,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "d30b32d6307bb06b07a1161eefa6205b3ca852df",
+      "filename": "Casks/bloct.rb",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/JAEHYEON-BAE/homebrew-tap/blob/fa2ae7583cff8a78884cd6e41b782d6a545d1908/Casks%2Fbloct.rb",
+      "raw_url": "https://github.com/JAEHYEON-BAE/homebrew-tap/raw/fa2ae7583cff8a78884cd6e41b782d6a545d1908/Casks%2Fbloct.rb",
+      "contents_url": "https://api.github.com/repos/JAEHYEON-BAE/homebrew-tap/contents/Casks%2Fbloct.rb?ref=fa2ae7583cff8a78884cd6e41b782d6a545d1908",
+      "patch": "@@ -1,6 +1,6 @@\n cask \"bloct\" do\n-  version \"1.7.3\"\n-  sha256 \"4afbe3fa88dfd80c3fd3b4cd8d4fa0d4ea512119a3f322d1a5daa194e8c49fa0\"\n+  version \"1.7.4\"\n+  sha256 \"ca115b98f3209ceea554e9b8edc5ab6f9f7f89e921c488091a600071177294f9\"\n \n   url \"https://github.com/JAEHYEON-BAE/bloct/releases/download/v#{version}/Bloct.zip\"\n   name \"Bloct\""
+    }
+  ]
+}

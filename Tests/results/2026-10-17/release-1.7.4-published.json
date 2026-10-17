@@ -1,0 +1,36 @@
+{
+  "artifact": "/private/tmp/BloctRelease174/published/Bloct.zip",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ],
+  "app_version": "1.7.4",
+  "build_version": "1.7.4",
+  "sha256": "ca115b98f3209ceea554e9b8edc5ab6f9f7f89e921c488091a600071177294f9",
+  "github_asset_digest": "sha256:ca115b98f3209ceea554e9b8edc5ab6f9f7f89e921c488091a600071177294f9",
+  "release_url": "https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.4"
+}
