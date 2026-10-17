@@ -16,7 +16,6 @@ xcuserdata/
 Bloct.xcodeproj/
 
 # Claude Code — local only
-CLAUDE.md
 .claude/
 BUILD.md
 
@@ -27,6 +26,3 @@ vscode-markdown-scroll-sync.md
 
 # Release Data
 Release/
-
-# Code Review Information
-CODE_REVIEW.md
