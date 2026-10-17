@@ -1,0 +1,4 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.VcvZmN/RelativeImageRegression.app: 1 (Operation not permitted)
+Actual production WKWebView, synthetic keyboard events (not native GUI keystrokes)
+{"emptyDefinition":true,"opened":true,"source":"[probe-ref]: https://example.com/ref","returned":true}
+PASS hidden definition opens with Cmd+Enter from previous block and returns with Cmd+Shift+Enter

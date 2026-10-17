@@ -1,0 +1,11 @@
+2026-10-17 BUG_FIXES.md #16 fixture validation
+Source: MarkdownWebView.swift current splitter and _mvRenderOneBlock extracted without edits.
+Bundled marked used. Sanitizer replaced with identity for this safe Markdown shape comparison.
+This is a Node parser probe, not a WKWebView or GUI validation.
+CONFIRMED {"name":"Control: direct link survives","pass":true,"detail":"Both paths contain the direct-link anchor."}
+CONFIRMED {"name":"A: reference link loses document definition","pass":true,"detail":"Whole-document parse: link; production split parse: literal reference name."}
+CONFIRMED {"name":"Control: tight ordered list remains one list","pass":true,"detail":"One ordered list with three items in both paths."}
+CONFIRMED {"name":"B: loose ordered list becomes three lists starting at one","pass":true,"detail":"<ol>\n<li>B-재현 첫 번째 항목</li>\n</ol>\n<ol>\n<li>B-재현 두 번째 항목</li>\n</ol>\n<ol>\n<li>B-재현 세 번째 항목</li>\n</ol>\n"}
+CONFIRMED {"name":"C: item continuation becomes standalone code","pass":true,"detail":"<ol>\n<li>C-재현 첫 항목의 첫 번째 문단</li>\n</ol>\n<pre><code>C-재현 첫 항목의 두 번째 문단\n</code></pre>\n<ol>\n<li>C-재현 다음 항목</li>\n</ol>\n"}
+CONFIRMED {"name":"C: next item restarts in a separate list","pass":true,"detail":"Expected one list; actual two lists, both start at one."}
+RESULT: 6/6 observations confirmed. Defects remain unfixed.

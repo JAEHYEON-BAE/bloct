@@ -1,0 +1,7 @@
+2026-10-17 User-confirmed Bloct policy, not general Markdown conformance.
+Production splitter and renderer extracted read-only; bundled marked; sanitizer identity for safe structure comparison.
+PASS {"name":"B contiguous items stay in one list","pass":true,"html":"<ol>\n<li>B-연속 첫 번째 항목</li>\n<li>B-연속 두 번째 항목</li>\n<li>B-연속 세 번째 항목</li>\n</ol>\n"}
+PASS {"name":"B blank lines intentionally create three lists","pass":true,"html":"<ol>\n<li>B-분리 첫 번째 항목</li>\n</ol>\n<ol>\n<li>B-분리 두 번째 항목</li>\n</ol>\n<ol>\n<li>B-분리 세 번째 항목</li>\n</ol>\n"}
+PASS {"name":"C blank lines intentionally separate code and lists","pass":true,"html":"<ol>\n<li>C-분리 첫 번째 블록</li>\n</ol>\n<pre><code>C-분리 네 칸 들여쓴 별도 블록\n</code></pre>\n<ol>\n<li>C-분리 새로운 목록</li>\n</ol>\n"}
+PASS {"name":"C trailing backslash breaks line within the same list item","pass":true,"html":"<ol>\n<li>C-연결 첫 번째 줄<br>C-연결 같은 항목의 두 번째 줄</li>\n<li>C-연결 다음 항목</li>\n</ol>\n"}
+RESULT: 4/4 expected product behaviors confirmed.
