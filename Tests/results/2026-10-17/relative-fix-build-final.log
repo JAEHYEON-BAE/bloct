@@ -1,0 +1,512 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Bloct.xcodeproj -scheme Bloct -configuration Debug -derivedDataPath /private/tmp/BloctRelativeImageFixFinal PRODUCT_BUNDLE_IDENTIFIER=com.personal.Bloct.RelativeImageFixFinal CODE_SIGNING_ALLOWED=NO build
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    PRODUCT_BUNDLE_IDENTIFIER = com.personal.Bloct.RelativeImageFixFinal
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00008132-000631540250401C, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00008132-000631540250401C, name:My Mac }
+{ platform:macOS, name:Any Mac }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Bloct' in project 'Bloct' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 110c3a3160f3bdf827ed128806536ed9
+Build description path: /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/XCBuildData/110c3a3160f3bdf827ed128806536ed9.xcbuilddata
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/Build/Products
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/Build/Products
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/CompilationCache.noindex
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/CompilationCache.noindex
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk /tmp/BloctRelativeImageFixFinal/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o /tmp/BloctRelativeImageFixFinal/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/Build/Products/Debug
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/Build/Products/Debug
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/EagerLinkingTBDs/Debug
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/EagerLinkingTBDs/Debug
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct-a49b73889425cb979b72ceb6bdb140a9-VFS/all-product-headers.yaml
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct-a49b73889425cb979b72ceb6bdb140a9-VFS/all-product-headers.yaml
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.hmap
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.DependencyStaticMetadataFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.DependencyMetadataFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.DependencyMetadataFileList
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-project-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-project-headers.hmap
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.LinkFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.LinkFileList
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftFileList
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftConstValuesFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-own-target-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-own-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-generated-files.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-generated-files.hmap
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-all-target-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-all-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-all-non-framework-target-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-DebugDylibPath-normal-arm64.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-DebugDylibInstallName-normal-arm64.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-DebugDylibInstallName-normal-arm64.txt
+
+MkDir /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents
+
+MkDir /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources
+
+MkDir /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS
+
+MkDir /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app
+
+Ld /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/__preview.dylib normal (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/BloctRelativeImageFixFinal/Build/Products/Debug -F/tmp/BloctRelativeImageFixFinal/Build/Products/Debug -install_name @rpath/Bloct.debug.dylib -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_dependency_info.dat -o /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/__preview.dylib
+
+MkDir /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned
+
+MkDir /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/unthinned (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/unthinned
+
+CpResource /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources/style.css /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/style.css (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/style.css /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources
+
+CpResource /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources/marked.min.js /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/marked.min.js (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/marked.min.js /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources
+
+CpResource /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources/purify.min.js /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/purify.min.js (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/purify.min.js /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources
+
+CpResource /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources/DOMPurify-LICENSE.txt /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DOMPurify-LICENSE.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DOMPurify-LICENSE.txt /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources
+
+GenerateAssetSymbols /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets --compile /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources --output-format human-readable-text --notices --warnings --export-dependency-info /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies --output-partial-info-plist /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist --app-icon AppIcon --enable-on-demand-resources NO --development-region en --target-device mac --minimum-deployment-target 14.0 --platform macosx --bundle-identifier com.personal.Bloct.RelativeImageFixFinal --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.h
+/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CompileAssetCatalogVariant thinned /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets --compile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies_thinned --output-partial-info-plist /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --enable-on-demand-resources NO --development-region en --target-device mac --minimum-deployment-target 14.0 --platform macosx
+/* com.apple.actool.compilation-results */
+/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_thinned
+/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned/AppIcon.icns
+/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Bloct -Onone @/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/BloctRelativeImageFixFinal/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/BloctRelativeImageFixFinal/Build/Products/Debug -F /tmp/BloctRelativeImageFixFinal/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/BloctRelativeImageFixFinal/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex -sdk-module-cache-path /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-generated-files.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-own-target-headers.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-project-headers.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Products/Debug/include -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-Swift.h -working-directory /Users/jaehyeon/PersonalProjects/bloct -experimental-emit-module-separately -disable-cmo
+
+LinkAssetCatalog /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-linkAssetCatalog --thinned /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned --thinned-dependencies /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_thinned --unthinned /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/unthinned --unthinned-dependencies /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_unthinned --output /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources --plist-output /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist
+note: Emplaced /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources/AppIcon.icns (in target 'Bloct' from project 'Bloct')
+note: Emplaced /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources/Assets.car (in target 'Bloct' from project 'Bloct')
+
+ProcessInfoPlistFile /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Info.plist /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Info.plist (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-infoPlistUtility /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/PkgInfo -expandbuildsettings -platform macosx -additionalcontentfile /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist -o /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Info.plist
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_stdbool-4SHIJBJ9GKPAVMN2411GW7GTQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_stdarg-C701W7YN5X3ZQHCAAYI6ZHJHC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/ptrauth-3ALUG8ONU60ELZ24GVA1Y5A0F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_stddef-38JQDXU9MMSBZ1JKLGG5EYL7D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/DeveloperToolsSupport-75XT9S04MM5XZPS5BA5YYZ19B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_float-DZ58VU2GCXP83CRTVXGHJUDG7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-F4U2YH71Q70A8O879YJXJ80UY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/SwiftShims-BI38MD6EAAF19O4XFGIJC5RTE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_AvailabilityInternal-CLT7MP5MF0UT33N3XFJF1NR2Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/ptrcheck-8ETW6M5BSOPC4BSZDI0ZFKEO9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_DarwinFoundation1-EWRL1L9W9LLGQ3NJGKCIPU8NT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_DarwinFoundation2-7SJR0DFTRBJA7IRE8ORY3JGWB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_limits-845EKHOBITJDP4LVFTOKP1ZKI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_tgmath-2NAS3R94LF0UZNXLAKBZQUIHE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_stdint-39T7DOV7BJ22EPPKE742Z3RRI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/string_h-8YUUGBWE2W77XIZYWKFHWGOYS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/sys_types-AF4HW4FJCUB3YNO5838IMSAVQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_intrinsics-DZOZBMR51FXN5QLXXOVZTV0KC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_stdatomic-A28X72INGWJR5MQV3V1YK28Y2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/libDER-5A57A9RSNDKVZM7EBIM7Y9NIF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_DarwinFoundation3-2XQ3IAL3IPLNKYJZOH8489E1L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/_Builtin_inttypes-55I9H0INPJ6II46FNSTF7SX4C.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Darwin-AR5VG33YM73PHFFZM4E5O3TIT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/simd-1ZFZ49LIWEZOPACOLSFVXUONX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/launch-17N9BFWCWIB8SATDZT05WGKZ5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/libkern-EW69QTGGB9N5W8ALPE2X5SZZF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/MachO-3JFY6J3ZBLBYIEXYKZ6TAVJ94.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CUPS-731H6GSLUTTPQ7WEUT9YF8JSX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/ObjectiveC-4Q55B3VAIF7X83QSWLDQX9QAN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Spatial-1IKEUE0TUH0EVW8CAN82483HE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/os_object-E4LJTKW7NJ679O52X4H207JCW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/os_workgroup-5EWEY1EVSF7J0NHAMXTN8IOR4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Dispatch-B8TGTDMT9WI4V1HQVDMC8V09D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/dnssd-CQC8G4BDQNR22T75EIPVXM796.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreFoundation-2Y2ZMD2JP2830BA6H2061NVOO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/XPC-D6V21DS5RBH1H07F43YJEIR71.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/os-7IL671CY2JKIX4OHVJBB0LB4T.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CFNetwork-94UXB2U9ELUKNA1DWVI1D5UBK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/ColorSync-97KMGNV26G0W1BGBM61FW4X4D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/IOKit-DIGN29MK3SUHSI6X9NJ7Z2VLK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Security-891ROJX7DRJN75D286M2HRHEI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreAudioTypes-C3TG5XQFV8ENVYB9HV30Y3BUR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreGraphics-EQWPTQMNZ1LM0NHH3VSBGIIR9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/DiskArbitration-EIOWSTUBODYMUH82RBPZ9UT48.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreServices-7J72BPDO9I8YM8UY6BJGJKHM9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/ImageIO-1R6CDPEFV5IA9CGN7THMOAWH0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreText-A6LABGZ9L23NA20N1PY4RNI6O.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Foundation-D6VGW9X70953PW1DCNVFFVVJP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/ApplicationServices-2KHZMS3X92AOF5E9FKQOXEHO9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-4UTTPV6Z4EMCOGAHIN3KRSWTZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreAudio-BAEYUV2T5DCSENWB83EZHQ8JX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Symbols-9NM1563T38V60L84Z5YH2WBWQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreData-8WO612LAX86Y1899V1PIPN26H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/DataDetection-6D818KLP6BXQ02964Q5JCKSLK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/JavaScriptCore-3HCDK5YLPJ7JVXA18WTZPT2IW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Network-9GBTWFSPLG25YNCSRWQJB2I7E.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Accessibility-5P2WND43VDL0LRLE8P2LFY4Z0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/OSLog-8TR6T0HBU8BFTUK72CODHDY7U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreTransferable-AGA08RW69YF34Z5UECNQQMATT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/IOSurface-DS1LG4VF2MOAAS3XBGDJSWBQF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/Metal-2HZ6WPWB4BT04WZL6BVXM09AQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/OpenGL-475PARNNX0O481CL9KPGJEF2X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreVideo-9H3T7IEP3DOHZRY36R0PQ0D67.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/QuartzCore-8CRF34FBI9BWU8N0LWYIWEMBV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreImage-66H0BMCYIHM1YSI5N9MMP4LNA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/CoreMedia-I4IEJS8GS2FUWMI73ETOK3C1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/SwiftUICore-B9LLWBB1N6QW26VQLHS5KMEJL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/AppKit-1DPJVO92BEAHTN1PVKIEHHKDS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/SwiftUI-1UK2J19936TILMBHFKXZN9FJ0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules/WebKit-C4M01XIKO2X434WXJOY4HPTP3.pcm
+
+SwiftCompile normal arm64 Compiling\ ContentView.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/ContentView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/ContentView.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile ContentView.swift
+
+SwiftCompile normal arm64 Compiling\ MarkdownWebView.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile MarkdownWebView.swift
+
+SwiftCompile normal arm64 Compiling\ PreviewFiles.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile PreviewFiles.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ Bloct (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    
+
+SwiftCompile normal arm64 Compiling\ GeneratedAssetSymbols.swift /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftCompile normal arm64 Compiling\ DocumentSaveOperation.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile DocumentSaveOperation.swift
+
+SwiftCompile normal arm64 Compiling\ DocumentState.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentState.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentState.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile DocumentState.swift
+
+SwiftCompile normal arm64 Compiling\ MarkdownDocument.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile MarkdownDocument.swift
+
+SwiftCompile normal arm64 Compiling\ BloctApp.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/BloctApp.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/BloctApp.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile BloctApp.swift
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for Bloct (in target 'Bloct' from project 'Bloct')
+
+SwiftDriver\ Compilation\ Requirements Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Bloct -Onone @/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/BloctRelativeImageFixFinal/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/BloctRelativeImageFixFinal/Build/Products/Debug -F /tmp/BloctRelativeImageFixFinal/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/BloctRelativeImageFixFinal/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex -sdk-module-cache-path /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-generated-files.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-own-target-headers.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-project-headers.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Products/Debug/include -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-Swift.h -working-directory /Users/jaehyeon/PersonalProjects/bloct -experimental-emit-module-separately -disable-cmo
+
+SwiftMergeGeneratedHeaders /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/Bloct-Swift.h /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-Swift.h (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-swiftHeaderTool -arch arm64 /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-Swift.h -o /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/Bloct-Swift.h
+
+Copy /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/arm64-apple-macos.swiftmodule /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftmodule (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftmodule /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/arm64-apple-macos.swiftmodule
+
+Copy /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/arm64-apple-macos.swiftdoc /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftdoc (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftdoc /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/arm64-apple-macos.swiftdoc
+
+Copy /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/arm64-apple-macos.abi.json /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.abi.json (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.abi.json /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/arm64-apple-macos.abi.json
+
+Copy /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftsourceinfo (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftsourceinfo /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentState.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling BloctApp.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ContentView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriver\ Compilation Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Bloct -Onone @/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/BloctRelativeImageFixFinal/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/BloctRelativeImageFixFinal/Build/Products/Debug -F /tmp/BloctRelativeImageFixFinal/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/BloctRelativeImageFixFinal/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex -sdk-module-cache-path /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/BloctRelativeImageFixFinal/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-generated-files.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-own-target-headers.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-project-headers.hmap -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Products/Debug/include -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-Swift.h -working-directory /Users/jaehyeon/PersonalProjects/bloct -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct.debug.dylib normal (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -L/tmp/BloctRelativeImageFixFinal/Build/Products/Debug -F/tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -F/tmp/BloctRelativeImageFixFinal/Build/Products/Debug -filelist /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.LinkFileList -install_name @rpath/Bloct.debug.dylib -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/../Frameworks -Xlinker -object_path_lto -Xlinker /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct.debug.dylib
+
+ConstructStubExecutorLinkFileList /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-ExecutorLinkFileList-normal-arm64.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    construct-stub-executor-link-file-list /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'Bloct' from project 'Bloct')
+
+Ld /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct normal (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/BloctRelativeImageFixFinal/Build/Products/Debug -F/tmp/BloctRelativeImageFixFinal/Build/Products/Debug -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/../Frameworks -rdynamic -Xlinker -no_deduplicate -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct-ExecutorLinkFileList-normal-arm64.txt /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct.debug.dylib -o /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct
+
+CopySwiftLibs /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct.debug.dylib --scan-folder /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Frameworks --scan-folder /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/PlugIns --scan-folder /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Library/SystemExtensions --scan-folder /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Extensions --platform macosx --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name Bloct --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk --xcode-version 27A266a --platform-family macOS --deployment-target 14.0 --bundle-identifier com.personal.Bloct.RelativeImageFixFinal --output /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/Resources --target-triple arm64-apple-macos14.0 --binary-file /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app/Contents/MacOS/Bloct --dependency-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_dependency_info.dat --stringsdata-file /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftFileList --metadata-file-list /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.DependencyMetadataFileList --static-metadata-file-list /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Bloct.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-17 10:24:07.811 appintentsmetadataprocessor[24374:210140] Starting appintentsmetadataprocessor export
+2026-10-17 10:24:07.813 appintentsmetadataprocessor[24374:210140] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+RegisterExecutionPolicyException /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-RegisterExecutionPolicyException /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app
+
+Validate /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-validationUtility /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app -no-validate-extension -infoplist-subpath Contents/Info.plist
+
+Touch /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /usr/bin/touch -c /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app
+
+RegisterWithLaunchServices /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-lsregisterurl --record-path /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/XCBuildData/registered-launchservices.txt -- /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted /tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app
+
+PruneExplicitPrecompiledModules /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/BloctRelativeImageFixFinal/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/BloctRelativeImageFixFinal/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

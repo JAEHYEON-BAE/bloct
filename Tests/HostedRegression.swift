@@ -8,11 +8,11 @@ import WebKit
 // navigation policy, the bridge guard, overlapping initial loads and the scripts injected
 // on didFinish. Page-level suites in Tests/js run inside such a hosted page.
 
-/// Checks expected to fail until the referenced CODE_REVIEW.md item is fixed. Each is
+/// Checks expected to fail until the referenced BUG_FIXES.md item is fixed. Each is
 /// reported as XFAIL; an unexpected pass fails the run so the entry gets removed.
 private let knownFailures: [String: String] = [
-    "double load in the same run loop (file): page shows the latest text": "CODE_REVIEW #20",
-    "double load in the same run loop (new document): page shows the latest text": "CODE_REVIEW #20",
+    "double load in the same run loop (file): page shows the latest text": "BUG_FIXES.md #20",
+    "double load in the same run loop (new document): page shows the latest text": "BUG_FIXES.md #20",
 ]
 
 @MainActor private final class Recorder { var commits: [String] = [] }
@@ -166,20 +166,17 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
                      "url=\(webView.url?.absoluteString ?? "nil")")
 
         if let directory {
+            let image = js(webView, """
+                const image = document.querySelector('#content img');
+                if (!image) return 'missing';
+                try { await image.decode(); return image.naturalWidth === 1 ? 'loaded' : 'width ' + image.naturalWidth; }
+                catch (_) { return 'decode failed'; }
+                """) as? String
+            Report.check("\(label): relative image loads", image == "loaded", image ?? "nil")
             if isReadOnly {
-                // The loadHTMLString fallback cannot read neighbouring files; this predates
-                // the preview-file changes.
-                Report.skip("\(label): relative image loads", "not available through the loadHTMLString fallback")
                 Report.check("\(label): no preview file is written", previewFiles(in: directory).isEmpty,
                              "\(previewFiles(in: directory))")
             } else {
-                let image = js(webView, """
-                    const image = document.querySelector('#content img');
-                    if (!image) return 'missing';
-                    try { await image.decode(); return image.naturalWidth === 1 ? 'loaded' : 'width ' + image.naturalWidth; }
-                    catch (_) { return 'decode failed'; }
-                    """) as? String
-                Report.check("\(label): relative image loads", image == "loaded", image ?? "nil")
                 Report.check("\(label): one unique preview file is written", previewFiles(in: directory).count == 1,
                              "\(previewFiles(in: directory))")
             }

@@ -1,5 +1,74 @@
 import SwiftUI
 import WebKit
+import UniformTypeIdentifiers
+
+/// Only image responses cross into WebKit; the page never receives broad file access.
+@MainActor
+final class LocalImageLoader: NSObject, WKURLSchemeHandler {
+    static let scheme = "bloct-image"
+    private(set) var host = UUID().uuidString.lowercased()
+    private var documentURL: URL?
+    private var tasks: [ObjectIdentifier: Task<Void, Never>] = [:]
+
+    func setDocumentURL(_ url: URL?) {
+        guard documentURL != url else { return }
+        invalidate()
+        documentURL = url
+        host = UUID().uuidString.lowercased()
+    }
+
+    func invalidate() {
+        for task in tasks.values { task.cancel() }
+        tasks.removeAll()
+        documentURL = nil
+    }
+
+    func imageURL(for request: URLRequest) -> URL? {
+        guard request.httpMethod == "GET", let url = request.url,
+              url.scheme == Self.scheme, url.host == host,
+              let documentURL, documentURL.isFileURL,
+              let source = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first(where: { $0.name == "src" })?.value,
+              let image = URL(string: source, relativeTo: documentURL.deletingLastPathComponent())?.absoluteURL,
+              image.isFileURL, image.host == nil || image.host == "" || image.host == "localhost"
+        else { return nil }
+        return image.standardizedFileURL.resolvingSymlinksInPath()
+    }
+
+    func webView(_ webView: WKWebView, start urlSchemeTask: any WKURLSchemeTask) {
+        guard let image = imageURL(for: urlSchemeTask.request),
+              let type = UTType(filenameExtension: image.pathExtension), type.conforms(to: .image),
+              let mime = type.preferredMIMEType, let requestURL = urlSchemeTask.request.url else {
+            urlSchemeTask.didFailWithError(URLError(.noPermissionsToReadFile))
+            return
+        }
+        let key = ObjectIdentifier(urlSchemeTask)
+        tasks[key] = Task {
+            let result = await Task.detached {
+                Result { () throws -> Data in
+                    guard try image.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true else {
+                        throw URLError(.noPermissionsToReadFile)
+                    }
+                    return try Data(contentsOf: image)
+                }
+            }.value
+            guard !Task.isCancelled else { return }
+            tasks[key] = nil
+            switch result {
+            case .success(let data):
+                urlSchemeTask.didReceive(URLResponse(url: requestURL, mimeType: mime,
+                                                    expectedContentLength: data.count, textEncodingName: nil))
+                urlSchemeTask.didReceive(data)
+                urlSchemeTask.didFinish()
+            case .failure(let error): urlSchemeTask.didFailWithError(error)
+            }
+        }
+    }
+
+    func webView(_ webView: WKWebView, stop urlSchemeTask: any WKURLSchemeTask) {
+        tasks.removeValue(forKey: ObjectIdentifier(urlSchemeTask))?.cancel()
+    }
+}
 
 struct MarkdownWebView: NSViewRepresentable {
     let markdown: String
@@ -96,6 +165,7 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+        let localImages = LocalImageLoader()
         var lastMarkdown: String? = nil
         var showTOC: Bool = true
         var lastShowTOC: Bool = true
@@ -266,6 +336,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
+        config.setURLSchemeHandler(context.coordinator.localImages, forURLScheme: LocalImageLoader.scheme)
         let handler = WeakMessageHandler(context.coordinator)
         for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty"] {
             config.userContentController.add(handler, name: name)
@@ -285,6 +356,7 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        coordinator.localImages.invalidate()
         for url in coordinator.supersededHTMLURLs { PreviewFiles.remove(url) }
         coordinator.supersededHTMLURLs.removeAll()
         if let url = coordinator.tempHTMLURL { PreviewFiles.remove(url) }
@@ -296,7 +368,10 @@ struct MarkdownWebView: NSViewRepresentable {
         webViewStore.webView = webView
         coordinator.showTOC = showTOC
         coordinator.onCloseTOC = onCloseTOC
+        let locationChanged = coordinator.fileURL != fileURL
         coordinator.fileURL = fileURL
+        coordinator.localImages.setDocumentURL(fileURL)
+        let imageOrigin = fileURL == nil ? "" : "\(LocalImageLoader.scheme)://\(coordinator.localImages.host)/"
         coordinator.onTextCommit = onTextCommit
         coordinator.onEditorDirtyChanged = onEditorDirtyChanged
         if coordinator.lastEditMode != isEditMode {
@@ -307,16 +382,17 @@ struct MarkdownWebView: NSViewRepresentable {
                 webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(\(flag));", completionHandler: nil)
             }
         }
-        if coordinator.lastMarkdown != markdown {
+        if coordinator.lastMarkdown != markdown || locationChanged {
             coordinator.lastMarkdown = markdown
             if coordinator.isPageLoaded {
                 // Live edit: update only the content in-place, no page reload, scroll is preserved
                 let base64 = Data(markdown.utf8).base64EncodedString()
-                webView.evaluateJavaScript("window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
+                let reset = locationChanged ? "window._mvStale = true;" : ""
+                webView.evaluateJavaScript("window._mvImageOrigin = '\(imageOrigin)'; \(reset) window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
             } else {
                 // didFinish applies the current TOC state, so no toggle animation is needed.
                 coordinator.lastShowTOC = showTOC
-                let html = buildHTML()
+                let html = buildHTML(imageOrigin: imageOrigin)
                 if let fileURL = fileURL {
                     let dir = fileURL.deletingLastPathComponent()
                     do {
@@ -384,7 +460,7 @@ struct MarkdownWebView: NSViewRepresentable {
         }
     }
 
-    func buildHTML() -> String {
+    func buildHTML(imageOrigin: String = "") -> String {
         let base64Markdown = Data(markdown.utf8).base64EncodedString()
         let nonce = UUID().uuidString
 
@@ -393,7 +469,7 @@ struct MarkdownWebView: NSViewRepresentable {
         <html>
         <head>
             <meta charset="UTF-8">
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-\(nonce)'; script-src-attr 'none'; style-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css; font-src https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/; img-src file: data: https: http:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-\(nonce)'; script-src-attr 'none'; style-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css; font-src https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/; img-src file: bloct-image: data: https: http:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
             <meta name="color-scheme" content="light dark">
             <style>\(Self.css)</style>
             <style>
@@ -441,8 +517,9 @@ struct MarkdownWebView: NSViewRepresentable {
                         }).join(' ');
                     }
                 });
+                window._mvImageOrigin = '\(imageOrigin)';
                 function _mvSanitize(html) {
-                    return DOMPurify.sanitize(html, {
+                    var clean = DOMPurify.sanitize(html, {
                         ALLOW_DATA_ATTR: false,
                         ADD_TAGS: ['annotation'],
                         ADD_ATTR: ['encoding'],
@@ -450,6 +527,21 @@ struct MarkdownWebView: NSViewRepresentable {
                                       'object', 'embed', 'base', 'link', 'meta', 'template'],
                         FORBID_ATTR: ['id', 'name', 'srcset', 'autofocus', 'contenteditable']
                     });
+                    if (!window._mvImageOrigin) return clean;
+                    // Convert only sanitized image sources. Keep the author's URL for copy.
+                    var template = document.createElement('template');
+                    template.innerHTML = clean;
+                    template.content.querySelectorAll('img[src]').forEach(function(image) {
+                        var src = image.getAttribute('src');
+                        try {
+                            if (new URL(src, 'file:///').protocol !== 'file:') return;
+                            image.setAttribute('data-mv-image-source', src);
+                            // Encode raw Unicode/spaces without double-encoding existing %XX.
+                            var uri = encodeURI(src).replace(/%25([0-9a-f]{2})/gi, '%$1');
+                            image.src = window._mvImageOrigin + '?src=' + encodeURIComponent(uri);
+                        } catch (_) {}
+                    });
+                    return template.innerHTML;
                 }
 
                 // figureCaption handles *[...]*  blocks so the outer * are never seen by the italic rule
@@ -978,7 +1070,7 @@ struct MarkdownWebView: NSViewRepresentable {
                             return '```' + lang + '\\n' + (c ? c.textContent : ch) + '\\n```\\n\\n';
                         }
                         case 'a': return '[' + ch + '](' + (node.getAttribute('href') || '') + ')';
-                        case 'img': return '![' + (node.getAttribute('alt') || '') + '](' + (node.getAttribute('src') || '') + ')';
+                        case 'img': return '![' + (node.getAttribute('alt') || '') + '](' + (node.getAttribute('data-mv-image-source') || node.getAttribute('src') || '') + ')';
                         case 'p': return ch.trim() + '\\n\\n';
                         case 'br': return '\\n';
                         case 'hr': return '---\\n\\n';

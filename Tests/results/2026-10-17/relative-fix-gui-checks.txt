@@ -1,0 +1,21 @@
+2026-10-17 Bloct #24 GUI checks (cua_repl)
+First Debug build: /private/tmp/BloctRelativeImageFix/Build/Products/Debug/Bloct.app
+Bundle: com.personal.Bloct.RelativeImageFix; temporary display name BloctImageCheck
+Final Debug build: /private/tmp/BloctRelativeImageFixFinal/Build/Products/Debug/Bloct.app
+Bundle: com.personal.Bloct.RelativeImageFixFinal; temporary display name BloctImageFinal
+Installed /Applications/Bloct.app was not replaced.
+
+Temporary fixtures: /private/tmp/bloct-relative-images-fixed-20261017/
+PASS plain/docs/chapter/probe.md: all six green PNG images visible, including ../ and ../../.
+PASS edit heading block with Edit Mode, set textarea to '# Relative image GUI saved', Escape, Cmd-S.
+PASS disk Markdown begins '# Relative image GUI saved'; all six original image references preserved.
+PASS close and reopen: saved heading and all six images visible.
+PASS readonly/docs/chapter/probe.md at mode 0555: Locked label; six green images visible with inline fallback origin.
+PASS final build: reopened saved plain fixture with all six images.
+PASS final build extended/gui.md: JPEG, SVG, raw Korean/spaces plus encoded hash/percent, image symlink visible.
+Multiple temporary documents opened; closed-window CUA binding could not reconnect for a separate window cycling check.
+The final test app quit normally. Earlier test app was terminated by its exact temporary executable path after CUA reconnection failed.
+Startup restored existing user documents in the test app; their Markdown source was not edited or saved.
+Only the two exact previews observed in that test app and its fixture preview were removed during cleanup.
+Remaining owned previews under the fixture root: 0.
+No release, install, commit or push.

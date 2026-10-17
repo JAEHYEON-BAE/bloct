@@ -42,7 +42,8 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
 
 - Document locations: Korean names with spaces, `#` `%` and tilde, NFD-normalized
   names, a folder opened through a symlink, a read-only folder (the
-  `loadHTMLString` fallback) and a new document. For each it checks page load,
+  `loadHTMLString` fallback with the image-only scheme loader) and a new document.
+  For each it checks page load,
   editor commits reaching Swift, relative image loading, and creation and removal
   of the per-document preview file next to an existing `.mv_preview.html`.
 - Navigation policy: relative links, script navigation, reload and history must
@@ -62,6 +63,23 @@ Every file in `Tests/js` returns `JSON.stringify({ results: [{ name, pass, detai
 Checks that need the KaTeX CDN are skipped when it is unreachable.
 
 Known defects are listed in `knownFailures` at the top of `HostedRegression.swift`
-together with their `CODE_REVIEW.md` item. They print `XFAIL` and do not fail the run.
+together with their [BUG_FIXES.md](../BUG_FIXES.md) item. They print `XFAIL` and do not fail the run.
 If one passes, the run fails with `XPASS` so the entry is removed after the fix.
 Currently listed: overlapping initial loads in the same run loop (#20).
+
+Implementation summaries and feature plans are maintained in
+[IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md).
+Archived logs retain their original `CODE_REVIEW #N` labels and former document
+name; these refer to the same numbered items in `BUG_FIXES.md`. Raw logs are
+preserved without rewriting historical output.
+
+```sh
+sh Tests/run-relative-images.sh
+```
+
+The focused #24 regression loads 54 PNG images across parent paths, Korean/spaced
+folders and a read-only document folder, with three fresh views per case. It also
+checks JPEG/SVG, encoded filenames, image editing and reopening, document resource
+isolation, copy preserving the original image URL, rejected non-image resources,
+and loader invalidation. It uses actual image decoding, with no XFAIL or SKIP.
+An optional directory argument retains fixtures for manual GUI checks.
