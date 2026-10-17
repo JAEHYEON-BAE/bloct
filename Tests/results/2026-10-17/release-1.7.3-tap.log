@@ -1,0 +1,154 @@
+sync	Set up job	﻿2026-10-17T01:47:14.6236932Z Current runner version: '2.337.0'
+sync	Set up job	2026-10-17T01:47:14.6255576Z ##[group]Runner Image Provisioner
+sync	Set up job	2026-10-17T01:47:14.6256109Z Hosted Compute Agent
+sync	Set up job	2026-10-17T01:47:14.6256520Z Version: 20261012.601
+sync	Set up job	2026-10-17T01:47:14.6256911Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+sync	Set up job	2026-10-17T01:47:14.6257346Z Build Date: 2026-10-12T17:48:21Z
+sync	Set up job	2026-10-17T01:47:14.6257744Z Worker ID: {ed0ff065-b4d2-4fdb-ae45-5b105a837322}
+sync	Set up job	2026-10-17T01:47:14.6258161Z Region: southcentralus
+sync	Set up job	2026-10-17T01:47:14.6258557Z Cloud: Azure
+sync	Set up job	2026-10-17T01:47:14.6258868Z ##[endgroup]
+sync	Set up job	2026-10-17T01:47:14.6259890Z ##[group]Operating System
+sync	Set up job	2026-10-17T01:47:14.6260251Z Ubuntu
+sync	Set up job	2026-10-17T01:47:14.6260550Z 24.04.5
+sync	Set up job	2026-10-17T01:47:14.6260875Z LTS
+sync	Set up job	2026-10-17T01:47:14.6261200Z ##[endgroup]
+sync	Set up job	2026-10-17T01:47:14.6261506Z ##[group]Runner Image
+sync	Set up job	2026-10-17T01:47:14.6261917Z Image: ubuntu-24.04
+sync	Set up job	2026-10-17T01:47:14.6262277Z Version: 20261012.334.1
+sync	Set up job	2026-10-17T01:47:14.6262920Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+sync	Set up job	2026-10-17T01:47:14.6263857Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+sync	Set up job	2026-10-17T01:47:14.6264456Z ##[endgroup]
+sync	Set up job	2026-10-17T01:47:14.6265050Z ##[group]GITHUB_TOKEN Permissions
+sync	Set up job	2026-10-17T01:47:14.6266271Z Contents: write
+sync	Set up job	2026-10-17T01:47:14.6266603Z Metadata: read
+sync	Set up job	2026-10-17T01:47:14.6266967Z ##[endgroup]
+sync	Set up job	2026-10-17T01:47:14.6268202Z Secret source: Actions
+sync	Set up job	2026-10-17T01:47:14.6268807Z Cache mode: write
+sync	Set up job	2026-10-17T01:47:14.6269393Z Prepare workflow directory
+sync	Set up job	2026-10-17T01:47:14.6462487Z Prepare all required actions
+sync	Set up job	2026-10-17T01:47:14.6492113Z Getting action download info
+sync	Set up job	2026-10-17T01:47:14.8818101Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+sync	Set up job	2026-10-17T01:47:15.0260475Z Complete job name: sync
+sync	Run actions/checkout@v5	﻿2026-10-17T01:47:15.0759522Z ##[group]Run actions/checkout@v5
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0759964Z with:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0760209Z   repository: JAEHYEON-BAE/homebrew-tap
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0762079Z   token: ***
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0762310Z   ssh-strict: true
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0762541Z   ssh-user: git
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0762778Z   persist-credentials: true
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0763034Z   clean: true
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0763273Z   sparse-checkout-cone-mode: true
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0763547Z   fetch-depth: 1
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0763778Z   fetch-tags: false
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0764018Z   show-progress: true
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0764255Z   lfs: false
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0764477Z   submodules: false
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0764715Z   set-safe-directory: true
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0764984Z   allow-unsafe-pr-checkout: false
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.0765323Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1388833Z Syncing repository: JAEHYEON-BAE/homebrew-tap
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1390436Z ##[group]Getting Git version info
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1391052Z Working directory is '/home/runner/work/homebrew-tap/homebrew-tap'
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1392029Z [command]/usr/bin/git version
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1456398Z git version 2.55.0
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1469181Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1478825Z Temporarily overriding HOME='/home/runner/work/_temp/f9ff0948-76b9-4273-85e6-15687e634328' before making global git config changes
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1480160Z Adding repository directory to the temporary git global config as a safe directory
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1482180Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/homebrew-tap/homebrew-tap
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1525893Z Deleting the contents of '/home/runner/work/homebrew-tap/homebrew-tap'
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1532614Z ##[group]Initializing the repository
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1537933Z [command]/usr/bin/git init /home/runner/work/homebrew-tap/homebrew-tap
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1785835Z hint: Using 'master' as the name for the initial branch. This default branch name
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1786809Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1787650Z hint: to use in all of your new repositories, which will suppress this warning,
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1788378Z hint: call:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1788591Z hint:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1788897Z hint: 	git config --global init.defaultBranch <name>
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1789374Z hint:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1789680Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1790165Z hint: 'development'. The just-created branch can be renamed via this command:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1790543Z hint:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1790762Z hint: 	git branch -m <name>
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1791008Z hint:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1791336Z hint: Disable this message with "git config set advice.defaultBranchName false"
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1802376Z Initialized empty Git repository in /home/runner/work/homebrew-tap/homebrew-tap/.git/
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1804047Z [command]/usr/bin/git remote add origin https://github.com/JAEHYEON-BAE/homebrew-tap
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1849714Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1850394Z ##[group]Disabling automatic garbage collection
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1853031Z [command]/usr/bin/git config --local gc.auto 0
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1882906Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1883315Z ##[group]Setting up auth
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1887475Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.1914551Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2195468Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2222536Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2390861Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2418016Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2586836Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2618559Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2619211Z ##[group]Fetching the repository
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.2624316Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +8c7f5ce9cc571d7925cb1fbd566176d6a4a63d50:refs/remotes/origin/main
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5658869Z From https://github.com/JAEHYEON-BAE/homebrew-tap
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5660040Z  * [new ref]         8c7f5ce9cc571d7925cb1fbd566176d6a4a63d50 -> origin/main
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5662505Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5663224Z ##[group]Determining the checkout info
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5664689Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5669163Z [command]/usr/bin/git sparse-checkout disable
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5713274Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5738792Z ##[group]Checking out the ref
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5741289Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5790009Z Switched to a new branch 'main'
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5794947Z branch 'main' set up to track 'origin/main'.
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5799171Z ##[endgroup]
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5830981Z [command]/usr/bin/git log -1 --format=%H
+sync	Run actions/checkout@v5	2026-10-17T01:47:15.5851907Z 8c7f5ce9cc571d7925cb1fbd566176d6a4a63d50
+sync	Test release sync safeguards	﻿2026-10-17T01:47:15.6017841Z ##[group]Run python3 -B -m unittest discover -s scripts -p 'test_*.py' -v
+sync	Test release sync safeguards	2026-10-17T01:47:15.6018453Z [36;1mpython3 -B -m unittest discover -s scripts -p 'test_*.py' -v[0m
+sync	Test release sync safeguards	2026-10-17T01:47:15.6242741Z shell: /usr/bin/bash -e {0}
+sync	Test release sync safeguards	2026-10-17T01:47:15.6243075Z ##[endgroup]
+sync	Test release sync safeguards	2026-10-17T01:47:15.7001008Z test_corrupted_download_keeps_cask (test_sync_bloct.SyncTests.test_corrupted_download_keeps_cask) ... ok
+sync	Test release sync safeguards	2026-10-17T01:47:15.7003959Z test_downgrade_keeps_cask (test_sync_bloct.SyncTests.test_downgrade_keeps_cask) ... ok
+sync	Test release sync safeguards	2026-10-17T01:47:15.7006127Z test_prerelease_keeps_cask (test_sync_bloct.SyncTests.test_prerelease_keeps_cask) ... ok
+sync	Test release sync safeguards	2026-10-17T01:47:15.7012935Z test_upgrade_and_repeat (test_sync_bloct.SyncTests.test_upgrade_and_repeat) ... ok
+sync	Test release sync safeguards	2026-10-17T01:47:15.7013538Z 
+sync	Test release sync safeguards	2026-10-17T01:47:15.7013807Z ----------------------------------------------------------------------
+sync	Test release sync safeguards	2026-10-17T01:47:15.7014412Z Ran 4 tests in 0.002s
+sync	Test release sync safeguards	2026-10-17T01:47:15.7014647Z 
+sync	Test release sync safeguards	2026-10-17T01:47:15.7014798Z OK
+sync	Test release sync safeguards	2026-10-17T01:47:15.7015237Z Updated Bloct to 1.7.2; ZIP checksum verified
+sync	Test release sync safeguards	2026-10-17T01:47:15.7015817Z Bloct 1.7.2: already current; ZIP checksum verified
+sync	Verify latest public release and update cask	﻿2026-10-17T01:47:15.7122579Z ##[group]Run python3 scripts/sync-bloct.py
+sync	Verify latest public release and update cask	2026-10-17T01:47:15.7123124Z [36;1mpython3 scripts/sync-bloct.py[0m
+sync	Verify latest public release and update cask	2026-10-17T01:47:15.7174808Z shell: /usr/bin/bash -e {0}
+sync	Verify latest public release and update cask	2026-10-17T01:47:15.7175111Z env:
+sync	Verify latest public release and update cask	2026-10-17T01:47:15.7177264Z   GH_TOKEN: ***
+sync	Verify latest public release and update cask	2026-10-17T01:47:15.7177544Z ##[endgroup]
+sync	Verify latest public release and update cask	2026-10-17T01:47:16.3461606Z Updated Bloct to 1.7.3; ZIP checksum verified
+sync	Commit and push cask	﻿2026-10-17T01:47:16.3590869Z ##[group]Run git config user.name 'github-actions[bot]'
+sync	Commit and push cask	2026-10-17T01:47:16.3592110Z [36;1mgit config user.name 'github-actions[bot]'[0m
+sync	Commit and push cask	2026-10-17T01:47:16.3593496Z [36;1mgit config user.email 'github-actions[bot]@users.noreply.github.com'[0m
+sync	Commit and push cask	2026-10-17T01:47:16.3594820Z [36;1mgit add Casks/bloct.rb[0m
+sync	Commit and push cask	2026-10-17T01:47:16.3596144Z [36;1mgit diff --cached --quiet || git commit -m 'Sync Bloct with latest stable release'[0m
+sync	Commit and push cask	2026-10-17T01:47:16.3597542Z [36;1mgit push origin HEAD:main[0m
+sync	Commit and push cask	2026-10-17T01:47:16.3655012Z shell: /usr/bin/bash -e {0}
+sync	Commit and push cask	2026-10-17T01:47:16.3655799Z ##[endgroup]
+sync	Commit and push cask	2026-10-17T01:47:16.3809815Z [main 2bf8523] Sync Bloct with latest stable release
+sync	Commit and push cask	2026-10-17T01:47:16.3811227Z  1 file changed, 2 insertions(+), 2 deletions(-)
+sync	Commit and push cask	2026-10-17T01:47:17.7956454Z To https://github.com/JAEHYEON-BAE/homebrew-tap
+sync	Commit and push cask	2026-10-17T01:47:17.7957032Z    8c7f5ce..2bf8523  HEAD -> main
+sync	Post Run actions/checkout@v5	﻿2026-10-17T01:47:17.8119579Z Post job cleanup.
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8665633Z [command]/usr/bin/git version
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8699036Z git version 2.55.0
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8724553Z Temporarily overriding HOME='/home/runner/work/_temp/57181e55-eddf-4519-bd6c-f2e93cd9e60b' before making global git config changes
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8725298Z Adding repository directory to the temporary git global config as a safe directory
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8728721Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/homebrew-tap/homebrew-tap
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8760371Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8788746Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.8993358Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.9019463Z http.https://github.com/.extraheader
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.9049659Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.9070703Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.9250618Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+sync	Post Run actions/checkout@v5	2026-10-17T01:47:17.9281271Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+sync	Complete job	﻿2026-10-17T01:47:17.9564787Z Cleaning up orphan processes

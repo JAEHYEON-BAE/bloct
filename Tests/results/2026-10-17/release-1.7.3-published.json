@@ -1,0 +1,31 @@
+{
+  "artifact": "/private/tmp/BloctRelease173/published/Bloct.zip",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ]
+}
