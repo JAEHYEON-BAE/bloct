@@ -1,0 +1,13 @@
+{
+  "app": "/Users/jaehyeon/PersonalProjects/bloct/build/reload-test/BloctReloadCheck.app",
+  "configuration": "Debug",
+  "architecture": "arm64",
+  "bundle_id": "com.personal.BloctReloadCheck",
+  "source_head": "ec1a670",
+  "code_changes_committed": false,
+  "tested_app": "/private/tmp/bloct-reload-check/Build/Products/Debug/BloctReloadCheck.app",
+  "sha256": {
+    "Contents/MacOS/BloctReloadCheck": "90068be2dd6070e868070f3c23e36cafdd64365c05322f7fb7afb2c7bfe413d9",
+    "Contents/MacOS/BloctReloadCheck.debug.dylib": "de8a18afb2fbc8f9eb54075fa381d31a751a084e2052b3196a6552c4fc00f875"
+  }
+}

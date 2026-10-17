@@ -53,6 +53,13 @@ Pinch-to-zoom or use **⌘+** / **⌘−** to scale the preview.
 ### Save
 **⌘S** saves changes back to the original `.md` file. A warning is shown if you try to close a window with unsaved changes.
 
+### Reload and External Changes
+Press **⌘R** or right-click and choose **Reload** to read the current file from disk.
+Files also refresh automatically when changed externally, in both Read and Edit mode,
+when there are no local edits. Unsaved edits are preserved: choose **Keep Editing**,
+**Discard Edits and Reload**, or **Save a Copy…**. Saving checks for external changes
+before writing, so keeping a draft does not authorize overwriting a newer file.
+
 ### Scroll Position Memory
 The scroll position for each file is restored automatically when you reopen it.
 

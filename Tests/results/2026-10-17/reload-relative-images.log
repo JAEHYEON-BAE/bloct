@@ -1,0 +1,92 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/RelativeImageRegression.app: 1 (Operation not permitted)
+PAGE plain/docs/chapter iteration=1 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/plain/docs/chapter/.mv_preview-E1F12A7B-B447-4E91-A53A-B811611B1C9B.html
+[{"src":"pixel.png","resolved":"bloct-image://57a18ef1-92d8-4a41-a8a4-cfc7e4eab877/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://57a18ef1-92d8-4a41-a8a4-cfc7e4eab877/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://57a18ef1-92d8-4a41-a8a4-cfc7e4eab877/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://57a18ef1-92d8-4a41-a8a4-cfc7e4eab877/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://57a18ef1-92d8-4a41-a8a4-cfc7e4eab877/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://57a18ef1-92d8-4a41-a8a4-cfc7e4eab877/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS plain/docs/chapter #1 pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #1 ./pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #1 images/pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #1 ../pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #1 ../../pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #1 ../chapter/pixel.png: exists=true decoded=true
+PAGE plain/docs/chapter iteration=2 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/plain/docs/chapter/.mv_preview-8578C4CD-8B5E-488C-8BA6-448A70BF0EEB.html
+[{"src":"pixel.png","resolved":"bloct-image://724b1008-8d9f-4ce7-a205-fdda0af2fcb3/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://724b1008-8d9f-4ce7-a205-fdda0af2fcb3/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://724b1008-8d9f-4ce7-a205-fdda0af2fcb3/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://724b1008-8d9f-4ce7-a205-fdda0af2fcb3/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://724b1008-8d9f-4ce7-a205-fdda0af2fcb3/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://724b1008-8d9f-4ce7-a205-fdda0af2fcb3/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS plain/docs/chapter #2 pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #2 ./pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #2 images/pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #2 ../pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #2 ../../pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #2 ../chapter/pixel.png: exists=true decoded=true
+PAGE plain/docs/chapter iteration=3 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/plain/docs/chapter/.mv_preview-31D7E71F-9982-45C9-8FD4-EAFF53D91BA2.html
+[{"src":"pixel.png","resolved":"bloct-image://76c8da04-42bb-495c-a78d-faad2a379fea/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://76c8da04-42bb-495c-a78d-faad2a379fea/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://76c8da04-42bb-495c-a78d-faad2a379fea/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://76c8da04-42bb-495c-a78d-faad2a379fea/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://76c8da04-42bb-495c-a78d-faad2a379fea/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://76c8da04-42bb-495c-a78d-faad2a379fea/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS plain/docs/chapter #3 pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #3 ./pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #3 images/pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #3 ../pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #3 ../../pixel.png: exists=true decoded=true
+PASS plain/docs/chapter #3 ../chapter/pixel.png: exists=true decoded=true
+PAGE 한글 공백/docs/chapter iteration=1 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%B3%E1%86%AF%20%E1%84%80%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A2%E1%86%A8/docs/chapter/.mv_preview-5FAECEEC-117E-42FD-A289-9D92684CEF58.html
+[{"src":"pixel.png","resolved":"bloct-image://27f58f92-b471-46fe-96e7-feb9b0122145/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://27f58f92-b471-46fe-96e7-feb9b0122145/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://27f58f92-b471-46fe-96e7-feb9b0122145/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://27f58f92-b471-46fe-96e7-feb9b0122145/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://27f58f92-b471-46fe-96e7-feb9b0122145/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://27f58f92-b471-46fe-96e7-feb9b0122145/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS 한글 공백/docs/chapter #1 pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #1 ./pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #1 images/pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #1 ../pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #1 ../../pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #1 ../chapter/pixel.png: exists=true decoded=true
+PAGE 한글 공백/docs/chapter iteration=2 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%B3%E1%86%AF%20%E1%84%80%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A2%E1%86%A8/docs/chapter/.mv_preview-DF7680FD-72E4-4DA4-A046-C8FF850962C0.html
+[{"src":"pixel.png","resolved":"bloct-image://282a5ce8-50b4-49d6-ab67-dd263158ddba/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://282a5ce8-50b4-49d6-ab67-dd263158ddba/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://282a5ce8-50b4-49d6-ab67-dd263158ddba/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://282a5ce8-50b4-49d6-ab67-dd263158ddba/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://282a5ce8-50b4-49d6-ab67-dd263158ddba/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://282a5ce8-50b4-49d6-ab67-dd263158ddba/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS 한글 공백/docs/chapter #2 pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #2 ./pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #2 images/pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #2 ../pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #2 ../../pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #2 ../chapter/pixel.png: exists=true decoded=true
+PAGE 한글 공백/docs/chapter iteration=3 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%B3%E1%86%AF%20%E1%84%80%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A2%E1%86%A8/docs/chapter/.mv_preview-B5DA2C69-C9F8-4191-999F-C879D874B75A.html
+[{"src":"pixel.png","resolved":"bloct-image://32fcc86f-ba51-48cf-b75b-20696917a8ff/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://32fcc86f-ba51-48cf-b75b-20696917a8ff/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://32fcc86f-ba51-48cf-b75b-20696917a8ff/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://32fcc86f-ba51-48cf-b75b-20696917a8ff/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://32fcc86f-ba51-48cf-b75b-20696917a8ff/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://32fcc86f-ba51-48cf-b75b-20696917a8ff/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS 한글 공백/docs/chapter #3 pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #3 ./pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #3 images/pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #3 ../pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #3 ../../pixel.png: exists=true decoded=true
+PASS 한글 공백/docs/chapter #3 ../chapter/pixel.png: exists=true decoded=true
+PAGE readonly/docs/chapter iteration=1 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/readonly/docs/chapter/
+[{"src":"pixel.png","resolved":"bloct-image://5b17f202-4cf4-4400-ac34-f282a51a7259/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://5b17f202-4cf4-4400-ac34-f282a51a7259/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://5b17f202-4cf4-4400-ac34-f282a51a7259/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://5b17f202-4cf4-4400-ac34-f282a51a7259/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://5b17f202-4cf4-4400-ac34-f282a51a7259/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://5b17f202-4cf4-4400-ac34-f282a51a7259/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS readonly/docs/chapter #1 pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #1 ./pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #1 images/pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #1 ../pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #1 ../../pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #1 ../chapter/pixel.png: exists=true decoded=true
+PAGE readonly/docs/chapter iteration=2 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/readonly/docs/chapter/
+[{"src":"pixel.png","resolved":"bloct-image://2503979f-c48d-4eeb-9348-586a3c48e8ce/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://2503979f-c48d-4eeb-9348-586a3c48e8ce/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://2503979f-c48d-4eeb-9348-586a3c48e8ce/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://2503979f-c48d-4eeb-9348-586a3c48e8ce/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://2503979f-c48d-4eeb-9348-586a3c48e8ce/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://2503979f-c48d-4eeb-9348-586a3c48e8ce/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS readonly/docs/chapter #2 pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #2 ./pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #2 images/pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #2 ../pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #2 ../../pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #2 ../chapter/pixel.png: exists=true decoded=true
+PAGE readonly/docs/chapter iteration=3 url=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-relative-image-tests.XFtiMQ/fixtures/readonly/docs/chapter/
+[{"src":"pixel.png","resolved":"bloct-image://5a4bdecf-f26b-4f0d-9c73-53d8fdf8de31/?src=pixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"./pixel.png","resolved":"bloct-image://5a4bdecf-f26b-4f0d-9c73-53d8fdf8de31/?src=.%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"images/pixel.png","resolved":"bloct-image://5a4bdecf-f26b-4f0d-9c73-53d8fdf8de31/?src=images%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../pixel.png","resolved":"bloct-image://5a4bdecf-f26b-4f0d-9c73-53d8fdf8de31/?src=..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../../pixel.png","resolved":"bloct-image://5a4bdecf-f26b-4f0d-9c73-53d8fdf8de31/?src=..%2F..%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""},{"src":"../chapter/pixel.png","resolved":"bloct-image://5a4bdecf-f26b-4f0d-9c73-53d8fdf8de31/?src=..%2Fchapter%2Fpixel.png","decoded":true,"complete":true,"naturalWidth":96,"error":""}]
+PASS readonly/docs/chapter #3 pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #3 ./pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #3 images/pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #3 ../pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #3 ../../pixel.png: exists=true decoded=true
+PASS readonly/docs/chapter #3 ../chapter/pixel.png: exists=true decoded=true
+BASELINE: 54 passed, 0 failed (54 image expectations)
+EXTENDED decoded widths: Optional([96, 96, 32, 96, 96, 96, 96])
+PASS JPEG/SVG, encoded/raw Korean # % paths, custom syntax, symlink and absolute file image decode
+PASS copy uses the original Markdown image URL
+PASS editing a block preserves original image references in the Swift commit
+PASS live replacement decodes a newly referenced image
+PASS saved source reopens with its image
+PASS same relative name in two documents resolves independently
+PASS another document's resource token is rejected
+PASS document location change re-resolves unchanged image source
+PASS loader rejects non-image file without sending bytes
+PASS loader rejects directory named .png without sending bytes
+PASS loader rejects missing image without sending bytes
+PASS loader rejects remote source without sending bytes
+PASS loader rejects foreign token without sending bytes
+PASS loader rejects POST request without sending bytes
+PASS closed loader revokes the old token
+PASS owned previews are cleaned after all documents close
+RESULT: 70 passed, 0 failed, 0 skipped (image and resource regression expectations)

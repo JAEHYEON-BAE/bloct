@@ -261,6 +261,53 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
     }
 }
 
+// Exercise the production bridge and DOM gating, including stale callbacks after
+// a disk revision has replaced the page. Actual Cmd+R/menu routing is tested in CUA.
+@MainActor private func reloadGuards(root: URL) throws {
+    let directory = root.appendingPathComponent("reload-guards")
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    let recorder = Recorder()
+    var allowEdit = false
+    var editChecks = 0
+    var reloadRequests = 0
+    let view = MarkdownWebView(markdown: "# Reload guards\n\nbody", fileURL: directory.appendingPathComponent("doc.md"),
+        zoomLevel: 1, showTOC: false, isEditMode: true, webViewStore: WebViewStore(),
+        onTextCommit: { recorder.commits.append($0) },
+        onReload: { reloadRequests += 1 },
+        onBeforeEdit: { reply in editChecks += 1; reply(allowEdit) })
+    let hosting = NSHostingView(rootView: AnyView(view))
+    hosting.frame = NSRect(x: 0, y: 0, width: 900, height: 700)
+    hosting.layoutSubtreeIfNeeded()
+    defer { dismantle(hosting) }
+    guard let webView = findWebView(in: hosting), pageReady(webView) else {
+        Report.check("reload: page loads", false); return
+    }
+    _ = js(webView, "window._mvStartBlockEdit(document.querySelector('.mv-block'), 0); return true;")
+    spin(0.15)
+    Report.check("reload: denied disk preflight prevents block edit", editChecks == 1 &&
+        (js(webView, "return !document.getElementById('mv-block-editor');") as? Bool) == true)
+    allowEdit = true
+    _ = js(webView, "window._mvStartBlockEdit(document.querySelector('.mv-block'), 0); return true;")
+    Report.check("reload: accepted disk preflight opens block", wait {
+        (js(webView, "return !!document.getElementById('mv-block-editor');") as? Bool) == true
+    })
+    Report.check("reload: IME composition is explicitly tracked", (js(webView, """
+        const ta = document.getElementById('mv-block-editor');
+        ta.dispatchEvent(new CompositionEvent('compositionstart'));
+        const started = window._mvComposing;
+        ta.dispatchEvent(new CompositionEvent('compositionend'));
+        return started && !window._mvComposing;
+        """) as? Bool) == true)
+    _ = js(webView, "document.dispatchEvent(new KeyboardEvent('keydown',{key:'r',metaKey:true,bubbles:true,cancelable:true})); return true;")
+    Report.check("reload: Cmd+R from the page invokes native reload once", wait { reloadRequests == 1 })
+    (webView as? DocumentWebView)?.documentGeneration = 2
+    _ = js(webView, "window.webkit.messageHandlers.commitEdit.postMessage({text:btoa('stale'),generation:1}); return true;")
+    spin(0.1)
+    Report.check("reload: obsolete page generation cannot restore stale draft", !recorder.commits.contains("stale"))
+    _ = js(webView, "window.webkit.messageHandlers.commitEdit.postMessage({text:btoa('current'),generation:2}); return true;")
+    Report.check("reload: current generation can commit", wait { recorder.commits.contains("current") })
+}
+
 // MARK: - Page suites (Tests/js)
 
 @MainActor private func pageSuites(root: URL, scripts: URL) throws {
@@ -319,6 +366,7 @@ struct HostedRegression {
         try documentLocations(root: root)
         try navigationPolicy(root: root)
         try overlappingInitialLoads(root: root)
+        try reloadGuards(root: root)
         try pageSuites(root: root, scripts: scripts)
 
         print("\n\(Report.passed) passed, \(Report.failed) failed, \(Report.expectedFailures) known failures, "

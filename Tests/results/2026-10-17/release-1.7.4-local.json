@@ -1,0 +1,34 @@
+{
+  "artifact": "/private/tmp/BloctRelease174/Bloct.zip",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ],
+  "app_version": "1.7.4",
+  "build_version": "1.7.4",
+  "sha256": "ae4f9306f038eb2ed1f83d812bac4aa3c6394f6a7840dd8f4f34c5bd3c8c573e"
+}

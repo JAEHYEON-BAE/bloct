@@ -70,6 +70,50 @@ final class LocalImageLoader: NSObject, WKURLSchemeHandler {
     }
 }
 
+// Keep WebKit's selection/link/editor menus, but route Reload to the document.
+final class DocumentWebView: WKWebView, NSMenuItemValidation {
+    var reloadDocument: (() -> Void)?
+    var documentGeneration = 0
+    private var keyMonitor: Any?
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        removeKeyMonitor()
+        guard window != nil else { return }
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, event.window === self.window,
+                  event.modifierFlags.intersection([.command, .control, .option, .shift]) == .command,
+                  event.charactersIgnoringModifiers?.lowercased() == "r" else { return event }
+            self.reloadDocument?()
+            return nil
+        }
+    }
+    func removeKeyMonitor() {
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+        keyMonitor = nil
+    }
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.modifierFlags.intersection([.command, .control, .option, .shift]) == .command,
+           event.charactersIgnoringModifiers?.lowercased() == "r" {
+            reloadDocument?()
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
+    }
+    override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
+        super.willOpenMenu(menu, with: event)
+        for item in menu.items where item.title == "Reload" { menu.removeItem(item) }
+        menu.addItem(.separator())
+        let reload = NSMenuItem(title: "Reload", action: #selector(reloadSource), keyEquivalent: "")
+        reload.target = self
+        reload.isEnabled = reloadDocument != nil
+        menu.addItem(reload)
+    }
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        menuItem.action != #selector(reloadSource) || reloadDocument != nil
+    }
+    @objc private func reloadSource() { reloadDocument?() }
+}
+
 struct MarkdownWebView: NSViewRepresentable {
     let markdown: String
     let fileURL: URL?
@@ -80,6 +124,9 @@ struct MarkdownWebView: NSViewRepresentable {
     var onCloseTOC: () -> Void = {}
     var onTextCommit: (String) -> Void = { _ in }
     var onEditorDirtyChanged: (Bool) -> Void = { _ in }
+    var onReload: () -> Void = {}
+    var onBeforeEdit: ((@escaping (Bool) -> Void) -> Void)? = nil
+    var reloadGeneration: Int = 0
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -180,6 +227,9 @@ struct MarkdownWebView: NSViewRepresentable {
         var pendingPageLoad = false
         var onTextCommit: ((String) -> Void)?
         var onEditorDirtyChanged: ((Bool) -> Void)?
+        var onBeforeEdit: ((@escaping (Bool) -> Void) -> Void)?
+        var onReload: (() -> Void)?
+        var reloadGeneration = 0
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             guard message.frameInfo.isMainFrame,
@@ -192,14 +242,26 @@ struct MarkdownWebView: NSViewRepresentable {
                     UserDefaults.standard.set(y, forKey: "scrollPos:\(url.path)")
                 }
             case "commitEdit":
-                if let base64 = message.body as? String,
+                let payload = message.body as? [String: Any]
+                let generation = (message.webView as? DocumentWebView)?.documentGeneration ?? 0
+                let base64 = payload?["text"] as? String ?? (generation == 0 ? message.body as? String : nil)
+                guard payload == nil || payload?["generation"] as? Int == generation else { return }
+                if let base64,
                    let data = Data(base64Encoded: base64),
                    let text = String(data: data, encoding: .utf8) {
-                    DispatchQueue.main.async { [weak self] in self?.onTextCommit?(text) }
+                    self.onTextCommit?(text)
                 }
             case "editorDirty":
                 if let dirty = message.body as? Bool {
-                    DispatchQueue.main.async { [weak self] in self?.onEditorDirtyChanged?(dirty) }
+                    self.onEditorDirtyChanged?(dirty)
+                }
+            case "reloadDocument":
+                onReload?()
+            case "beforeEdit":
+                let generation = reloadGeneration
+                onBeforeEdit? { [weak self, weak webView = message.webView] allowed in
+                    guard let self, self.reloadGeneration == generation else { return }
+                    webView?.evaluateJavaScript("window._mvResumeEdit && window._mvResumeEdit(\(allowed ? "true" : "false"));", completionHandler: nil)
                 }
             case "openExternal":
                 if let urlString = message.body as? String, let url = URL(string: urlString),
@@ -338,10 +400,10 @@ struct MarkdownWebView: NSViewRepresentable {
         let config = WKWebViewConfiguration()
         config.setURLSchemeHandler(context.coordinator.localImages, forURLScheme: LocalImageLoader.scheme)
         let handler = WeakMessageHandler(context.coordinator)
-        for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty"] {
+        for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty", "beforeEdit", "reloadDocument"] {
             config.userContentController.add(handler, name: name)
         }
-        let webView = WKWebView(frame: .zero, configuration: config)
+        let webView = DocumentWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsMagnification = true
         #if DEBUG
@@ -356,6 +418,7 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        (webView as? DocumentWebView)?.removeKeyMonitor()
         coordinator.localImages.invalidate()
         for url in coordinator.supersededHTMLURLs { PreviewFiles.remove(url) }
         coordinator.supersededHTMLURLs.removeAll()
@@ -374,6 +437,12 @@ struct MarkdownWebView: NSViewRepresentable {
         let imageOrigin = fileURL == nil ? "" : "\(LocalImageLoader.scheme)://\(coordinator.localImages.host)/"
         coordinator.onTextCommit = onTextCommit
         coordinator.onEditorDirtyChanged = onEditorDirtyChanged
+        coordinator.onBeforeEdit = onBeforeEdit
+        coordinator.onReload = onReload
+        (webView as? DocumentWebView)?.reloadDocument = fileURL == nil ? nil : onReload
+        (webView as? DocumentWebView)?.documentGeneration = reloadGeneration
+        let forcedReload = coordinator.reloadGeneration != reloadGeneration
+        coordinator.reloadGeneration = reloadGeneration
         if coordinator.lastEditMode != isEditMode {
             coordinator.lastEditMode = isEditMode
             // Before the page has loaded, didFinish applies lastEditMode instead.
@@ -382,13 +451,13 @@ struct MarkdownWebView: NSViewRepresentable {
                 webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(\(flag));", completionHandler: nil)
             }
         }
-        if coordinator.lastMarkdown != markdown || locationChanged {
+        if coordinator.lastMarkdown != markdown || locationChanged || forcedReload {
             coordinator.lastMarkdown = markdown
             if coordinator.isPageLoaded {
                 // Live edit: update only the content in-place, no page reload, scroll is preserved
                 let base64 = Data(markdown.utf8).base64EncodedString()
-                let reset = locationChanged ? "window._mvStale = true;" : ""
-                webView.evaluateJavaScript("window._mvImageOrigin = '\(imageOrigin)'; \(reset) window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
+                let reset = (locationChanged || forcedReload) ? "window._mvStale = true;" : ""
+                webView.evaluateJavaScript("window._mvGeneration = \(reloadGeneration); window._mvImageOrigin = '\(imageOrigin)'; \(reset) window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
             } else {
                 // didFinish applies the current TOC state, so no toggle animation is needed.
                 coordinator.lastShowTOC = showTOC
@@ -791,6 +860,13 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
 
                 // Block editing state
+                document.addEventListener('keydown', function(e) {
+                    if (e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'r') {
+                        e.preventDefault();
+                        window.webkit.messageHandlers.reloadDocument.postMessage(true);
+                    }
+                }, true);
+                window._mvCheckBeforeEdit = \(onBeforeEdit == nil ? "false" : "true");
                 window._mvActiveEl = null;
                 window._mvActiveStartLine = -1;
                 window._mvActiveEndLine = -1;
@@ -806,6 +882,7 @@ struct MarkdownWebView: NSViewRepresentable {
                     var savedStartLine = window._mvActiveStartLine;
                     var savedEndLine = window._mvActiveEndLine;
                     window._mvBlockDirty = false;
+                    window._mvComposing = false;
                     if (ta) ta.remove();
                     if (prevEl) prevEl.style.display = '';
                     window._mvActiveEl = null;
@@ -820,7 +897,7 @@ struct MarkdownWebView: NSViewRepresentable {
                             savedEndLine += 1;
                         }
                         var text = window._mvRawLines.join('\\n');
-                        window.webkit.messageHandlers.commitEdit.postMessage(btoa(unescape(encodeURIComponent(text))));
+                        window.webkit.messageHandlers.commitEdit.postMessage({text:btoa(unescape(encodeURIComponent(text))), generation:window._mvGeneration || 0});
                     }
                     // Re-render immediately so every block's data-start/data-end matches
                     // _mvRawLines again; Swift's echo _mvRender with the same text is a no-op.
@@ -845,7 +922,20 @@ struct MarkdownWebView: NSViewRepresentable {
                 };
 
                 // Replace a .mv-block with an inline textarea for direct markdown editing.
-                window._mvStartBlockEdit = function(blockEl, charOffset, scrollTo) {
+                window._mvResumeEdit = function(allowed) {
+                    var pending = window._mvPendingEdit;
+                    window._mvPendingEdit = null;
+                    if (allowed && pending && pending[0].isConnected) {
+                        window._mvStartBlockEdit(pending[0], pending[1], pending[2], true);
+                    }
+                };
+                window._mvStartBlockEdit = function(blockEl, charOffset, scrollTo, checked) {
+                    if (window._mvDiskChecking) return;
+                    if (!checked && window._mvCheckBeforeEdit) {
+                        window._mvPendingEdit = [blockEl, charOffset, scrollTo];
+                        window.webkit.messageHandlers.beforeEdit.postMessage(true);
+                        return;
+                    }
                     if (window._mvActiveEl === blockEl) return;
                     if (window._mvActiveEl) {
                         // Closing the open editor may re-render #content and detach blockEl.
@@ -889,6 +979,8 @@ struct MarkdownWebView: NSViewRepresentable {
                     var pos = Math.min(charOffset || 0, ta.value.length);
                     ta.setSelectionRange(pos, pos);
 
+                    ta.addEventListener('compositionstart', function() { window._mvComposing = true; });
+                    ta.addEventListener('compositionend', function() { window._mvComposing = false; });
                     ta.addEventListener('input', function() {
                         if (!window._mvBlockDirty) {
                             window._mvBlockDirty = true;

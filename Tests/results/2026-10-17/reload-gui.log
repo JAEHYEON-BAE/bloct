@@ -1,0 +1,520 @@
+Final asynchronous I/O build: CUA checks on temporary Markdown files.
+
+SAVE succeeds without UI blocking
+The following is a diff from the previous accessibility tree for Window: "one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 4-5, 7-8
+~				24 heading Reload One H, Value: 1
+~					25 text Reload One H
++				26 text FINAL ASYNC SAVED
++				27 link Example, Value: example.com/
++			28 link Reload One H, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html#reload-one-h
+~	16 text one.md
+The focused UI element is 2 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+CLEAN EDIT MODE same-time atomic replacement H to I
+The following is a diff from the previous accessibility tree for Window: "one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~			3 container Reload One I
+~				24 heading Reload One I, Value: 1
+~					25 text Reload One I
+~				26 text FINAL EXTERNAL I
+~			28 link Reload One I, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html#reload-one-i
+The focused UI element is 2 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+CMD+R on active textarea produces explicit conflict
+The following is a diff from the previous accessibility tree for Window: "Unknown" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 0-5, 7-16, 24-25
++24 sheet Description: alert, Secondary Actions: Raise
++	25 text Reload Document? Your edits are preserved. Reload discards your edits and reads the current file. Save a Copy keeps both versions.
++	26 button Keep Editing, ID: action-button-1
++	27 button Discard Edits and Reload, ID: action-button-2
++	28 button Save a Copy…, ID: action-button-3
+The focused UI element is 24 sheet Description: alert, Secondary Actions: Raise
+
+External J preserves local I draft
+The following is a diff from the previous accessibility tree for Window: "Unknown" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 26-40
+~24 sheet Description: alert, Secondary Actions: Raise
+~	25 text File Changed on Disk Your edits are preserved. Reload discards your edits and reads the current file. Save a Copy keeps both versions.
++	26 button Keep Editing, ID: action-button-1
++	27 button Discard Edits and Reload, ID: action-button-2
++	28 button Save a Copy…, ID: action-button-3
+The focused UI element is 24 sheet Description: alert, Secondary Actions: Raise
+
+Save after Keep Editing rejected
+There has been no change in the accessibility tree for Window: "one.md".
+The focused UI element is 26 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+Save conflict completed
+Window: "Unknown", App: BloctReloadCheck.
+0 sheet Description: alert, Secondary Actions: Raise
+	1 text File Changed on Disk Your edits are preserved. Reload discards your edits and reads the current file. Save a Copy keeps both versions.
+	2 button Keep Editing, ID: action-button-1
+	3 button Discard Edits and Reload, ID: action-button-2
+	4 button Save a Copy…, ID: action-button-3
+5 menu bar
+	6 BloctReloadCheck
+	7 File
+	8 Edit
+	9 View
+	10 Window
+	11 Help
+
+The focused UI element is 0 sheet Description: alert, Secondary Actions: Raise
+
+Copy Save cancellation keeps draft
+The following is a diff from the previous accessibility tree for Window: "one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 15-24
+~12 standard window one.md, URL: file:///private/tmp/bloct-reload-fixtures/one.md, Secondary Actions: Raise
+~	13 scroll area
+~		14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
++			15 container Reload One I
++				16 heading Reload One I, Value: 1
++					17 text Reload One I
++				18 text ASYNC UNSAVED DRAFT
++				19 link Example, Value: example.com/
++			20 link Reload One I, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html#reload-one-i
++	21 toolbar
++		22 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		23 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		24 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	25 close button
++	26 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	27 minimize button
++	28 text one.md Edited
+The focused UI element is 14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+Explicit discard reloads current J
+The following is a diff from the previous accessibility tree for Window: "one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 14-16
+~12 standard window one.md, URL: file:///private/tmp/bloct-reload-fixtures/one.md, Secondary Actions: Raise
+~	13 scroll area
++		14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
++			15 container Reload One J
++				16 heading Reload One J, Value: 1
++					17 text Reload One J
++				18 text EXTERNAL J KEEP
++				19 link Example, Value: example.com/
++			20 link Reload One J, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html#reload-one-j
++	21 toolbar
++		22 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		23 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		24 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	25 close button
++	26 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	27 minimize button
++	28 text one.md
+The focused UI element is 14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+Undo after disk acceptance does not restore I draft
+There has been no change in the accessibility tree for Window: "one.md".
+The focused UI element is 14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+Second document
+The following is a diff from the previous accessibility tree for Window: "two.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 14-204
+~12 standard window two.md, URL: file:///private/tmp/bloct-reload-fixtures/two.md, Secondary Actions: Raise
+~	13 container
++	14 toolbar
++		15 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		16 toggle button Description: Edit Mode, Help: Switch to Edit Mode, Value: off
++		17 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	18 close button
++	19 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	20 minimize button
++	21 text two.md
+The focused UI element is 13 container
+
+Two independent B after external write
+The following is a diff from the previous accessibility tree for Window: "two.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 13
++	22 scroll area
++		23 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-64A30101-8154-45C5-8559-0DD7EB407CCF.html
++			24 container Reload Two B
++				25 heading Reload Two B, Value: 1
++					26 text Reload Two B
++				27 text Second stays independent B.
++			28 link Reload Two B, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-64A30101-8154-45C5-8559-0DD7EB407CCF.html#reload-two-b
+The focused UI element is 23 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-64A30101-8154-45C5-8559-0DD7EB407CCF.html
+
+Close two returns to independently reloaded K
+The following is a diff from the previous accessibility tree for Window: "one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 14-19, 21-28
+~12 standard window one.md, URL: file:///private/tmp/bloct-reload-fixtures/one.md, Secondary Actions: Raise
++	13 scroll area
++		14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
++			15 container Reload One K
++				16 heading Reload One K, Value: 1
++					17 text Reload One K
++				18 text Background document K.
++			19 link Reload One K, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html#reload-one-k
+~	20 toolbar
++		21 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		22 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		23 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	24 close button
++	25 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	26 minimize button
++	27 text one.md
+The focused UI element is 14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+Final build body context keeps Copy and Reload
+The following is a diff from the previous accessibility tree for Window: "one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 13-19
++	28 container
++		29 scroll area
++			30 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
++				31 container Reload One K
++					32 heading Reload One K, Value: 1
++						33 text Reload One K
++					34 text Background document K.
++				35 link Reload One K, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html#reload-one-k
++		36 menu Secondary Actions: Cancel
++			37 Look Up “document”, ID: WKMenuItemIdentifierLookUp
++			38 Translate “document”, ID: WKMenuItemIdentifierTranslate
++			39 Search with Google, ID: WKMenuItemIdentifierSearchWeb
++			40 Copy, ID: WKMenuItemIdentifierCopy
++			41 (disabled) Copy Link with Highlight, ID: WKMenuItemIdentifierCopyLinkWithHighlight
++			42 Share…, ID: WKMenuItemIdentifierShareMenu
++			43 Show Writing Tools, ID: WKMenuItemIdentifierWritingTools
++			44 Summarize, ID: WKMenuItemIdentifierSummarize
++			45 Speech, ID: WKMenuItemIdentifierSpeechMenu
++				46 menu Secondary Actions: Cancel
++					47 Start Speaking, ID: forwardContextMenuAction:
++					48 (disabled) Stop Speaking, ID: forwardContextMenuAction:
++			49 Reload, ID: reloadSource
++			50 Services
++				51 menu Secondary Actions: Cancel
++					52 Add to Music as a Spoken Track
++					53 Ask Claude
++					54 Open
++					55 Open man Page in Terminal
++					56 Search man Page Index in Terminal
++					57 Show in Finder
++					58 Show Info in Finder
+Selected text: ```
+document
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
+
+Final body Reload invoked
+The following is a diff from the previous accessibility tree for Window: "one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~			49 (selected) Reload, ID: reloadSource
+~				51 menu
+Selected text: ```
+document
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
+
+Native rename and source URL rebinding
+The following is a diff from the previous accessibility tree for Window: "" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 20-34
+~12 dialog Description: alert, Secondary Actions: Raise
++	13 image BloctReloadCheck critical alert
++	14 text The file “one.md” couldn’t be opened because there is no such file.
++	15 button OK
+The focused UI element is 12 dialog Description: alert, Secondary Actions: Raise
+
+Missing source keeps existing K preview
+The following is a diff from the previous accessibility tree for Window: "renamed-one.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 14-15
+~12 standard window renamed-one.md, URL: file:///tmp/bloct-reload-fixtures/renamed-one.md, Secondary Actions: Raise
+~	13 scroll area
++		14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
++			15 container Renamed Document L
++				16 heading Renamed Document L, Value: 1
++					17 text Renamed Document L
++				18 text Rename remains monitored.
++			19 link Renamed Document L, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html#renamed-document-l
++	20 toolbar
++		21 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		22 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		23 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	24 close button
++	25 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	26 minimize button
++	27 text renamed-one.md
+The focused UI element is 14 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-C140F7EE-95C9-49A7-AC1B-85CC6BA5E422.html
+
+FINAL rename rebinding with transient-failure grace
+The following is a diff from the previous accessibility tree for Window: "moved-final.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 4-7
+~0 standard window moved-final.md, URL: file:///tmp/bloct-reload-fixtures/moved-final.md, Secondary Actions: Raise
+~			3 container Moved Final M
++				23 heading Moved Final M, Value: 1
++					24 text Moved Final M
++				25 text Move completed with fresh content M.
++			26 link Moved Final M, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-8B517CE2-0B15-429B-8D20-D5AF62E8FD10.html#moved-final-m
+~	15 text moved-final.md
+
+New document Reload disabled
+The following is a diff from the previous accessibility tree for Window: "Untitled" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 24-26
++	35 container
++		36 scroll area
++			37 HTML content about:blank
++				38 text entry area (settable) Value: [text entry area], Secondary Actions: Show Writing Tools
++		39 menu Secondary Actions: Cancel
++			40 (disabled) Cut, ID: forwardContextMenuAction:
++			41 (disabled) Copy, ID: WKMenuItemIdentifierCopy
++			42 Paste, ID: WKMenuItemIdentifierPaste
++			43 Show Writing Tools, ID: WKMenuItemIdentifierWritingTools
++			44 Spelling and Grammar, ID: WKMenuItemIdentifierSpellingMenu
++				45 menu Secondary Actions: Cancel
++					46 Show Spelling and Grammar, ID: WKMenuItemIdentifierShowSpellingPanel
++					47 Check Document Now, ID: WKMenuItemIdentifierCheckSpelling
++					48 Check Spelling While Typing, ID: WKMenuItemIdentifierCheckSpellingWhileTyping
++					49 Check Grammar With Spelling, ID: WKMenuItemIdentifierCheckGrammarWithSpelling
++					50 Correct Spelling Automatically, ID: forwardContextMenuAction:
++			51 Substitutions, ID: WKMenuItemIdentifierSubstitutionsMenu
++				52 menu Secondary Actions: Cancel
++					53 Show Substitutions, ID: WKMenuItemIdentifierShowSubstitutions
++					54 Smart Copy/Paste, ID: WKMenuItemIdentifierSmartCopyPaste
++					55 Smart Quotes, ID: WKMenuItemIdentifierSmartQuotes
++					56 Smart Dashes, ID: WKMenuItemIdentifierSmartDashes
++					57 Smart Links, ID: WKMenuItemIdentifierSmartLinks
++					58 Text Replacement, ID: WKMenuItemIdentifierTextReplacement
++			59 Font
++				60 menu Secondary Actions: Cancel
++					61 Show Fonts, ID: forwardContextMenuAction:
++					62 (disabled) Bold, ID: forwardContextMenuAction:
++					63 (disabled) Italic, ID: forwardContextMenuAction:
++					64 (disabled) Underline, ID: forwardContextMenuAction:
++					65 (disabled) Outline, ID: forwardContextMenuAction:
++					66 Styles…, ID: forwardContextMenuAction:
++					67 Show Colors, ID: forwardContextMenuAction:
++			68 Speech, ID: WKMenuItemIdentifierSpeechMenu
++				69 menu Secondary Actions: Cancel
++					70 Start Speaking, ID: forwardContextMenuAction:
++					71 (disabled) Stop Speaking, ID: forwardContextMenuAction:
++			72 Paragraph Direction
++				73 menu Secondary Actions: Cancel
++					74 (disabled) Default, ID: forwardContextMenuAction:
++					75 Left to Right, ID: forwardContextMenuAction:
++					76 Right to Left, ID: forwardContextMenuAction:
++			77 (disabled) Reload, ID: reloadSource
++			78 AutoFill
++				79 menu Secondary Actions: Cancel
++					80 Contact…
++					81 Passwords…
++					82 Credit Card…
+The focused UI element is 38 text entry area (settable) Value: [text entry area], Secondary Actions: Show Writing Tools
+
+Initial Save cancel retains new draft
+The following is a diff from the previous accessibility tree for Window: "Untitled" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 26-36
+~23 standard window Untitled, Secondary Actions: Raise
+~	24 scroll area
+~		25 HTML content about:blank
++			26 container Newly Saved
++				27 heading Newly Saved, Value: 1
++					28 text Newly Saved
++				29 text New document body.
++			30 link Newly Saved, Value: about:blank#newly-saved
++	31 toolbar
++		32 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		33 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		34 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	35 close button
++	36 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	37 minimize button
++	38 text Untitled Edited
+The focused UI element is 25 HTML content about:blank
+
+Initial Save success binds file URL
+The following is a diff from the previous accessibility tree for Window: "newly-saved" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 26-36
+~23 standard window newly-saved, URL: file:///private/tmp/bloct-reload-fixtures/newly-saved.md, Secondary Actions: Raise
+~	24 scroll area
+~		25 HTML content about:blank
++			26 container Newly Saved
++				27 heading Newly Saved, Value: 1
++					28 text Newly Saved
++				29 text New document body.
++			30 link Newly Saved, Value: about:blank#newly-saved
++	31 toolbar
++		32 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		33 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		34 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	35 close button
++	36 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	37 minimize button
++	38 text newly-saved
+The focused UI element is 25 HTML content about:blank
+
+Hot reload after initial Save
+The following is a diff from the previous accessibility tree for Window: "newly-saved" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 27-30
+~			26 container New File External
++				39 heading New File External, Value: 1
++					40 text New File External
++				41 text Hot reload after initial Save.
++			42 link New File External, Value: about:blank#new-file-external
+The focused UI element is 25 HTML content about:blank
+
+Deleted file reports read error
+The following is a diff from the previous accessibility tree for Window: "" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 25-28, 30-40
+~23 dialog Description: alert, Secondary Actions: Raise
+~	24 image BloctReloadCheck critical alert
++	25 text The file “moved-final.md” couldn’t be opened because there is no such file.
++	26 button OK
+The focused UI element is 23 dialog Description: alert, Secondary Actions: Raise
+
+Read failure preserves draft
+The following is a diff from the previous accessibility tree for Window: "moved-final.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 25-26
+~23 standard window moved-final.md, URL: file:///tmp/bloct-reload-fixtures/moved-final.md, Secondary Actions: Raise
+~	24 scroll area
++		25 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-8B517CE2-0B15-429B-8D20-D5AF62E8FD10.html
++			26 container Moved Final M
++				27 heading Moved Final M, Value: 1
++					28 text Moved Final M
++				29 text entry area (settable) Value: [text entry area], Secondary Actions: Show Writing Tools
++					30 text (settable) DRAFT AFTER DELETE MUST SURVIVE
++			31 link Moved Final M, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-8B517CE2-0B15-429B-8D20-D5AF62E8FD10.html#moved-final-m
++	32 toolbar
++		33 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		34 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		35 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	36 close button
++	37 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	38 minimize button
++	39 text moved-final.md Edited
+The focused UI element is 29 text entry area (settable) Value: [text entry area], Secondary Actions: Show Writing Tools
+
+Close Cancel preserves deleted-file draft
+The following is a diff from the previous accessibility tree for Window: "moved-final.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 25-27
+~23 standard window moved-final.md, URL: file:///tmp/bloct-reload-fixtures/moved-final.md, Secondary Actions: Raise
+~	24 scroll area
++		25 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-8B517CE2-0B15-429B-8D20-D5AF62E8FD10.html
++			26 container Moved Final M
++				27 heading Moved Final M, Value: 1
++					28 text Moved Final M
++				29 text DRAFT AFTER DELETE MUST SURVIVE
++			30 link Moved Final M, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-8B517CE2-0B15-429B-8D20-D5AF62E8FD10.html#moved-final-m
++	31 toolbar
++		32 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		33 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		34 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	35 close button
++	36 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	37 minimize button
++	38 text moved-final.md Edited
+The focused UI element is 25 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-8B517CE2-0B15-429B-8D20-D5AF62E8FD10.html
+
+FINAL deleted-file Save rejected; path absent by filesystem assertion
+The following is a diff from the previous accessibility tree for Window: "moved-final.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 25-26
+~23 standard window moved-final.md, URL: file:///private/tmp/bloct-reload-fixtures/moved-final.md, Secondary Actions: Raise
+~	24 scroll area
++		25 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-9CF37EF2-8629-4786-B221-B70C6E225C29.html
++			26 container Moved Final M
++				27 heading Moved Final M, Value: 1
++					28 text Moved Final M
++				29 text FINAL DELETE GUARD DRAFT
++			30 link Moved Final M, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-9CF37EF2-8629-4786-B221-B70C6E225C29.html#moved-final-m
++	31 toolbar
++		32 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		33 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		34 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	35 close button
++	36 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	37 minimize button
++	38 text moved-final.md Edited
+The focused UI element is 25 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-9CF37EF2-8629-4786-B221-B70C6E225C29.html
+
+FINAL source URL and native-close guard: deleted Save rejected, draft retained
+The following is a diff from the previous accessibility tree for Window: "final-discard.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 198-199
+~196 standard window final-discard.md, URL: file:///private/tmp/bloct-reload-fixtures/final-discard.md, Secondary Actions: Raise
+~	197 scroll area
++		198 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-AEDC74A7-4FCA-4FD0-9B9B-8611D4F6297A.html
++			199 container Final Discard
++				200 heading Final Discard, Value: 1
++					201 text Final Discard
++				202 text DELETE AND DISCARD FINAL DRAFT
++			203 link Final Discard, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-AEDC74A7-4FCA-4FD0-9B9B-8611D4F6297A.html#final-discard
++	204 toolbar
++		205 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		206 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		207 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	208 close button
++	209 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	210 minimize button
++	211 text final-discard.md Edited
+The focused UI element is 198 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-AEDC74A7-4FCA-4FD0-9B9B-8611D4F6297A.html
+
+FINAL write guard does not block initial Save
+The following is a diff from the previous accessibility tree for Window: "protected-save" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 202-212
+~199 standard window protected-save, URL: file:///private/tmp/bloct-reload-fixtures/protected-save.md, Secondary Actions: Raise
+~	200 scroll area
+~		201 HTML content about:blank
++			202 container Protected Save
++				203 heading Protected Save, Value: 1
++					204 text Protected Save
++				205 text New file save still works.
++			206 link Protected Save, Value: about:blank#protected-save
++	207 toolbar
++		208 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
++		209 toggle button Description: Edit Mode, Help: Switch to Read Mode, Value: on
++		210 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
++	211 close button
++	212 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
++	213 minimize button
++	214 text protected-save
+The focused UI element is 201 HTML content about:blank
+
+FINAL write guard allows coordinated existing Save
+The following is a diff from the previous accessibility tree for Window: "protected-save.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 203-204, 206
+~199 standard window protected-save.md, URL: file:///private/tmp/bloct-reload-fixtures/protected-save.md, Secondary Actions: Raise
+~				215 heading Protected Save, Value: 1
+~					216 text Protected Save
++				217 text Existing protected file Save works.
++			218 link Protected Save, Value: about:blank#protected-save
+~	214 text protected-save.md
+The focused UI element is 201 HTML content about:blank
+
+FINAL RESULTS: Earlier deletion-close attempts in this chronological log failed and were corrected. Final FileDocument write-protection build preserved the absent final-protection.md path after Dont Save and subsequent new/existing Save tests. See reload-disk.log for final filesystem assertions. Native initial/existing Save both passed in the final build.
+
+FINAL coordinator options: dirty external change shows custom conflict without autosave alert
+The following is a diff from the previous accessibility tree for Window: "Unknown" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 204-207, 209-219
+~202 sheet Description: alert, Secondary Actions: Raise
+~	203 text File Changed on Disk Your edits are preserved. Reload discards your edits and reads the current file. Save a Copy keeps both versions.
++	204 button Keep Editing, ID: action-button-1
++	205 button Discard Edits and Reload, ID: action-button-2
++	206 button Save a Copy…, ID: action-button-3
+The focused UI element is 202 sheet Description: alert, Secondary Actions: Raise
+
+FINAL coordinator options normal Save B succeeds
+The following is a diff from the previous accessibility tree for Window: "final-coordinate.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 206-207, 209
+~				218 heading Final Coordination, Value: 1
+~					219 text Final Coordination
++				220 text COORDINATED SAVE B
++			221 link Final Coordination, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-93F47663-2BA8-4BE6-9F71-B0AB8B5519EB.html#final-coordination
+The focused UI element is 204 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-93F47663-2BA8-4BE6-9F71-B0AB8B5519EB.html
+
+FINAL withoutChanges read hot reload C
+The following is a diff from the previous accessibility tree for Window: "final-coordinate.md" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~			205 container Final Hot Reload C
+~				218 heading Final Hot Reload C, Value: 1
+~					219 text Final Hot Reload C
+~				220 text HOT RELOAD C
+~			221 link Final Hot Reload C, Value: file:///private/tmp/bloct-reload-fixtures/.mv_preview-93F47663-2BA8-4BE6-9F71-B0AB8B5519EB.html#final-hot-reload-c
+The focused UI element is 204 HTML content file:///private/tmp/bloct-reload-fixtures/.mv_preview-93F47663-2BA8-4BE6-9F71-B0AB8B5519EB.html
+
+FINAL Cmd+R still protects textarea
+The following is a diff from the previous accessibility tree for Window: "Unknown" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 204-205, 210-219, 221-223
+~202 sheet Description: alert, Secondary Actions: Raise
+~	203 text Reload Document? Your edits are preserved. Reload discards your edits and reads the current file. Save a Copy keeps both versions.
++	204 button Keep Editing, ID: action-button-1
++	205 button Discard Edits and Reload, ID: action-button-2
++	206 button Save a Copy…, ID: action-button-3
+The focused UI element is 202 sheet Description: alert, Secondary Actions: Raise

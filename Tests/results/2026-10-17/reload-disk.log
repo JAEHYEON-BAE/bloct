@@ -1,0 +1,14 @@
+FINAL PASS deleted source absent after Dont Save and subsequent new/existing Save tests
+PASS final deletion preview removed on close
+PASS initial Save and existing coordinated Save preserve requested contents
+PASS draft copy remains independent
+# Reload One I
+
+ASYNC UNSAVED DRAFT
+
+[Example](https://example.com)
+PASS final deleted source still absent after further tests
+CLEANUP manually removed 6 owned previews left by deliberately force-terminated intermediate builds; normal final close cleanup was asserted separately
+FINAL coordinator options PASS external N untouched by rejected Save and Dont Save; its preview removed
+FINAL coordinator options PASS normal Save B, clean hot reload C, active textarea Cmd+R, deleted Save rejection, Dont Save leaves final-coordinate.md absent, preview cleaned, independent external N unchanged
+Cleanup: removed 1 remaining intermediate force-termination preview; final owned preview count 0

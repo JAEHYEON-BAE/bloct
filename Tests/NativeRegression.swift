@@ -24,9 +24,34 @@ private final class ControlledDocument: NSDocument {
     }
 }
 
+private final class ObservingPresenter: NSObject, NSFilePresenter, @unchecked Sendable {
+    let presentedItemURL: URL?
+    let presentedItemOperationQueue: OperationQueue = {
+        let queue = OperationQueue(); queue.maxConcurrentOperationCount = 1; return queue
+    }()
+    private let lock = NSLock()
+    private var saves = 0, deletions = 0
+    init(url: URL) { presentedItemURL = url }
+    func savePresentedItemChanges(completionHandler: @escaping ((any Error)?) -> Void) {
+        lock.lock(); saves += 1; lock.unlock(); completionHandler(nil)
+    }
+    func accommodatePresentedItemDeletion(completionHandler: @escaping ((any Error)?) -> Void) {
+        lock.lock(); deletions += 1; lock.unlock(); completionHandler(nil)
+    }
+    var notifications: (Int, Int) {
+        lock.lock(); defer { lock.unlock() }; return (saves, deletions)
+    }
+}
+
 @main
 struct NativeRegression {
     @MainActor static func main() throws {
+        let closingModel = MarkdownDocument(text: "discarded")
+        let pendingSnapshot = closingModel
+        closingModel.writeProtection.discard()
+        do { try pendingSnapshot.writeProtection.validate(); fatalError("Discard must cancel retained native snapshots") }
+        catch let error as CocoaError { precondition(error.code == .userCancelled) }
+        print("PASS: discarded FileDocument snapshots reject delayed native writes")
         var draftBacking = MarkdownDocument(text: "saved")
         let draft = DocumentState(document: Binding(get: { draftBacking }, set: { draftBacking = $0 }))
         draft.commit("unconfirmed draft")
@@ -102,6 +127,45 @@ struct NativeRegression {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("bloct-native-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
+        let source = directory.appendingPathComponent("source.md")
+        try Data("version A".utf8).write(to: source)
+        let timestamp = try FileManager.default.attributesOfItem(atPath: source.path)[.modificationDate] as! Date
+        try Data("version B".utf8).write(to: source, options: .atomic)
+        try FileManager.default.setAttributes([.modificationDate: timestamp], ofItemAtPath: source.path)
+        let reloaded = try DocumentDisk.read(source)
+        precondition(reloaded == "version B", "Same-time atomic replacement must be read by content")
+        let protected = MarkdownDocument(text: "version B")
+        protected.writeProtection.trackSource(source)
+        try protected.writeProtection.validate(text: "version B")
+        do { try protected.writeProtection.validate(text: "version A"); fatalError("Implicit stale write must fail") }
+        catch let error as CocoaError { precondition(error.code == .userCancelled) }
+        do {
+            try DocumentDisk.save("stale draft", to: source, replacing: "version A")
+            fatalError("Stale save must fail")
+        } catch DocumentDisk.Conflict.changed {}
+        let preserved = try DocumentDisk.read(source)
+        precondition(preserved == "version B", "Conflict must preserve the external writer")
+        let presenter = ObservingPresenter(url: source)
+        NSFileCoordinator.addFilePresenter(presenter)
+        _ = try DocumentDisk.read(source)
+        try DocumentDisk.save("saved C", to: source, replacing: "version B")
+        let notifications = presenter.notifications
+        NSFileCoordinator.removeFilePresenter(presenter)
+        precondition(notifications.0 == 0 && notifications.1 == 0,
+                     "Inspect/update must not request presenter autosave or announce deletion")
+        print("PASS: disk inspection/update never asks the file presenter to autosave or delete")
+        let saved = try DocumentDisk.read(source)
+        precondition(saved == "saved C")
+        try FileManager.default.removeItem(at: source)
+        do { try protected.writeProtection.validate(text: "saved C"); fatalError("Implicit deleted-file recreation must fail") }
+        catch let error as CocoaError { precondition(error.code == .userCancelled) }
+        do {
+            try DocumentDisk.save("recreate stale draft", to: source, replacing: "saved C")
+            fatalError("Deleted file must not be recreated by Save")
+        } catch {}
+        precondition(!FileManager.default.fileExists(atPath: source.path))
+        print("PASS: same-time atomic replacement, coordinated conflict rejection, successful save and deleted-file protection")
+
         let legacy = directory.appendingPathComponent(".mv_preview.html")
         try Data("user file".utf8).write(to: legacy)
         let first = try PreviewFiles.create(html: "first", in: directory)

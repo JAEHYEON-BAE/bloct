@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import WebKit
 
 struct ZoomLevelKey: FocusedValueKey {
@@ -202,6 +203,8 @@ private struct WindowCloseHandler: NSViewRepresentable {
 struct ContentView: View {
     @Binding var document: MarkdownDocument
     let fileURL: URL?
+    @State private var lastKnownFileURL: URL?
+    private var sourceURL: URL? { fileURL ?? lastKnownFileURL }
     @StateObject private var docState: DocumentState
     @State private var zoomLevel: Double = 1.0
     @State private var showTOC: Bool = false
@@ -213,6 +216,13 @@ struct ContentView: View {
     @State private var isBlockEditorDirty: Bool = false
     @State private var isSaving = false
     @State private var stagedSave: StagedDocumentSave?
+    @State private var isClosed = false
+    @State private var diskCheckInProgress = false
+    @State private var reloadGeneration = 0
+    @State private var ignoredExternalText: String?
+    @State private var reportedReadFailure = false
+    @State private var pendingReadFailureURL: URL?
+    private let diskTimer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
     @State private var isEditMode: Bool
     @State private var webViewStore = WebViewStore()
 
@@ -221,6 +231,8 @@ struct ContentView: View {
     init(document: Binding<MarkdownDocument>, fileURL: URL?) {
         _document = document
         self.fileURL = fileURL
+        document.wrappedValue.writeProtection.trackSource(fileURL)
+        _lastKnownFileURL = State(initialValue: fileURL)
         let text = document.wrappedValue.text
         _docState = StateObject(wrappedValue: DocumentState(document: document))
         _originalText = State(initialValue: text)
@@ -230,7 +242,7 @@ struct ContentView: View {
     private var hasUnsavedChanges: Bool { docState.text != originalText || isBlockEditorDirty }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: fileURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 })
+        MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 }, onReload: { checkDisk(manual: true) }, onBeforeEdit: { checkDisk(beforeEdit: $0) }, reloadGeneration: reloadGeneration)
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
@@ -249,6 +261,16 @@ struct ContentView: View {
         }
         .onChange(of: document.text) { _, text in
             if let stagedSave, stagedSave.text == text { stagedSave.run() }
+            else { checkDisk() }
+        }
+        .onAppear { isClosed = false }
+        .onDisappear { isClosed = true }
+        .onReceive(diskTimer) { _ in checkDisk() }
+        .onChange(of: fileURL) { _, location in
+            if let location { lastKnownFileURL = location }
+            ignoredExternalText = nil
+            reportedReadFailure = false
+            checkDisk()
         }
         .onChange(of: showSearch) { _, visible in
             if !visible {
@@ -289,6 +311,7 @@ struct ContentView: View {
                         get: { isEditMode },
                         set: { newValue in
                             isEditMode = newValue
+                            if newValue { checkDisk() }
                             if !newValue { isBlockEditorDirty = false }
                         }
                     )) {
@@ -351,10 +374,19 @@ struct ContentView: View {
             "window._mvCloseEditor && window._mvCloseEditor(false);"
         ) { _, _ in
             DispatchQueue.main.async {
+                self.document.writeProtection.discard()
                 self.docState.restore(self.originalText)
                 proxy?.hasUnsavedChanges = { false }
                 proxy?.bypass = true
-                proxy?.window?.close()
+                if let nativeDocument = proxy?.window?.windowController?.document as? NSDocument {
+                    // NSDocument may recreate a deleted source when its last window
+                    // closes. Don't Save must also abandon that native recovery path.
+                    if let url = self.sourceURL, !FileManager.default.fileExists(atPath: url.path) {
+                        nativeDocument.fileURL = nil
+                    }
+                    nativeDocument.updateChangeCount(.changeCleared)
+                    nativeDocument.close()
+                } else { proxy?.window?.close() }
                 if AppDelegate.isQuitting { handleQuit() }
             }
         }
@@ -391,6 +423,27 @@ struct ContentView: View {
                     return
                 }
                 self.docState.commit(text)
+                if let url = self.sourceURL {
+                    let expected = self.originalText
+                    Task { @MainActor in
+                        do {
+                            try await DocumentDisk.saveAsync(text, to: url, replacing: expected)
+                            guard !self.isClosed, self.sourceURL == url else { self.isSaving = false; return }
+                            self.originalText = text
+                            self.ignoredExternalText = nil
+                            try nativeDocument.revert(toContentsOf: url, ofType: nativeDocument.fileType ?? "net.daringfireball.markdown")
+                            nativeDocument.updateChangeCount(.changeCleared)
+                            self.isSaving = false
+                            if self.docState.text == text && !self.isBlockEditorDirty { completion?() }
+                        } catch {
+                            self.isSaving = false
+                            AppDelegate.isQuitting = false
+                            if case DocumentDisk.Conflict.changed = error { self.checkDisk(manual: true) }
+                            else { NSApp.presentError(error) }
+                        }
+                    }
+                    return
+                }
                 let request = StagedDocumentSave(text: text) {
                     DocumentSaveOperation.save(nativeDocument) { success in
                         self.isSaving = false
@@ -415,6 +468,147 @@ struct ContentView: View {
                 self.stagedSave = request
                 if self.document.text == text { request.run() }
                 else { self.docState.stageForSave(text) }
+            }
+        }
+    }
+
+    // All entry points read the actual source. Inspect the live textarea in the
+    // same JS turn that freezes a clean page, so queued input/IME is not discarded.
+    private func checkDisk(manual: Bool = false, beforeEdit: ((Bool) -> Void)? = nil) {
+        guard !isClosed else { beforeEdit?(false); return }
+        guard let url = sourceURL else { beforeEdit?(true); return }
+        guard !isSaving, !diskCheckInProgress else { beforeEdit?(false); return }
+        diskCheckInProgress = true
+        let generation = reloadGeneration
+        Task { @MainActor in
+            defer { self.diskCheckInProgress = false }
+            var frozenWebView: WKWebView?
+            defer {
+                frozenWebView?.evaluateJavaScript("""
+                    window._mvDiskChecking = false;
+                    var ta = document.getElementById('mv-block-editor'); if (ta) ta.readOnly = false;
+                    """, completionHandler: nil)
+            }
+            do {
+                let diskText = try await DocumentDisk.readAsync(url)
+                guard !self.isClosed, self.sourceURL == url, self.reloadGeneration == generation,
+                      !self.isSaving else { beforeEdit?(false); return }
+                self.reportedReadFailure = false
+                self.pendingReadFailureURL = nil
+                guard manual || diskText != self.originalText else { beforeEdit?(true); return }
+                if !manual && beforeEdit == nil && self.ignoredExternalText == diskText { return }
+                guard let webView = self.webViewStore.webView else { beforeEdit?(false); return }
+                frozenWebView = webView
+                let editorDirty: Bool = try await withCheckedThrowingContinuation { continuation in
+                    webView.evaluateJavaScript("""
+                        (() => {
+                            if (!window._mvRawLines) return null;
+                            const dirty = !!(window._mvBlockDirty || window._mvComposing);
+                            if (!dirty) {
+                                window._mvDiskChecking = true;
+                                const ta = document.getElementById('mv-block-editor');
+                                if (ta) ta.readOnly = true;
+                            }
+                            return dirty;
+                        })();
+                        """) { result, error in
+                            if let dirty = result as? Bool { continuation.resume(returning: dirty) }
+                            else { continuation.resume(throwing: error ?? CocoaError(.fileReadUnknown)) }
+                        }
+                }
+                let latest = try await DocumentDisk.readAsync(url)
+                guard !self.isClosed, self.sourceURL == url, self.reloadGeneration == generation,
+                      !self.isSaving else { beforeEdit?(false); return }
+                let dirty = editorDirty || self.docState.text != self.originalText || self.isBlockEditorDirty
+                if dirty {
+                    if manual || latest != self.originalText {
+                        self.presentDiskConflict(latest, webView: webView)
+                        beforeEdit?(false)
+                    } else { beforeEdit?(true) }
+                } else {
+                    self.acceptDisk(latest, webView: webView)
+                    beforeEdit?(false) // The clicked block's old DOM ranges have been replaced.
+                }
+            } catch {
+                beforeEdit?(false)
+                guard !self.isClosed else { return }
+                // Give NSDocument's move notification a run-loop turn to update
+                // fileURL; a disappearing old path during rename is transient.
+                if !manual && self.pendingReadFailureURL != url {
+                    self.pendingReadFailureURL = url
+                    return
+                }
+                if manual || !self.reportedReadFailure {
+                    self.reportedReadFailure = true
+                    NSApp.presentError(error)
+                }
+            }
+        }
+    }
+
+    private func acceptDisk(_ text: String, webView: WKWebView) {
+        // Close only a verified clean editor, or one explicitly discarded by the user.
+        let base64 = Data(text.utf8).base64EncodedString()
+        (webView as? DocumentWebView)?.documentGeneration = reloadGeneration + 1
+        webView.evaluateJavaScript("""
+            window._mvCloseEditor && window._mvCloseEditor(false);
+            window._mvGeneration = \(reloadGeneration + 1);
+            window._mvStale = true;
+            window._mvRender && window._mvRender('\(base64)');
+            window._mvDiskChecking = false; var ta = document.getElementById('mv-block-editor'); if (ta) ta.readOnly = false;
+            """, completionHandler: nil)
+        originalText = text
+        docState.restore(text)
+        if let nativeDocument = closeProxy?.window?.windowController?.document as? NSDocument,
+           let url = sourceURL {
+            do { try nativeDocument.revert(toContentsOf: url, ofType: nativeDocument.fileType ?? "net.daringfireball.markdown") }
+            catch { NSApp.presentError(error) }
+        }
+        isBlockEditorDirty = false
+        ignoredExternalText = nil
+        reloadGeneration += 1
+    }
+
+    private func presentDiskConflict(_ diskText: String, webView: WKWebView) {
+        guard let window = closeProxy?.window, window.attachedSheet == nil else { return }
+        ignoredExternalText = diskText
+        let alert = NSAlert()
+        alert.messageText = diskText == originalText ? "Reload Document?" : "File Changed on Disk"
+        alert.informativeText = "Your edits are preserved. Reload discards your edits and reads the current file. Save a Copy keeps both versions."
+        alert.addButton(withTitle: "Keep Editing")
+        alert.addButton(withTitle: "Discard Edits and Reload")
+        alert.addButton(withTitle: "Save a Copy…")
+        alert.beginSheetModal(for: window) { response in
+            if response == .alertSecondButtonReturn {
+                Task { @MainActor in
+                    do {
+                        if let url = self.sourceURL {
+                            let text = try await DocumentDisk.readAsync(url)
+                            guard !self.isClosed, self.sourceURL == url else { return }
+                            self.acceptDisk(text, webView: webView)
+                        }
+                    } catch { NSApp.presentError(error) }
+                }
+            } else if response == .alertThirdButtonReturn {
+                self.saveDraftCopy(webView)
+            }
+            AppDelegate.isQuitting = false
+        }
+    }
+
+    private func saveDraftCopy(_ webView: WKWebView) {
+        webView.evaluateJavaScript("window._mvRawLines.join('\\n')") { result, error in
+            guard error == nil, let text = result as? String else { return }
+            DispatchQueue.main.async {
+                let panel = NSSavePanel()
+                panel.allowedContentTypes = MarkdownDocument.readableContentTypes
+                panel.nameFieldStringValue = "\(self.sourceURL?.deletingPathExtension().lastPathComponent ?? "document") copy.md"
+                guard panel.runModal() == .OK, let destination = panel.url else { return }
+                guard destination.resolvingSymlinksInPath() != self.sourceURL?.resolvingSymlinksInPath() else {
+                    NSApp.presentError(DocumentDisk.Conflict.changed); return
+                }
+                do { try Data(text.utf8).write(to: destination, options: .atomic) }
+                catch { NSApp.presentError(error) }
             }
         }
     }

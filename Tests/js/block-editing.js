@@ -21,7 +21,7 @@ const native = window.webkit.messageHandlers;
 window.webkit = { messageHandlers: new Proxy({}, { get: (_, n) => ({
   postMessage: m => { window.__msgs.push([n, m]); try { native[n].postMessage(m); } catch (e) {} }
 }) }) };
-const commits = () => window.__msgs.filter(m => m[0] === 'commitEdit').map(m => unb64(m[1]));
+const commits = () => window.__msgs.filter(m => m[0] === 'commitEdit').map(m => unb64(m[1].text));
 const dirtyMsgs = () => window.__msgs.filter(m => m[0] === 'editorDirty').map(m => m[1]);
 
 // Clean slate: drop any open editor and force a re-render even if the text matches.
