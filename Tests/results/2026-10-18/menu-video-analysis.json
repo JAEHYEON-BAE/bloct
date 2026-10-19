@@ -1,0 +1,246 @@
+{
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+    {
+      "codec_name": "h264",
+      "width": 3840,
+      "height": 2160,
+      "r_frame_rate": "120/1",
+      "avg_frame_rate": "95040/3329",
+      "duration": "27.711667",
+      "nb_frames": "792"
+    }
+  ],
+  "format": {
+    "duration": "27.711667",
+    "size": "9625872"
+  },
+  "source_path": "/Users/jaehyeon/Desktop/Screen Recording 2026-10-18 at 10.53.37 AM.mov",
+  "sha256": "85181af42d5d256bdc4cc726a61a051401f14a8de973f7377153c0caca6a1266",
+  "extraction": "Decode original frames without fps resampling; select by source PTS; crop; export PNG; hstack compact/expanded pair. Comparisons use native frame PTS, not input seek output.",
+  "comparisons": {
+    "Edit": {
+      "left_pts_seconds": 5.3,
+      "right_pts_seconds": 5.325
+    },
+    "Window": {
+      "left_pts_seconds": 13.65,
+      "right_pts_seconds": 13.691667
+    }
+  },
+  "edit_roi_analysis": {
+    "crop_xywh": [
+      290,
+      500,
+      350,
+      150
+    ],
+    "method": "decode gray original frames; count pixels < 140; >100 indicates lower menu text present; validated visually with native PNGs",
+    "records": [
+      {
+        "source_pts_seconds": 4.991667,
+        "dark_pixels": 3313,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 5.008333,
+        "dark_pixels": 3311,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 5.258333,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 5.291667,
+        "dark_pixels": 3311,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 5.3,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 5.325,
+        "dark_pixels": 3308,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 5.858333,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 5.891667,
+        "dark_pixels": 3310,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 5.9,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 5.941667,
+        "dark_pixels": 3310,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 6.458333,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 6.491667,
+        "dark_pixels": 3310,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 6.508333,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 6.533333,
+        "dark_pixels": 3310,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 7.058333,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 7.091667,
+        "dark_pixels": 3310,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 7.1,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 7.141667,
+        "dark_pixels": 3310,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 7.658333,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 7.691667,
+        "dark_pixels": 3310,
+        "state": "expanded"
+      },
+      {
+        "source_pts_seconds": 7.7,
+        "dark_pixels": 0,
+        "state": "compact"
+      },
+      {
+        "source_pts_seconds": 7.733333,
+        "dark_pixels": 3307,
+        "state": "expanded"
+      }
+    ],
+    "compact_burst_starts_seconds": [
+      5.258333,
+      5.858333,
+      6.458333,
+      7.058333,
+      7.658333
+    ]
+  },
+  "window_roi_analysis": {
+    "crop_xywh": [
+      500,
+      260,
+      350,
+      36
+    ],
+    "method": "same threshold; restrict interpretation to Window-open interval 13.05-14.30 seconds",
+    "records": [
+      {
+        "source_pts_seconds": 13.05,
+        "dark_pixels": 0,
+        "state": "document-absent"
+      },
+      {
+        "source_pts_seconds": 13.075,
+        "dark_pixels": 1586,
+        "state": "document-present"
+      },
+      {
+        "source_pts_seconds": 13.091667,
+        "dark_pixels": 0,
+        "state": "document-absent"
+      },
+      {
+        "source_pts_seconds": 13.108333,
+        "dark_pixels": 1586,
+        "state": "document-present"
+      },
+      {
+        "source_pts_seconds": 13.65,
+        "dark_pixels": 0,
+        "state": "document-absent"
+      },
+      {
+        "source_pts_seconds": 13.675,
+        "dark_pixels": 0,
+        "state": "document-absent"
+      },
+      {
+        "source_pts_seconds": 13.691667,
+        "dark_pixels": 1597,
+        "state": "document-present"
+      },
+      {
+        "source_pts_seconds": 14.025,
+        "dark_pixels": 1597,
+        "state": "document-present"
+      },
+      {
+        "source_pts_seconds": 14.05,
+        "dark_pixels": 1597,
+        "state": "document-present"
+      },
+      {
+        "source_pts_seconds": 14.25,
+        "dark_pixels": 0,
+        "state": "document-absent"
+      },
+      {
+        "source_pts_seconds": 14.266667,
+        "dark_pixels": 1600,
+        "state": "document-present"
+      },
+      {
+        "source_pts_seconds": 14.283333,
+        "dark_pixels": 0,
+        "state": "document-absent"
+      },
+      {
+        "source_pts_seconds": 14.3,
+        "dark_pixels": 1600,
+        "state": "document-present"
+      }
+    ],
+    "compact_burst_starts_seconds": [
+      13.05,
+      13.65,
+      14.25
+    ]
+  },
+  "limits": [
+    "User-supplied recording, not independent background capture",
+    "Container nominal r_frame_rate=120 does not imply 120 unique frames each second; native PTS used",
+    "0.6-second alignment supports investigation only, not causal proof"
+  ]
+}

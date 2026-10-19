@@ -2,6 +2,10 @@
 
 A native macOS app for viewing and editing Markdown files with a clean, live preview.
 
+![Bloct editing a Markdown math block with rendered equations](Bloct_1.png)
+
+![Bloct editing a Markdown table above rendered charts](Bloct_2.png)
+
 ## Requirements
 
 - macOS 14.0 or later
