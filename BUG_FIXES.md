@@ -44,7 +44,7 @@
 
 ## 20. 초기 이중 로드 회귀
 
-- **2026-10-22 / 수정·해당 범위 검증 완료 / v1.7.6**. 초기 탐색을 한 번만 시작하고 로딩 중 변경은 최신 원문·이미지 기준·문서 세대로 모아 완료 직후 반영합니다. `WKNavigation` 객체로 완료·실패를 대조하고 닫힌 뷰의 콜백을 차단합니다. 기존 탐색 차단 정책은 유지했습니다.
+- **2026-10-22 / 수정·해당 범위 검증 완료 / v1.7.6**, `ff94d34`. 초기 탐색을 한 번만 시작하고 로딩 중 변경은 최신 원문·이미지 기준·문서 세대로 모아 완료 직후 반영합니다. `WKNavigation` 객체로 완료·실패를 대조하고 닫힌 뷰의 콜백을 차단합니다. 기존 탐색 차단 정책은 유지했습니다.
 - 검증: [Hosted 208 통과·XFAIL/SKIP 0](Tests/results/2026-10-22/initial-hosted.log), [WebKit 15](Tests/results/2026-10-22/initial-webkit.log)·[이미지 70](Tests/results/2026-10-22/initial-images.log)·[메뉴 10](Tests/results/2026-10-22/initial-menu.log) 통과. [GUI/빌드](Tests/results/2026-10-22/initial-gui.json)에서 새/기존 문서 표시·편집·저장·재열기·전환·폐기와 미리보기 정리를 확인했습니다. [수정 전](Tests/results/2026-10-22/initial-before.log)의 XFAIL 2개는 정상 검사로 전환했습니다.
 - 한계: 경합·지연 콜백은 실제 WebKit 호스팅에서 제어했고 재시도 실패 콜백은 주입했습니다. 모든 실제 I/O 실패·macOS 14 기기·공개 Release GUI는 미검증입니다. 설치본은 교체하지 않았습니다.
 
@@ -126,10 +126,11 @@
 
 ## 최신 배포 검증 기록 — 2026-10-22
 
-v1.7.5는 2026-10-22 원격 실행·공개 ZIP·cask를 확인했고, 이전 버전 행은 2026-10-17 기록입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
+v1.7.5·v1.7.6는 2026-10-22 원격 실행·공개 ZIP·cask를 확인했고, 이전 버전 행은 2026-10-17 기록입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
 
 | 버전 | 결과·근거 |
 |---|---|
+| v1.7.6 (`ff94d34`) | 20번 수정 포함. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.6)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39732136173)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39732350275) success. [공개 ZIP/cask 검증](Tests/results/2026-10-22/release-1.7.6-published.json): 버전 1.7.6·SDK 27·최소 OS 14·두 CPU 및 ZIP/digest/cask SHA256 일치, tap 변경 `fe3e95d` |
 | v1.7.5 (`958e4ae`) | 25번 수정·사용자 해결 확인. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.5)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39711758926)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39711903573) success. [공개 ZIP/cask 검증](Tests/results/2026-10-22/release-1.7.5-published.json): 버전 1.7.5·SDK 27·최소 OS 14·두 CPU 및 ZIP/digest/cask SHA256 일치, tap 변경 `6b29507` |
 | v1.7.4 (`0ff3e30`) | [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.4)·[Actions](Tests/results/2026-10-17/release-1.7.4-actions.json) success. [공개 ZIP](Tests/results/2026-10-17/release-1.7.4-published.json)의 버전·SDK 27·최소 OS 14·두 CPU, [ZIP/digest/cask 체크섬](Tests/results/2026-10-17/release-1.7.4-checksums.json) 일치. [tap 실행](Tests/results/2026-10-17/release-1.7.4-tap-actions.json) success·변경 `fa2ae75` |
 | v1.7.3 (`c8bf59a`) | 24번 수정 포함. [공개 ZIP](Tests/results/2026-10-17/release-1.7.3-published.json) 구성·[체크섬](Tests/results/2026-10-17/release-1.7.3-checksums.json) 검증, [Release](Tests/results/2026-10-17/release-1.7.3-actions.json)·[tap](Tests/results/2026-10-17/release-1.7.3-tap-actions.json) success·변경 `2bf8523` |

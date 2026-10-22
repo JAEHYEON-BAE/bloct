@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-22",
+  "version": "1.7.6",
+  "releaseCommit": "ff94d34f60debe12bfadfeb47995c26575aaeba8",
+  "releaseURL": "https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.6",
+  "publicZIP": "https://github.com/JAEHYEON-BAE/bloct/releases/download/v1.7.6/Bloct.zip",
+  "downloadMethod": "Unauthenticated HTTPS GET to public browser_download_url",
+  "sha256": "a94006c730330918972cfb93cad1918da14495ef7417469300b0bf8133d4f920",
+  "githubAssetDigest": "sha256:a94006c730330918972cfb93cad1918da14495ef7417469300b0bf8133d4f920",
+  "homebrewCaskSHA256": "a94006c730330918972cfb93cad1918da14495ef7417469300b0bf8133d4f920",
+  "homebrewCaskVersion": "1.7.6",
+  "homebrewCaskBlobSHA": "826f21cffaf7801a395a076e0a771813809bd319",
+  "homebrewCommit": "fe3e95dbe1c27fc15d4de8139464eed0cf5b4526",
+  "homebrewCommitURL": "https://github.com/JAEHYEON-BAE/homebrew-tap/commit/fe3e95dbe1c27fc15d4de8139464eed0cf5b4526",
+  "releaseWorkflow": {
+    "databaseId": 39732136173,
+    "status": "completed",
+    "conclusion": "success",
+    "headSha": "ff94d34f60debe12bfadfeb47995c26575aaeba8",
+    "url": "https://github.com/JAEHYEON-BAE/bloct/actions/runs/39732136173",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Checkout",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install XcodeGen",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build and verify Release (SDK 27.0, minimum macOS 14.0)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Zip app",
+        "conclusion": "success"
+      },
+      {
+        "name": "Create GitHub Release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Homebrew delivery",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Checkout",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "homebrewWorkflow": {
+    "databaseId": 39732350275,
+    "status": "completed",
+    "conclusion": "success",
+    "headSha": "6b295071a66bda55bc89395015bb18cee3cd0d95",
+    "url": "https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39732350275",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v5",
+        "conclusion": "success"
+      },
+      {
+        "name": "Test release sync safeguards",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify latest public release and update cask",
+        "conclusion": "success"
+      },
+      {
+        "name": "Commit and push cask",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v5",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "appVersion": "1.7.6",
+  "buildVersion": "1.7.6",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ],
+  "installedAppReplaced": false,
+  "limitations": [
+    "GUI regression used the isolated Debug fix build; public Release GUI and macOS 14 physical-device execution not rerun",
+    "Homebrew scheduled timing not separately verified; sync workflow success verified"
+  ]
+}
