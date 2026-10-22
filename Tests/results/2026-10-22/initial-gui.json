@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-22",
+  "app": "/private/tmp/bloct-initial-fix-20261022/Build/Products/Debug/BloctInitialCheck.app",
+  "bundleID": "com.personal.BloctInitialCheck",
+  "version": "1.7.5 + uncommitted bug 20 fix (Debug)",
+  "os": "27.0",
+  "architecture": "arm64",
+  "binarySHA256": "5be32841d88b2e5127d732275e61ea51238b02ff2f505594335d9d2ff4c2683e",
+  "sourceSHA256": "f929123e85e4a9ef7d51249c6105e8581031778ca6c3eda272d41d3f76e14a0e",
+  "sdk": "macosx27.0",
+  "buildResult": "BUILD SUCCEEDED",
+  "method": "CUA by explicit app path, temporary documents, fresh AX observations; new-document rendering also observed in a screenshot",
+  "checks": [
+    "New Document starts with an editable textarea on about:blank",
+    "New Markdown input commits and renders New document / Latest content; screenshot observed",
+    "First Save clears edited status; source checked on disk",
+    "Save dialog treated a full path as a filename; that generated file was closed and moved into the intended temporary folder, leaving no file in Documents",
+    "New document reopens from a file preview with the same heading and content in Read Mode",
+    "Existing document opens in a second window, edits commit and Command-S writes Edited existing",
+    "Window menu switches to new.md; closing it restores existing.md with the correct content and mode",
+    "Unsaved Discarded draft prompts on Close; Don't Save preserves Edited existing on disk",
+    "All temporary windows closed; app absent from final CUA inventory; owned previews zero"
+  ],
+  "disk": {
+    "existing.md": "# Existing document\n\nEdited existing\n",
+    "new.md": "\n# New document\n\nLatest content",
+    "second.md": "# Second document\n\nSecond content\n"
+  },
+  "remainingOwnedPreviews": 0,
+  "installedAppReplaced": false,
+  "limitations": [
+    "Overlapping loads and callback delivery order were controlled in the real-WebKit hosted harness, not manually reproduced by rapid GUI input",
+    "Retry failure callbacks were injected using real WKNavigation identities; this does not prove every runtime I/O failure recovery path",
+    "macOS 14 physical-device and signed/public Release GUI not tested",
+    "Existing bug 5 leading blank line in a new document was preserved"
+  ]
+}

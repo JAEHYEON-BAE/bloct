@@ -56,8 +56,6 @@ struct WebKitRegression {
         }
         let page = try PreviewFiles.create(html: html, in: directory)
         let coordinator = MarkdownWebView.Coordinator()
-        coordinator.tempHTMLURL = page
-        coordinator.pendingPageLoad = true
         coordinator.showTOC = false
         var commits: [String] = []
         coordinator.onTextCommit = { commits.append($0) }
@@ -67,7 +65,7 @@ struct WebKitRegression {
         }
         let webView = WKWebView(frame: NSRect(x: 0, y: 0, width: 900, height: 800), configuration: config)
         webView.navigationDelegate = coordinator
-        webView.loadFileURL(page, allowingReadAccessTo: directory)
+        coordinator.loadInitialPage(html, in: webView, previewURL: page, baseURL: directory)
         wait("file page load", until: { coordinator.isPageLoaded })
         check(webView, "typeof DOMPurify !== 'undefined' && DOMPurify.isSupported && document.querySelector('h1').textContent === 'Initial'", "bundled sanitizer and initial renderer load under CSP")
 
@@ -130,15 +128,13 @@ struct WebKitRegression {
         print("PASS: authorized preview can still commit through the native bridge")
 
         let inlineCoordinator = MarkdownWebView.Coordinator()
-        inlineCoordinator.inlinePageURL = URL(string: "about:blank")
-        inlineCoordinator.pendingPageLoad = true
         let inlineConfig = WKWebViewConfiguration()
         for name in ["closeTOC", "scrollPosition", "commitEdit", "editorDirty", "openExternal"] {
             inlineConfig.userContentController.add(inlineCoordinator, name: name)
         }
         let inlineView = WKWebView(frame: .zero, configuration: inlineConfig)
         inlineView.navigationDelegate = inlineCoordinator
-        inlineView.loadHTMLString(html, baseURL: nil)
+        inlineCoordinator.loadInitialPage(html, in: inlineView, previewURL: nil, baseURL: nil)
         wait("inline page load", until: { inlineCoordinator.isPageLoaded })
         check(inlineView, "!!document.querySelector('h1')", "new-document inline HTML load works with navigation policy")
         var inlineCommit = false

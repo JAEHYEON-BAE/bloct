@@ -1,8 +1,8 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-10-22** — 25번 수정 후 자동·GUI 회귀 검사와 사용자 직접 확인으로 해결을 검증했습니다. 나머지 결과는 각 항목의 날짜를 따릅니다.
-- 현재: 총 25개 중 **10개 해당 범위 검증 완료**, **16번 보류**, **14개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
-- 다음 순서: **20번 → 4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**. 다음 새 버그 번호는 26번입니다.
+- 최신화: **2026-10-22** — 20번 초기 로드 회귀를 수정하고 자동·GUI 검증을 완료했습니다. 나머지 결과는 각 항목의 날짜를 따릅니다.
+- 현재: 총 25개 중 **11개 해당 범위 검증 완료**, **16번 보류**, **13개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
+- 다음 순서: **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**. 다음 새 버그 번호는 26번입니다.
 
 ## 항목별 상태
 
@@ -29,7 +29,7 @@
 | 17 | 코드 안의 이미지·수식 문법 전처리 | 미해결 | 중간 / 기존 재현, 전처리 순서·코드 판정 한계 유지 |
 | 18 | 공유 미리보기 파일 덮어쓰기·삭제 | 구현 완료 `f062c65` | 높음 / 고유 파일 및 소유권 기반 정리 테스트 |
 | 19 | README의 검색 키보드 조작과 불일치 | 미해결 | 낮음 / Return modifier·방향키 처리 코드 확인 |
-| 20 | 초기 이중 로드가 정책에 막혀 빈 화면 | **미해결, 알려진 실패 2개** | **다음 수정 1순위** / 최종 Hosted에서도 XFAIL 2개 유지 |
+| 20 | 초기 이중 로드가 정책에 막혀 빈 화면 | **수정·해당 범위 검증 완료(2026-10-22)** | v1.7.6. 초기 탐색 단일화·최신 원문 반영·콜백 식별. Hosted 208 통과, XFAIL·SKIP 0 |
 | 21 | 외부 문서 변경이 편집 상태에 반영되지 않음 | **구현·해당 범위 검증 완료(2026-10-17)** | `⌘R`·우클릭 Reload·자동 갱신·저장 충돌·삭제/폐기 보호. 아래 실제 GUI/디스크 근거와 미검증 범위 참조 |
 | 22 | Release의 Homebrew tap 자동 갱신 실패 | 대체 자동화 배포·검증 완료(2026-10-15) | tap 자체 GITHUB_TOKEN 기반 동기화, 실제 Actions 검사·변경 없는 push 성공. 2026-10-17 수동 동기화에서 실제 1.7.3 변경 커밋도 확인. 예약 시점은 별도 미검증 |
 | 23 | 로컬·Homebrew 배포 SDK 불일치 | 구현·배포 검증 완료(2026-10-15) | v1.7.2 공개 ZIP의 두 CPU 모두 SDK 27.0·최소 OS 14.0 검증, 원격 cask 갱신 |
@@ -38,20 +38,15 @@
 
 ## 25. macOS Edit·Window 메뉴의 지속적인 깜빡임과 선택 어려움
 
-- **2026-10-22 / 검증 완료 / v1.7.5**. 사용자가 수정본을 직접 확인해 깜빡임 해결을 확인했습니다. 최소 재현: Markdown을 열고 Edit·Window 메뉴 제목·항목 위에 포인터를 유지합니다. 목록·크기·하이라이트가 반복 변하며 선택하기 어려운 증상입니다. **제공 영상은 v1.7.4 촬영본(사용자 확인)**이며 Edit의 Writing Tools·AutoFill과 Window의 문서 행 소실·복원을 확인했습니다. 원본 해시도 기존 분석과 일치합니다. 주기는 **0.6초**입니다. [Edit 비교](Tests/results/2026-10-18/video-edit-comparison.png), [Window 비교](Tests/results/2026-10-18/video-window-comparison.png), [PTS 분석](Tests/results/2026-10-18/menu-video-analysis.json).
-- 확인한 원인 경로: `.common` 모드의 0.6초 폴링이 매번 `@State diskCheckInProgress`를 두 번 변경해 `ContentView.body`와 focused command 클로저를 다시 만듭니다. 실제 production 뷰를 호스팅하고 임시 소스 복사본에 카운터만 삽입한 [수정 전 검사](Tests/results/2026-10-22/menu-before.log)에서 **3.2초/읽기 5회/본문 재평가 10회**, 초안 상태에서도 6회가 재현됐습니다. NSMenu의 실제 시각적 재구성까지 직접 계측한 것은 아닙니다.
-- 수정: 검사 진행·오류 추적값을 뷰 수명별 **비관찰 `DiskCheckState` 객체**로 이동했습니다. 타이머를 `.default`로 바꿔 메뉴/control tracking·모달 패널 동안 자동 폴링을 쉬고 종료 후 재개합니다. 직접 Reload·편집 전 검사, 내용 비교·세대 보호·충돌 처리는 유지했습니다.
-- 자동 검증: [전용 검사](Tests/results/2026-10-22/menu-after.log) **10개 통과**, 같은 읽기 5회에 본문 재평가 **0회**, event-tracking 2초 동안 자동 읽기 **0회**. 외부 교체 수용·초안 보존·닫힘 후 검사 중단·미리보기 정리도 통과했습니다. [Native 8그룹](Tests/results/2026-10-22/menu-native.log), [WebKit 15개](Tests/results/2026-10-22/menu-webkit.log), [Hosted](Tests/results/2026-10-22/menu-hosted.log) **134 통과·0 일반 실패·20번 XFAIL 2·0 SKIP**, [Debug 빌드](Tests/results/2026-10-22/menu-build.log) 성공. 실행: `sh Tests/run-menu-polling.sh`.
-- 실제 GUI: 별도 bundle ID의 `BloctMenuCheck.app`에서 Edit **Undo/Redo 실제 클릭**, 저장 후 디스크 일치, Window 메뉴 **B→A→B 전환**, 외부 변경 자동 반영, 충돌 Keep Editing·닫기 Cancel·Don't Save·재열기 원문 보존을 확인했습니다. 최종 소유 미리보기 **0개**, 테스트 앱 정상 종료. [GUI 관찰·디스크·빌드 식별](Tests/results/2026-10-22/menu-gui.json). 설치본은 교체하지 않았습니다.
-- 검증 구분: 자동 계측·CUA 메뉴 클릭/저장 회귀는 위 로그, **시각적 깜빡임 해결은 2026-10-22 사용자 직접 확인**에 근거합니다. CUA 자체는 `Screenshot unavailable`·hover API 부재로 연속 화면을 독립 검증하지 못했습니다. macOS 14 실제 기기·모든 창/입력 조건을 전수 검사한 것은 아닙니다.
-- 과거 독립 검사(2026-10-18): [첫 AX](Tests/results/2026-10-18/menu-background-ax.json), [각 100회 추가 AX](Tests/results/2026-10-18/menu-video-background-ax.json)는 시각 증상을 포착하지 못했습니다. 당시 임시 문서 close timeout·미리보기 1개 잔류는 해당 로그의 한계이며 이번 테스트 정리와 구분합니다.
+- **2026-10-22 / 검증 완료 / v1.7.5**, `958e4ae`. 디스크 검사 상태의 불필요한 화면 갱신을 제거하고 메뉴 조작 중 자동 폴링을 쉬도록 수정했습니다.
+- 검증: **사용자 직접 확인으로 깜빡임 해결**, [전용 검사 10개](Tests/results/2026-10-22/menu-after.log)와 [GUI 회귀](Tests/results/2026-10-22/menu-gui.json) 통과. [Hosted 회귀](Tests/results/2026-10-22/menu-hosted.log)의 20번 XFAIL 2개는 아래 수정 전의 과거 결과입니다.
+- 한계: CUA 연속 화면 검증과 macOS 14 실제 기기 실행은 미검증입니다. 시각적 해결 판정은 사용자 확인에 근거합니다.
 
 ## 20. 초기 이중 로드 회귀
 
-- **미해결 / 다음 수정 1순위**. `Tests/HostedRegression.swift`에서 같은 런루프에 첫 로드 완료 전 텍스트를 변경하면 파일·새 문서 모두 `webView.url == nil`인 빈 화면이 됩니다. 2026-10-17 [최종 Hosted](Tests/results/2026-10-17/reload-hosted.log)에도 **XFAIL 2개**가 남습니다.
-- 원인: `Coordinator.pendingPageLoad` Bool을 두 로드가 공유해 첫 정책 결정이 허용을 소비하고, 취소 뒤 최신 탐색이 차단됩니다. 정책 도입 전 `f062c65`에서는 없었다는 과거 비교 보고이며 이번에 이전 버전을 재실행하지 않았습니다.
-- 다음: 네이티브가 시작한 최신 로드의 식별자/세대를 추적하고 오래된 완료·실패 콜백을 배제합니다. 새 문서의 여러 로드는 같은 `about:blank`라 URL만으로 구분할 수 없습니다. Bool 소비 제거·임의 `.other` 탐색 허용으로 우회하지 않습니다.
-- 완료: 최신 원문·브리지 유지, 오래된 콜백 격리, 비요청 로컬/원격 이동·reload/history 차단, 해제 시 소유 파일 정리. 타이밍을 바꿔 반복하고 `knownFailures` 2개를 제거해 XFAIL·XPASS 없이 확인합니다.
+- **2026-10-22 / 수정·해당 범위 검증 완료 / v1.7.6**. 초기 탐색을 한 번만 시작하고 로딩 중 변경은 최신 원문·이미지 기준·문서 세대로 모아 완료 직후 반영합니다. `WKNavigation` 객체로 완료·실패를 대조하고 닫힌 뷰의 콜백을 차단합니다. 기존 탐색 차단 정책은 유지했습니다.
+- 검증: [Hosted 208 통과·XFAIL/SKIP 0](Tests/results/2026-10-22/initial-hosted.log), [WebKit 15](Tests/results/2026-10-22/initial-webkit.log)·[이미지 70](Tests/results/2026-10-22/initial-images.log)·[메뉴 10](Tests/results/2026-10-22/initial-menu.log) 통과. [GUI/빌드](Tests/results/2026-10-22/initial-gui.json)에서 새/기존 문서 표시·편집·저장·재열기·전환·폐기와 미리보기 정리를 확인했습니다. [수정 전](Tests/results/2026-10-22/initial-before.log)의 XFAIL 2개는 정상 검사로 전환했습니다.
+- 한계: 경합·지연 콜백은 실제 WebKit 호스팅에서 제어했고 재시도 실패 콜백은 주입했습니다. 모든 실제 I/O 실패·macOS 14 기기·공개 Release GUI는 미검증입니다. 설치본은 교체하지 않았습니다.
 
 ## 4·17. 코드 영역 보호
 
@@ -102,7 +97,7 @@
 
 - **2026-10-14~15 / 해당 범위 검증 완료**. `ac191f7`: DOMPurify 3.4.17·nonce CSP·탐색/메인 프레임/페이지 URL 브리지 검사·안전한 이미지 속성·렌더링별 자리표시자로 충돌을 방지합니다. `f062c65`: `PreviewFiles`가 문서별 `.mv_preview-UUID.html`을 만들고 소유 파일만 정리하며 기존 `.mv_preview.html`은 보존합니다.
 - 근거: [WebKit](Tests/results/2026-10-15/fix-webkit.log), [Native](Tests/results/2026-10-15/fix-native.log), [Hosted](Tests/results/2026-10-15/fix-hosted.log). 원문 HTML의 ID/name/data·예약 클래스·일부 태그 제거는 의도된 제한입니다. HTML 앵커 복원 시 편집기 사칭·DOM clobbering 방어를 유지합니다. 라이선스는 [THIRD_PARTY.md](THIRD_PARTY.md)를 따릅니다.
-- 남은 사항: 초기 탐색 수명은 20번에서 추적합니다. 해당 자동 검사는 전체 보안 감사나 실제 GUI/클립보드 검증을 대신하지 않습니다.
+- 초기 탐색의 후속 수정·검증은 20번을 참조합니다. 해당 자동 검사는 전체 보안 감사나 실제 GUI/클립보드 검증을 대신하지 않습니다.
 
 ### 21. 외부 문서 변경과 편집 상태의 불일치
 
@@ -121,7 +116,7 @@
 - 구현: 문서별 `LocalImageLoader`·`bloct-image` 스킴으로 정화 후 로컬 이미지 요청만 처리합니다. 이미지 MIME·일반 파일·문서 토큰을 확인하며 원격/POST/비이미지/다른 문서 토큰은 거절합니다. 위치 변경 시 토큰 교체·닫을 때 무효화하고, 원문·복사 경로는 보존합니다. 루트 읽기 허용으로 확장하지 않습니다.
 - 검증: [전용 검사](Tests/results/2026-10-17/relative-images-fixed.log) **70 통과·0 실패·0 SKIP**(기본 PNG 54개 포함). [당시 Hosted](Tests/results/2026-10-17/relative-fix-hosted.log)는 **128 통과·XFAIL 2·SKIP 0**, Native 5그룹·WebKit 15개 통과입니다.
 - 실제 Debug GUI: 6경로·Locked 폴더·JPEG/SVG·혼합 인코딩·심볼릭 링크 표시, 편집·Save·닫기·재열기를 확인했습니다. [GUI 기록](Tests/results/2026-10-17/relative-fix-gui-checks.txt), [최종 재열기](Tests/results/2026-10-17/relative-images-final-gui.png). 설치본 교체는 하지 않았습니다.
-- 미검증: 외장/네트워크·실제 Save As·PDF·macOS 14 기기·공개 Release GUI. 문서 위치 변경은 호스팅 검사, 복사는 합성 이벤트입니다. 20번과 다른 미해결 항목은 별개입니다.
+- 미검증: 외장/네트워크·실제 Save As·PDF·macOS 14 기기·공개 Release GUI. 문서 위치 변경은 호스팅 검사, 복사는 합성 이벤트입니다. 다른 항목의 검증 범위와 구분합니다.
 
 ## 22·23번: Homebrew 동기화·배포 SDK
 

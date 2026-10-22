@@ -10,10 +10,7 @@ import WebKit
 
 /// Checks expected to fail until the referenced BUG_FIXES.md item is fixed. Each is
 /// reported as XFAIL; an unexpected pass fails the run so the entry gets removed.
-private let knownFailures: [String: String] = [
-    "double load in the same run loop (file): page shows the latest text": "BUG_FIXES.md #20",
-    "double load in the same run loop (new document): page shows the latest text": "BUG_FIXES.md #20",
-]
+private let knownFailures: [String: String] = [:]
 
 @MainActor private final class Recorder { var commits: [String] = [] }
 
@@ -226,8 +223,8 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
 
 // MARK: - Overlapping initial loads
 
-/// The document text changes before the first page load finishes, so updateNSView starts a
-/// second initial load. Same run loop: both loads start before any policy decision.
+/// Updates arrive before the initial page finishes. Keep one native bootstrap and
+/// render the newest snapshot when it finishes, including for shared about:blank URLs.
 @MainActor private func overlappingInitialLoads(root: URL) throws {
     for (label, delay) in [("in the same run loop", 0.0), ("150 ms later", 0.15)] {
         for fileBacked in [true, false] {
@@ -258,6 +255,197 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
                              "\(previewFiles(in: directory))")
             }
         }
+    }
+}
+
+// Hold a real didFinish callback so updates can be exercised both before policy
+// and after WebKit finishes, without depending on CDN/process startup timing.
+@MainActor private final class InitialLoadGate: NSObject, WKNavigationDelegate {
+    let target: MarkdownWebView.Coordinator
+    var finished: WKNavigation?
+    var decisions = 0
+    init(_ target: MarkdownWebView.Coordinator) { self.target = target }
+    func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,
+                 decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {
+        decisions += 1
+        target.webView(webView, decidePolicyFor: action, decisionHandler: decisionHandler)
+    }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { finished = navigation }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        target.webView(webView, didFailProvisionalNavigation: navigation, withError: error)
+    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        target.webView(webView, didFail: navigation, withError: error)
+    }
+}
+
+@MainActor private func initialLoadLifecycle(root: URL) throws {
+    let fm = FileManager.default
+    for kind in ["file", "new", "readonly", "moved"] {
+        let directory = root.appendingPathComponent("bootstrap-\(kind)")
+        let destination = directory.appendingPathComponent("destination")
+        try fm.createDirectory(at: destination, withIntermediateDirectories: true)
+        for (folder, width) in [(directory, 7), (destination, 13)] {
+            try "<svg xmlns='http://www.w3.org/2000/svg' width='\(width)' height='3'><rect width='100%' height='100%' fill='green'/></svg>"
+                .write(to: folder.appendingPathComponent("pixel.svg"), atomically: true, encoding: .utf8)
+        }
+        if kind == "readonly" { try fm.setAttributes([.posixPermissions: 0o555], ofItemAtPath: directory.path) }
+        defer { if kind == "readonly" { try? fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: directory.path) } }
+        let file = kind == "new" ? nil : directory.appendingPathComponent("doc.md")
+        let latestFile = kind == "moved" ? destination.appendingPathComponent("doc.md") : file
+        let recorder = Recorder()
+        func snapshot(_ text: String, _ source: URL?, generation: Int = 0, edit: Bool = false) -> AnyView {
+            AnyView(MarkdownWebView(markdown: text, fileURL: source, zoomLevel: 1, showTOC: true,
+                isEditMode: edit, webViewStore: WebViewStore(), onTextCommit: { recorder.commits.append($0) },
+                reloadGeneration: generation))
+        }
+        let hosting = NSHostingView(rootView: snapshot("# FIRST\n\nold", file))
+        hosting.frame = NSRect(x: 0, y: 0, width: 900, height: 700)
+        hosting.layoutSubtreeIfNeeded()
+        guard let web = findWebView(in: hosting), let coordinator = web.navigationDelegate as? MarkdownWebView.Coordinator,
+              let navigation = coordinator.pageLoad?.navigation else {
+            Report.check("bootstrap \(kind): native navigation exists", false)
+            dismantle(hosting)
+            continue
+        }
+        let gate = InitialLoadGate(coordinator)
+        web.navigationDelegate = gate
+        for i in 1...5 {
+            hosting.rootView = snapshot("# UPDATE \(i)\n\n중간 원문", file)
+            hosting.layoutSubtreeIfNeeded()
+        }
+        Report.check("bootstrap \(kind): rapid updates retain one native navigation",
+                     coordinator.pageLoad?.navigation === navigation)
+        let finished = wait { gate.finished != nil }
+        Report.check("bootstrap \(kind): real navigation finishes", finished)
+        guard let completed = gate.finished else { dismantle(hosting); continue }
+
+        let latest = "# LATEST\n\n최신 원문 📝" + (latestFile == nil ? "" : "\n\n![relative](pixel.svg)")
+        hosting.rootView = snapshot(latest, latestFile, generation: 4, edit: true)
+        hosting.layoutSubtreeIfNeeded()
+        let unrelatedWeb = WKWebView(frame: .zero)
+        let unrelated = unrelatedWeb.loadHTMLString("<p>unrelated</p>", baseURL: nil)!
+        coordinator.webView(web, didFinish: unrelated)
+        coordinator.webView(web, didFailProvisionalNavigation: unrelated, withError: URLError(.cancelled))
+        coordinator.webView(web, didFail: unrelated, withError: URLError(.cancelled))
+        Report.check("bootstrap \(kind): unrelated finish/failure cannot complete or reset the load",
+                     !coordinator.isPageLoaded && coordinator.pageLoad?.navigation === navigation)
+        coordinator.webView(web, didFinish: completed)
+        Report.check("bootstrap \(kind): latest text and TOC render", wait {
+            headingText(web) == "LATEST" && (js(web, "return document.querySelector('#toc a')?.textContent;") as? String) == "LATEST"
+        })
+        Report.check("bootstrap \(kind): source and generation are current",
+            coordinator.fileURL == latestFile && (js(web, "return window._mvGeneration;") as? Int) == 4)
+        Report.check("bootstrap \(kind): edit mode is current", (js(web, "return window._mvEditMode;") as? Bool) == true)
+        Report.check("bootstrap \(kind): only one initial policy decision", gate.decisions == 1, "\(gate.decisions)")
+        if latestFile != nil {
+            let expectedWidth = kind == "moved" ? 13 : 7
+            Report.check("bootstrap \(kind): relative image uses latest location", (js(web, """
+                const image = document.querySelector('#content img');
+                try { await image.decode(); return image.naturalWidth; } catch (_) { return 0; }
+                """) as? Int) == expectedWidth)
+        }
+        let oldCount = recorder.commits.count
+        _ = js(web, "window.webkit.messageHandlers.commitEdit.postMessage({text:btoa('stale'),generation:0}); return true;")
+        spin(0.1)
+        Report.check("bootstrap \(kind): old document generation cannot commit", recorder.commits.count == oldCount)
+        _ = js(web, "window.webkit.messageHandlers.commitEdit.postMessage({text:btoa('current'),generation:4}); return true;")
+        Report.check("bootstrap \(kind): latest generation can commit", wait { recorder.commits.last == "current" })
+
+        // A duplicate completion or a late failure must not reinstall listeners or
+        // reset a page that has already finished.
+        _ = js(web, "window._mvBuildTOC = () => { window._unexpectedFinish = true; }; return true;")
+        coordinator.webView(web, didFinish: completed)
+        coordinator.webView(web, didFail: completed, withError: URLError(.cancelled))
+        Report.check("bootstrap \(kind): duplicate completion and late failure are ignored",
+            coordinator.isPageLoaded && (js(web, "return !!window._unexpectedFinish;") as? Bool) == false)
+
+        // Verify the same allowlist after overlapping updates, including inline
+        // pages whose legitimate URL is always about:blank.
+        web.navigationDelegate = coordinator
+        for code in ["location.href = 'about:blank';", "location.href = 'https://example.invalid/';", "location.reload();",
+                     "history.pushState({}, '', '#x'); history.back();"] {
+            _ = js(web, code + " return true;")
+            spin(0.15)
+        }
+        Report.check("bootstrap \(kind): script/reload/history navigation remains blocked", headingText(web) == "LATEST")
+        unrelatedWeb.stopLoading()
+        dismantle(hosting)
+        coordinator.webView(web, didFinish: completed)
+        coordinator.webView(web, didFail: completed, withError: URLError(.cancelled))
+        Report.check("bootstrap \(kind): closed view ignores late callbacks", !coordinator.isPageLoaded && coordinator.pageLoad == nil)
+        Report.check("bootstrap \(kind): preview files removed", previewFiles(in: directory).isEmpty)
+    }
+}
+
+@MainActor private func closeDuringInitialLoad(root: URL) throws {
+    for fileBacked in [true, false] {
+        let directory = root.appendingPathComponent("close-loading-\(fileBacked)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let hosting = host("# Closing", fileBacked ? directory.appendingPathComponent("doc.md") : nil, Recorder())
+        guard let web = findWebView(in: hosting), let coordinator = web.navigationDelegate as? MarkdownWebView.Coordinator,
+              let navigation = coordinator.pageLoad?.navigation else {
+            Report.check("close loading \(fileBacked): native navigation exists", false)
+            continue
+        }
+        dismantle(hosting) // Before any policy callback can consume the request.
+        coordinator.webView(web, didFinish: navigation)
+        coordinator.webView(web, didFailProvisionalNavigation: navigation, withError: URLError(.cancelled))
+        coordinator.loadInitialPage("<p>late</p>", in: web, previewURL: nil, baseURL: nil)
+        Report.check("close loading \(fileBacked): callbacks and new loads are rejected",
+                     !coordinator.isPageLoaded && coordinator.pageLoad == nil && web.navigationDelegate == nil)
+        Report.check("close loading \(fileBacked): preview removed", previewFiles(in: directory).isEmpty)
+    }
+}
+
+@MainActor private func retryFailedInitialLoad(root: URL) throws {
+    for fileBacked in [true, false] {
+        let directory = root.appendingPathComponent("retry-loading-\(fileBacked)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let file = fileBacked ? directory.appendingPathComponent("doc.md") : nil
+        let recorder = Recorder()
+        let hosting = host("# FIRST", file, recorder)
+        guard let web = findWebView(in: hosting), let coordinator = web.navigationDelegate as? MarkdownWebView.Coordinator,
+              let oldNavigation = coordinator.pageLoad?.navigation else {
+            Report.check("retry \(fileBacked): initial navigation exists", false)
+            continue
+        }
+        let oldPreview = coordinator.tempHTMLURL
+        let gate = InitialLoadGate(coordinator)
+        web.navigationDelegate = gate
+        // Use real navigation identities but control delivery: policy cancellation
+        // is silent for loadHTMLString on some WebKit versions, so it cannot be
+        // used as a portable way to produce didFailProvisionalNavigation.
+        guard wait(until: { gate.finished != nil }) else {
+            Report.check("retry \(fileBacked): original navigation finishes in WebKit", false)
+            dismantle(hosting)
+            continue
+        }
+        coordinator.webView(web, didFailProvisionalNavigation: oldNavigation, withError: URLError(.cannotLoadFromNetwork))
+        Report.check("retry \(fileBacked): failure callback releases bootstrap", coordinator.pageLoad == nil)
+        if let oldPreview {
+            Report.check("retry \(fileBacked): failed preview removed", !FileManager.default.fileExists(atPath: oldPreview.path))
+        }
+        gate.finished = nil
+        hosting.rootView = preview("# RETRY\n\nlatest", file, recorder)
+        hosting.layoutSubtreeIfNeeded()
+        let navigation = coordinator.pageLoad?.navigation
+        Report.check("retry \(fileBacked): new navigation identity", navigation != nil && navigation !== oldNavigation)
+        guard wait(until: { gate.finished != nil }), let current = gate.finished else {
+            Report.check("retry \(fileBacked): replacement navigation finishes", false)
+            dismantle(hosting)
+            continue
+        }
+        coordinator.webView(web, didFinish: oldNavigation)
+        coordinator.webView(web, didFailProvisionalNavigation: oldNavigation, withError: URLError(.cancelled))
+        coordinator.webView(web, didFail: oldNavigation, withError: URLError(.cancelled))
+        Report.check("retry \(fileBacked): old callbacks cannot change replacement state",
+                     !coordinator.isPageLoaded && coordinator.pageLoad?.navigation === navigation)
+        coordinator.webView(web, didFinish: current)
+        Report.check("retry \(fileBacked): latest content and bridge recover", pageReady(web)
+                     && headingText(web) == "RETRY" && bridgeWorks(web, recorder, token: "retry"))
+        dismantle(hosting)
+        Report.check("retry \(fileBacked): preview cleanup", previewFiles(in: directory).isEmpty)
     }
 }
 
@@ -366,6 +554,9 @@ struct HostedRegression {
         try documentLocations(root: root)
         try navigationPolicy(root: root)
         try overlappingInitialLoads(root: root)
+        try initialLoadLifecycle(root: root)
+        try closeDuringInitialLoad(root: root)
+        try retryFailedInitialLoad(root: root)
         try reloadGuards(root: root)
         try pageSuites(root: root, scripts: scripts)
 

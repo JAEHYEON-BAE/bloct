@@ -218,13 +218,23 @@ struct MarkdownWebView: NSViewRepresentable {
         var lastShowTOC: Bool = true
         var lastEditMode: Bool = false
         var tempHTMLURL: URL?
-        var supersededHTMLURLs: [URL] = []
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
         var isPageLoaded: Bool = false
         var pendingAutoFocus: Bool = false
         var inlinePageURL: URL?
-        var pendingPageLoad = false
+        // Only one native bootstrap navigation may be in flight. Subsequent
+        // SwiftUI updates replace lastMarkdown, not the page/navigation itself.
+        final class PageLoad {
+            enum Phase { case awaitingPolicy, loading, finished }
+            let expectedURL: URL
+            var navigation: WKNavigation?
+            var phase = Phase.awaitingPolicy
+            init(expectedURL: URL) { self.expectedURL = expectedURL }
+        }
+        private(set) var pageLoad: PageLoad?
+        private(set) var isDismantled = false
+        var imageOrigin = ""
         var onTextCommit: ((String) -> Void)?
         var onEditorDirtyChanged: ((Bool) -> Void)?
         var onBeforeEdit: ((@escaping (Bool) -> Void) -> Void)?
@@ -232,7 +242,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var reloadGeneration = 0
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            guard message.frameInfo.isMainFrame,
+            guard !isDismantled, isPageLoaded, message.frameInfo.isMainFrame,
                   let url = message.webView?.url, isPreviewURL(url) else { return }
             switch message.name {
             case "closeTOC":
@@ -260,7 +270,8 @@ struct MarkdownWebView: NSViewRepresentable {
             case "beforeEdit":
                 let generation = reloadGeneration
                 onBeforeEdit? { [weak self, weak webView = message.webView] allowed in
-                    guard let self, self.reloadGeneration == generation else { return }
+                    guard let self, !self.isDismantled, self.isPageLoaded,
+                          self.reloadGeneration == generation else { return }
                     webView?.evaluateJavaScript("window._mvResumeEdit && window._mvResumeEdit(\(allowed ? "true" : "false"));", completionHandler: nil)
                 }
             case "openExternal":
@@ -274,19 +285,59 @@ struct MarkdownWebView: NSViewRepresentable {
         }
 
         private func isPreviewURL(_ url: URL) -> Bool {
-            if url.absoluteString == "about:blank" || url == inlinePageURL { return true }
-            return ([tempHTMLURL].compactMap { $0 } + supersededHTMLURLs).contains(url)
+            if let tempHTMLURL { return url == tempHTMLURL }
+            return inlinePageURL != nil && (url == inlinePageURL || url.absoluteString == "about:blank")
+        }
+
+        func loadInitialPage(_ html: String, in webView: WKWebView, previewURL: URL?, baseURL: URL?) {
+            guard !isDismantled, pageLoad == nil else { return }
+            let load = PageLoad(expectedURL: previewURL ?? baseURL ?? URL(string: "about:blank")!)
+            pageLoad = load
+            isPageLoaded = false
+            if let previewURL {
+                tempHTMLURL = previewURL
+                load.navigation = webView.loadFileURL(previewURL, allowingReadAccessTo: baseURL ?? previewURL.deletingLastPathComponent())
+            } else {
+                inlinePageURL = baseURL ?? URL(string: "about:blank")!
+                load.navigation = webView.loadHTMLString(html, baseURL: baseURL)
+            }
+        }
+
+        func renderLatestContent(in webView: WKWebView, reset: Bool) {
+            guard let lastMarkdown else { return }
+            let base64 = Data(lastMarkdown.utf8).base64EncodedString()
+            let stale = reset ? "window._mvStale = true;" : ""
+            webView.evaluateJavaScript("window._mvGeneration = \(reloadGeneration); window._mvImageOrigin = '\(imageOrigin)'; \(stale) window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
+        }
+
+        func dismantle(_ webView: WKWebView) {
+            isDismantled = true
+            isPageLoaded = false
+            pageLoad = nil
+            webView.stopLoading()
+            webView.navigationDelegate = nil
+            onTextCommit = nil
+            onEditorDirtyChanged = nil
+            onBeforeEdit = nil
+            onReload = nil
+            onCloseTOC = {}
+            (webView as? DocumentWebView)?.reloadDocument = nil
+            localImages.invalidate()
+            if let tempHTMLURL { PreviewFiles.remove(tempHTMLURL) }
+            tempHTMLURL = nil
+            inlinePageURL = nil
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {
-            guard let url = navigationAction.request.url else {
+            guard !isDismantled, let url = navigationAction.request.url else {
                 decisionHandler(.cancel)
                 return
             }
-            if pendingPageLoad, navigationAction.targetFrame?.isMainFrame == true,
-               navigationAction.navigationType == .other, isPreviewURL(url) {
-                pendingPageLoad = false
+            if let load = pageLoad, load.phase == .awaitingPolicy,
+               navigationAction.targetFrame?.isMainFrame == true,
+               navigationAction.navigationType == .other, url == load.expectedURL {
+                load.phase = .loading
                 decisionHandler(.allow)
                 return
             }
@@ -299,7 +350,13 @@ struct MarkdownWebView: NSViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            guard !isDismantled, let navigation, let load = pageLoad,
+                  load.phase == .loading, navigation === load.navigation else { return }
+            load.phase = .finished
             isPageLoaded = true
+            // The initial HTML may contain an older snapshot. Apply the latest
+            // text, resource origin and document generation before installing UI.
+            renderLatestContent(in: webView, reset: true)
             // Do NOT delete tempHTMLURL here — WKWebView's sandboxed content process
             // needs the origin file to exist in order to resolve and load local images
             // (file:// src attributes) throughout the page's lifetime. The file is
@@ -394,6 +451,25 @@ struct MarkdownWebView: NSViewRepresentable {
                     """, completionHandler: nil)
             }
         }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            failPageLoad(navigation)
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            failPageLoad(navigation)
+        }
+
+        private func failPageLoad(_ navigation: WKNavigation?) {
+            guard !isDismantled, let navigation, let load = pageLoad,
+                  load.phase == .loading, navigation === load.navigation else { return }
+            isPageLoaded = false
+            pageLoad = nil
+            lastMarkdown = nil // A later SwiftUI update may retry a failed bootstrap.
+            if let tempHTMLURL { PreviewFiles.remove(tempHTMLURL) }
+            tempHTMLURL = nil
+            inlinePageURL = nil
+        }
     }
 
     func makeNSView(context: Context) -> WKWebView {
@@ -419,11 +495,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
         (webView as? DocumentWebView)?.removeKeyMonitor()
-        coordinator.localImages.invalidate()
-        for url in coordinator.supersededHTMLURLs { PreviewFiles.remove(url) }
-        coordinator.supersededHTMLURLs.removeAll()
-        if let url = coordinator.tempHTMLURL { PreviewFiles.remove(url) }
-        coordinator.tempHTMLURL = nil
+        coordinator.dismantle(webView)
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
@@ -435,6 +507,7 @@ struct MarkdownWebView: NSViewRepresentable {
         coordinator.fileURL = fileURL
         coordinator.localImages.setDocumentURL(fileURL)
         let imageOrigin = fileURL == nil ? "" : "\(LocalImageLoader.scheme)://\(coordinator.localImages.host)/"
+        coordinator.imageOrigin = imageOrigin
         coordinator.onTextCommit = onTextCommit
         coordinator.onEditorDirtyChanged = onEditorDirtyChanged
         coordinator.onBeforeEdit = onBeforeEdit
@@ -455,10 +528,8 @@ struct MarkdownWebView: NSViewRepresentable {
             coordinator.lastMarkdown = markdown
             if coordinator.isPageLoaded {
                 // Live edit: update only the content in-place, no page reload, scroll is preserved
-                let base64 = Data(markdown.utf8).base64EncodedString()
-                let reset = (locationChanged || forcedReload) ? "window._mvStale = true;" : ""
-                webView.evaluateJavaScript("window._mvGeneration = \(reloadGeneration); window._mvImageOrigin = '\(imageOrigin)'; \(reset) window._mvRender && window._mvRender('\(base64)');", completionHandler: nil)
-            } else {
+                coordinator.renderLatestContent(in: webView, reset: locationChanged || forcedReload)
+            } else if coordinator.pageLoad == nil {
                 // didFinish applies the current TOC state, so no toggle animation is needed.
                 coordinator.lastShowTOC = showTOC
                 let html = buildHTML(imageOrigin: imageOrigin)
@@ -466,24 +537,13 @@ struct MarkdownWebView: NSViewRepresentable {
                     let dir = fileURL.deletingLastPathComponent()
                     do {
                         let tmpURL = try PreviewFiles.create(html: html, in: dir)
-                        // During initial navigation a second load may supersede the first.
-                        // Retain both origins until the WebView is dismantled.
-                        if let previous = coordinator.tempHTMLURL {
-                            coordinator.supersededHTMLURLs.append(previous)
-                        }
-                        coordinator.tempHTMLURL = tmpURL
-                        coordinator.pendingPageLoad = true
-                        webView.loadFileURL(tmpURL, allowingReadAccessTo: dir)
+                        coordinator.loadInitialPage(html, in: webView, previewURL: tmpURL, baseURL: dir)
                     } catch {
-                        coordinator.inlinePageURL = dir
-                        coordinator.pendingPageLoad = true
-                        webView.loadHTMLString(html, baseURL: dir)
+                        coordinator.loadInitialPage(html, in: webView, previewURL: nil, baseURL: dir)
                     }
                 } else {
                     coordinator.pendingAutoFocus = true
-                    coordinator.inlinePageURL = URL(string: "about:blank")
-                    coordinator.pendingPageLoad = true
-                    webView.loadHTMLString(html, baseURL: nil)
+                    coordinator.loadInitialPage(html, in: webView, previewURL: nil, baseURL: nil)
                 }
             }
         }

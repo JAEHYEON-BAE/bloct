@@ -1,0 +1,12 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-menu-tests.cgrZ79/MenuPollingRegression.app: 1 (Operation not permitted)
+PASS: ContentView renders
+PASS: idle polling continues reads=5
+PASS: unchanged file does not rebuild ContentView / focused commands bodyUpdates=0
+PASS: automatic polling pauses in event tracking reads=0
+PASS: external replacement still reloads
+PASS: draft survives unchanged disk polling
+PASS: draft polling does not rebuild commands bodyUpdates=0
+PASS: draft does not reach FileDocument or disk
+PASS: closed view stops polling
+PASS: owned preview cleaned on close
+0 failures

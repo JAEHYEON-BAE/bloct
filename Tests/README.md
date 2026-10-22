@@ -61,8 +61,11 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
 - Navigation policy: relative links, script navigation, reload and history must
   not replace the page that owns the bridge. External http(s) links are left out
   because allowing them would open a real browser.
-- Overlapping initial loads: the document text changes before the first load
-  finishes.
+- Overlapping initial updates: same-loop and delayed text changes, new/file/read-only
+  documents, source relocation, document generation and latest edit/TOC state.
+  Real navigation identities are used to inject stale/duplicate completion and failure
+  callbacks, retry a failed bootstrap, and close while loading. These callback-order
+  checks are controlled tests, not a reproduction of every runtime I/O failure.
 - Page suites in `Tests/js`, run inside a hosted page that includes the scripts
   injected on `didFinish`:
   - `block-editing.js`: block editing, Swift re-render while editing, keyboard
@@ -77,7 +80,8 @@ Checks that need the KaTeX CDN are skipped when it is unreachable.
 Known defects are listed in `knownFailures` at the top of `HostedRegression.swift`
 together with their [BUG_FIXES.md](../BUG_FIXES.md) item. They print `XFAIL` and do not fail the run.
 If one passes, the run fails with `XPASS` so the entry is removed after the fix.
-Currently listed: overlapping initial loads in the same run loop (#20).
+No expected failures are currently listed. The two former #20 initial-load failures
+now run as ordinary passing checks.
 
 Implementation summaries and feature plans are maintained in
 [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md).
