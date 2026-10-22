@@ -1,0 +1,218 @@
+{
+  "date": "2026-10-22",
+  "version": "1.7.5",
+  "releaseCommit": "958e4ae34f69b5d0e6708e4db01ba8eb6216bbe5",
+  "releaseURL": "https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.5",
+  "publicZIP": "https://github.com/JAEHYEON-BAE/bloct/releases/download/v1.7.5/Bloct.zip",
+  "downloadMethod": "Unauthenticated HTTPS GET to public browser_download_url",
+  "sha256": "9e822849709ce3fa53924c68a3ae76eb007b6c361750c0ef28dd0955f4ba741e",
+  "githubAssetDigest": "sha256:9e822849709ce3fa53924c68a3ae76eb007b6c361750c0ef28dd0955f4ba741e",
+  "homebrewCaskSHA256": "9e822849709ce3fa53924c68a3ae76eb007b6c361750c0ef28dd0955f4ba741e",
+  "homebrewCaskVersion": "1.7.5",
+  "homebrewCaskBlobSHA": "e78f904374411a6eea182b497a6e3961156d9f9f",
+  "homebrewCommit": "6b295071a66bda55bc89395015bb18cee3cd0d95",
+  "homebrewCommitURL": "https://github.com/JAEHYEON-BAE/homebrew-tap/commit/6b295071a66bda55bc89395015bb18cee3cd0d95",
+  "releaseWorkflow": {
+    "conclusion": "success",
+    "databaseId": 39711758926,
+    "headSha": "958e4ae34f69b5d0e6708e4db01ba8eb6216bbe5",
+    "jobs": [
+      {
+        "completedAt": "2026-10-22T02:31:22Z",
+        "conclusion": "success",
+        "databaseId": 119604477431,
+        "name": "build-and-release",
+        "startedAt": "2026-10-22T02:30:35Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T02:30:36Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T02:30:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:30:38Z",
+            "conclusion": "success",
+            "name": "Checkout",
+            "number": 2,
+            "startedAt": "2026-10-22T02:30:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:30:42Z",
+            "conclusion": "success",
+            "name": "Install XcodeGen",
+            "number": 3,
+            "startedAt": "2026-10-22T02:30:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:31:15Z",
+            "conclusion": "success",
+            "name": "Build and verify Release (SDK 27.0, minimum macOS 14.0)",
+            "number": 4,
+            "startedAt": "2026-10-22T02:30:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:31:15Z",
+            "conclusion": "success",
+            "name": "Zip app",
+            "number": 5,
+            "startedAt": "2026-10-22T02:31:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:31:18Z",
+            "conclusion": "success",
+            "name": "Create GitHub Release",
+            "number": 6,
+            "startedAt": "2026-10-22T02:31:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:31:18Z",
+            "conclusion": "success",
+            "name": "Homebrew delivery",
+            "number": 7,
+            "startedAt": "2026-10-22T02:31:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:31:19Z",
+            "conclusion": "success",
+            "name": "Post Checkout",
+            "number": 14,
+            "startedAt": "2026-10-22T02:31:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:31:20Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-22T02:31:19Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/JAEHYEON-BAE/bloct/actions/runs/39711758926/job/119604477431"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/JAEHYEON-BAE/bloct/actions/runs/39711758926"
+  },
+  "homebrewWorkflow": {
+    "conclusion": "success",
+    "databaseId": 39711903573,
+    "headSha": "fa2ae7583cff8a78884cd6e41b782d6a545d1908",
+    "jobs": [
+      {
+        "completedAt": "2026-10-22T02:32:14Z",
+        "conclusion": "success",
+        "databaseId": 119604942717,
+        "name": "sync",
+        "startedAt": "2026-10-22T02:32:07Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T02:32:08Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T02:32:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:32:09Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v5",
+            "number": 2,
+            "startedAt": "2026-10-22T02:32:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:32:09Z",
+            "conclusion": "success",
+            "name": "Test release sync safeguards",
+            "number": 3,
+            "startedAt": "2026-10-22T02:32:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:32:10Z",
+            "conclusion": "success",
+            "name": "Verify latest public release and update cask",
+            "number": 4,
+            "startedAt": "2026-10-22T02:32:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:32:11Z",
+            "conclusion": "success",
+            "name": "Commit and push cask",
+            "number": 5,
+            "startedAt": "2026-10-22T02:32:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:32:12Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v5",
+            "number": 10,
+            "startedAt": "2026-10-22T02:32:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T02:32:12Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 11,
+            "startedAt": "2026-10-22T02:32:12Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39711903573/job/119604942717"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39711903573"
+  },
+  "appVersion": "1.7.5",
+  "buildVersion": "1.7.5",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ],
+  "limitations": [
+    "Published ZIP GUI and macOS 14 physical-device execution not rerun; menu GUI and direct user verification used the isolated Debug fix build",
+    "Homebrew scheduled timing not separately verified; sync workflow success verified"
+  ],
+  "installedAppReplaced": false
+}

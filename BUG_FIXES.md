@@ -129,12 +129,13 @@
 - 근거: [최초 원격 실행](Tests/results/2026-10-15/tap-sync-actions.json)은 4개 검사·변경 없는 push 통과. 2026-10-17에는 v1.7.3·v1.7.4의 실제 변경 커밋과 수동 dispatch 성공도 확인했습니다. 예약 시점 자체의 실행은 별도 미검증입니다. 로컬 `gh`가 sandbox에서 invalid를 출력해도 키체인 제한일 수 있으므로 일반 권한의 조회와 구분합니다(2026-10-17 확인).
 - **23번 / 2026-10-15 구현·배포 검증 완료**, `67263f1` / v1.7.2. 공유 빌드·검사 스크립트에서 **Xcode/SDK 27.0·최소 macOS 14.0·arm64/x86_64 Universal**을 강제합니다. [공개 ZIP](Tests/results/2026-10-15/sdk27-published.json) 두 CPU 검증 완료. 당시 Release는 tap 단계 실패로 전체 실패였고, cask는 수동 복구했습니다. 이후 22번으로 자동화를 대체했습니다. macOS 14 실제 실행·OS 간 UI 동일성은 보장하지 않습니다.
 
-## 최신 배포 검증 기록 — 2026-10-17
+## 최신 배포 검증 기록 — 2026-10-22
 
-당시 확인한 배포 결과이며 현재 원격 상태를 다시 조회한 것은 아닙니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
+v1.7.5는 2026-10-22 원격 실행·공개 ZIP·cask를 확인했고, 이전 버전 행은 2026-10-17 기록입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
 
 | 버전 | 결과·근거 |
 |---|---|
+| v1.7.5 (`958e4ae`) | 25번 수정·사용자 해결 확인. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.5)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39711758926)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39711903573) success. [공개 ZIP/cask 검증](Tests/results/2026-10-22/release-1.7.5-published.json): 버전 1.7.5·SDK 27·최소 OS 14·두 CPU 및 ZIP/digest/cask SHA256 일치, tap 변경 `6b29507` |
 | v1.7.4 (`0ff3e30`) | [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.4)·[Actions](Tests/results/2026-10-17/release-1.7.4-actions.json) success. [공개 ZIP](Tests/results/2026-10-17/release-1.7.4-published.json)의 버전·SDK 27·최소 OS 14·두 CPU, [ZIP/digest/cask 체크섬](Tests/results/2026-10-17/release-1.7.4-checksums.json) 일치. [tap 실행](Tests/results/2026-10-17/release-1.7.4-tap-actions.json) success·변경 `fa2ae75` |
 | v1.7.3 (`c8bf59a`) | 24번 수정 포함. [공개 ZIP](Tests/results/2026-10-17/release-1.7.3-published.json) 구성·[체크섬](Tests/results/2026-10-17/release-1.7.3-checksums.json) 검증, [Release](Tests/results/2026-10-17/release-1.7.3-actions.json)·[tap](Tests/results/2026-10-17/release-1.7.3-tap-actions.json) success·변경 `2bf8523` |
 
