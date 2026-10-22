@@ -1,0 +1,520 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Bloct.xcodeproj -scheme Bloct -configuration Debug -derivedDataPath /private/tmp/bloct-menu-fix-20261022 PRODUCT_BUNDLE_IDENTIFIER=com.personal.BloctMenuCheck PRODUCT_NAME=BloctMenuCheck CODE_SIGNING_ALLOWED=NO build
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    PRODUCT_BUNDLE_IDENTIFIER = com.personal.BloctMenuCheck
+    PRODUCT_NAME = BloctMenuCheck
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00008132-000631540250401C, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00008132-000631540250401C, name:My Mac }
+{ platform:macOS, name:Any Mac }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Bloct' in project 'Bloct' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 6e045899026757110948939baa753d5b
+Build description path: /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/XCBuildData/6e045899026757110948939baa753d5b.xcbuilddata
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/CompilationCache.noindex
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/CompilationCache.noindex
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/ModuleCache.noindex
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/ModuleCache.noindex
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/Build/Products
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/Build/Products
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk /tmp/bloct-menu-fix-20261022/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o /tmp/bloct-menu-fix-20261022/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/Build/Products/Debug
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/Build/Products/Debug
+
+CreateBuildDirectory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/EagerLinkingTBDs/Debug
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    builtin-create-build-directory /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/EagerLinkingTBDs/Debug
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct-a49b73889425cb979b72ceb6bdb140a9-VFS/all-product-headers.yaml
+    cd /Users/jaehyeon/PersonalProjects/bloct/Bloct.xcodeproj
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct-a49b73889425cb979b72ceb6bdb140a9-VFS/all-product-headers.yaml
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-project-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-project-headers.hmap
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-own-target-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-own-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.hmap
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.DependencyStaticMetadataFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftFileList
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftConstValuesFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.LinkFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.LinkFileList
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.DependencyMetadataFileList (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.DependencyMetadataFileList
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-generated-files.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-generated-files.hmap
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-all-target-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-all-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-all-non-framework-target-headers.hmap (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-DebugDylibPath-normal-arm64.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-DebugDylibInstallName-normal-arm64.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    write-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-DebugDylibInstallName-normal-arm64.txt
+
+MkDir /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app
+
+MkDir /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents
+
+MkDir /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS
+
+MkDir /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources
+
+Ld /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/__preview.dylib normal (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/bloct-menu-fix-20261022/Build/Products/Debug -F/tmp/bloct-menu-fix-20261022/Build/Products/Debug -install_name @rpath/BloctMenuCheck.debug.dylib -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck_dependency_info.dat -o /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/__preview.dylib
+
+CpResource /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources/style.css /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/style.css (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/style.css /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources
+
+CpResource /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources/marked.min.js /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/marked.min.js (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/marked.min.js /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources
+
+CpResource /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources/DOMPurify-LICENSE.txt /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DOMPurify-LICENSE.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DOMPurify-LICENSE.txt /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources
+
+CpResource /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources/purify.min.js /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/purify.min.js (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/purify.min.js /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources
+
+GenerateAssetSymbols /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets --compile /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources --output-format human-readable-text --notices --warnings --export-dependency-info /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies --output-partial-info-plist /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist --app-icon AppIcon --enable-on-demand-resources NO --development-region en --target-device mac --minimum-deployment-target 14.0 --platform macosx --bundle-identifier com.personal.BloctMenuCheck --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.h
+/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+MkDir /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned
+
+MkDir /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/unthinned (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /bin/mkdir -p /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/unthinned
+
+CompileAssetCatalogVariant thinned /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets --compile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies_thinned --output-partial-info-plist /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --enable-on-demand-resources NO --development-region en --target-device mac --minimum-deployment-target 14.0 --platform macosx
+/* com.apple.actool.compilation-results */
+/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_thinned
+/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned/AppIcon.icns
+/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned/Assets.car
+
+
+LinkAssetCatalog /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Assets.xcassets (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-linkAssetCatalog --thinned /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/thinned --thinned-dependencies /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_thinned --unthinned /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_output/unthinned --unthinned-dependencies /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist_unthinned --output /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources --plist-output /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist
+note: Emplaced /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources/AppIcon.icns (in target 'Bloct' from project 'Bloct')
+note: Emplaced /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources/Assets.car (in target 'Bloct' from project 'Bloct')
+
+ProcessInfoPlistFile /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Info.plist /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Info.plist (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-infoPlistUtility /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/PkgInfo -expandbuildsettings -platform macosx -additionalcontentfile /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist -o /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Info.plist
+
+SwiftDriver Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name BloctMenuCheck -Onone @/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/bloct-menu-fix-20261022/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/bloct-menu-fix-20261022/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/bloct-menu-fix-20261022/Build/Products/Debug -F /tmp/bloct-menu-fix-20261022/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/bloct-menu-fix-20261022/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/bloct-menu-fix-20261022/ModuleCache.noindex -sdk-module-cache-path /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/bloct-menu-fix-20261022/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-generated-files.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-own-target-headers.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-project-headers.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Products/Debug/include -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-Swift.h -working-directory /Users/jaehyeon/PersonalProjects/bloct -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_stdarg-8CPUU6EAZIC0N7QFIESLWL3BX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/ptrauth-4WZCHLVHEB8YBNZDLZQVWKFV4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_stddef-D99B9JGCP9XZQ4HFIDEULCD89.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_AvailabilityInternal-58H35AZ5E8D0WYCZU86CO9IPD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_float-2GX5M3BSN3FZZ07B8P63LQPHB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-1JKGB2R7IOLDW5AY7MVQR8P9Y.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_stdbool-9XJISDVUIBO8B5ZUXKV5S6P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/SwiftShims-146KN8P6T9VREET9Y3QWI5PHS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/DeveloperToolsSupport-BWON42NEX555QVOSE4R0V5Q0X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/ptrcheck-BF6U4UICJPOD37S1GE7DO7E2I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_DarwinFoundation1-8GKT07EP0K7NUF09NDXTY36VE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_DarwinFoundation2-EB8MC8E3YQYUG66H8CFTRFTTH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_limits-2H1TRM4GRFDJAFV48LDPWKI0Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/string_h-9SGXHZSL9EXYKEL61BMOT25A0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_tgmath-8TQCWTAB1FUOINDQN0RL6R80C.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/sys_types-69169PTSQY4PCOKBO4HGNQEF0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_stdint-6YYXJLKM7D998M2XP4NKWNZF8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/libDER-4Y037GH6YBFNEMVVCONNHESBE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_DarwinFoundation3-AVLGEP90FF6EVRGXWCLX3MSU1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_intrinsics-4QMWNGDA4AIZ8DN4B9AENRYV7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_stdatomic-E0PJC7STH045KPMVM6O1V79AJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/_Builtin_inttypes-6DLB6ON0WPGVJU2TPUV5ICTJR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Darwin-71GJKJ0EHXXDQ7FUH8FVLUPZJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/simd-CY1TA654CHBAJNVG39YEDG1PY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CUPS-F5EC2YB12WHZEXTMMVJMTMF6I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/MachO-3TP5JW24ELMHR88ZG7WF0U927.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/libkern-6B8UHEQE0Y3PI048UFQXVAW8E.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/launch-5N8JTX2KTWHU3DS44ZBZI8LFV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Spatial-8OO1XSGKT76KDVA9XCM31W8IW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/ObjectiveC-E5ORCOI19WS6XCP23662QG04H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/os_object-2D04Y0Q7FT8U2V0E3SVI5SAC3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/os_workgroup-CC3RD4B28A0SFQED4YUYDNRVR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Dispatch-50AI92B197EAKSTBKQH0LT38Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreFoundation-D8S3A3L7YY10LS1NKG67CRLH8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/dnssd-C5G81K6U5OTS0AAPDRRUY27T2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/XPC-75TPUNU2VRA6IN3EHCH0IMU9Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/os-EF76A9I6TT786C7X2HRDN9KCB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Security-6GQ6KWH8WBRXVPOMWLTBPDVY9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreAudioTypes-AZIGDH7X0IZ8CBE3YSLWPCZB0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/IOKit-5R2N5UO0PDKMDSUFQAFMYDJIF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/ColorSync-2K9G94MZKA7PRF65MQ8GNH4BN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CFNetwork-F2NRUGGGU89ZB3R74QSCO2QKZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreGraphics-2YHPM9UOVYYNC8JIG15HK3UOR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/DiskArbitration-AM76C52LCT9SXDDXOOG56AOB3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreServices-BTHHCW8AM510WHG3OMS1MSDJV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/ImageIO-53RLQ4KPIJBRSJUNKW9CBVUEY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreText-7CRGIJ33U67NH2FUUC99AXZ2P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Foundation-994FTL7E6GLAGRVKEKMH8812D.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreData-EH1A7LYGAB4N8NW92E397SPC5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreAudio-4PPNZT6Y3M7DOYQXUXH9T8FEZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/IOSurface-29SHR6PQW17MMNY5Q3C6DTQEL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/JavaScriptCore-2O8R2QSOQADYZ0NLX0MHRSZVW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Network-68BQSBIGPJGMNL5Q43ZJCAZHY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/OSLog-AKHRR3QM56LXEM16ZSJKK86I1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/ApplicationServices-69ZY2YOK8GIQXSYPXCLGDR9RT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreTransferable-37J4GUWKWIIIX15RW9VMWG1UY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Accessibility-2WM9CG9ZOM4ETL1OA1DK58HNY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Symbols-63LJCU8D8E7F4BFS10ZR2S00R.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-1P21NXCI212V9KCGFGAT3HVNU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/DataDetection-DZLR2PKNP1VRERI4V7QKVC44V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/Metal-3A887Q3CPHRREACUAI1RRIKNQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/OpenGL-4GM0AJK9ETM3A2JLFDS9ZPZSC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreVideo-A2R9D5T066W2KR00ZILHF1MIM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/QuartzCore-7OFQ220YI4NHVJ7O3O5OKG7PG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreMedia-ETO5GCRUI5XTIB1PDU2PCCRLA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/CoreImage-CUDFA9DVMTF0IC0FN1ZLV53OD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/SwiftUICore-COS5K0J72PAKN7R9UH3Q9GB94.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/AppKit-E78BI3W048RR182K8DUEEC996.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/SwiftUI-9YO3JJNDFS4ATTWMGK3VRSF8Y.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules/WebKit-11ROWS2CB2VLC7WJMZA3EYHYL.pcm
+
+SwiftCompile normal arm64 Compiling\ MarkdownWebView.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile MarkdownWebView.swift
+
+SwiftCompile normal arm64 Compiling\ PreviewFiles.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile PreviewFiles.swift
+
+SwiftCompile normal arm64 Compiling\ DocumentSaveOperation.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile DocumentSaveOperation.swift
+
+SwiftCompile normal arm64 Compiling\ MarkdownDocument.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile MarkdownDocument.swift
+
+SwiftCompile normal arm64 Compiling\ GeneratedAssetSymbols.swift /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ BloctMenuCheck (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+
+
+SwiftCompile normal arm64 Compiling\ ContentView.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/ContentView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/ContentView.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile ContentView.swift
+
+SwiftCompile normal arm64 Compiling\ BloctApp.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/BloctApp.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/BloctApp.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile BloctApp.swift
+
+SwiftCompile normal arm64 Compiling\ DocumentDisk.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentDisk.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentDisk.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile DocumentDisk.swift
+
+SwiftCompile normal arm64 Compiling\ DocumentState.swift /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentState.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /Users/jaehyeon/PersonalProjects/bloct/Sources/Bloct/DocumentState.swift (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-SwiftPerFileCompile DocumentState.swift
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for BloctMenuCheck (in target 'Bloct' from project 'Bloct')
+
+SwiftDriver\ Compilation\ Requirements Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name BloctMenuCheck -Onone @/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/bloct-menu-fix-20261022/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/bloct-menu-fix-20261022/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/bloct-menu-fix-20261022/Build/Products/Debug -F /tmp/bloct-menu-fix-20261022/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/bloct-menu-fix-20261022/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/bloct-menu-fix-20261022/ModuleCache.noindex -sdk-module-cache-path /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/bloct-menu-fix-20261022/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-generated-files.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-own-target-headers.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-project-headers.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Products/Debug/include -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-Swift.h -working-directory /Users/jaehyeon/PersonalProjects/bloct -experimental-emit-module-separately -disable-cmo
+
+SwiftMergeGeneratedHeaders /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/BloctMenuCheck-Swift.h /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-Swift.h (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-swiftHeaderTool -arch arm64 /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-Swift.h -o /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/BloctMenuCheck-Swift.h
+
+Copy /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/arm64-apple-macos.swiftmodule /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftmodule (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftmodule /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/arm64-apple-macos.swiftmodule
+
+Copy /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/arm64-apple-macos.swiftdoc /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftdoc (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftdoc /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/arm64-apple-macos.swiftdoc
+
+Copy /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/arm64-apple-macos.abi.json /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.abi.json (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.abi.json /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/arm64-apple-macos.abi.json
+
+Copy /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftsourceinfo (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftsourceinfo /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentDisk.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentState.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling BloctApp.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ContentView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriver\ Compilation Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name BloctMenuCheck -Onone @/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/bloct-menu-fix-20261022/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/bloct-menu-fix-20261022/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/bloct-menu-fix-20261022/Build/Products/Debug -F /tmp/bloct-menu-fix-20261022/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/bloct-menu-fix-20261022/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/bloct-menu-fix-20261022/ModuleCache.noindex -sdk-module-cache-path /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/bloct-menu-fix-20261022/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-generated-files.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-own-target-headers.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-project-headers.hmap -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Products/Debug/include -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck-Swift.h -working-directory /Users/jaehyeon/PersonalProjects/bloct -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck.debug.dylib normal (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -L/tmp/bloct-menu-fix-20261022/Build/Products/Debug -F/tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -F/tmp/bloct-menu-fix-20261022/Build/Products/Debug -filelist /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.LinkFileList -install_name @rpath/BloctMenuCheck.debug.dylib -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/../Frameworks -Xlinker -object_path_lto -Xlinker /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck.debug.dylib
+
+ConstructStubExecutorLinkFileList /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-ExecutorLinkFileList-normal-arm64.txt (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    construct-stub-executor-link-file-list /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'Bloct' from project 'Bloct')
+
+Ld /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck normal (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/bloct-menu-fix-20261022/Build/Products/Debug -F/tmp/bloct-menu-fix-20261022/Build/Products/Debug -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/../Frameworks -rdynamic -Xlinker -no_deduplicate -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck-ExecutorLinkFileList-normal-arm64.txt /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck.debug.dylib -o /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck
+
+ExtractAppIntentsMetadata (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name BloctMenuCheck --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk --xcode-version 27A266a --platform-family macOS --deployment-target 14.0 --bundle-identifier com.personal.BloctMenuCheck --output /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Resources --target-triple arm64-apple-macos14.0 --binary-file /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck --dependency-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck_dependency_info.dat --stringsdata-file /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftFileList --metadata-file-list /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.DependencyMetadataFileList --static-metadata-file-list /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctMenuCheck.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctMenuCheck.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-22 11:18:19.484 appintentsmetadataprocessor[7248:38040] Starting appintentsmetadataprocessor export
+2026-10-22 11:18:19.491 appintentsmetadataprocessor[7248:38040] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CopySwiftLibs /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/MacOS/BloctMenuCheck.debug.dylib --scan-folder /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Frameworks --scan-folder /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/PlugIns --scan-folder /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Library/SystemExtensions --scan-folder /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Extensions --platform macosx --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app/Contents/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+RegisterExecutionPolicyException /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-RegisterExecutionPolicyException /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app
+
+Validate /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-validationUtility /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app -no-validate-extension -infoplist-subpath Contents/Info.plist
+
+Touch /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    /usr/bin/touch -c /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app
+
+RegisterWithLaunchServices /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app (in target 'Bloct' from project 'Bloct')
+    cd /Users/jaehyeon/PersonalProjects/bloct
+    builtin-lsregisterurl --record-path /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/XCBuildData/registered-launchservices.txt -- /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted /tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app
+
+PruneExplicitPrecompiledModules /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/bloct-menu-fix-20261022/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/bloct-menu-fix-20261022/SDKExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **

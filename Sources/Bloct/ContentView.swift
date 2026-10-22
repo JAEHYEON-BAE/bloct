@@ -140,6 +140,16 @@ class WebViewStore {
     var webView: WKWebView?
 }
 
+// Poll bookkeeping has no visible representation. Keep it per view lifetime, but
+// deliberately unobserved: toggling @State for every read rebuilds the focused
+// command closures and can make SwiftUI reconstruct the open macOS menus.
+@MainActor
+private final class DiskCheckState {
+    var inProgress = false
+    var reportedReadFailure = false
+    var pendingReadFailureURL: URL?
+}
+
 // MARK: - Window close interception
 
 class CloseProxy: NSObject, NSWindowDelegate {
@@ -217,12 +227,12 @@ struct ContentView: View {
     @State private var isSaving = false
     @State private var stagedSave: StagedDocumentSave?
     @State private var isClosed = false
-    @State private var diskCheckInProgress = false
+    @State private var diskCheck = DiskCheckState()
     @State private var reloadGeneration = 0
     @State private var ignoredExternalText: String?
-    @State private var reportedReadFailure = false
-    @State private var pendingReadFailureURL: URL?
-    private let diskTimer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
+    // Background polling can wait until menu/control tracking and modal panels end.
+    // Explicit Reload / before-edit checks still read the current source directly.
+    private let diskTimer = Timer.publish(every: 0.6, on: .main, in: .default).autoconnect()
     @State private var isEditMode: Bool
     @State private var webViewStore = WebViewStore()
 
@@ -269,7 +279,7 @@ struct ContentView: View {
         .onChange(of: fileURL) { _, location in
             if let location { lastKnownFileURL = location }
             ignoredExternalText = nil
-            reportedReadFailure = false
+            diskCheck.reportedReadFailure = false
             checkDisk()
         }
         .onChange(of: showSearch) { _, visible in
@@ -477,11 +487,11 @@ struct ContentView: View {
     private func checkDisk(manual: Bool = false, beforeEdit: ((Bool) -> Void)? = nil) {
         guard !isClosed else { beforeEdit?(false); return }
         guard let url = sourceURL else { beforeEdit?(true); return }
-        guard !isSaving, !diskCheckInProgress else { beforeEdit?(false); return }
-        diskCheckInProgress = true
+        guard !isSaving, !diskCheck.inProgress else { beforeEdit?(false); return }
+        diskCheck.inProgress = true
         let generation = reloadGeneration
         Task { @MainActor in
-            defer { self.diskCheckInProgress = false }
+            defer { self.diskCheck.inProgress = false }
             var frozenWebView: WKWebView?
             defer {
                 frozenWebView?.evaluateJavaScript("""
@@ -493,8 +503,8 @@ struct ContentView: View {
                 let diskText = try await DocumentDisk.readAsync(url)
                 guard !self.isClosed, self.sourceURL == url, self.reloadGeneration == generation,
                       !self.isSaving else { beforeEdit?(false); return }
-                self.reportedReadFailure = false
-                self.pendingReadFailureURL = nil
+                self.diskCheck.reportedReadFailure = false
+                self.diskCheck.pendingReadFailureURL = nil
                 guard manual || diskText != self.originalText else { beforeEdit?(true); return }
                 if !manual && beforeEdit == nil && self.ignoredExternalText == diskText { return }
                 guard let webView = self.webViewStore.webView else { beforeEdit?(false); return }
@@ -534,12 +544,12 @@ struct ContentView: View {
                 guard !self.isClosed else { return }
                 // Give NSDocument's move notification a run-loop turn to update
                 // fileURL; a disappearing old path during rename is transient.
-                if !manual && self.pendingReadFailureURL != url {
-                    self.pendingReadFailureURL = url
+                if !manual && self.diskCheck.pendingReadFailureURL != url {
+                    self.diskCheck.pendingReadFailureURL = url
                     return
                 }
-                if manual || !self.reportedReadFailure {
-                    self.reportedReadFailure = true
+                if manual || !self.diskCheck.reportedReadFailure {
+                    self.diskCheck.reportedReadFailure = true
                     NSApp.presentError(error)
                 }
             }

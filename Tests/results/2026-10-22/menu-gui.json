@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-22",
+  "os": "27.0",
+  "architecture": "arm64",
+  "app": "/private/tmp/bloct-menu-fix-20261022/Build/Products/Debug/BloctMenuCheck.app",
+  "bundleID": "com.personal.BloctMenuCheck",
+  "displayName": "BloctMenuCheck",
+  "version": "1.7.4 + uncommitted bug 25 fix (Debug)",
+  "binarySHA256": "93e0078f78dd8a41aab36505269df7a244dbe975169499fbbe43147ec9115a10",
+  "method": "CUA background app control by explicit app path; AX state refreshed after each action. These are observations summarized from the tool session, not continuous screen capture.",
+  "checks": [
+    {
+      "action": "open menu-a.md",
+      "observed": "Heading Menu check A; Original A; Edit Mode off"
+    },
+    {
+      "action": "open Edit menu",
+      "observed": "Undo, Redo, Writing Tools, AutoFill, Start Dictation, Emoji & Symbols present"
+    },
+    {
+      "action": "enable Edit Mode; replace Original A with Edited A; Escape",
+      "observed": "Edited A rendered; title marked Edited"
+    },
+    {
+      "action": "click Edit > Undo",
+      "observed": "Original A rendered"
+    },
+    {
+      "action": "click Edit > Redo",
+      "observed": "Edited A rendered"
+    },
+    {
+      "action": "Command-S",
+      "observed": "Edited marker cleared; disk content read separately and matched Edited A"
+    },
+    {
+      "action": "external write External A",
+      "observed": "External A rendered automatically"
+    },
+    {
+      "action": "open menu-b.md; Window > menu-a.md > menu-b.md",
+      "observed": "Both menu rows present; target headings and per-window Edit Mode correct"
+    },
+    {
+      "action": "close B; edit A to Draft A protected; externally write External A second",
+      "observed": "File Changed on Disk sheet with Keep Editing / Discard Edits and Reload / Save a Copy"
+    },
+    {
+      "action": "Keep Editing; close; Cancel",
+      "observed": "Draft A protected remained after both actions"
+    },
+    {
+      "action": "close; Don't Save; reopen A",
+      "observed": "External A second rendered in Read Mode"
+    },
+    {
+      "action": "close reopened A; Quit Bloct menu",
+      "observed": "No owned previews remain; exact test executable absent in final process query"
+    }
+  ],
+  "disk": {
+    "A": "# Menu check A\n\nExternal A second\n\nSelect this paragraph for edit and undo.\n",
+    "B": "# Menu check B\n\nOriginal B\n",
+    "remainingOwnedPreviews": 0
+  },
+  "limitations": [
+    "Screenshot unavailable for test app",
+    "No hover / pointer-dwell API; no continuous visual tracking verification",
+    "AX menu rows and successful menu actions do not prove absence of visible flicker"
+  ],
+  "installedAppReplaced": false,
+  "userVerification": {
+    "date": "2026-10-22",
+    "source": "User reported direct verification in the conversation",
+    "result": "Menu flicker resolved"
+  },
+  "cleanup": {
+    "debugBuildRemoved": true,
+    "temporaryDocuments": "Preserved because the user added content while verifying the fix"
+  }
+}

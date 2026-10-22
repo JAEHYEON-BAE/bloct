@@ -1,8 +1,8 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-10-19** — 중복 경과를 정리했으며 버그 상태·우선순위는 변경하지 않았습니다. 아래 실행 결과는 각 날짜의 기존 검증 기록입니다.
-- 현재: 총 25개 중 **9개 해당 범위 검증 완료**, **16번 보류**, **15개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
-- 다음 순서: **25번 독립 재현·원인 조사 → 20번 → 4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**. 다음 새 버그 번호는 26번입니다.
+- 최신화: **2026-10-22** — 25번 수정 후 자동·GUI 회귀 검사와 사용자 직접 확인으로 해결을 검증했습니다. 나머지 결과는 각 항목의 날짜를 따릅니다.
+- 현재: 총 25개 중 **10개 해당 범위 검증 완료**, **16번 보류**, **14개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
+- 다음 순서: **20번 → 4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**. 다음 새 버그 번호는 26번입니다.
 
 ## 항목별 상태
 
@@ -29,26 +29,26 @@
 | 17 | 코드 안의 이미지·수식 문법 전처리 | 미해결 | 중간 / 기존 재현, 전처리 순서·코드 판정 한계 유지 |
 | 18 | 공유 미리보기 파일 덮어쓰기·삭제 | 구현 완료 `f062c65` | 높음 / 고유 파일 및 소유권 기반 정리 테스트 |
 | 19 | README의 검색 키보드 조작과 불일치 | 미해결 | 낮음 / Return modifier·방향키 처리 코드 확인 |
-| 20 | 초기 이중 로드가 정책에 막혀 빈 화면 | **미해결, 알려진 실패 2개** | **기존 수정 1순위(25번 조사 선행)** / 최종 Hosted에서도 XFAIL 2개 유지 |
+| 20 | 초기 이중 로드가 정책에 막혀 빈 화면 | **미해결, 알려진 실패 2개** | **다음 수정 1순위** / 최종 Hosted에서도 XFAIL 2개 유지 |
 | 21 | 외부 문서 변경이 편집 상태에 반영되지 않음 | **구현·해당 범위 검증 완료(2026-10-17)** | `⌘R`·우클릭 Reload·자동 갱신·저장 충돌·삭제/폐기 보호. 아래 실제 GUI/디스크 근거와 미검증 범위 참조 |
 | 22 | Release의 Homebrew tap 자동 갱신 실패 | 대체 자동화 배포·검증 완료(2026-10-15) | tap 자체 GITHUB_TOKEN 기반 동기화, 실제 Actions 검사·변경 없는 push 성공. 2026-10-17 수동 동기화에서 실제 1.7.3 변경 커밋도 확인. 예약 시점은 별도 미검증 |
 | 23 | 로컬·Homebrew 배포 SDK 불일치 | 구현·배포 검증 완료(2026-10-15) | v1.7.2 공개 ZIP의 두 CPU 모두 SDK 27.0·최소 OS 14.0 검증, 원격 cask 갱신 |
 | 24 | 상위 상대경로·쓰기 금지 폴더의 이미지 로드 실패 | **검증 완료(2026-10-17)** | 이미지 전용 로더. 기본 54/54, 전용 총 70개 통과 및 GUI 표시·편집·저장·재열기 확인 |
-| 25 | Edit·Window 메뉴의 지속적인 깜빡임·선택 어려움 | **조사 중(2026-10-18), 제공 영상에서 증상 확인·독립 재현 미확인** | **P1 / 다음 조사 대상**. 영상에서 항목·크기 변화 및 0.6초 간격 확인. AX 각 100회는 소실 미포착, hover·메뉴 캡처 제약 |
+| 25 | Edit·Window 메뉴의 지속적인 깜빡임·선택 어려움 | **검증 완료(2026-10-22)** | v1.7.5. 자동·GUI 회귀 통과 및 사용자 직접 확인으로 깜빡임 해결 확인 |
 
 ## 25. macOS Edit·Window 메뉴의 지속적인 깜빡임과 선택 어려움
 
-- **2026-10-18 / 조사 중 / P1**. 메뉴 제목·항목 위에 포인터를 유지하면 목록이 반복 소실·복원되어 선택하기 어렵다는 보고입니다. 기대는 안정적인 목록·하이라이트와 정상 클릭입니다.
-- 최소 재현: Markdown 문서를 열고 Edit·Window 메뉴 각각에 포인터를 유지합니다. 읽기/편집·문서 없음/하나/여러 개 조건을 나누어 화면 변화와 클릭을 확인합니다. **실제 hover의 독립 재현은 미확인**입니다.
-- 제공 영상에서 Edit의 Writing Tools·AutoFill 등 하단 항목과 Window의 현재 문서 행이 사라졌다 돌아오며 폭·높이도 바뀌는 것을 확인했습니다. 선택 구간의 원본 PTS 간격은 **0.6초**입니다. [Edit 비교](Tests/results/2026-10-18/video-edit-comparison.png), [Window 비교](Tests/results/2026-10-18/video-window-comparison.png), [원본 시각·분석 방법](Tests/results/2026-10-18/menu-video-analysis.json). 영상 속 앱 버전은 미확인입니다.
-- 독립 검사 환경은 macOS 27.0 arm64·`/Applications/Bloct.app` 1.7.4입니다. [첫 AX 검사](Tests/results/2026-10-18/menu-background-ax.json)에서는 메뉴 열기·문서 선택만 확인했습니다. [추가 검사](Tests/results/2026-10-18/menu-video-background-ax.json)의 Edit **100회/2.108초**, Window **100회/2.535초**에서도 소실은 포착하지 못했습니다. 메뉴 캡처 실패·hover API 제약으로 영상의 증상을 반증하지 못합니다. 설치 바이너리와 현재 소스의 동일성도 미검증입니다.
-- 원인 후보: `ContentView.swift`의 `.common` 모드 **0.6초 폴링**이 내용 변화 없이도 `diskCheckInProgress`를 변경하며 focused command를 갱신하는 경로. 영상 주기와의 일치는 단서이고 원인 확정은 아닙니다.
-- 다음: 실제 tracking 화면에서 독립 재현 → 폴링·상태·focused command/NSMenu 갱신 시각 계측 → 상태 변경 유무 비교. 외부 갱신·초안 보호를 유지해야 합니다. 완료는 메뉴 안정성·실제 클릭과 Undo/Redo·저장·문서 전환·외부 갱신의 회귀 확인입니다. 코드 수정·빌드는 아직 없습니다.
-- 테스트 정리 한계: 추가 검사의 close가 `-10005: timeoutReached`로 실패해 최종 닫힘/기존 창 복귀는 미확인입니다. `/private/tmp/bloct-background-menu-video-20261018/menu-video-probe.md` 원문 71바이트는 불변이며 소유 미리보기 1개를 남겼습니다. 앱 강제 종료·임의 삭제는 하지 않았습니다.
+- **2026-10-22 / 검증 완료 / v1.7.5**. 사용자가 수정본을 직접 확인해 깜빡임 해결을 확인했습니다. 최소 재현: Markdown을 열고 Edit·Window 메뉴 제목·항목 위에 포인터를 유지합니다. 목록·크기·하이라이트가 반복 변하며 선택하기 어려운 증상입니다. **제공 영상은 v1.7.4 촬영본(사용자 확인)**이며 Edit의 Writing Tools·AutoFill과 Window의 문서 행 소실·복원을 확인했습니다. 원본 해시도 기존 분석과 일치합니다. 주기는 **0.6초**입니다. [Edit 비교](Tests/results/2026-10-18/video-edit-comparison.png), [Window 비교](Tests/results/2026-10-18/video-window-comparison.png), [PTS 분석](Tests/results/2026-10-18/menu-video-analysis.json).
+- 확인한 원인 경로: `.common` 모드의 0.6초 폴링이 매번 `@State diskCheckInProgress`를 두 번 변경해 `ContentView.body`와 focused command 클로저를 다시 만듭니다. 실제 production 뷰를 호스팅하고 임시 소스 복사본에 카운터만 삽입한 [수정 전 검사](Tests/results/2026-10-22/menu-before.log)에서 **3.2초/읽기 5회/본문 재평가 10회**, 초안 상태에서도 6회가 재현됐습니다. NSMenu의 실제 시각적 재구성까지 직접 계측한 것은 아닙니다.
+- 수정: 검사 진행·오류 추적값을 뷰 수명별 **비관찰 `DiskCheckState` 객체**로 이동했습니다. 타이머를 `.default`로 바꿔 메뉴/control tracking·모달 패널 동안 자동 폴링을 쉬고 종료 후 재개합니다. 직접 Reload·편집 전 검사, 내용 비교·세대 보호·충돌 처리는 유지했습니다.
+- 자동 검증: [전용 검사](Tests/results/2026-10-22/menu-after.log) **10개 통과**, 같은 읽기 5회에 본문 재평가 **0회**, event-tracking 2초 동안 자동 읽기 **0회**. 외부 교체 수용·초안 보존·닫힘 후 검사 중단·미리보기 정리도 통과했습니다. [Native 8그룹](Tests/results/2026-10-22/menu-native.log), [WebKit 15개](Tests/results/2026-10-22/menu-webkit.log), [Hosted](Tests/results/2026-10-22/menu-hosted.log) **134 통과·0 일반 실패·20번 XFAIL 2·0 SKIP**, [Debug 빌드](Tests/results/2026-10-22/menu-build.log) 성공. 실행: `sh Tests/run-menu-polling.sh`.
+- 실제 GUI: 별도 bundle ID의 `BloctMenuCheck.app`에서 Edit **Undo/Redo 실제 클릭**, 저장 후 디스크 일치, Window 메뉴 **B→A→B 전환**, 외부 변경 자동 반영, 충돌 Keep Editing·닫기 Cancel·Don't Save·재열기 원문 보존을 확인했습니다. 최종 소유 미리보기 **0개**, 테스트 앱 정상 종료. [GUI 관찰·디스크·빌드 식별](Tests/results/2026-10-22/menu-gui.json). 설치본은 교체하지 않았습니다.
+- 검증 구분: 자동 계측·CUA 메뉴 클릭/저장 회귀는 위 로그, **시각적 깜빡임 해결은 2026-10-22 사용자 직접 확인**에 근거합니다. CUA 자체는 `Screenshot unavailable`·hover API 부재로 연속 화면을 독립 검증하지 못했습니다. macOS 14 실제 기기·모든 창/입력 조건을 전수 검사한 것은 아닙니다.
+- 과거 독립 검사(2026-10-18): [첫 AX](Tests/results/2026-10-18/menu-background-ax.json), [각 100회 추가 AX](Tests/results/2026-10-18/menu-video-background-ax.json)는 시각 증상을 포착하지 못했습니다. 당시 임시 문서 close timeout·미리보기 1개 잔류는 해당 로그의 한계이며 이번 테스트 정리와 구분합니다.
 
 ## 20. 초기 이중 로드 회귀
 
-- **미해결 / 25번 조사 다음 수정 대상**. `Tests/HostedRegression.swift`에서 같은 런루프에 첫 로드 완료 전 텍스트를 변경하면 파일·새 문서 모두 `webView.url == nil`인 빈 화면이 됩니다. 2026-10-17 [최종 Hosted](Tests/results/2026-10-17/reload-hosted.log)에도 **XFAIL 2개**가 남습니다.
+- **미해결 / 다음 수정 1순위**. `Tests/HostedRegression.swift`에서 같은 런루프에 첫 로드 완료 전 텍스트를 변경하면 파일·새 문서 모두 `webView.url == nil`인 빈 화면이 됩니다. 2026-10-17 [최종 Hosted](Tests/results/2026-10-17/reload-hosted.log)에도 **XFAIL 2개**가 남습니다.
 - 원인: `Coordinator.pendingPageLoad` Bool을 두 로드가 공유해 첫 정책 결정이 허용을 소비하고, 취소 뒤 최신 탐색이 차단됩니다. 정책 도입 전 `f062c65`에서는 없었다는 과거 비교 보고이며 이번에 이전 버전을 재실행하지 않았습니다.
 - 다음: 네이티브가 시작한 최신 로드의 식별자/세대를 추적하고 오래된 완료·실패 콜백을 배제합니다. 새 문서의 여러 로드는 같은 `about:blank`라 URL만으로 구분할 수 없습니다. Bool 소비 제거·임의 `.other` 탐색 허용으로 우회하지 않습니다.
 - 완료: 최신 원문·브리지 유지, 오래된 콜백 격리, 비요청 로컬/원격 이동·reload/history 차단, 해제 시 소유 파일 정리. 타이밍을 바꿔 반복하고 `knownFailures` 2개를 제거해 XFAIL·XPASS 없이 확인합니다.

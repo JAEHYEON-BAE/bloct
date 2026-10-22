@@ -34,6 +34,18 @@ processes and Swift compiler plugins; run outside a restrictive sandbox.
 Live KaTeX CDN rendering and interactive Save panels are not covered.
 
 ```sh
+sh Tests/run-menu-polling.sh
+```
+
+The #25 harness hosts the complete production `ContentView` and instruments temporary
+source copies to count body evaluations and coordinated reads. It checks that idle
+polling keeps reading without rebuilding focused commands, pauses in event-tracking
+mode, resumes external reloads, preserves drafts, and stops/cleans previews on close.
+It requires the same Swift compiler-plugin and WebKit permissions as the other GUI
+harnesses. These counters cover the menu invalidation path; continuous menu visuals
+and real pointer dwell still need a separate GUI check.
+
+```sh
 sh Tests/run-hosted.sh
 ```
 
