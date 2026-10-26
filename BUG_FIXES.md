@@ -1,6 +1,6 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-10-26** — 26번 GUI 테스트 중 Finder 실행 오류의 종료 경합을 확인했습니다. 기존 앱 기능 검증은 각 항목의 날짜를 따릅니다.
+- 최신화: **2026-10-26** — F1 기능 릴리스 v1.8.0의 공개 ZIP·Homebrew 검증을 완료했습니다. 26번 자동화 경합은 조사 중이며 기존 버그 검증은 각 항목의 날짜를 따릅니다.
 - 현재: 총 26개 중 **11개 해당 범위 검증 완료**, **16번 보류**, **14개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
 - 다음 순서: **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 27번입니다.
 
@@ -134,11 +134,11 @@
 
 ## 최신 배포 검증 기록 — 2026-10-26
 
-v1.8.0은 2026-10-26 기능 릴리스 준비 상태입니다. v1.7.5·v1.7.6는 2026-10-22, 이전 버전 행은 2026-10-17의 배포 검증입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
+v1.8.0은 2026-10-26 공개 ZIP·Homebrew 검증을 완료한 기능 릴리스입니다. v1.7.5·v1.7.6는 2026-10-22, 이전 버전 행은 2026-10-17의 배포 검증입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
 
 | 버전 | 결과·근거 |
 |---|---|
-| v1.8.0 | F1 체크박스 기능 추가. [로컬 버전·SDK 27·최소 OS 14·두 CPU 검증](Tests/results/2026-10-26/release-1.8.0-local.json) 완료. 태그 푸시·Release·공개 ZIP·Homebrew 검증 진행 예정 |
+| v1.8.0 (`3bcab98`) | F1 체크박스 토글·상태 저장 및 표시 정책 포함. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.8.0)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/40338147371)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/40338515054) success. [공개 ZIP/cask 검증](Tests/results/2026-10-26/release-1.8.0-published.json): 버전 1.8.0·SDK 27·최소 OS 14·두 CPU, 태그 JS/CSS·ZIP/digest/cask SHA256 일치. tap 변경 `19122e6` |
 | v1.7.6 (`ff94d34`) | 20번 수정 포함. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.6)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39732136173)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39732350275) success. [공개 ZIP/cask 검증](Tests/results/2026-10-22/release-1.7.6-published.json): 버전 1.7.6·SDK 27·최소 OS 14·두 CPU 및 ZIP/digest/cask SHA256 일치, tap 변경 `fe3e95d` |
 | v1.7.5 (`958e4ae`) | 25번 수정·사용자 해결 확인. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.5)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39711758926)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39711903573) success. [공개 ZIP/cask 검증](Tests/results/2026-10-22/release-1.7.5-published.json): 버전 1.7.5·SDK 27·최소 OS 14·두 CPU 및 ZIP/digest/cask SHA256 일치, tap 변경 `6b29507` |
 | v1.7.4 (`0ff3e30`) | [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.4)·[Actions](Tests/results/2026-10-17/release-1.7.4-actions.json) success. [공개 ZIP](Tests/results/2026-10-17/release-1.7.4-published.json)의 버전·SDK 27·최소 OS 14·두 CPU, [ZIP/digest/cask 체크섬](Tests/results/2026-10-17/release-1.7.4-checksums.json) 일치. [tap 실행](Tests/results/2026-10-17/release-1.7.4-tap-actions.json) success·변경 `fa2ae75` |

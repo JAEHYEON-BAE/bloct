@@ -1,0 +1,74 @@
+{
+  "verified_at_utc": "2026-10-26T14:19:56.848637+00:00",
+  "version": "1.8.0",
+  "tag": "v1.8.0",
+  "tag_commit": "3bcab98931eb10c0a4350a444af8c8a9580b5237",
+  "release_url": "https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.8.0",
+  "published_at": "2026-10-26T14:17:53Z",
+  "public_asset": {
+    "url": "https://github.com/JAEHYEON-BAE/bloct/releases/download/v1.8.0/Bloct.zip",
+    "id": 678388085,
+    "size": 517613,
+    "sha256": "74f3da325fb8ae71979d51a0172d981900eabd443f4b0efefa94a1878e67cc70",
+    "github_digest": "sha256:74f3da325fb8ae71979d51a0172d981900eabd443f4b0efefa94a1878e67cc70",
+    "authenticated_download": false
+  },
+  "bundle_version": "1.8.0",
+  "minimum_macos": "14.0",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ],
+  "resource_sha256": {
+    "task-lists.js": "bc28f88bedaad6afbbd582a552b4c8f6c8085a205b563054fd2d2b033d98c719",
+    "style.css": "59cdbf9ead08e5bc8646815a6492df42b54bac956cdc90ca6b7b038bdad33ac0",
+    "marked.min.js": "3e7e7d7feb3e5d58cb6c804f68ab5c24cc7e5eb6270fd6e5cbb9124739217d0c",
+    "purify.min.js": "cd37898f9782adf54820c413191b5691803f0f137c799d6edcfd38523b4c2c31"
+  },
+  "homebrew": {
+    "version": "1.8.0",
+    "sha256": "74f3da325fb8ae71979d51a0172d981900eabd443f4b0efefa94a1878e67cc70",
+    "commit": "19122e6dfce4969d084c4338e39d5d51ea6cc792",
+    "cask_blob_sha": "d8558d492ff4aeb180a409ea0821892e734c04ff"
+  },
+  "release_workflow": {
+    "id": 40338147371,
+    "url": "https://github.com/JAEHYEON-BAE/bloct/actions/runs/40338147371",
+    "conclusion": "success"
+  },
+  "homebrew_workflow": {
+    "id": 40338515054,
+    "url": "https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/40338515054",
+    "conclusion": "success"
+  },
+  "not_verified": [
+    "Public Release GUI",
+    "macOS 14 hardware",
+    "scheduled sync timing"
+  ],
+  "installed_app_replaced": false
+}
