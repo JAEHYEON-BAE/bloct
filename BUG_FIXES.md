@@ -1,8 +1,8 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-10-22** — 20번 초기 로드 회귀를 수정하고 자동·GUI 검증을 완료했습니다. 나머지 결과는 각 항목의 날짜를 따릅니다.
-- 현재: 총 25개 중 **11개 해당 범위 검증 완료**, **16번 보류**, **13개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
-- 다음 순서: **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**. 다음 새 버그 번호는 26번입니다.
+- 최신화: **2026-10-26** — 26번 GUI 테스트 중 Finder 실행 오류의 종료 경합을 확인했습니다. 기존 앱 기능 검증은 각 항목의 날짜를 따릅니다.
+- 현재: 총 26개 중 **11개 해당 범위 검증 완료**, **16번 보류**, **14개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
+- 다음 순서: **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 27번입니다.
 
 ## 항목별 상태
 
@@ -35,6 +35,14 @@
 | 23 | 로컬·Homebrew 배포 SDK 불일치 | 구현·배포 검증 완료(2026-10-15) | v1.7.2 공개 ZIP의 두 CPU 모두 SDK 27.0·최소 OS 14.0 검증, 원격 cask 갱신 |
 | 24 | 상위 상대경로·쓰기 금지 폴더의 이미지 로드 실패 | **검증 완료(2026-10-17)** | 이미지 전용 로더. 기본 54/54, 전용 총 70개 통과 및 GUI 표시·편집·저장·재열기 확인 |
 | 25 | Edit·Window 메뉴의 지속적인 깜빡임·선택 어려움 | **검증 완료(2026-10-22)** | v1.7.5. 자동·GUI 회귀 통과 및 사용자 직접 확인으로 깜빡임 해결 확인 |
+| 26 | GUI 테스트 중 Finder “Bloct is not open anymore” | **조사 중(2026-10-26)** | 종료 직후 재활성화 이벤트의 `-600 procNotFound` 확인. 자동화 절차 보완, 반복 재검증 대기 |
+
+## 26. GUI 테스트 중 Finder “Bloct is not open anymore”
+
+- **2026-10-26 / 조사 중 — 자동화 종료 경합 확인, 새 절차의 반복 검증 대기**. 사용자가 GUI 테스트 중 반복 팝업을 보고했습니다. 이 세션의 최소 조건은 Debug 앱 Quit 직후 같은 앱 핸들로 `getAXState()`를 요청한 흐름입니다. 팝업 자체의 독립 캡처는 없습니다.
+- [원시 발췌](Tests/results/2026-10-26/finder-quit-race.log): 13:47:44·13:49:47·13:56:39에 CoreServicesUIAgent가 종료 중인 Bloct에 `aevt/rapp` 재활성화 이벤트를 보내다 `-600 procNotFound`를 반환했습니다. 확인한 Debug 주 프로세스 종료 5회는 모두 `launchd (0, 0, 0)`이며 새 Bloct 충돌 보고서는 없습니다. F1 기능 자체의 충돌을 확인한 결과가 아닙니다.
+- 다음 조치: 앱 메뉴의 Quit 이후 이전 핸들에 추가 조회/재활성화를 보내지 않습니다. 전역 앱 목록만으로 종료를 확정하지 않고, 필요하면 실제 프로세스 종료를 확인한 뒤 새 핸들을 얻습니다. 독립 검증 앱의 [최종 정렬 검사](Tests/results/2026-10-26/checkbox-indent-gui.json)에서는 메뉴 Quit 후 실제 종료를 확인했습니다. 다음 GUI 작업에서 새 절차의 재발 여부를 확인합니다. 자동화와 무관한 일반 Finder 문서 열기의 동일 오류는 미재현입니다.
+- 별개 설치 환경: `/Applications/Bloct.app` v1.7.6은 ad-hoc 서명과 `com.apple.quarantine`이 있어 Gatekeeper에 차단됐습니다. 사용자 요청으로 해당 격리 속성만 제거한 뒤 설치본의 Open 창 정상 실행을 확인했습니다. 실행 파일 SHA256·provenance는 보존했고 앱 교체·공증·전역 Gatekeeper 변경은 하지 않았습니다. [조사·로컬 조치 근거](Tests/results/2026-10-26/finder-launch-investigation.json). 배포 시의 기존 제한이며 재다운로드에는 격리 속성이 다시 붙을 수 있습니다.
 
 ## 25. macOS Edit·Window 메뉴의 지속적인 깜빡임과 선택 어려움
 
@@ -124,12 +132,13 @@
 - 근거: [최초 원격 실행](Tests/results/2026-10-15/tap-sync-actions.json)은 4개 검사·변경 없는 push 통과. 2026-10-17에는 v1.7.3·v1.7.4의 실제 변경 커밋과 수동 dispatch 성공도 확인했습니다. 예약 시점 자체의 실행은 별도 미검증입니다. 로컬 `gh`가 sandbox에서 invalid를 출력해도 키체인 제한일 수 있으므로 일반 권한의 조회와 구분합니다(2026-10-17 확인).
 - **23번 / 2026-10-15 구현·배포 검증 완료**, `67263f1` / v1.7.2. 공유 빌드·검사 스크립트에서 **Xcode/SDK 27.0·최소 macOS 14.0·arm64/x86_64 Universal**을 강제합니다. [공개 ZIP](Tests/results/2026-10-15/sdk27-published.json) 두 CPU 검증 완료. 당시 Release는 tap 단계 실패로 전체 실패였고, cask는 수동 복구했습니다. 이후 22번으로 자동화를 대체했습니다. macOS 14 실제 실행·OS 간 UI 동일성은 보장하지 않습니다.
 
-## 최신 배포 검증 기록 — 2026-10-22
+## 최신 배포 검증 기록 — 2026-10-26
 
-v1.7.5·v1.7.6는 2026-10-22 원격 실행·공개 ZIP·cask를 확인했고, 이전 버전 행은 2026-10-17 기록입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
+v1.8.0은 2026-10-26 기능 릴리스 준비 상태입니다. v1.7.5·v1.7.6는 2026-10-22, 이전 버전 행은 2026-10-17의 배포 검증입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
 
 | 버전 | 결과·근거 |
 |---|---|
+| v1.8.0 | F1 체크박스 기능 추가. [로컬 버전·SDK 27·최소 OS 14·두 CPU 검증](Tests/results/2026-10-26/release-1.8.0-local.json) 완료. 태그 푸시·Release·공개 ZIP·Homebrew 검증 진행 예정 |
 | v1.7.6 (`ff94d34`) | 20번 수정 포함. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.6)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39732136173)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39732350275) success. [공개 ZIP/cask 검증](Tests/results/2026-10-22/release-1.7.6-published.json): 버전 1.7.6·SDK 27·최소 OS 14·두 CPU 및 ZIP/digest/cask SHA256 일치, tap 변경 `fe3e95d` |
 | v1.7.5 (`958e4ae`) | 25번 수정·사용자 해결 확인. [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.5)·[Release Actions](https://github.com/JAEHYEON-BAE/bloct/actions/runs/39711758926)·[tap Actions](https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/39711903573) success. [공개 ZIP/cask 검증](Tests/results/2026-10-22/release-1.7.5-published.json): 버전 1.7.5·SDK 27·최소 OS 14·두 CPU 및 ZIP/digest/cask SHA256 일치, tap 변경 `6b29507` |
 | v1.7.4 (`0ff3e30`) | [Release](https://github.com/JAEHYEON-BAE/bloct/releases/tag/v1.7.4)·[Actions](Tests/results/2026-10-17/release-1.7.4-actions.json) success. [공개 ZIP](Tests/results/2026-10-17/release-1.7.4-published.json)의 버전·SDK 27·최소 OS 14·두 CPU, [ZIP/digest/cask 체크섬](Tests/results/2026-10-17/release-1.7.4-checksums.json) 일치. [tap 실행](Tests/results/2026-10-17/release-1.7.4-tap-actions.json) success·변경 `fa2ae75` |

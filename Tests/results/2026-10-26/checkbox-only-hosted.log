@@ -1,0 +1,321 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-hosted-tests.yzhNSb/HostedRegression.app: 1 (Operation not permitted)
+PASS: ASCII folder: page loads
+PASS: ASCII folder: editor commits reach Swift
+PASS: ASCII folder: relative image loads
+PASS: ASCII folder: one unique preview file is written
+PASS: ASCII folder: preview file is removed on close
+PASS: ASCII folder: existing .mv_preview.html is untouched
+PASS: Korean folder with spaces: page loads
+PASS: Korean folder with spaces: editor commits reach Swift
+PASS: Korean folder with spaces: relative image loads
+PASS: Korean folder with spaces: one unique preview file is written
+PASS: Korean folder with spaces: preview file is removed on close
+PASS: Korean folder with spaces: existing .mv_preview.html is untouched
+PASS: folder with # % and tilde: page loads
+PASS: folder with # % and tilde: editor commits reach Swift
+PASS: folder with # % and tilde: relative image loads
+PASS: folder with # % and tilde: one unique preview file is written
+PASS: folder with # % and tilde: preview file is removed on close
+PASS: folder with # % and tilde: existing .mv_preview.html is untouched
+PASS: NFD-normalized Korean folder: page loads
+PASS: NFD-normalized Korean folder: editor commits reach Swift
+PASS: NFD-normalized Korean folder: relative image loads
+PASS: NFD-normalized Korean folder: one unique preview file is written
+PASS: NFD-normalized Korean folder: preview file is removed on close
+PASS: NFD-normalized Korean folder: existing .mv_preview.html is untouched
+PASS: read-only folder: page loads
+PASS: read-only folder: editor commits reach Swift
+PASS: read-only folder: relative image loads
+PASS: read-only folder: no preview file is written
+PASS: read-only folder: preview file is removed on close
+PASS: read-only folder: existing .mv_preview.html is untouched
+PASS: folder opened through a symlink: page loads
+PASS: folder opened through a symlink: editor commits reach Swift
+PASS: folder opened through a symlink: relative image loads
+PASS: folder opened through a symlink: one unique preview file is written
+PASS: folder opened through a symlink: preview file is removed on close
+PASS: folder opened through a symlink: existing .mv_preview.html is untouched
+PASS: new document: page loads
+PASS: new document: editor commits reach Swift
+PASS: navigation: clicking a relative .md link keeps the editor page
+PASS: navigation: clicking a #fragment link keeps the editor page
+PASS: navigation: script navigation to a local file keeps the editor page
+PASS: navigation: script navigation to about:blank keeps the editor page
+PASS: navigation: location.reload() keeps the editor page
+PASS: navigation: history.pushState then back keeps the editor page
+PASS: navigation: bridge still works afterwards
+PASS: double load in the same run loop (file): page shows the latest text
+PASS: double load in the same run loop (file): bridge works
+PASS: double load in the same run loop (file): every preview file is removed on close
+PASS: double load in the same run loop (new document): page shows the latest text
+PASS: double load in the same run loop (new document): bridge works
+PASS: double load 150 ms later (file): page shows the latest text
+PASS: double load 150 ms later (file): bridge works
+PASS: double load 150 ms later (file): every preview file is removed on close
+PASS: double load 150 ms later (new document): page shows the latest text
+PASS: double load 150 ms later (new document): bridge works
+PASS: bootstrap file: rapid updates retain one native navigation
+PASS: bootstrap file: real navigation finishes
+PASS: bootstrap file: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap file: latest text and TOC render
+PASS: bootstrap file: source and generation are current
+PASS: bootstrap file: edit mode is current
+PASS: bootstrap file: only one initial policy decision
+PASS: bootstrap file: relative image uses latest location
+PASS: bootstrap file: old document generation cannot commit
+PASS: bootstrap file: latest generation can commit
+PASS: bootstrap file: duplicate completion and late failure are ignored
+PASS: bootstrap file: script/reload/history navigation remains blocked
+PASS: bootstrap file: closed view ignores late callbacks
+PASS: bootstrap file: preview files removed
+PASS: bootstrap new: rapid updates retain one native navigation
+PASS: bootstrap new: real navigation finishes
+PASS: bootstrap new: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap new: latest text and TOC render
+PASS: bootstrap new: source and generation are current
+PASS: bootstrap new: edit mode is current
+PASS: bootstrap new: only one initial policy decision
+PASS: bootstrap new: old document generation cannot commit
+PASS: bootstrap new: latest generation can commit
+PASS: bootstrap new: duplicate completion and late failure are ignored
+PASS: bootstrap new: script/reload/history navigation remains blocked
+PASS: bootstrap new: closed view ignores late callbacks
+PASS: bootstrap new: preview files removed
+PASS: bootstrap readonly: rapid updates retain one native navigation
+PASS: bootstrap readonly: real navigation finishes
+PASS: bootstrap readonly: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap readonly: latest text and TOC render
+PASS: bootstrap readonly: source and generation are current
+PASS: bootstrap readonly: edit mode is current
+PASS: bootstrap readonly: only one initial policy decision
+PASS: bootstrap readonly: relative image uses latest location
+PASS: bootstrap readonly: old document generation cannot commit
+PASS: bootstrap readonly: latest generation can commit
+PASS: bootstrap readonly: duplicate completion and late failure are ignored
+PASS: bootstrap readonly: script/reload/history navigation remains blocked
+PASS: bootstrap readonly: closed view ignores late callbacks
+PASS: bootstrap readonly: preview files removed
+PASS: bootstrap moved: rapid updates retain one native navigation
+PASS: bootstrap moved: real navigation finishes
+PASS: bootstrap moved: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap moved: latest text and TOC render
+PASS: bootstrap moved: source and generation are current
+PASS: bootstrap moved: edit mode is current
+PASS: bootstrap moved: only one initial policy decision
+PASS: bootstrap moved: relative image uses latest location
+PASS: bootstrap moved: old document generation cannot commit
+PASS: bootstrap moved: latest generation can commit
+PASS: bootstrap moved: duplicate completion and late failure are ignored
+PASS: bootstrap moved: script/reload/history navigation remains blocked
+PASS: bootstrap moved: closed view ignores late callbacks
+PASS: bootstrap moved: preview files removed
+PASS: close loading true: callbacks and new loads are rejected
+PASS: close loading true: preview removed
+PASS: close loading false: callbacks and new loads are rejected
+PASS: close loading false: preview removed
+PASS: retry true: failure callback releases bootstrap
+PASS: retry true: failed preview removed
+PASS: retry true: new navigation identity
+PASS: retry true: old callbacks cannot change replacement state
+PASS: retry true: latest content and bridge recover
+PASS: retry true: preview cleanup
+PASS: retry false: failure callback releases bootstrap
+PASS: retry false: new navigation identity
+PASS: retry false: old callbacks cannot change replacement state
+PASS: retry false: latest content and bridge recover
+PASS: retry false: preview cleanup
+PASS: reload: denied disk preflight prevents block edit
+PASS: reload: accepted disk preflight opens block
+PASS: reload: IME composition is explicitly tracked
+PASS: reload: Cmd+R from the page invokes native reload once
+PASS: reload: obsolete page generation cannot restore stale draft
+PASS: reload: current generation can commit
+PASS: block-editing: 1a editor opens on clicked block
+PASS: block-editing: 1b next editor shows "para b"
+PASS: block-editing: 1c commit keeps blank lines
+PASS: block-editing: 1d second commit correct
+PASS: block-editing: 1e no stray editor left
+PASS: block-editing: 2a dirty editor survives echo
+PASS: block-editing: 2b dirty editor survives external render
+PASS: block-editing: 2c raw lines not clobbered
+PASS: block-editing: 2d content re-rendered after close
+PASS: block-editing: 2e clean editor dropped for undo
+PASS: block-editing: 2f undo content rendered
+PASS: block-editing: 3a cmd+enter after multi-line edit opens para b
+PASS: block-editing: 3b shift+cmd+enter returns to edited block
+PASS: block-editing: 3c cmd+enter on last block opens append zone
+PASS: block-editing: 3d append zone gets a blank separator
+PASS: block-editing: 3e exactly one append zone
+PASS: block-editing: 4a click alone is not dirty
+PASS: block-editing: 4b one true per edit session
+PASS: block-editing: 4c false after commit
+PASS: block-editing: 5a escape closes editor
+PASS: block-editing: 5b escape commits text
+PASS: block-editing: 6a inline math rendered by KaTeX
+PASS: block-editing: 6b display math rendered by KaTeX
+PASS: block-editing: 6c offline: render does not throw
+PASS: block-editing: 6d offline: document still renders
+PASS: block-editing: 6e offline: inline math falls back to text
+PASS: block-editing: 6f offline: block math falls back to text
+PASS: block-editing: 6g malformed anchor does not throw
+PASS: block-editing: 6h malformed anchor still renders
+PASS: block-editing: 6i fence and math blocks stay whole
+PASS: block-editing: 6j fenced code keeps its blank line
+PASS: block-editing: 7a highlights 3 matches
+PASS: block-editing: 7b re-applied after re-render
+PASS: block-editing: 7c navigate marks one current match
+PASS: block-editing: 7d cleared search stays cleared
+PASS: block-editing: 7e odd query does not throw
+PASS: block-editing: 8a caption exists
+PASS: block-editing: 8b caption uses the muted color token
+PASS: block-editing: 8c TOC built
+PASS: block-editing: 8d TOC background is opaque
+PASS: block-editing: 8e TOC link color resolves
+PASS: block-editing: 8f read mode: no text cursor on content
+PASS: block-editing: 8g edit mode: text cursor
+PASS: block-editing: 9a no editor opens in read mode
+PASS: block-editing: 10a copy produces inline markdown
+PASS: block-editing: 10b copy produces list markdown
+PASS: sanitizer: blocks mixed-case javascript: href
+PASS: sanitizer: blocks entity-encoded javascript: href
+PASS: sanitizer: blocks whitespace-prefixed javascript: href
+PASS: sanitizer: blocks markdown link to javascript:
+PASS: sanitizer: blocks svg xlink:href javascript:
+PASS: sanitizer: blocks mXSS math/mglyph/style
+PASS: sanitizer: blocks mXSS noscript attribute
+PASS: sanitizer: blocks details ontoggle
+PASS: sanitizer: blocks input autofocus onfocus
+PASS: sanitizer: blocks object and embed
+PASS: sanitizer: blocks data:text/html link
+PASS: sanitizer: blocks svg animate href
+PASS: sanitizer: blocks style element
+PASS: sanitizer: blocks img srcset
+PASS: sanitizer: blocks button formaction
+PASS: sanitizer: blocks spoofed #content and #mv-append-zone
+PASS: sanitizer: blocks spoofed search highlight class
+PASS: sanitizer: keeps task-list checkboxes
+PASS: sanitizer: keeps details/summary
+PASS: sanitizer: keeps sub/sup/kbd/u/br
+PASS: sanitizer: keeps README-style align and width
+PASS: sanitizer: keeps inline style attribute
+PASS: sanitizer: keeps table column alignment
+PASS: sanitizer: keeps code language class (used by copy as Markdown)
+PASS: sanitizer: keeps figure-caption class
+PASS: sanitizer: assigns heading id after sanitizing
+PASS: sanitizer: keeps anchor, mailto, relative and https links
+PASS: sanitizer: keeps KaTeX MathML annotation and HTML
+PASS: sanitizer: copy as Markdown restores TeX source
+PASS: sanitizer: KaTeX web fonts load under CSP
+PASS: sanitizer: no CSP violations while rendering legitimate content
+PASS: task-lists: duplicates/nesting: trusted count
+PASS: task-lists: duplicates/nesting: exact marker 0
+PASS: task-lists: duplicates/nesting: exact marker 1
+PASS: task-lists: duplicates/nesting: exact marker 2
+PASS: task-lists: duplicates/nesting: one commit per toggle
+PASS: task-lists: duplicates/nesting: no inline editor
+PASS: task-lists: ordered/quotes: trusted count
+PASS: task-lists: ordered/quotes: exact marker 0
+PASS: task-lists: ordered/quotes: exact marker 1
+PASS: task-lists: ordered/quotes: exact marker 2
+PASS: task-lists: ordered/quotes: one commit per toggle
+PASS: task-lists: ordered/quotes: no inline editor
+PASS: task-lists: blank boundaries: trusted count
+PASS: task-lists: blank boundaries: exact marker 0
+PASS: task-lists: blank boundaries: exact marker 1
+PASS: task-lists: blank boundaries: exact marker 2
+PASS: task-lists: blank boundaries: one commit per toggle
+PASS: task-lists: blank boundaries: no inline editor
+PASS: task-lists: CRLF/trailing spaces: trusted count
+PASS: task-lists: CRLF/trailing spaces: exact marker 0
+PASS: task-lists: CRLF/trailing spaces: exact marker 1
+PASS: task-lists: CRLF/trailing spaces: one commit per toggle
+PASS: task-lists: CRLF/trailing spaces: no inline editor
+PASS: task-lists: continuation/nesting: trusted count
+PASS: task-lists: continuation/nesting: exact marker 0
+PASS: task-lists: continuation/nesting: exact marker 1
+PASS: task-lists: continuation/nesting: exact marker 2
+PASS: task-lists: continuation/nesting: one commit per toggle
+PASS: task-lists: continuation/nesting: no inline editor
+PASS: task-lists: math/image/code preprocessing: trusted count
+PASS: task-lists: math/image/code preprocessing: exact marker 0
+PASS: task-lists: math/image/code preprocessing: exact marker 1
+PASS: task-lists: math/image/code preprocessing: one commit per toggle
+PASS: task-lists: math/image/code preprocessing: no inline editor
+PASS: task-lists: math before task: trusted count
+PASS: task-lists: math before task: exact marker 0
+PASS: task-lists: math before task: exact marker 1
+PASS: task-lists: math before task: one commit per toggle
+PASS: task-lists: math before task: no inline editor
+PASS: task-lists: tabs: trusted count
+PASS: task-lists: tabs: exact marker 0
+PASS: task-lists: tabs: exact marker 1
+PASS: task-lists: tabs: one commit per toggle
+PASS: task-lists: tabs: no inline editor
+PASS: task-lists: content/indent tabs nested in quote: trusted count
+PASS: task-lists: content/indent tabs nested in quote: exact marker 0
+PASS: task-lists: content/indent tabs nested in quote: exact marker 1
+PASS: task-lists: content/indent tabs nested in quote: exact marker 2
+PASS: task-lists: content/indent tabs nested in quote: one commit per toggle
+PASS: task-lists: content/indent tabs nested in quote: no inline editor
+PASS: task-lists: empty tasks: trusted count
+PASS: task-lists: empty tasks: exact marker 0
+PASS: task-lists: empty tasks: exact marker 1
+PASS: task-lists: empty tasks: one commit per toggle
+PASS: task-lists: empty tasks: no inline editor
+PASS: task-lists: edit-mode click does not open textarea
+PASS: task-lists: Space toggles once and preserves uppercase of untouched markers
+PASS: task-lists: Space repeat does not double-toggle
+PASS: task-lists: rapid clicks use latest source/DOM
+PASS: task-lists: detached DOM cannot commit
+PASS: task-lists: native Undo render restores checked state
+PASS: task-lists: native Redo render restores unchecked state
+PASS: task-lists: code/escape/HTML exclusion 0
+PASS: task-lists: author HTML stays disabled 0
+PASS: task-lists: code/escape/HTML exclusion 1
+PASS: task-lists: author HTML stays disabled 1
+PASS: task-lists: code/escape/HTML exclusion 2
+PASS: task-lists: author HTML stays disabled 2
+PASS: task-lists: code/escape/HTML exclusion 3
+PASS: task-lists: author HTML stays disabled 3
+PASS: task-lists: code/escape/HTML exclusion 4
+PASS: task-lists: author HTML stays disabled 4
+PASS: task-lists: code/escape/HTML exclusion 5
+PASS: task-lists: author HTML stays disabled 5
+PASS: task-lists: code/escape/HTML exclusion 6
+PASS: task-lists: author HTML stays disabled 6
+PASS: task-lists: code/escape/HTML exclusion 7
+PASS: task-lists: author HTML stays disabled 7
+PASS: task-lists: code/escape/HTML exclusion 8
+PASS: task-lists: author HTML stays disabled 8
+PASS: task-lists: code/escape/HTML exclusion 9
+PASS: task-lists: author HTML stays disabled 9
+PASS: task-lists: code/escape/HTML exclusion 10
+PASS: task-lists: author HTML stays disabled 10
+PASS: task-lists: forged attributes grant no commit authority
+PASS: task-lists: real task beside forged input changes correct source
+PASS: task-lists: task mousedown holds editor until transaction
+PASS: task-lists: editor line changes rebase task target para
+extra
+more
+PASS: task-lists: paragraph and task have separate commits para
+extra
+more
+PASS: task-lists: task mousedown holds editor until transaction
+PASS: task-lists: editor line changes rebase task target short
+PASS: task-lists: paragraph and task have separate commits short
+PASS: task-lists: editor after task preserves task position
+PASS: task-lists: async preflight holds blurred editor and original target
+PASS: task-lists: async preflight commits edit and task on first click
+PASS: task-lists: disk guard delays task commit
+PASS: task-lists: disk guard denial preserves source
+PASS: task-lists: disk guard approval commits once
+PASS: task-lists: rapid clicks queued during disk preflight each commit once
+PASS: task-lists: disk guard cannot resume old generation/DOM
+PASS: task-lists: frozen disk inspection blocks toggling
+PASS: task-lists: replacement page starts a fresh disk preflight
+PASS: task-lists: keyboard control has accessible label
+PASS: task-lists: mixed nested lists hide only task markers
+PASS: task-lists: loose ordered and quoted task markers stay hidden
+PASS: task-lists: toggle preserves nonzero scroll position
+
+314 passed, 0 failed, 0 known failures, 0 unexpected passes, 0 skipped

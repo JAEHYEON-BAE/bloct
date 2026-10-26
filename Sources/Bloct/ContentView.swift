@@ -252,7 +252,10 @@ struct ContentView: View {
     private var hasUnsavedChanges: Bool { docState.text != originalText || isBlockEditorDirty }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 }, onReload: { checkDisk(manual: true) }, onBeforeEdit: { checkDisk(beforeEdit: $0) }, reloadGeneration: reloadGeneration)
+        MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 }, onReload: { checkDisk(manual: true) }, onBeforeEdit: { allowed in
+            if isSaving { allowed(true) } // New edits stay outside the in-flight Save snapshot.
+            else { checkDisk(beforeEdit: allowed) }
+        }, reloadGeneration: reloadGeneration)
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)

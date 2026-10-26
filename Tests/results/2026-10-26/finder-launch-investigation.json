@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-26",
+  "timezone": "Asia/Seoul",
+  "user_report": "Finder The application Bloct is not open anymore repeated during automated GUI testing",
+  "findings": {
+    "debug_main_process_exits": "All observed main-process exits in collected period were launchd (0,0,0); no Bloct crash report found in user/system DiagnosticReports.",
+    "reopen_race": "CoreServicesUIAgent attempted aevt/rapp to the exiting Bloct process at 13:47:44.521, 13:49:47.424 and 13:56:39.899; returned -600 procNotFound.",
+    "correlation": "Matches automated Quit followed by app.getAXState in this session, plus user confirmation that popups repeated during testing. Exact Finder popup itself was not captured.",
+    "scope": "Automation/LaunchServices lifecycle race confirmed. Manual document opening independent of automation was not reproduced as this error.",
+    "prevention": "After Quit, inspect global app inventory for process exit; do not query old app handle or immediately reactivate it. Obtain fresh explicit-path handle for next run. Repeated GUI validation of changed procedure is pending."
+  },
+  "installed_gatekeeper": {
+    "app": "/Applications/Bloct.app",
+    "version": "1.7.6",
+    "before": {
+      "quarantine": "0181;6adc8c40;;67D04FCE-BA39-460E-AD65-FD3CD6F6D95D",
+      "signature": "adhoc",
+      "team_identifier": null,
+      "spctl": "rejected; source=no usable signature"
+    },
+    "authorization": "User explicitly requested xattr bypass after reporting Apple could not verify malware warning.",
+    "command": "xattr -dr com.apple.quarantine /Applications/Bloct.app",
+    "after": {
+      "quarantine": "absent",
+      "provenance": "preserved",
+      "executable_sha256_before_and_after": "58978b505de170dc36b9c764eed39554f9073addf43edd1e0fa7a9b7056f7619",
+      "cua": "Explicit installed app path opens the native Open window successfully; no document edited.",
+      "process": "PID 13304; /Applications/Bloct.app/Contents/MacOS/Bloct; started 2026-10-26 14:05:17 Asia/Seoul"
+    },
+    "limits": "Quarantine removal is not notarization and does not make spctl accept the ad-hoc signature. App binary, installed version and global Gatekeeper settings were not changed."
+  }
+}

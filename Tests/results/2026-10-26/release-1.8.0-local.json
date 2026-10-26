@@ -1,0 +1,40 @@
+{
+  "artifact": "build/Release/Bloct.app",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ],
+  "version": "1.8.0",
+  "build_version": "1.8.0",
+  "minimum_macos": "14.0",
+  "resource_sha256": {
+    "task-lists.js": "bc28f88bedaad6afbbd582a552b4c8f6c8085a205b563054fd2d2b033d98c719",
+    "style.css": "59cdbf9ead08e5bc8646815a6492df42b54bac956cdc90ca6b7b038bdad33ac0",
+    "marked.min.js": "3e7e7d7feb3e5d58cb6c804f68ab5c24cc7e5eb6270fd6e5cbb9124739217d0c",
+    "purify.min.js": "cd37898f9782adf54820c413191b5691803f0f137c799d6edcfd38523b4c2c31"
+  }
+}

@@ -135,6 +135,13 @@ struct MarkdownWebView: NSViewRepresentable {
         return content
     }()
 
+    private static let taskListsJS: String = {
+        guard let url = Bundle.main.url(forResource: "task-lists", withExtension: "js"),
+              let content = try? String(contentsOf: url, encoding: .utf8)
+        else { return "" }
+        return content
+    }()
+
     private static let purifyJS: String = {
         guard let url = Bundle.main.url(forResource: "purify.min", withExtension: "js"),
               let content = try? String(contentsOf: url, encoding: .utf8)
@@ -474,6 +481,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
+        config.preferences.tabFocusesLinks = true // Include task controls in Tab navigation on macOS.
         config.setURLSchemeHandler(context.coordinator.localImages, forURLScheme: LocalImageLoader.scheme)
         let handler = WeakMessageHandler(context.coordinator)
         for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty", "beforeEdit", "reloadDocument"] {
@@ -745,8 +753,10 @@ struct MarkdownWebView: NSViewRepresentable {
                 marked.use(permissiveStrong);
                 marked.use(permissiveEm);
 
+                \(Self.taskListsJS)
+
                 // Render one block's raw text through the math/code pipeline and return HTML.
-                function _mvRenderOneBlock(blockRaw) {
+                function _mvRenderOneBlock(blockRaw, sourceOffset) {
                     var mathStore = [], codeStore = [];
                     // Choose a per-render namespace absent from the original source.
                     // Literal MVCODE/MVMATH strings are ordinary document text.
@@ -755,8 +765,10 @@ struct MarkdownWebView: NSViewRepresentable {
                     while (blockRaw.includes(prefix));
                     var codePattern = new RegExp(prefix + 'CODE([0-9]+)X', 'g');
                     var mathPattern = new RegExp(prefix + 'MATH([0-9]+)X', 'g');
-                    var md = blockRaw
-                        .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
+                    var original = _mvTasks.source(blockRaw, sourceOffset);
+                    var md = original;
+                    function replace(pattern, callback) { md = _mvTasks.replace(md, pattern, callback); }
+                    replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)\\{([^}]+)\\}/g, function(_, alt, src, attrs) {
                             let style = '';
                             const w = attrs.match(/width\\s*=\\s*([^\\s,}]+)/);
                             const h = attrs.match(/height\\s*=\\s*([^\\s,}]+)/);
@@ -774,14 +786,14 @@ struct MarkdownWebView: NSViewRepresentable {
                                 return wrapper.outerHTML;
                             }
                             return img.outerHTML;
-                        })
-                        .replace(/^(`{3,}|~{3,})[^\\n]*\\n[\\s\\S]*?\\n\\1[ \\t]*$/mg, function(match) {
-                            codeStore.push(match); return prefix + 'CODE' + (codeStore.length - 1) + 'X';
-                        })
-                        .replace(/`+[^`\\n]*`+/g, function(match) {
-                            codeStore.push(match); return prefix + 'CODE' + (codeStore.length - 1) + 'X';
-                        })
-                        .replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(match, tex, offset, str) {
+                        });
+                    replace(/^(`{3,}|~{3,})[^\\n]*\\n[\\s\\S]*?\\n\\1[ \\t]*$/mg, function(match, fence, offset) {
+                            codeStore.push(_mvTasks.slice(md, offset, offset + match.length)); return prefix + 'CODE' + (codeStore.length - 1) + 'X';
+                        });
+                    replace(/`+[^`\\n]*`+/g, function(match, offset) {
+                            codeStore.push(_mvTasks.slice(md, offset, offset + match.length)); return prefix + 'CODE' + (codeStore.length - 1) + 'X';
+                        });
+                    replace(/\\$\\$([\\s\\S]+?)\\$\\$/g, function(match, tex, offset, str) {
                             var before = str.substring(0, offset);
                             var after = str.substring(offset + match.length);
                             var blankBefore = /\\n[ \\t]*\\n[ \\t]*$/.test(before) || /^[ \\t]*$/.test(before);
@@ -790,18 +802,18 @@ struct MarkdownWebView: NSViewRepresentable {
                             mathStore.push({ display: true, tex: tex.trim() });
                             var ph = prefix + 'MATH' + (mathStore.length - 1) + 'X';
                             return isBlock ? '\\n\\n' + ph + '\\n\\n' : ph;
-                        })
-                        .replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
+                        });
+                    replace(/\\$((?:[^\\$\\\\\\n]|\\\\.)+?)\\$/g, function(_, tex) {
                             mathStore.push({ display: false, tex: tex.trim() });
                             return prefix + 'MATH' + (mathStore.length - 1) + 'X';
-                        })
-                        .replace(codePattern, function(match, i) { return codeStore[+i] ?? match; });
-                    var _hasBlockquote = /^>/m.test(md);
-                    md = md.replace(/^(#{1,6}|[-*+]|>|\\d+[.)])[ \\t]*$/mg, function(_, m) {
+                        });
+                    replace(codePattern, function(match, i) { return codeStore[+i] ?? match; });
+                    var _hasBlockquote = /^>/m.test(md.text);
+                    replace(/^(#{1,6}|[-*+]|>|\\d+[.)])[ \\t]*$/mg, function(_, m) {
                         if (m === '>' && _hasBlockquote) return m;
                         return '<span>' + m.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
                     });
-                    var html = marked.parse(md);
+                    var html = _mvTasks.render(md, original, prefix);
                     html = html.replace(mathPattern, function(match, i) {
                         return mathStore[+i] ? _mvRenderMath(mathStore[+i]) : match;
                     });
@@ -825,6 +837,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 // Rebuild #content from raw markdown without touching scroll position.
                 // Also makes _mvRawLines (the line model used by block editing) match the DOM.
                 function _mvRenderRaw(raw) {
+                    _mvTasks.begin(raw);
                     window._mvRawLines = raw.split('\\n');
                     window._mvStale = false;
 
@@ -855,15 +868,18 @@ struct MarkdownWebView: NSViewRepresentable {
                     if (bStart !== -1) blocks.push({ start: bStart, end: window._mvRawLines.length });
 
                     // Render each block independently and wrap in a .mv-block container.
+                    var sourceOffset = 0, nextLine = 0;
                     var fullHtml = blocks.map(function(b) {
+                        while (nextLine < b.start) sourceOffset += window._mvRawLines[nextLine++].length + 1;
                         var blockText = window._mvRawLines.slice(b.start, b.end).join('\\n');
                         return '<div class="mv-block" data-start="' + b.start + '" data-end="' + b.end + '">'
-                            + _mvRenderOneBlock(blockText) + '</div>';
+                            + _mvRenderOneBlock(blockText, sourceOffset) + '</div>';
                     }).join('');
                     fullHtml += '<div id="mv-append-zone" data-start="'
                         + window._mvRawLines.length + '" data-end="' + window._mvRawLines.length + '"></div>';
                     var content = document.getElementById('content');
                     content.innerHTML = fullHtml;
+                    _mvTasks.install(content);
 
                     content.querySelectorAll('a[href^="#"]').forEach(function(a) {
                         a.setAttribute('href', _mvSafeDecodeURI(a.getAttribute('href')).replace(/-+/g, '-'));
@@ -983,6 +999,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
                 // Replace a .mv-block with an inline textarea for direct markdown editing.
                 window._mvResumeEdit = function(allowed) {
+                    if (window._mvPendingTask) { _mvTasks.resume(allowed); return; }
                     var pending = window._mvPendingEdit;
                     window._mvPendingEdit = null;
                     if (allowed && pending && pending[0].isConnected) {
@@ -1069,7 +1086,9 @@ struct MarkdownWebView: NSViewRepresentable {
                         // Defer so a click on another block fires _mvStartBlockEdit first,
                         // letting it take ownership before this cleanup runs.
                         setTimeout(function() {
-                            if (window._mvActiveEl === blockEl) window._mvCloseEditor(true);
+                            // A task's disk preflight is asynchronous. Keep its
+                            // source/DOM alive until it can commit and rebase.
+                            if (window._mvActiveEl === blockEl && !window._mvPendingTask) window._mvCloseEditor(true);
                         }, 0);
                     });
                 };

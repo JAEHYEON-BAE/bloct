@@ -5,7 +5,7 @@ output_dir=$(mktemp -d "${TMPDIR:-/tmp}/bloct-menu-tests.XXXXXX")
 trap 'rm -rf "$output_dir"' EXIT
 app_dir="$output_dir/MenuPollingRegression.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
+cp Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
 # Instrument temporary source copies, leaving production code free of test hooks.
 python3 - "$output_dir" <<'PY'
 from pathlib import Path

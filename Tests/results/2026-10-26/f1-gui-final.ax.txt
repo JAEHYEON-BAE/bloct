@@ -1,0 +1,66 @@
+Window: "final.md", App: Bloct.
+0 standard window final.md, URL: file:///private/tmp/bloct-f1-gui/final.md, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content file:///private/tmp/bloct-f1-gui/.mv_preview-9F0435FF-6C90-467B-BF66-9E92B9567EB1.html
+			3 container F1 최종 빌드
+				4 heading F1 최종 빌드, Value: 1
+					5 text F1 최종 빌드
+				6 text 스크롤 확인 문단 1
+				7 text 스크롤 확인 문단 2
+				8 text 스크롤 확인 문단 3
+				9 text 스크롤 확인 문단 4
+				10 text 스크롤 확인 문단 5
+				11 text 스크롤 확인 문단 6
+				12 text 스크롤 확인 문단 7
+				13 text 스크롤 확인 문단 8
+				14 text 스크롤 확인 문단 9
+				15 text 스크롤 확인 문단 10
+				16 text 스크롤 확인 문단 11
+				17 text 스크롤 확인 문단 12
+				18 text 스크롤 확인 문단 13
+				19 content list
+					20 container parent label
+						21 list marker •
+						22 checkbox parent label, Value: 0
+						23 text  parent label
+						24 content list
+							25 container 중첩 항목
+								26 list marker ◦
+								27 checkbox 중첩 항목, Value: 1
+								28 text  중첩 항목
+								29 content list
+									30 container 깊은 항목
+										31 list marker ■
+										32 checkbox 깊은 항목, Value: 1
+										33 text  깊은 항목
+				34 text 뒤쪽 문단 1
+				35 text 뒤쪽 문단 2
+				36 text 뒤쪽 문단 3
+				37 text 뒤쪽 문단 4
+				38 text 뒤쪽 문단 5
+				39 text 뒤쪽 문단 6
+				40 text 뒤쪽 문단 7
+				41 text 뒤쪽 문단 8
+				42 text 뒤쪽 문단 9
+				43 text 뒤쪽 문단 10
+				44 text 뒤쪽 문단 11
+				45 text 뒤쪽 문단 12
+				46 text 뒤쪽 문단 13
+				47 text 뒤쪽 문단 14
+			48 link F1 최종 빌드, Value: file:///private/tmp/bloct-f1-gui/.mv_preview-9F0435FF-6C90-467B-BF66-9E92B9567EB1.html#f1-%EC%B5%9C%EC%A2%85-%EB%B9%8C%EB%93%9C
+		49 scroll bar (settable, float) 0.1512605
+	50 toolbar
+		51 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
+		52 toggle button Description: Edit Mode, Help: Switch to Edit Mode, Value: off
+		53 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
+	54 close button
+	55 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	56 minimize button
+	57 text final.md
+58 menu bar
+	59 Bloct
+	60 File
+	61 Edit
+	62 View
+	63 Window
+	64 Help

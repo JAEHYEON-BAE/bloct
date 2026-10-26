@@ -1,0 +1,19 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-task-tests.5J6kDC/TaskListRegression.app: 1 (Operation not permitted)
+PASS: real bridge reaches DocumentState without publishing/autosaving
+PASS: two documents isolate drafts and checked nodes
+PASS: one toggle takes exactly one native Undo
+PASS: two native Undos restore source and clean flag
+PASS: native Redo restores both task states
+PASS: explicit production Save writes exact task source
+PASS: reopened saved source renders matching checked nodes
+PASS: production Save can be paused with a stable snapshot
+PASS: toggle during Save remains a later dirty change
+PASS: later toggle can be explicitly saved
+PASS: failed Save preserves draft and window
+PASS: failed task save can be retried
+PASS: Don't Save restores last saved state without a write
+PASS: Save-and-close writes task snapshot and closes after success
+PASS: native disk preflight drains rapid clicks to latest draft
+PASS: three queued toggles remain three native Undo steps
+PASS: document previews are cleaned
+17 passed, 0 failed

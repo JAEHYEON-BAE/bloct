@@ -1,0 +1,30 @@
+Window: "second.md", App: Bloct.
+0 standard window second.md, URL: file:///private/tmp/bloct-f1-gui/second.md, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content file:///private/tmp/bloct-f1-gui/.mv_preview-6DABD6F1-803D-4A6F-9D5D-AA391476B058.html
+			3 container F1 두 번째 문서
+				4 heading F1 두 번째 문서, Value: 1
+					5 text F1 두 번째 문서
+				6 content list
+					7 container 별도 상태
+						8 list marker •
+						9 checkbox 별도 상태, Value: 1
+						10 text  별도 상태
+			11 link F1 두 번째 문서, Value: file:///private/tmp/bloct-f1-gui/.mv_preview-6DABD6F1-803D-4A6F-9D5D-AA391476B058.html#f1-%EB%91%90-%EB%B2%88%EC%A7%B8-%EB%AC%B8%EC%84%9C
+	12 toolbar
+		13 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
+		14 toggle button Description: Edit Mode, Help: Switch to Edit Mode, Value: off
+		15 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
+	16 close button
+	17 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	18 minimize button
+	19 text second.md
+20 menu bar
+	21 Bloct
+	22 File
+	23 Edit
+	24 View
+	25 Window
+	26 Help
+
+The focused UI element is 9 checkbox 별도 상태, Value: 1

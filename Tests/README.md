@@ -71,6 +71,10 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
   - `block-editing.js`: block editing, Swift re-render while editing, keyboard
     navigation, dirty messages, math and offline fallback, search, style tokens,
     copy as Markdown.
+  - `task-lists.js`: exact source-marker changes across duplicate/nested/quoted tasks,
+    preprocessing, raw HTML/code exclusion, keyboard events, delayed disk preflight,
+    editor blur/line shifts, stale DOM, rapid clicks, scroll preservation and
+    mixed-list marker visibility / nested and wrapped text alignment.
   - `sanitizer.js`: further attack patterns, legitimate Markdown/HTML that must
     survive sanitizing, KaTeX fonts and CSP violations.
 
@@ -99,3 +103,24 @@ checks JPEG/SVG, encoded filenames, image editing and reopening, document resour
 isolation, copy preserving the original image URL, rejected non-image resources,
 and loader invalidation. It uses actual image decoding, with no XFAIL or SKIP.
 An optional directory argument retains fixtures for manual GUI checks.
+
+```sh
+sh Tests/run-task-lists.sh
+```
+
+The F1 harness hosts complete production `ContentView` instances with separate
+`DocumentState` objects and temporary files. It checks real checkbox events reaching
+the native bridge, one Undo step per toggle (including queued disk preflight),
+Redo, no autosave, explicit Save, reopened rendering, in-flight snapshot isolation,
+save failure/retry, discard, save-and-close and preview cleanup. Temporary source
+copies expose production actions, pause writes and record presented errors. A
+controlled `NSDocument` supplies the window association and suppresses native
+revert UI; actual Save/Cancel/Don't Save buttons, keyboard navigation and permission
+error panels require the separate GUI checks linked in F1's implementation record.
+
+For CUA GUI sessions, treat Quit as the end of the app handle's lifetime. Do not
+chain `app.getAXState()` after quitting or reactivate that handle while the process
+is exiting. Use the native app menu for Quit and check global inventory; confirm the actual
+process exit when inventory is ambiguous. Obtain a fresh explicit-path handle only
+when another run is needed. See [bug 26](../BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore)
+for observed LaunchServices `-600` reopen errors and the remaining GUI verification.

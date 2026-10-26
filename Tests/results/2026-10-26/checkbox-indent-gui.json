@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-26",
+  "change": "Place checkbox in normal list marker gutter; task text and wrapped lines start at the ordinary list text column at each depth. Keep focus outline hidden.",
+  "validation": {
+    "debug_build": "succeeded",
+    "hosted": "317 passed, no failures / XFAIL / SKIP",
+    "geometry": "Same-level ordinary/task text positions equal within 0.5 CSS pixels; nested levels and wrapped task lines checked; box stays outside text column",
+    "gui": "Fresh isolated app process loads updated embedded CSS. Screenshot confirms bullet and checkbox centers share a column, with matching text starts, nesting, quotation and wrapped lines. Click + Save changed exactly one state marker.",
+    "cleanup": "Quit via native app menu; process exit checked independently; owned previews zero"
+  },
+  "evidence": [
+    "checkbox-indent-build.log",
+    "checkbox-indent-hosted.log",
+    "checkbox-indent-gui.png"
+  ],
+  "css_sha256": "59cdbf9ead08e5bc8646815a6492df42b54bac956cdc90ca6b7b038bdad33ac0"
+}

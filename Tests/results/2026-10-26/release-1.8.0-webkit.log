@@ -1,0 +1,16 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-webkit-tests.VYfuEq/Regression.app: 1 (Operation not permitted)
+PASS: bundled sanitizer and initial renderer load under CSP
+PASS: literal internal-looking placeholders remain unchanged
+PASS: Markdown and offline inline/display math survive sanitizing
+PASS: sanitizer preserves math markup
+PASS: untrusted HTML loses executable attributes, dangerous URLs and editor impersonation
+PASS: user HTML cannot create editor blocks
+PASS: malicious HTML cannot send an edit through the native bridge
+PASS: custom image attributes are escaped and local image URLs survive
+PASS: relative local images survive sanitizing
+PASS: relative local image actually loads from the unique preview file
+PASS: CSP independently blocks event handlers and untrusted inline scripts
+PASS: remote page navigation is blocked
+PASS: authorized preview can still commit through the native bridge
+PASS: new-document inline HTML load works with navigation policy
+PASS: new-document inline page retains native bridge access

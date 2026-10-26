@@ -149,8 +149,65 @@ img {
 }
 
 /* Task lists */
+li:has(> .mv-task-checkbox),
+li:has(> p:first-child > .mv-task-checkbox) {
+  position: relative;
+  list-style-type: none;
+}
 input[type="checkbox"] {
   margin-right: 0.5em;
+}
+.mv-task-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  /* Use the normal list marker gutter, leaving the text in the same column. */
+  position: absolute;
+  inset-inline-start: -1.5em;
+  top: calc((1lh - 1.125em) / 2);
+  width: 1.125em;
+  height: 1.125em;
+  margin: 0;
+  padding: 0;
+  border: 1.5px solid var(--color-text-muted);
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.mv-task-checkbox::before {
+  content: "";
+  width: 0.3em;
+  height: 0.6em;
+  border: solid #fff;
+  border-width: 0 0.12em 0.12em 0;
+  transform: translateY(-0.08em) rotate(45deg);
+  opacity: 0;
+}
+.mv-task-checkbox:checked {
+  border-color: var(--color-link);
+  background: var(--color-link);
+}
+.mv-task-checkbox:checked::before {
+  opacity: 1;
+}
+.mv-task-checkbox:hover:not(:checked) {
+  border-color: var(--color-text);
+  background: var(--color-code-bg);
+}
+.mv-task-checkbox:focus {
+  outline: none;
+  box-shadow: none;
+}
+@media (forced-colors: active) {
+  .mv-task-checkbox {
+    -webkit-appearance: auto;
+    appearance: auto;
+  }
+  .mv-task-checkbox::before { display: none; }
 }
 
 /* Figure captions (*[...]*) */

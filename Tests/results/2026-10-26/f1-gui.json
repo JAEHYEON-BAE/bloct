@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-26",
+  "timezone": "Asia/Seoul",
+  "app": "/Users/jaehyeon/PersonalProjects/bloct/build/Build/Products/Debug/Bloct.app",
+  "fixture_directory": "/private/tmp/bloct-f1-gui",
+  "method": "cua_repl app-targeted background interaction; temporary documents only",
+  "checks": [
+    {
+      "name": "read-mode mouse click and parser-only controls",
+      "result": "pass",
+      "detail": "Real GFM checkboxes toggle; code stays text and author HTML input stays disabled."
+    },
+    {
+      "name": "Tab / Space and Undo / Redo",
+      "result": "pass",
+      "detail": "Tab focuses first and next task after enabling WKPreferences.tabFocusesLinks. Space changes one task; Cmd+Z restores it and Cmd+Shift+Z reapplies it."
+    },
+    {
+      "name": "editing / line changes / first click",
+      "result": "pass",
+      "detail": "Replaced a paragraph with three lines, then one click on a nested task committed paragraph and changed the correct task without another editor. Delayed-blur issue fixed and retested."
+    },
+    {
+      "name": "explicit Save / close Save / reopen",
+      "result": "pass",
+      "detail": "Cmd+S updated only the intended markers and edited paragraph. Close > Save closed window. Reopening showed matching states."
+    },
+    {
+      "name": "Cancel / Don't Save",
+      "result": "pass",
+      "detail": "Cancel kept the checked draft and window; Don't Save closed and preserved original source (byte comparison)."
+    },
+    {
+      "name": "two document isolation and switching",
+      "result": "pass",
+      "evidence": [
+        "f1-gui-first.ax.txt",
+        "f1-gui-second.ax.txt"
+      ],
+      "detail": "Second document checked draft remained checked across Window menu switches while first showed its independently saved states. Second disk remained unchecked before Save."
+    },
+    {
+      "name": "real permission failure and retry",
+      "result": "pass",
+      "evidence": [
+        "f1-gui-save-failure.ax.txt"
+      ],
+      "detail": "Made only the temporary fixture directory read-only, invoked Save and observed permission alert. Draft/window stayed checked, disk stayed unchecked. Restored directory permissions and Save wrote checked state."
+    },
+    {
+      "name": "final build / content tab / three nested quote tasks",
+      "result": "pass",
+      "evidence": [
+        "f1-gui-final.ax.txt",
+        "f1-gui-saved.md"
+      ],
+      "detail": "Relaunched final build after source-map refinement. All three tasks enabled, clicked deepest task and saved; exact source comparison confirmed only its state character changed."
+    },
+    {
+      "name": "scroll / alignment / focus visuals",
+      "result": "pass",
+      "evidence": [
+        "f1-scroll-before.png",
+        "f1-scroll-after.png"
+      ],
+      "scrollbar_before": 0.1512605,
+      "scrollbar_after": 0.1512605,
+      "detail": "Content stayed at same visible position; saved view shows checked deepest task and focus ring. Hosted suite additionally checks numeric window.scrollY."
+    },
+    {
+      "name": "cleanup",
+      "result": "pass",
+      "remaining_owned_previews": 0,
+      "detail": "Closed temporary documents and quit Debug app. Installed /Applications/Bloct.app was not replaced."
+    }
+  ],
+  "automated_only": [
+    "Controlled in-flight save delay / concurrent later toggle",
+    "Source preservation with CRLF, empty tasks, escaped syntax and forged HTML combinations",
+    "Repeated preflight clicks retain one native Undo each",
+    "Final stale preflight cancellation / fresh preflight after replacement: Hosted regression"
+  ],
+  "not_verified": [
+    "macOS 14 hardware",
+    "Published Release GUI",
+    "Large document performance"
+  ],
+  "source_sha256_at_completion": {
+    "Sources/Bloct/task-lists.js": "bc28f88bedaad6afbbd582a552b4c8f6c8085a205b563054fd2d2b033d98c719",
+    "Sources/Bloct/MarkdownWebView.swift": "16732a38c132ac13fa0874d31ac29fe08647494db72b948ee6f83bb40684fc56",
+    "Sources/Bloct/ContentView.swift": "a248882405f16ab0d65b48e9209ae1f85f18b309dc4f2a7c133428c82e12b887"
+  },
+  "automated_results": {
+    "hosted": {
+      "passed": 313,
+      "failed": 0,
+      "xfail": 0,
+      "skipped": 0
+    },
+    "task_state": {
+      "passed": 17,
+      "failed": 0
+    },
+    "native_groups": 8,
+    "webkit": 15,
+    "relative_images": 70,
+    "menu_polling": 10,
+    "debug_build": "succeeded"
+  }
+}

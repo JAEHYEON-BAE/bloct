@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-26",
+  "reference": "https://www.notion.com/templates/category/to-do-lists",
+  "changes": {
+    "size_at_default_font": "18px square",
+    "border": "1.5px solid",
+    "corner_radius": "0",
+    "checked": "app link blue with white CSS checkmark",
+    "accessibility": "native input semantics and focus-visible ring retained; forced-colors uses native appearance"
+  },
+  "checks": {
+    "debug_build": "succeeded",
+    "hosted": "313 passed, 0 failed, 0 XFAIL, 0 SKIP",
+    "gui": "production Debug app copied to isolated temporary bundle; square outline, checked state, mouse click, Tab/Space, focus ring and Save verified",
+    "saved_source": "exact expected markers; all other content preserved",
+    "owned_previews_after_quit": 0,
+    "existing_apps": "installed Bloct and original Debug app left running; no app-handle query after isolated app Quit"
+  },
+  "evidence": [
+    "checkbox-style-build.log",
+    "checkbox-style-hosted.log",
+    "checkbox-style-gui.png",
+    "checkbox-style-focus.png"
+  ],
+  "css_sha256": "d61dfe28cff26eafbb700a84fa4a7364fd120f70f193b869b8867bf742d14c62"
+}

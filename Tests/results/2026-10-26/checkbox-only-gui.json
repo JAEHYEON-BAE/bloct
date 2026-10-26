@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-26",
+  "changes": [
+    "Hide list marker only for trusted task item itself, including paragraph-wrapped tasks",
+    "Suppress checkbox focus outline/shadow; keep keyboard focus and Space behavior"
+  ],
+  "validation": {
+    "build": "succeeded",
+    "hosted": "314 passed, no failures / XFAIL / SKIP",
+    "gui": "Tab focus on first checkbox: no focus outline visible; task markers absent, plain and nested child bullets plus ordinary ordered item number retained; Space + Save changes exactly one source marker",
+    "source": "Markdown list syntax and other text preserved",
+    "cleanup": "isolated app quit without querying old handle; no owned previews left; original Bloct apps still running"
+  },
+  "evidence": [
+    "checkbox-only-build.log",
+    "checkbox-only-hosted.log",
+    "checkbox-only-gui.png"
+  ],
+  "css_sha256": "fe7206dabf8ca53e0fc57ee4528048f96a1120dbc2b3405664227582367ba536"
+}

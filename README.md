@@ -18,7 +18,7 @@ A native macOS app for viewing and editing Markdown files with a clean, live pre
 ```sh
 brew tap JAEHYEON-BAE/tap
 brew install --cask bloct
-xattr -cr /Applications/Bloct.app
+xattr -dr com.apple.quarantine /Applications/Bloct.app
 ```
 
 ### Manual
@@ -27,7 +27,7 @@ xattr -cr /Applications/Bloct.app
 2. Unzip and drag `Bloct.app` to `/Applications`
 3. Run the following in Terminal to bypass Gatekeeper (required once, as the app is unsigned):
    ```sh
-   xattr -cr /Applications/Bloct.app
+   xattr -dr com.apple.quarantine /Applications/Bloct.app
    ```
 4. Open Bloct normally from `/Applications`
 
@@ -42,6 +42,13 @@ Click any block in the preview to edit it directly — no separate editor pane n
 - Tables, blockquotes, and horizontal rules
 - Math expressions via [KaTeX](https://katex.org/) — inline `$...$` and display `$$...$$`
 - Local images resolved relative to the opened file
+
+### Task Lists
+Toggle `- [ ]`, `- [x]`, or `- [X]` task checkboxes with a click or **Tab / Space**
+in Read or Edit mode. Square checkboxes use the same marker and text columns as
+ordinary lists, including nested items and wrapped lines, without an extra bullet.
+Each toggle is one Undo step. **⌘S** saves the state to the `.md` file; closing without
+saving discards the changes.
 
 ### Table of Contents
 Toggle the TOC panel with the **⇧⌘T** shortcut or the toolbar button. The panel slides in from the left and updates live as you edit headings.

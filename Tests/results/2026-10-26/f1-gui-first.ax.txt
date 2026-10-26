@@ -1,0 +1,50 @@
+Window: "first.md", App: Bloct.
+0 standard window first.md, URL: file:///private/tmp/bloct-f1-gui/first.md, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content file:///private/tmp/bloct-f1-gui/.mv_preview-EF95C853-46C8-48D8-873A-F20904C4ED71.html
+			3 container F1 체크리스트 GUI
+				4 heading F1 체크리스트 GUI, Value: 1
+					5 text F1 체크리스트 GUI
+				6 text 최종 GUI 문단입니다. 둘째 줄 셋째 줄
+				7 content list
+					8 container 첫 항목
+						9 list marker •
+						10 checkbox 첫 항목, Value: 1
+						11 text  첫 항목
+					12 container 같은 항목
+						13 list marker •
+						14 checkbox 같은 항목, Value: 0
+						15 text  같은 항목
+						16 content list
+							17 container 같은 항목
+								18 list marker ◦
+								19 checkbox 같은 항목, Value: 0
+								20 text  같은 항목
+				21 content list
+					22 container 인용 항목
+						23 list marker 1
+						24 checkbox 인용 항목, Value: 0
+						25 text  인용 항목
+				26 text - [ ] 코드 안 항목
+
+				27 container
+					28 checkbox (disabled) 0
+					29 text  위조 HTML
+			30 link F1 체크리스트 GUI, Value: file:///private/tmp/bloct-f1-gui/.mv_preview-EF95C853-46C8-48D8-873A-F20904C4ED71.html#f1-%EC%B2%B4%ED%81%AC%EB%A6%AC%EC%8A%A4%ED%8A%B8-gui
+	31 toolbar
+		32 toggle button Description: Table of Contents, Help: Toggle Table of Contents (⇧⌘T), Value: off
+		33 toggle button Description: Edit Mode, Help: Switch to Edit Mode, Value: off
+		34 button Description: Find, Help: Find in Document (⌘F), Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Remove from toolbar
+	35 close button
+	36 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	37 minimize button
+	38 text first.md
+39 menu bar
+	40 Bloct
+	41 File
+	42 Edit
+	43 View
+	44 Window
+	45 Help
+
+The focused UI element is 2 HTML content file:///private/tmp/bloct-f1-gui/.mv_preview-EF95C853-46C8-48D8-873A-F20904C4ED71.html
