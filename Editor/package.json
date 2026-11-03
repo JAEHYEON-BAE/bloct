@@ -1,0 +1,26 @@
+{
+  "name": "bloct-editor",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.ts",
+    "check": "tsc --noEmit",
+    "build": "esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js"
+  },
+  "dependencies": {
+    "@tiptap/pm": "3.32.2",
+    "mdast-util-from-markdown": "2.1.0",
+    "mdast-util-gfm": "3.1.0",
+    "mdast-util-math": "3.0.0",
+    "micromark-extension-gfm": "3.0.0",
+    "micromark-extension-math": "3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2"
+  },
+  "overrides": {
+    "katex": "0.18.2"
+  }
+}

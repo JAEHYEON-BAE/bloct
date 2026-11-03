@@ -1,5 +1,19 @@
 # Third-party assets
 
+## Experimental block model (Editor/)
+
+Exact dependency versions and npm archive integrity values are recorded in
+`Editor/package-lock.json`. The model uses `@tiptap/pm` (ProseMirror, MIT),
+`mdast-util-from-markdown`, `mdast-util-gfm`, `mdast-util-math`, and their micromark
+extensions (MIT). TypeScript (Apache-2.0), esbuild (MIT) and Node type definitions
+(MIT) are development tools. Installed dependency packages retain their license
+files. The generated bundle is currently a test artifact, not an app resource;
+app integration must also include the bundled dependency license notices.
+
+The math tokenizer's indirect KaTeX dependency is pinned by an override to 0.18.2.
+This model imports the tokenizer, not its KaTeX HTML renderer. The existing app's
+CDN KaTeX version below is unchanged.
+
 ## DOMPurify 3.4.17
 
 - Project: https://github.com/cure53/DOMPurify

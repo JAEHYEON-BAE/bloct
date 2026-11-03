@@ -1,0 +1,35 @@
+
+> check
+> tsc --noEmit
+
+
+> test
+> node --test test/*.test.ts
+
+✔ B01: adjacent semantic blocks and independent list item IDs (9.513459ms)
+✔ B02: physical soft lines and explicit hard breaks stay inside paragraphs (2.048791ms)
+✔ B03: existing B/C policy fixture keeps list groups and separate indented code (13.45175ms)
+✔ B04: nested/quoted duplicate labels have exact parents and source spans (1.793125ms)
+✔ B05: code protects blank lines, longer fences, unclosed fences and indented syntax (1.918875ms)
+✔ B06: block math protects blanks; code and currency never become equations (1.68025ms)
+✔ B07: Setext precedence, GFM table, inline images and block image metadata (3.25775ms)
+✔ B08: HTML, comments and reference syntax are accessible protected source (2.058041ms)
+✔ B09: BOM, CRLF, CR, tabs, spaces and UTF-16 positions survive import (1.485125ms)
+✔ B12: empty input, whitespace gaps, trailing newlines and empty headings (2.324167ms)
+✔ changed trees cannot be exported as the unchanged initial source (0.475541ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 197.366291
+
+> build
+> esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js
+
+
+  dist/blocks.js  316.3kb
+
+⚡ Done in 14ms

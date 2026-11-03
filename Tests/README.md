@@ -1,5 +1,26 @@
 # Regression checks
 
+## New block model (F5)
+
+Use Node.js 22.18 or later. Install the locked development dependencies once:
+
+```sh
+cd Editor
+npm ci
+cd ..
+sh Tests/run-block-model.sh
+```
+
+The runner checks TypeScript, executes the headless ProseMirror/import tests, and
+builds `Editor/dist/blocks.js` for Safari 17/WKWebView. It does not replace the app's
+current editor. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
+the existing #16 policy fixture and exact UTF-16 source offsets. Structure commands
+and B10/B11 are the next unit. These results do not cover native Save, real IME,
+clipboard or GUI acceptance. Current evidence is linked from F5 in
+[IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md).
+
+## Current app regression checks
+
 Run from the repository root on macOS with Xcode installed:
 
 ```sh

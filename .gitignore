@@ -26,3 +26,7 @@ vscode-markdown-scroll-sync.md
 
 # Release Data
 Release/
+
+# Block editor dependencies and reproducible browser bundle
+Editor/node_modules/
+Editor/dist/
