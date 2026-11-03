@@ -1,7 +1,7 @@
 # Notion 방식의 블록 분할·관리 전환 계획
 
 작성·조사일: **2026-11-03**  
-상태: **조사 중 — 최우선 개발 목표, B01~B12 기반 구현 착수**  
+상태: **구현 후 검증 대기 — 최우선 목표, 기반 계층 검증 완료·앱 통합 대기**
 상위 계획: [IMPLEMENTATION_PLAN.md F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집) · 선행 검토: [WYSIWYG_FEASIBILITY.md](WYSIWYG_FEASIBILITY.md)
 
 이 문서는 2026-11-03 사용자 지시에 따라 확정한 **최우선 구현 방향**이다. 블록 기반 계층부터 테스트·로컬 커밋하며, 새 엔진의 GUI·저장 검증 전에는 기존 앱의 기본 편집 경로를 교체하지 않는다. Notion 앱에서 직접 입력하거나 내부 구현을 조사한 결과는 아니며, 공식적으로 확인되는 블록 모델·단축키와 Bloct에서 정할 동작을 구분한다. 구현 결과는 IMPLEMENTATION_PLAN.md F5에서 관리한다. 실제 GUI·한글 IME·native 저장 수명은 별도 검증 대상이다.
@@ -178,6 +178,8 @@ DOM의 `data-block-id`는 위치를 찾는 표시일 뿐 수정 권한이 아니
 ### 5.3 변경 명령
 
 `insertBlock`, `splitBlock`, `joinBackward`, `setBlockType`, `indentBlock`, `outdentBlock`, `moveBlock`, `deleteSelection`, `setChecked`, `replaceSourceRange`를 엔진 명령으로 정의한다. 각 명령은 스키마·보호 노드·경계를 검사하고 **내용·경계·선택·원문 대응을 하나의 트랜잭션**으로 갱신한다.
+
+현재 기반 구현의 API는 `BlockSession.execute()`다. 이동은 같은 부모 안의 형제 간, 목록 부모 변경은 indent/outdent로 제한한다. 일반 범위 삭제·원문 UI·블록 간 임의 드래그는 후속 편집기 통합에서 확장한다. 현재 source span은 최초 archive의 좌표이며, 변경 후 스냅샷은 현 트리를 직렬화·재파싱해 구조를 검증한다. 최초 좌표를 현재 문서 위치로 간주하지 않는다.
 
 단순 텍스트 입력을 제외한 타입 변환·분할·병합·토글·붙여넣기·이동은 각각 Undo 한 단계다. 텍스트 입력은 엔진의 연속 입력 묶음을 사용한다. 선택 이동·placeholder·검색 강조·목차 갱신은 history에 넣지 않는다. 자식 순환, 허용되지 않은 부모, 중복 ID가 생기는 명령은 거절한다.
 

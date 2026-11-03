@@ -1,0 +1,50 @@
+
+> check
+> tsc --noEmit
+
+
+> test
+> node --test test/*.test.ts
+
+✔ B01: adjacent semantic blocks and independent list item IDs (9.318834ms)
+✔ B02: physical soft lines and explicit hard breaks stay inside paragraphs (1.928333ms)
+✔ B03: existing B/C policy fixture keeps list groups and separate indented code (13.061541ms)
+✔ B04: nested/quoted duplicate labels have exact parents and source spans (1.599834ms)
+✔ B05: code protects blank lines, longer fences, unclosed fences and indented syntax (1.845042ms)
+✔ B06: block math protects blanks; code and currency never become equations (1.5665ms)
+✔ B07: Setext precedence, GFM table, inline images and block image metadata (3.107667ms)
+✔ B08: HTML, comments and reference syntax are accessible protected source (2.063667ms)
+✔ B09: BOM, CRLF, CR, tabs, spaces and UTF-16 positions survive import (1.361292ms)
+✔ B12: empty input, whitespace gaps, trailing newlines and empty headings (2.509084ms)
+✔ changed trees cannot be exported as the unchanged initial source (0.445666ms)
+✔ B10: paragraph split/join preserve identity, selection, source and history (14.738916ms)
+✔ B10: list split, indent and outdent use real schema-list transactions (6.622042ms)
+✔ B10: duplicate allocates descendant IDs; move preserves them; delete restores on Undo (5.153042ms)
+✔ B10: type conversion and empty heading preserve ID and are separate Undo steps (1.221083ms)
+✔ B10: splitting at a heading start preserves heading identity and creates a paragraph before it (0.513083ms)
+✔ B10: invalid positions, surrogate splits, parent cycles and unsupported merges fail without changes (0.573542ms)
+✔ B11: exact one-character task patch across duplicate, quoted, nested and CRLF cases (12.467209ms)
+✔ B11: line-count changes before a task rebase by tree identity, not an old source offset (3.142334ms)
+✔ B11: forged, cross-session and old-generation references cannot edit (0.511ms)
+✔ B12: selection alone, deleting the last block and Save snapshots track actual content (1.572584ms)
+✔ source-preserving serializer keeps unrelated lexical styles after text edits (1.704542ms)
+✔ B10: moving selected content preserves its relative cursor and raw CRLF source (1.33275ms)
+✔ save acknowledgements reject forged, consumed, older and previous-generation snapshots (0.704917ms)
+✔ B10: changed adjacency widens only the affected source boundary (1.078958ms)
+✔ unsupported mixed-source restructuring fails closed and Undo retains the exact source (0.889542ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 200.78575
+
+> build
+> esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js
+
+
+  dist/blocks.js  460.9kb
+
+⚡ Done in 16ms

@@ -14,10 +14,24 @@ sh Tests/run-block-model.sh
 The runner checks TypeScript, executes the headless ProseMirror/import tests, and
 builds `Editor/dist/blocks.js` for Safari 17/WKWebView. It does not replace the app's
 current editor. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
-the existing #16 policy fixture and exact UTF-16 source offsets. Structure commands
-and B10/B11 are the next unit. These results do not cover native Save, real IME,
+the existing #16 policy fixture and exact UTF-16 source offsets.
+`Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
+round trips, cursor/ID restoration, snapshot acknowledgements and fail-closed
+unsupported transformations. These results do not cover native Save, real IME,
 clipboard or GUI acceptance. Current evidence is linked from F5 in
 [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md).
+
+After building the bundle, macOS users can check it in an isolated background
+WKWebView under nonce CSP with file and inline HTML boot paths:
+
+```sh
+sh Tests/run-block-model-webkit.sh
+```
+
+This requires permission to launch WebKit processes outside a restrictive sandbox.
+It checks engine/serializer execution, not a visual EditorView, keyboard input,
+placeholder appearance or the app's native Save/Reload bridge. It uses temporary
+files and does not open or replace the installed Bloct app.
 
 ## Current app regression checks
 

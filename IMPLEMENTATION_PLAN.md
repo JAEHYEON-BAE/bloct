@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-03** — **F5의 Notion 방식 블록·연속 편집 전환을 최우선 목표**로 확정하고 B01~B12 기반 구현에 착수합니다. 기존 배포 검증은 버그 문서에서 관리합니다.
+- 최신화: **2026-11-03** — **F5의 Notion 방식 블록·연속 편집 전환이 최우선 목표**입니다. B01~B12 기반 계층의 headless·WKWebView 번들 검증을 완료했고, 실제 편집 UI·IME·native 저장 통합이 다음 단계입니다. 기존 배포 검증은 버그 문서에서 관리합니다.
 - 버그의 재현·수정·검증과 기존 경로의 작업 순서는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 이 문서는 구현 요약과 새 기능의 요구사항·다음 조치·완료 기준만 유지합니다. 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 현재 구현 현황
@@ -25,7 +25,7 @@
 | F2 | 큰 문서 성능·중복 코드 정리 | 검토 대기 / 효과 미측정. 입력·재렌더링·검색 지연을 먼저 측정 |
 | F3 | 문서 타입 메타데이터·확대 단축키 | 검토 대기 / 동작 미검증. 선언 정합성·실제 키 입력 확인 |
 | F4 | 별도 정의 참조 링크의 확인·편집 및 지원 | 2026-10-17 사용자 정책으로 보류. 정의 관리 수단과 함께 재검토 |
-| F5 | Notion 방식의 블록 관리·연속 편집 | 2026-11-03 구현 후 검증 대기 / importer의 B01~B09·B12 headless 검증 완료. B10·B11 및 앱 통합 검증 대기. [상세 계약·실행 순서](WYSIWYG_BLOCK_PLAN.md) 참조 |
+| F5 | Notion 방식의 블록 관리·연속 편집 | 2026-11-03 구현 후 검증 대기 / B01~B12 기반 계층 26개·WKWebView 번들 18개 통과. 실제 편집 UI·IME·native 저장 통합 대기. [상세 계약·실행 순서](WYSIWYG_BLOCK_PLAN.md) 참조 |
 
 ## F1. 체크박스 토글 및 상태 저장
 
@@ -65,7 +65,15 @@
 
 ## F5. Notion 방식의 블록 관리와 연속 편집
 
-- **2026-11-03 / 구현 후 검증 대기 — 최우선 목표, importer 단위 검증 완료。** [블록 분할·관리 전환 계획](WYSIWYG_BLOCK_PLAN.md)에 따라 `Editor/`에 ProseMirror 스키마와 위치 정보가 있는 mdast importer를 구현했습니다. 문단·제목·목록 항목의 UUID, 독립 파싱 구간, 코드·수식 보호, 원문 보호 노드, UTF-16 위치·BOM·개행·이미지 속성·gap을 보유합니다. 기존 앱 UI에는 아직 연결하지 않았습니다.
+- **2026-11-03 / 구현 후 검증 대기 — 최우선 목표, B01~B12 기반 계층 검증 완료.** [블록 분할·관리 전환 계획](WYSIWYG_BLOCK_PLAN.md)에 따라 `Editor/`에 ProseMirror 스키마, 위치 정보가 있는 mdast importer, 구조 명령·history·원문 보존 serializer를 구현했습니다. UUID·부모/순서·독립 파싱 구간·코드/수식 보호·원문 보호 노드·UTF-16·BOM/개행·이미지 속성·gap을 관리하며, 미수정 구간은 재사용하고 체크 토글은 표식 한 글자만 변경합니다. 기존 앱 UI에는 아직 연결하지 않았습니다.
 - 요구사항: 문단·제목·각 목록 항목을 독립 ID로 관리하고 연속 편집합니다. 빈 문단의 `##` + Space는 H2 변환과 회색 `Header 2` placeholder로 연결합니다. 기존 빈 줄의 독립 파싱·목록 번호 재시작과 F4 보류는 유지합니다.
-- 다음 조치·단계별 완료 기준은 상세 계획 9·10절에서 관리합니다. 첫 범위는 엔진 스키마 기반 블록 트리·원문 대응·무편집 왕복 및 B10·B11 명령 검증입니다. 구현 단위별 테스트 후 로컬 커밋합니다. 실제 Notion 세부 키 동작 비교·WKWebView/한글 IME·저장/Undo·GUI는 미검증이며 기존 버그 완료 상태를 변경하지 않습니다.
-- 단위 1 검증: [importer 로그](Tests/results/2026-11-03/f5-importer.log) — B01~B09·B12 및 변경 문서의 무편집 export 거절 **11 통과, 실패/SKIP 0**, TypeScript·Safari 17 대상 번들 생성 통과. B10·B11은 다음 구현 단위이며 이 결과를 전체 B01~B12 통과로 표현하지 않습니다. 새 npm 의존성은 lockfile로 고정했고 설치 시 audit 취약점 0을 확인했습니다.
+- 다음 조치: 상세 계획 9절의 실제 `EditorView`·입력 규칙·placeholder(U01·U02)와 Swift 저장/외부 변경 연결로 진행합니다. 실제 Notion 세부 키 동작 비교·한글 IME·native 저장 수명·GUI는 미검증이며 기존 버그 완료 상태를 변경하지 않습니다. 구현 단위별 테스트 후 로컬 커밋합니다.
+
+| 구현 단위 | 2026-11-03 검증 근거·한계 |
+|---|---|
+| importer·블록 스키마 (`658e107`) | [단위 1 로그](Tests/results/2026-11-03/f5-importer.log): B01~B09·B12 및 변경 문서의 무편집 export 거절 11 통과, 실패/SKIP 0. 이 시점에는 B10·B11 미구현 |
+| 구조 명령·source serializer·저장 스냅샷 | [최신 headless 전체](Tests/results/2026-11-03/f5-block-model.log): 이전 11개를 포함한 **26 통과, 실패/SKIP 0**, TypeScript·Safari 17 번들 생성 통과. split/join/type/indent/outdent/move/duplicate/delete·Undo/Redo·ID/선택 복원, 독립 목록 경계, 정확한 체크 표식 변경, stale/위조 대상·지연 저장 응답 거절 확인 |
+| WKWebView 번들 실행 | [파일/인라인 경로 18 통과](Tests/results/2026-11-03/f5-block-webkit.log): nonce CSP 아래 번들 부팅·한글/emoji import·체크 트랜잭션·Undo/Redo·빈 H2 저장/재import 확인. **시각 편집기·실제 키 입력·native Save 검사는 아님** |
+
+- 한계: 이동은 같은 부모의 형제 간, 중첩 변경은 목록 indent/outdent로 제한했습니다. 미지원 원문이 있는 컨테이너의 재구조화는 export를 거절하고 dirty·Undo를 유지합니다. 빈 문단의 개별 ID/서식은 Markdown에서 gap으로 복원되는 계획상의 한계를 유지합니다. 정식 앱의 기존 textarea·저장·목차·검색 경로는 아직 새 계층을 사용하지 않습니다.
+- 새 npm 의존성은 lockfile로 고정했습니다. 수식 토크나이저의 간접 KaTeX를 0.18.2로 고정한 설치에서 audit 취약점 0을 확인했습니다. [재실행 방법](Tests/README.md#new-block-model-f5).
