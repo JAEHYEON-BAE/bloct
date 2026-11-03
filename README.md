@@ -31,9 +31,18 @@ xattr -dr com.apple.quarantine /Applications/Bloct.app
    ```
 4. Open Bloct normally from `/Applications`
 
+## Development direction
+
+The top development priority is a Notion-like block editor with continuous visual
+editing, semantic blocks and Markdown source preservation. Implementation starts
+with the B01–B12 block model/import and command checks in
+[the block plan](WYSIWYG_BLOCK_PLAN.md); current results and remaining integration
+work are tracked in [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집).
+The app currently uses the block textarea workflow described below.
+
 ## Features
 
-### WYSIWYG Inline Editing
+### Current Block Editing
 Click any block in the preview to edit it directly — no separate editor pane needed. The clicked block is replaced by a textarea pre-filled with the raw Markdown for that block. Press **Escape** or click elsewhere to commit the change and re-render.
 
 ### Markdown Rendering
