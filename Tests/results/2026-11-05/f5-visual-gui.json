@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "aa9075dc2545bc1c5b761b35fc30e33fa0bac6fa",
+  "scope": "Uncommitted visual-editor stage on base commit; distinct local Debug test app. Installed app unchanged.",
+  "app_path": "/private/tmp/bloct-background-visual-20261105-yju5rhv6/Product/BloctVisualTest.app",
+  "bundle_id": "com.personal.Bloct.VisualTest20261105",
+  "final_binary_sha256": "b6100cc3e0242f0bc2f1df8b93b79c26389e242c80d8f9b3e3a61c22145bfe3c",
+  "final_editor_bundle_sha256": "58eedc327d42f107a5cdeeb0a5ef26ea2eb35ffffb4143d03163c3556b47ac24",
+  "final_source_copy_matches_repo_swift": true,
+  "final_resources_match_repo_dist": true,
+  "computer_use_observations": [
+    {
+      "action": "open temp fixture and select Aa / Visual Editor",
+      "observed": "Single Document editor, formatting menu, rendered headings/quotes/tasks/code/table/math; no Markdown textarea."
+    },
+    {
+      "action": "clear Start here, type ##, then Space",
+      "observed": "H2 node with muted gray Header 2 placeholder; marker removed before document content."
+    },
+    {
+      "action": "paste 실시간 제목 and press Enter, type > then Space",
+      "observed": "Live heading and muted Quote placeholder inside a bordered quote; existing quote kept separate after cursor correction."
+    },
+    {
+      "action": "enter quote text, empty quote Enter to exit, [] then Space",
+      "observed": "Gray To-do placeholder and checkbox. Rapid batched typeText/Return actions dropped characters/keys in automation; individual keys/paste used to verify final state."
+    },
+    {
+      "action": "paste New task, Save; click task, Command-Z then Shift-Command-Z; Save",
+      "observed": "Task checked -> unchecked -> checked through the engine history. Editor switch disabled while dirty, enabled after Save."
+    },
+    {
+      "action": "close and reopen saved file",
+      "observed": "Saved H2, quote and checked task rendered, original code/table/equation/quote/task preserved."
+    },
+    {
+      "action": "rebuild final app, reopen fixture, select Visual Editor, paste 최종 시각 편집 over H2, Command-W",
+      "observed": "Unsaved Changes alert with Save / Dont Save / Cancel; Cancel kept live draft."
+    },
+    {
+      "action": "Save final draft, switch Visual -> Markdown -> Visual",
+      "observed": "Clean mode transitions succeeded; final format menu tracked Header 2 while editing the heading."
+    },
+    {
+      "action": "close clean visual window with native close button; Quit from app menu",
+      "observed": "Document closed without an unsaved warning; test process disappeared from global inventory. No stale handle query after Quit."
+    }
+  ],
+  "screenshots_inspected_in_cua_trace": true,
+  "limits": [
+    "Korean text was pasted; actual Korean IME composition was not verified.",
+    "GUI heading/quote/task are sampled; all formats are covered by WKWebView DOM/input simulation, not all by native keyboard.",
+    "Command-W immediately after a mode switch without editor focus did not close in background automation; native close button succeeded. Focus/shortcut acceptance remains for subsequent GUI checks.",
+    "First-save panel/cancel, permission/conflict UI, rich clipboard, PDF, advanced table/image/link controls, accessibility and large-document performance remain unverified."
+  ],
+  "saved_fixture": "# Visual test\n\n## 최종 시각 편집\n\n> Quote text\n\n- [x] New task\n\n> Existing quote\n\n- [ ] Existing task\n\n```js\nconst sample = 1;\n```\n\n| A | B |\n| --- | --- |\n| one | two |\n\n$$\nx^2\n$$\n",
+  "saved_fixture_matches_expected": true,
+  "remaining_owned_previews": 0,
+  "test_process_exited": true
+}

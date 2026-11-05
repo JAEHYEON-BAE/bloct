@@ -35,6 +35,7 @@ struct BlockModelWebKit {
         let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         let config = WKWebViewConfiguration()
         let webView = WKWebView(frame: NSRect(x: 0, y: 0, width: 700, height: 600), configuration: config)
+        var visualCount = 0
         for mode in ["file", "inline"] {
             let html = try String(contentsOf: directory.appendingPathComponent("index.html"), encoding: .utf8)
             if mode == "file" {
@@ -70,8 +71,26 @@ struct BlockModelWebKit {
                 """#) as? [String]
             precondition(result?.count == 9)
             for name in result! { print("PASS [\(mode)]: \(name)") }
+            if CommandLine.arguments.count > 2 {
+                let suite = try String(contentsOfFile: CommandLine.arguments[2], encoding: .utf8)
+                let css = try String(contentsOf: directory.appendingPathComponent("visual.css"), encoding: .utf8)
+                let cssJSON = String(data: try JSONSerialization.data(withJSONObject: [css]), encoding: .utf8)!
+                _ = evaluate(webView, "const style=document.createElement('style');style.textContent=\(cssJSON)[0];document.head.append(style);return true;")
+                let output = evaluate(webView, suite) as! String
+                let data = try JSONSerialization.jsonObject(with: Data(output.utf8)) as! [String: Any]
+                let results = data["results"] as! [[String: Any]]
+                var failed = 0
+                for check in results {
+                    let pass = check["pass"] as? Bool == true
+                    print("\(pass ? "PASS" : "FAIL") [\(mode)]: \(check["name"]!) \(check["detail"] ?? "")")
+                    if !pass { failed += 1 }
+                }
+                visualCount += results.count
+                precondition(failed == 0, "\(failed) visual checks failed")
+            }
         }
         webView.stopLoading()
         print("18 passed, 0 failed; browser bundle only, no visual/IME/native-save coverage")
+        if visualCount > 0 { print("\(visualCount) visual DOM/input simulation checks passed; real IME/native Save separate") }
     }
 }

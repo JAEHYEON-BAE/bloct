@@ -35,7 +35,8 @@ function checkedPatches(old: PMNode, next: PMNode, patches: {at: number; value: 
 }
 
 function escapeText(text: string) {
-  return text.replace(/[\\`*_[\]<>#!+\-.()|~]/g, '\\$&');
+  return text.replace(/[\\`*_[\]<>#!+\-.()|~]/g, '\\$&')
+    .replace(/^[ \t]+|[ \t]+$/g, spaces => Array.from(spaces, c => c === '\t' ? '&#9;' : '&#32;').join(''));
 }
 function destination(url: string) {return `<${url.replace(/</g, '%3C').replace(/>/g, '%3E').replace(/\n/g, '%0A')}>`;}
 

@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-05",
+  "commit": "aa9075dc2545bc1c5b761b35fc30e33fa0bac6fa",
+  "app_path": "/private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app",
+  "bundle_id": "com.personal.Bloct.UITest20261105",
+  "version": "1.8.0",
+  "binary_sha256": "b05bfac93513261821adcafef25363776680dfd00b612bc26f6666581db7f24c",
+  "new_editor_bundle_in_app": false,
+  "computer_use_observations": [
+    {
+      "action": "open sample-a.md",
+      "AX": "heading GUI SAMPLE A, Value: 1; Edit Mode, Value: off"
+    },
+    {
+      "action": "enable Edit Mode and click body",
+      "AX": "text entry area (settable) Value: 입력 비교 영역"
+    },
+    {
+      "action": "clear body, type ## and press Space",
+      "AX": "text entry area (settable) Value: ## ",
+      "visual": "Plain Markdown textarea remains; no gray Header 2 placeholder."
+    },
+    {
+      "action": "enter heading content",
+      "AX": "text entry area (settable) Value: ## GUI Heading Test",
+      "visual": "Raw ## remains visible; no live heading rendering while editing."
+    },
+    {
+      "action": "Escape",
+      "AX": "heading GUI Heading Test, Value: 2",
+      "visual": "Textarea closes and H2 renders."
+    },
+    {
+      "action": "toggle checkbox and Command-S",
+      "AX": "checkbox 확인 항목, Value: 1; title loses Edited"
+    },
+    {
+      "action": "open B, Window menu to A, close A, reopen A",
+      "AX": "heading GUI Heading Test, Value: 2; checkbox 확인 항목, Value: 1"
+    },
+    {
+      "action": "close temporary documents and use app menu Quit",
+      "observed": "App no longer listed as running; no stale app-handle query after Quit."
+    }
+  ],
+  "screenshots_inspected_in_cua_trace": true,
+  "unicode_input_limit": "typeText did not insert Korean as requested; ASCII heading and paste used thereafter. No real Korean IME verification.",
+  "saved_a": "# GUI SAMPLE A\n\n원래 본문입니다.\n\n- [x] 확인 항목\n\n## 기존 제목\n\n## GUI Heading Test\n",
+  "saved_a_matches_expected": true,
+  "b_unchanged": true,
+  "remaining_owned_previews": 0,
+  "scope": "Current production UI compiled from source copy. Does not validate new EditorView, IME or new-engine native Save. Installed app untouched."
+}

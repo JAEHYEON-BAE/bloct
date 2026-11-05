@@ -121,10 +121,12 @@ export function importMarkdown(original: string): ImportedDocument {
         const items = n.children.map(item => {
           const own = raw(item, base);
           const marker = /^(?:[-+*]|\d{1,9}[.)])[\t ]+\[([ xX])\](?=[\t \r\n]|$)/.exec(own);
+          const emptyTask = marker && item.checked == null && own.slice(marker[0].length).trim() === '';
           const children = item.children.map(child => block(child as RootContent, base));
+          if (emptyTask) children.splice(0, children.length, schema.nodes.paragraph.create({id:id()}));
           if (children[0]?.type !== schema.nodes.paragraph) children.unshift(schema.nodes.paragraph.create({id: id()}));
           return schema.nodes.list_item.create(attrs(item, base, {
-            checked: item.checked ?? null,
+            checked: emptyTask ? /[xX]/.test(marker![1]) : item.checked ?? null,
             taskOffset: marker ? base + item.position!.start.offset! + marker[0].lastIndexOf('[') + 1 : null,
           }), children);
         });
@@ -133,7 +135,8 @@ export function importMarkdown(original: string): ImportedDocument {
             : {marker: source[0]}),
         }, items);
       }
-      case 'blockquote': return schema.nodes.blockquote.create(a, n.children.map(child => block(child as RootContent, base)));
+      case 'blockquote': return schema.nodes.blockquote.create(a, n.children.length
+        ? n.children.map(child => block(child as RootContent, base)) : [schema.nodes.paragraph.create({id:id()})]);
       case 'code': return schema.nodes.code_block.create({...a, language: n.lang ?? ''}, n.value ? schema.text(n.value) : null);
       case 'math': return schema.nodes.equation.create({...a, value: n.value});
       case 'thematicBreak': return schema.nodes.horizontal_rule.create(a);

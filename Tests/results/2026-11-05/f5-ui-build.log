@@ -1,0 +1,210 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project /private/tmp/bloct-background-20261105-zp1aun3y/Bloct.xcodeproj -scheme Bloct -configuration Debug -derivedDataPath /private/tmp/bloct-background-20261105-zp1aun3y/DerivedData CONFIGURATION_BUILD_DIR=/private/tmp/bloct-background-20261105-zp1aun3y/Product PRODUCT_NAME=BloctUITest PRODUCT_BUNDLE_IDENTIFIER=com.personal.Bloct.UITest20261105 CODE_SIGNING_ALLOWED=NO build
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+    CONFIGURATION_BUILD_DIR = /private/tmp/bloct-background-20261105-zp1aun3y/Product
+    PRODUCT_BUNDLE_IDENTIFIER = com.personal.Bloct.UITest20261105
+    PRODUCT_NAME = BloctUITest
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00008132-000631540250401C, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00008132-000631540250401C, name:My Mac }
+{ platform:macOS, name:Any Mac }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Bloct' in project 'Bloct' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: cf4e7007b812cbd566625e412c02f206
+Build description path: /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/XCBuildData/cf4e7007b812cbd566625e412c02f206.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+    cd /tmp/bloct-background-20261105-zp1aun3y/Bloct.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+
+ProcessInfoPlistFile /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/Info.plist /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/Info.plist (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-infoPlistUtility /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/Info.plist -producttype com.apple.product-type.application -genpkginfo /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/PkgInfo -expandbuildsettings -platform macosx -additionalcontentfile /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/assetcatalog_generated_info.plist -o /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/Info.plist
+
+SwiftDriver Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name BloctUITest -Onone @/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /private/tmp/bloct-background-20261105-zp1aun3y/Product -F /private/tmp/bloct-background-20261105-zp1aun3y/Product -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex -sdk-module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-generated-files.hmap -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-own-target-headers.hmap -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-project-headers.hmap -Xcc -I/private/tmp/bloct-background-20261105-zp1aun3y/Product/include -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-Swift.h -working-directory /tmp/bloct-background-20261105-zp1aun3y -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ DocumentDisk.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/DocumentDisk.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/DocumentDisk.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile DocumentDisk.swift
+
+SwiftCompile normal arm64 Compiling\ ContentView.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/ContentView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/ContentView.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile ContentView.swift
+
+SwiftCompile normal arm64 Compiling\ GeneratedAssetSymbols.swift /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftCompile normal arm64 Compiling\ PreviewFiles.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile PreviewFiles.swift
+
+SwiftCompile normal arm64 Compiling\ MarkdownDocument.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile MarkdownDocument.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ BloctUITest (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    
+
+SwiftCompile normal arm64 Compiling\ DocumentState.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/DocumentState.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/DocumentState.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile DocumentState.swift
+
+SwiftCompile normal arm64 Compiling\ MarkdownWebView.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile MarkdownWebView.swift
+
+SwiftCompile normal arm64 Compiling\ DocumentSaveOperation.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile DocumentSaveOperation.swift
+
+SwiftCompile normal arm64 Compiling\ BloctApp.swift /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/BloctApp.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftCompile normal arm64 /tmp/bloct-background-20261105-zp1aun3y/Sources/Bloct/BloctApp.swift (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-SwiftPerFileCompile BloctApp.swift
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for BloctUITest (in target 'Bloct' from project 'Bloct')
+
+SwiftDriver\ Compilation\ Requirements Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name BloctUITest -Onone @/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /private/tmp/bloct-background-20261105-zp1aun3y/Product -F /private/tmp/bloct-background-20261105-zp1aun3y/Product -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex -sdk-module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-generated-files.hmap -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-own-target-headers.hmap -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-project-headers.hmap -Xcc -I/private/tmp/bloct-background-20261105-zp1aun3y/Product/include -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-Swift.h -working-directory /tmp/bloct-background-20261105-zp1aun3y -experimental-emit-module-separately -disable-cmo
+
+SwiftMergeGeneratedHeaders /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/BloctUITest-Swift.h /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-Swift.h (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-swiftHeaderTool -arch arm64 /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-Swift.h -o /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/BloctUITest-Swift.h
+
+Copy /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/arm64-apple-macos.swiftmodule /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftmodule (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftmodule /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/arm64-apple-macos.swiftmodule
+
+Copy /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/arm64-apple-macos.swiftdoc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftdoc (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftdoc /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/arm64-apple-macos.swiftdoc
+
+Copy /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/arm64-apple-macos.abi.json /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.abi.json (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.abi.json /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/arm64-apple-macos.abi.json
+
+Copy /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftsourceinfo (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftsourceinfo /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling PreviewFiles.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GeneratedAssetSymbols.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentDisk.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentSaveOperation.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MarkdownDocument.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentState.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling BloctApp.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MarkdownWebView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ContentView.swift (in target 'Bloct' from project 'Bloct')
+
+SwiftDriver\ Compilation Bloct normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name BloctUITest -Onone @/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /private/tmp/bloct-background-20261105-zp1aun3y/Product -F /private/tmp/bloct-background-20261105-zp1aun3y/Product -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex -sdk-module-cache-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/bloct-background-20261105-zp1aun3y/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/Bloct_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-generated-files.hmap -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-own-target-headers.hmap -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-project-headers.hmap -Xcc -I/private/tmp/bloct-background-20261105-zp1aun3y/Product/include -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources-normal/arm64 -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources/arm64 -Xcc -I/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest-Swift.h -working-directory /tmp/bloct-background-20261105-zp1aun3y -experimental-emit-module-separately -disable-cmo
+
+Ld /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest.debug.dylib normal (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -L/private/tmp/bloct-background-20261105-zp1aun3y/Product -F/tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -F/private/tmp/bloct-background-20261105-zp1aun3y/Product -filelist /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.LinkFileList -install_name @rpath/BloctUITest.debug.dylib -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/../Frameworks -Xlinker -object_path_lto -Xlinker /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest.debug.dylib
+
+ConstructStubExecutorLinkFileList /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-ExecutorLinkFileList-normal-arm64.txt (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    construct-stub-executor-link-file-list /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'Bloct' from project 'Bloct')
+
+Ld /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest normal (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/private/tmp/bloct-background-20261105-zp1aun3y/Product -F/private/tmp/bloct-background-20261105-zp1aun3y/Product -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/../Frameworks -rdynamic -Xlinker -no_deduplicate -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest-ExecutorLinkFileList-normal-arm64.txt /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest.debug.dylib -o /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest
+
+CopySwiftLibs /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest.debug.dylib --scan-folder /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/Frameworks --scan-folder /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/PlugIns --scan-folder /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/Library/SystemExtensions --scan-folder /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/Extensions --platform macosx --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name BloctUITest --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk --xcode-version 27A266a --platform-family macOS --deployment-target 14.0 --bundle-identifier com.personal.Bloct.UITest20261105 --output /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/Resources --target-triple arm64-apple-macos14.0 --binary-file /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app/Contents/MacOS/BloctUITest --dependency-file /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest_dependency_info.dat --stringsdata-file /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.SwiftFileList --metadata-file-list /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest.DependencyMetadataFileList --static-metadata-file-list /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/BloctUITest.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/Bloct.build/Debug/Bloct.build/Objects-normal/arm64/BloctUITest.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-11-05 09:03:10.321 appintentsmetadataprocessor[16265:88980] Starting appintentsmetadataprocessor export
+2026-11-05 09:03:10.328 appintentsmetadataprocessor[16265:88980] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+RegisterExecutionPolicyException /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-RegisterExecutionPolicyException /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app
+
+Validate /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-validationUtility /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app -no-validate-extension -infoplist-subpath Contents/Info.plist
+
+Touch /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    /usr/bin/touch -c /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app
+
+RegisterWithLaunchServices /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app (in target 'Bloct' from project 'Bloct')
+    cd /tmp/bloct-background-20261105-zp1aun3y
+    builtin-lsregisterurl --record-path /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/XCBuildData/registered-launchservices.txt -- /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted /private/tmp/bloct-background-20261105-zp1aun3y/Product/BloctUITest.app
+
+PruneExplicitPrecompiledModules /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/bloct-background-20261105-zp1aun3y/DerivedData/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/bloct-background-20261105-zp1aun3y/DerivedData/SDKExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

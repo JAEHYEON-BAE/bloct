@@ -1,0 +1,178 @@
+const results=[];
+const check=async(name,body)=>{try{await body();results.push({name,pass:true});}catch(error){results.push({name,pass:false,detail:String(error)+'\n'+String(error.stack||'')});}};
+const assert=(value,message)=>{if(!value)throw new Error(message||'assertion failed');};
+let editor,host;
+const fresh=(markdown='')=>{
+  if(editor){editor.destroy();host.remove();}
+  host=document.createElement('div');document.body.append(host);
+  editor=BloctBlocks.mountVisualEditor(host,markdown,{imageURL:source=>source.startsWith('data:image/')?source:null});
+  editor.focus();return editor;
+};
+const type=text=>{
+  for(const character of text){
+    const view=editor.view,{from,to}=view.state.selection;
+    let handled=false;
+    view.someProp('handleTextInput',handler=>{handled=handler(view,from,to,character,()=>view.state.tr.insertText(character,from,to));return handled;});
+    if(!handled)view.dispatch(view.state.tr.insertText(character,from,to));
+  }
+};
+const key=(value,options={})=>{
+  const event=new KeyboardEvent('keydown',{key:value,keyCode:{Enter:13,Backspace:8,Tab:9,z:90,b:66}[value]||0,bubbles:true,cancelable:true,...options});
+  let handled=false;editor.view.someProp('handleKeyDown',handler=>{handled=handler(editor.view,event);return handled;});return handled;
+};
+const serialized=()=>editor.session.markdown();
+
+for(let level=1;level<=6;level++)await check(`H${level}: typed marker converts to editable heading and placeholder`,()=>{
+  fresh();type('#'.repeat(level)+' ');
+  assert(editor.session.doc.firstChild.type.name==='heading');
+  assert(editor.session.doc.firstChild.attrs.level===level);
+  assert(editor.toolbar.querySelector('select').value===`heading_${level}`);
+  assert(host.querySelector(`h${level}[data-placeholder="Header ${level}"]`));
+  assert(!document.querySelector('textarea'),'no raw Markdown textarea in normal editing');
+  type('Title');assert(host.querySelector(`h${level}`).textContent==='Title');
+  assert(serialized()==='#'.repeat(level)+' Title');
+});
+for(const [prefix,kind,selector] of [
+  ['> ','blockquote','blockquote [data-placeholder="Quote"]'],
+  ['- ','bullet_list','ul [data-placeholder="List item"]'],
+  ['+ ','bullet_list','ul [data-placeholder="List item"]'],
+  ['3. ','ordered_list','ol [data-placeholder="List item"]'],
+  ['[] ','bullet_list','li.task-item [data-placeholder="To-do"]'],
+  ['[x] ','bullet_list','li.task-item [data-placeholder="To-do"]'],
+  ['```js ','code_block','pre[data-placeholder="Code"]'],
+  ['~~~ ','code_block','pre[data-placeholder="Code"]'],
+])await check(`${JSON.stringify(prefix)}: block conversion, placeholder and round-trip`,()=>{
+  fresh();type(prefix);assert(editor.session.doc.firstChild.type.name===kind,serialized());
+  assert(host.querySelector(selector),host.innerHTML);type('content');serialized();
+});
+await check('heading Enter creates paragraph; Shift-Enter stays within text block',()=>{
+  fresh();type('## Title');assert(key('Enter'));type('Body');
+  assert(editor.session.doc.child(1).type.name==='paragraph');
+  key('Enter',{shiftKey:true});type('continued');
+  assert(serialized()==='## Title\n\nBody\\\ncontinued',serialized());
+});
+await check('quote Enter and empty quote exit preserve block structure',()=>{
+  fresh();type('> Quote');key('Enter');type('second');serialized();
+  key('Enter');key('Enter');type('outside');serialized();
+  assert(editor.session.doc.lastChild.type.name==='paragraph');
+});
+await check('task split resets checked, blank item Enter exits the list',()=>{
+  fresh();type('[x] Done');key('Enter');type('Next');
+  assert(editor.session.doc.firstChild.child(1).attrs.checked===false);
+  key('Enter');key('Enter');type('outside');
+  assert(editor.session.doc.lastChild.type.name==='paragraph');serialized();
+});
+await check('code fence Enter converts and code Enter inserts a literal newline',()=>{
+  fresh();type('```js');key('Enter');type('const x=1');key('Enter');type('// next');
+  assert(editor.session.doc.firstChild.type.name==='code_block');
+  assert(editor.session.doc.firstChild.textContent.includes('\n'));serialized();
+});
+for(const kind of ['paragraph','heading_1','heading_2','heading_3','heading_4','heading_5','heading_6','blockquote','bullet_list','ordered_list','task_list','code_block','horizontal_rule','equation','image_block','table']) {
+  await check(`format menu ${kind}: schema-valid editable/atomic block`,()=>{
+    fresh();assert(editor.format(kind));editor.session.doc.check();
+    assert(editor.session.doc.firstChild.type.name===(kind.startsWith('heading_')?'heading':kind==='task_list'?'bullet_list':kind));
+    if(kind==='task_list')assert(editor.session.doc.firstChild.firstChild.attrs.checked===false);
+    if(kind==='image_block') {
+      // An image has a source editor rather than a Markdown textarea.
+      const node=editor.session.doc.firstChild;
+      const tr=editor.session.state.tr.setNodeMarkup(0,undefined,{...node.attrs,src:'https://example.invalid/a.png',alt:'image'});
+      editor.view.dispatch(tr);
+    }
+    serialized();
+  });
+}
+await check('bold, italic, inline code, inline math, link and image input rules',()=>{
+  const examples=[['**bold**','strong','bold'],['*italic*','em','italic'],['`code`','code','code'],
+    ['$x+1$',null,'inline_math'],['[link](https://example.invalid)','link','link'],['![alt](a.png)',null,'image_block']];
+  for(const [example,mark,expected] of examples){
+    fresh();type(example);
+    if(mark){const inline=editor.session.doc.firstChild.firstChild;assert(inline.text===expected);assert(inline.marks.some(m=>m.type.name===mark));}
+    else if(expected==='image_block')assert(editor.session.doc.firstChild.type.name===expected);
+    else assert(editor.session.doc.firstChild.firstChild.type.name===expected);
+    serialized();
+  }
+});
+await check('divider and equation input rules consume markers',()=>{
+  for(const [prefix,kind]of[['--- ','horizontal_rule'],['$$ ','equation']]){
+    fresh();type(prefix);assert(editor.session.doc.firstChild.type.name===kind);serialized();
+  }
+});
+await check('input conversion Undo restores literal prefix; document history remains coherent',()=>{
+  fresh();type('## ');key('z',{metaKey:true});
+  assert(editor.session.doc.firstChild.type.name==='paragraph');
+  assert(editor.session.doc.firstChild.textContent==='## ');
+  serialized();
+});
+await check('save snapshot acknowledgement keeps later typing dirty and Undo available',async()=>{
+  fresh();type('A');const snapshot=await editor.snapshot();type('B');
+  assert(!editor.acknowledge(snapshot.token));assert(editor.session.changed);
+  assert(editor.history(false));
+  // Continuous text input is one engine history group; it is not one native
+  // Undo entry per keystroke. The fixed saved snapshot remains independent.
+  assert(!editor.acknowledge(snapshot.token));
+});
+await check('saved baseline becomes clean; search and selection never dirty the document',async()=>{
+  fresh();type('saved');const snap=await editor.snapshot();assert(editor.acknowledge(snap.token));
+  editor.search('save');editor.navigate(true);assert(!editor.session.changed);
+  assert(!serialized().includes('visual-match'));
+});
+await check('HTML metadata cannot create source authority; protected source is hidden by default',()=>{
+  fresh('<script>window.pwned=1</script>\n\n[text][external]');
+  assert(!window.pwned);assert(!host.textContent.includes('window.pwned'));
+  assert(host.textContent.includes('Preserved content'));
+  assert(serialized().includes('<script>window.pwned=1</script>'));
+});
+await check('separate list groups remain independent after actual view typing',()=>{
+  fresh('1. A\n\n1. B');type('prefix');
+  assert(editor.session.doc.childCount===2);assert(editor.session.doc.child(1).attrs.start===1);serialized();
+});
+await check('synthetic composition does not run Markdown input rules mid-composition',()=>{
+  fresh();editor.view.dom.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true}));type('## ');
+  assert(editor.session.doc.firstChild.type.name==='paragraph');
+  editor.view.dom.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true}));
+});
+await check('quote conversion before existing content keeps the caret inside the new quote',()=>{
+  fresh('replace\n\n> Existing quote');
+  const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);
+  editor.view.updateState(editor.session.state);
+  // Clear through the actual view transaction, then trigger the input rule.
+  editor.view.dispatch(editor.view.state.tr.delete(1,1+p.content.size));
+  type('> ');type('New quote');
+  assert(editor.session.doc.firstChild.type.name==='blockquote');
+  assert(editor.session.doc.firstChild.textContent==='New quote');
+  assert(editor.session.doc.child(1).textContent==='Existing quote');
+  assert(serialized()==='> New quote\n\n> Existing quote',serialized());
+});
+await check('single-line Unicode paste keeps the heading type, marks and cursor context',()=>{
+  fresh('## Title');
+  const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);
+  editor.view.updateState(editor.session.state);
+  const clipboard=new DataTransfer();clipboard.setData('text/plain',' 한글😀');
+  const event=new ClipboardEvent('paste',{clipboardData:clipboard,bubbles:true,cancelable:true});
+  editor.view.someProp('handlePaste',handler=>handler(editor.view,event));
+  assert(editor.session.doc.firstChild.type.name==='heading');
+  assert(editor.session.doc.childCount===1);
+  assert(editor.session.doc.firstChild.textContent==='Title 한글😀');serialized();
+});
+await check('multiline plain paste preserves hard breaks and paragraph boundaries',()=>{
+  fresh();
+  const clipboard=new DataTransfer();clipboard.setData('text/plain','one\ntwo\n\nthree');
+  const event=new ClipboardEvent('paste',{clipboardData:clipboard,bubbles:true,cancelable:true});
+  editor.view.someProp('handlePaste',handler=>handler(editor.view,event));
+  assert(editor.session.doc.childCount===2);
+  assert(editor.session.doc.firstChild.child(1).type.name==='hard_break');
+  assert(serialized()==='one\\\ntwo\n\nthree',serialized());
+});
+await check('empty checked and unchecked tasks save and reimport without literal brackets',()=>{
+  for(const prefix of ['[] ','[x] ']){
+    fresh();type(prefix);const saved=serialized();
+    fresh(saved);const item=editor.session.doc.firstChild.firstChild;
+    assert(item.type.name==='list_item');
+    assert(item.attrs.checked===prefix.includes('x'));
+    assert(item.firstChild.content.size===0);
+  }
+});
+if(editor){editor.destroy();host.remove();}
+return JSON.stringify({results});

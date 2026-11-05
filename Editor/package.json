@@ -5,10 +5,11 @@
   "scripts": {
     "test": "node --test test/*.test.ts",
     "check": "tsc --noEmit",
-    "build": "esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js"
+    "build": "esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js && node build-resources.mjs"
   },
   "dependencies": {
     "@tiptap/pm": "3.32.2",
+    "katex": "0.18.2",
     "mdast-util-from-markdown": "2.1.0",
     "mdast-util-gfm": "3.1.0",
     "mdast-util-math": "3.0.0",

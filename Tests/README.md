@@ -12,8 +12,9 @@ sh Tests/run-block-model.sh
 ```
 
 The runner checks TypeScript, executes the headless ProseMirror/import tests, and
-builds `Editor/dist/blocks.js` for Safari 17/WKWebView. It does not replace the app's
-current editor. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
+builds `Editor/dist/blocks.js`, offline CSS/fonts and license notices for Safari
+17/WKWebView. Xcode bundles these resources in the opt-in visual editor; the
+default remains the legacy Markdown editor. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
 the existing #16 policy fixture and exact UTF-16 source offsets.
 `Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
 round trips, cursor/ID restoration, snapshot acknowledgements and fail-closed
@@ -29,9 +30,30 @@ sh Tests/run-block-model-webkit.sh
 ```
 
 This requires permission to launch WebKit processes outside a restrictive sandbox.
-It checks engine/serializer execution, not a visual EditorView, keyboard input,
-placeholder appearance or the app's native Save/Reload bridge. It uses temporary
-files and does not open or replace the installed Bloct app.
+Without options it checks engine/serializer execution (18 checks). Add `--visual`
+to mount the actual EditorView in both file and inline WKWebViews and test typing
+rules, H1–H6/quote/list/task/code placeholders, all 16 menu formats, inline marks,
+Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
+round trips, search, protected source, engine history and snapshot acknowledgements.
+The 92 visual checks simulate DOM events/engine text handlers. Synthetic composition
+is a guard test, not real Korean IME acceptance. It uses temporary files and does
+not open or replace the installed Bloct app.
+
+```sh
+sh Tests/run-block-model-webkit.sh --visual
+sh Tests/run-visual-native.sh
+```
+
+The visual native harness hosts the complete production ContentView with the
+experimental mode selected. Its 17 checks cover separate documents, dirty state
+without autosave/native string Undo, native Undo/Redo, fixed Save snapshots and
+later changes, save failure/retry, clean external reload, Don't Save, Save-and-close
+and preview cleanup, including close before a queued dirty notification arrives.
+Temporary source copies expose actions, pause disk writes
+and capture errors/close warnings; NSDocument revert/close are controlled. First-save panels,
+conflict buttons, permission dialogs, real clipboard/IME, PDF, accessibility and
+performance require separate validation. CUA evidence and current limitations are
+linked in F5. All harnesses leave the installed app untouched.
 
 ## Current app regression checks
 

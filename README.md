@@ -38,7 +38,24 @@ editing, semantic blocks and Markdown source preservation. Implementation starts
 with the B01–B12 block model/import and command checks in
 [the block plan](WYSIWYG_BLOCK_PLAN.md); current results and remaining integration
 work are tracked in [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집).
-The app currently uses the block textarea workflow described below.
+Development builds now include an opt-in **Visual Editor**. Save any current
+changes, then use the **Aa** toolbar button to switch editors. The default remains
+the Markdown editor described below while IME and feature validation continues.
+
+### Visual Editor preview
+
+Edit the rendered document directly in one continuous surface. On an empty text
+block, type a marker and Space: `#` through `######` for headings, `>` for a quote,
+`-`/`+`/`*` for bullets, `1.` for a numbered list, `[]`/`[ ]`/`[x]` for a task,
+three backticks (optionally a language) for code, `---` for a divider, and `$$` for
+an equation. Empty text blocks show a muted placeholder for their type. Enter
+creates the next block; Shift-Enter inserts a hard break in text. The format menu
+also inserts images, equations and tables. Math renders offline.
+
+Changes render while typing; **⌘S** writes a fixed Markdown snapshot. Undo/Redo
+uses the editor history. Unsupported source stays in a protected node with a
+read-only source viewer. Actual Korean IME, first-save panels, rich clipboard/PDF,
+advanced table/image controls and performance remain under validation; see F5.
 
 ## Features
 
@@ -95,7 +112,15 @@ Fully adapts to macOS Light and Dark appearance.
 
 ## Building a release
 
-Release builds require Xcode 27.0 with the macOS 27.0 SDK and XcodeGen:
+Builds require Node.js 22.18+ and the locked editor dependencies. Xcode's pre-build
+step creates the editor JavaScript, offline CSS/fonts and dependency notices:
+
+```sh
+npm ci --prefix Editor
+xcodegen generate
+```
+
+Release builds also require Xcode 27.0 with the macOS 27.0 SDK and XcodeGen:
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer sh scripts/build-release.sh

@@ -22,6 +22,15 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
+      - name: Set up editor toolchain
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Install locked editor dependencies
+        run: npm ci --prefix Editor
+
       - name: Build and verify Release (SDK 27.0, minimum macOS 14.0)
         run: sh scripts/build-release.sh
 

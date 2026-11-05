@@ -1,0 +1,443 @@
+import {EditorView, Decoration, DecorationSet, type NodeView} from '@tiptap/pm/view';
+import {Plugin, TextSelection, NodeSelection, type Command, type EditorState, type Transaction} from '@tiptap/pm/state';
+import {InputRule, inputRules, undoInputRule} from '@tiptap/pm/inputrules';
+import {keymap} from '@tiptap/pm/keymap';
+import {baseKeymap, chainCommands, exitCode, lift, liftEmptyBlock, newlineInCode, setBlockType, splitBlock, toggleMark, wrapIn} from '@tiptap/pm/commands';
+import {wrapInList, splitListItem, sinkListItem, liftListItem} from '@tiptap/pm/schema-list';
+import {undo, redo, closeHistory} from '@tiptap/pm/history';
+import {Fragment, Slice, type Node as PMNode} from '@tiptap/pm/model';
+import katex from 'katex';
+import {BlockSession} from './session.ts';
+import {schema} from './schema.ts';
+
+export interface VisualOptions {
+  onChange?: (dirty: boolean) => void;
+  imageURL?: (source: string) => string | null;
+}
+
+export const formats = [
+  ['paragraph','Text'], ...[1,2,3,4,5,6].map(n => [`heading_${n}`, `Header ${n}`]),
+  ['blockquote','Quote'], ['bullet_list','Bulleted list'], ['ordered_list','Numbered list'],
+  ['task_list','To-do list'], ['code_block','Code'], ['horizontal_rule','Divider'],
+  ['equation','Equation'], ['image_block','Image'], ['table','Table'],
+];
+
+function rules(): InputRule[] {
+  const blockRule = (pattern: RegExp, kind: string, attributes: (m: RegExpMatchArray) => object = () => ({})) =>
+    new InputRule(pattern, (state, match, start, end) => {
+      const $from = state.doc.resolve(start);
+      if ($from.parent.type !== schema.nodes.paragraph || $from.parentOffset !== 0
+          || end !== $from.end()) return null;
+      const tr = closeHistory(state.tr.delete(start, end));
+      if (kind === 'heading' || kind === 'code_block') return tr.setBlockType(start, start, schema.nodes[kind], {
+        ...$from.parent.attrs, ...attributes(match),
+      });
+      if (kind === 'task' && $from.depth > 1 && $from.node(-1).type === schema.nodes.list_item) {
+        const item = $from.node(-1);
+        return tr.setNodeMarkup($from.before(-1), undefined, {...item.attrs, checked: /[xX]/.test(match[1])});
+      }
+      if ($from.depth !== 1) return null;
+      const p = tr.doc.nodeAt($from.before())!;
+      if (kind === 'blockquote') {
+        tr.replaceWith($from.before(), $from.before() + p.nodeSize,
+          schema.nodes.blockquote.create({...p.attrs}, schema.nodes.paragraph.create({id:null}, p.content)));
+        return tr.setSelection(TextSelection.create(tr.doc,$from.before()+2));
+      }
+      if (kind === 'bullet_list' || kind === 'ordered_list' || kind === 'task') {
+        const item = schema.nodes.list_item.create({...p.attrs, checked: kind === 'task' ? /[xX]/.test(match[1]) : null},
+          schema.nodes.paragraph.create({id:null}, p.content));
+        const list = schema.nodes[kind === 'ordered_list' ? kind : 'bullet_list'].create({
+          before:p.attrs.before, ...attributes(match),
+        }, item);
+        tr.replaceWith($from.before(), $from.before() + p.nodeSize, list);
+        return tr.setSelection(TextSelection.create(tr.doc, $from.before() + 3));
+      }
+      const node = schema.nodes[kind].create({...p.attrs});
+      tr.replaceWith($from.before(), $from.before() + p.nodeSize, [node, schema.nodes.paragraph.create()]);
+      return tr.setSelection(TextSelection.create(tr.doc, $from.before() + node.nodeSize + 1));
+    });
+  return [
+    blockRule(/^(#{1,6}) $/, 'heading', m => ({level:m[1].length})),
+    blockRule(/^> $/, 'blockquote'),
+    blockRule(/^(?:[-+*] )?\[([ xX]?)\] $/, 'task'),
+    blockRule(/^([-+*]) $/, 'bullet_list', m => ({marker:m[1]})),
+    blockRule(/^(\d{1,9})([.)]) $/, 'ordered_list', m => ({start:Number(m[1]),marker:m[2]})),
+    blockRule(/^(?:```|~~~)([\w+-]*) $/, 'code_block', m => ({language:m[1]})),
+    blockRule(/^(?:---|\*\*\*) $/, 'horizontal_rule'),
+    blockRule(/^\$\$ $/, 'equation'),
+    new InputRule(/(?:^|\s)\*\*([^*]+)\*\*$/, (state, match, start, end) => {
+      const prefix = match[0].startsWith(' ') ? 1 : 0;
+      return state.tr.insertText(match[1], start + prefix, end)
+        .addMark(start + prefix, start + prefix + match[1].length, schema.marks.strong.create());
+    }),
+    new InputRule(/(?:^|\s)\*([^*]+)\*$/, (state, match, start, end) => {
+      const prefix = match[0].startsWith(' ') ? 1 : 0;
+      return state.tr.insertText(match[1], start + prefix, end)
+        .addMark(start + prefix, start + prefix + match[1].length, schema.marks.em.create());
+    }),
+    new InputRule(/`([^`]+)`$/, (state, match, start, end) => state.tr.insertText(match[1], start, end)
+      .addMark(start, start + match[1].length, schema.marks.code.create())),
+    new InputRule(/\$([^$\n]+)\$$/, (state,match,start,end) => {
+      if(/^\s|\s$/.test(match[1]))return null;
+      return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1]}));
+    }),
+    new InputRule(/!\[([^\]]*)\]\(([^)\s]+)\)$/, (state,match,start,end) => {
+      const $from=state.doc.resolve(start);
+      const attrs={src:match[2],alt:match[1]};
+      if($from.depth===1 && !$from.parentOffset && end===$from.end()) {
+        const image=schema.nodes.image_block.create({...$from.parent.attrs,...attrs});
+        const tr=state.tr.replaceWith($from.before(),$from.after(),[image,schema.nodes.paragraph.create()]);
+        return tr.setSelection(TextSelection.create(tr.doc,$from.before()+image.nodeSize+1));
+      }
+      return state.tr.replaceWith(start,end,schema.nodes.inline_image.create(attrs));
+    }),
+    new InputRule(/\[([^\]]+)\]\(([^)\s]+)\)$/, (state,match,start,end) => {
+      if(start>0 && state.doc.textBetween(start-1,start)==='!')return null;
+      return state.tr.insertText(match[1],start,end).addMark(start,start+match[1].length,schema.marks.link.create({href:match[2]}));
+    }),
+  ];
+}
+
+export class VisualEditor {
+  readonly session: BlockSession;
+  readonly view: EditorView;
+  readonly host: HTMLElement;
+  readonly toolbar: HTMLElement;
+  readonly status: HTMLElement;
+  #editable = true;
+  #frozen = false;
+  #search = '';
+  #matches: {from:number;to:number}[] = [];
+  #matchIndex = -1;
+  #options: VisualOptions;
+  #snapshots = new Map<string, ReturnType<BlockSession['snapshot']>>();
+
+  constructor(host: HTMLElement, markdown: string, options: VisualOptions = {}) {
+    this.host = host;
+    this.#options = options;
+    this.session = new BlockSession(markdown);
+    this.toolbar = document.createElement('div');
+    this.toolbar.className = 'visual-toolbar';
+    this.toolbar.setAttribute('role','toolbar'); this.toolbar.setAttribute('aria-label','Formatting');
+    const select = document.createElement('select'); select.setAttribute('aria-label','Block format');
+    for (const [value,label] of formats) {
+      const option = document.createElement('option'); option.value = value; option.textContent = label; select.append(option);
+    }
+    select.addEventListener('change', () => {this.format(select.value); this.updateFormat();});
+    this.toolbar.append(select);
+    for (const [label,mark] of [['Bold','strong'],['Italic','em'],['Inline code','code']]) {
+      const button = document.createElement('button'); button.type='button'; button.textContent=label;
+      button.addEventListener('mousedown', e => e.preventDefault());
+      button.addEventListener('click', () => this.run(toggleMark(schema.marks[mark])));
+      this.toolbar.append(button);
+    }
+    this.status = document.createElement('div'); this.status.className='visual-status'; this.status.setAttribute('role','status');
+    host.before(this.toolbar); host.after(this.status);
+    this.session.configure(this.plugins());
+    this.view = new EditorView(host, {
+      state:this.session.state,
+      attributes: {role:'textbox','aria-label':'Document','aria-multiline':'true'},
+      editable: () => this.#editable && !this.#frozen,
+      dispatchTransaction: tr => this.dispatch(tr),
+      nodeViews: {
+        list_item:(node,view,getPos) => this.taskView(node,view,getPos),
+        equation:(node,view,getPos) => this.atomView(node,view,getPos),
+        inline_math:(node,view,getPos) => this.atomView(node,view,getPos),
+        image_block:(node,view,getPos) => this.atomView(node,view,getPos),
+        inline_image:(node,view,getPos) => this.atomView(node,view,getPos),
+        raw_source:(node,view,getPos) => this.atomView(node,view,getPos),
+      },
+      handlePaste:(view,event) => {
+        const text = event.clipboardData?.getData('text/plain');
+        if (!text) return false;
+        // Markdown/plain text is pasted as text; it never runs typing rules.
+        // HTML parsing is schema-only and cannot create bridge controls/IDs.
+        if (event.clipboardData?.getData('text/html')) return false;
+        const $from = view.state.selection.$from;
+        if ($from.parent.type === schema.nodes.code_block) {
+          view.dispatch(view.state.tr.insertText(text)); return true;
+        }
+        if($from.parent.type===schema.nodes.table_cell && /[\r\n]/.test(text)) {
+          this.status.textContent='Use one line per table cell.';return true;
+        }
+        if(!/[\r\n]/.test(text)) {view.dispatch(view.state.tr.insertText(text).scrollIntoView());return true;}
+        const paragraphs = text.replace(/\r\n|\r/g,'\n').split(/\n\n+/).map(part => {
+          const content: PMNode[]=[];
+          part.split('\n').forEach((line,i) => {if(i) content.push(schema.nodes.hard_break.create()); if(line) content.push(schema.text(line));});
+          return schema.nodes.paragraph.create(null,content);
+        });
+        if (paragraphs.length === 1) {
+          view.dispatch(view.state.tr.replaceSelection(new Slice(paragraphs[0].content,0,0)).scrollIntoView());
+        } else {
+          const slice=new Slice(Fragment.fromArray(paragraphs),1,1);
+          view.dispatch(view.state.tr.replaceSelection(slice).scrollIntoView());
+        }
+        return true;
+      },
+    });
+    this.notify();
+  }
+
+  private plugins(): Plugin[] {
+    const historyCommand = (forward:boolean): Command => (state,dispatch) =>
+      (forward ? redo : undo)(state,tr => dispatch?.(tr.setMeta('bloctHistory',true)));
+    const enter: Command = (state,dispatch,view) => {
+      const {$from,empty}=state.selection;
+      if (this.view?.composing) return false;
+      if ($from.parent.type === schema.nodes.table_cell) return this.nextCell(false);
+      if ($from.parent.type === schema.nodes.code_block) return newlineInCode(state,dispatch);
+      if (empty && $from.parent.type === schema.nodes.paragraph && /^(?:```|~~~)[\w+-]*$/.test($from.parent.textContent)) {
+        const language=$from.parent.textContent.slice(3);
+        const tr=state.tr.delete($from.start(),$from.end()).setBlockType($from.start(),$from.start(),schema.nodes.code_block,{...$from.parent.attrs,language});
+        dispatch?.(closeHistory(tr)); return true;
+      }
+      if ($from.depth > 1 && $from.node(-1).type === schema.nodes.list_item) {
+        if(!$from.parent.content.size && $from.node(-1).childCount>1) return true;
+        return chainCommands(splitListItem(schema.nodes.list_item),liftListItem(schema.nodes.list_item))(state,dispatch,view);
+      }
+      if ($from.parent.type === schema.nodes.heading && $from.depth === 1 && empty && $from.parentOffset===0) {
+        const tr=state.tr.insert($from.before(),schema.nodes.paragraph.create());
+        tr.setSelection(TextSelection.create(tr.doc,$from.before()+1)); dispatch?.(closeHistory(tr)); return true;
+      }
+      if ($from.parent.type === schema.nodes.paragraph && !$from.parent.content.size && $from.depth>1) {
+        return liftEmptyBlock(state,dispatch,view);
+      }
+      return splitBlock(state, tr => {
+        const pos=tr.selection.$from.before();
+        if(tr.selection.$from.parent.type===schema.nodes.heading) tr.setNodeMarkup(pos,schema.nodes.paragraph);
+        dispatch?.(closeHistory(tr));
+      },view);
+    };
+    const backspace: Command=(state,dispatch,view) => {
+      if (this.view?.composing) return false;
+      if (undoInputRule(state,dispatch)) return true;
+      const {$from,empty}=state.selection;
+      if (empty && !$from.parentOffset && $from.parent.type===schema.nodes.heading) return setBlockType(schema.nodes.paragraph)(state,dispatch);
+      if (empty && !$from.parentOffset && $from.depth>1 && $from.node(-1).type===schema.nodes.blockquote) return lift(state,dispatch);
+      if (empty && !$from.parentOffset && $from.depth>1 && $from.node(-1).type===schema.nodes.list_item) return liftListItem(schema.nodes.list_item)(state,dispatch);
+      return baseKeymap.Backspace(state,dispatch,view);
+    };
+    return [inputRules({rules:rules()}), keymap({
+      'Mod-z':chainCommands(undoInputRule,historyCommand(false)),
+      'Shift-Mod-z':historyCommand(true), 'Mod-y':historyCommand(true),
+      'Mod-b':toggleMark(schema.marks.strong), 'Mod-i':toggleMark(schema.marks.em),
+      'Mod-e':toggleMark(schema.marks.code), Enter:enter, Backspace:backspace,
+      'Shift-Enter':(state,dispatch) => {
+        if(state.selection.$from.parent.type===schema.nodes.heading) return enter(state,dispatch);
+        if(state.selection.$from.parent.type===schema.nodes.code_block) return newlineInCode(state,dispatch);
+        if(state.selection.$from.parent.type===schema.nodes.table_cell) return this.nextCell(false);
+        dispatch?.(state.tr.replaceSelectionWith(schema.nodes.hard_break.create()).scrollIntoView()); return true;
+      },
+      'Mod-Enter':(state,dispatch) => exitCode(state,dispatch) || this.afterRoot(),
+      Tab: (state,dispatch) => this.inTable() ? this.nextCell(false) : sinkListItem(schema.nodes.list_item)(state,dispatch),
+      'Shift-Tab':(state,dispatch) => this.inTable() ? this.nextCell(true) : liftListItem(schema.nodes.list_item)(state,dispatch),
+    }),keymap(baseKeymap),new Plugin({props:{decorations:state => this.decorations(state)}})];
+  }
+  private dispatch(tr: Transaction) {
+    if(this.#frozen && tr.docChanged) return;
+    this.session.dispatch(tr);
+    this.view.updateState(this.session.state);
+    this.notify();
+  }
+  private notify() {
+    this.updateFormat();
+    this.#options.onChange?.(this.session.changed);
+    // This optional hook belongs to the macOS host, not the editable DOM.
+    (window as any)._mvBuildTOC?.();
+  }
+  private updateFormat() {
+    const {$from}=this.session.state.selection;
+    let kind=$from.parent.type.name;
+    if(kind==='heading')kind=`heading_${$from.parent.attrs.level}`;
+    for(let depth=$from.depth-1;depth>0;depth--) {
+      const node=$from.node(depth);
+      if(node.type===schema.nodes.list_item && node.attrs.checked!=null){kind='task_list';break;}
+      if(node.type===schema.nodes.bullet_list||node.type===schema.nodes.ordered_list||node.type===schema.nodes.blockquote){kind=node.type.name;break;}
+    }
+    (this.toolbar.querySelector('select') as HTMLSelectElement).value=kind;
+  }
+  private run(command:Command) {
+    if(!this.#editable || this.#frozen) return false;
+    const handled=command(this.session.state,tr => this.view.dispatch(tr),this.view);
+    this.view.focus(); return handled;
+  }
+  format(kind:string) {
+    this.status.textContent='';
+    if (!this.#editable || this.#frozen) return false;
+    const attrs=this.session.state.selection.$from.parent.attrs;
+    if(kind==='paragraph') {
+      if(this.session.state.selection.$from.depth===1 && this.session.state.selection.$from.parent.type===schema.nodes.paragraph) {this.view.focus();return true;}
+      return this.run(chainCommands(lift,setBlockType(schema.nodes.paragraph,attrs)));
+    }
+    if(kind.startsWith('heading_')) return this.run(setBlockType(schema.nodes.heading,{...attrs,level:Number(kind.slice(8))}));
+    if(kind==='blockquote') return this.run(wrapIn(schema.nodes.blockquote));
+    if(kind==='code_block') return this.run(setBlockType(schema.nodes.code_block,attrs));
+    if(['bullet_list','ordered_list','task_list'].includes(kind)) {
+      return this.run((state,dispatch) => wrapInList(schema.nodes[kind==='ordered_list'?kind:'bullet_list'])(state,tr => {
+        if(kind==='task_list') tr.doc.descendants((node,pos) => {
+          if(node.type===schema.nodes.list_item && pos>=tr.selection.$from.before(1) && pos<tr.selection.$from.after(1)) {
+            tr.setNodeMarkup(pos,undefined,{...node.attrs,checked:false});
+          }
+        });
+        dispatch?.(tr);
+      }));
+    }
+    let node: PMNode;
+    if(kind==='table') {
+      const row=() => schema.nodes.table_row.create(null,[schema.nodes.table_cell.create(),schema.nodes.table_cell.create()]);
+      node=schema.nodes.table.create({align:[null,null]},[row(),row()]);
+    } else if(['equation','image_block','horizontal_rule'].includes(kind)) node=schema.nodes[kind].create();
+    else return false;
+    const {$from}=this.session.state.selection;
+    const top=$from.depth ? $from.node(1) : this.session.doc.firstChild!;
+    const start=$from.depth ? $from.before(1) : 0;
+    const replacing=top.type===schema.nodes.paragraph && !top.content.size;
+    const at=replacing ? start : start+top.nodeSize;
+    const tr=closeHistory(this.session.state.tr.replaceWith(at,replacing ? at+top.nodeSize : at,[node,schema.nodes.paragraph.create()]));
+    tr.setSelection(node.type===schema.nodes.table ? TextSelection.create(tr.doc,at+3) : NodeSelection.create(tr.doc,at));
+    this.view.dispatch(tr); this.view.focus(); return true;
+  }
+  private afterRoot() {
+    const {$from}=this.session.state.selection;
+    if(!$from.depth) return false;
+    const at=$from.after(1);
+    const tr=this.session.state.tr.insert(at,schema.nodes.paragraph.create());
+    tr.setSelection(TextSelection.create(tr.doc,at+1));this.view.dispatch(closeHistory(tr));return true;
+  }
+  private inTable() {return this.session.state.selection.$from.parent.type===schema.nodes.table_cell;}
+  private nextCell(back:boolean) {
+    const selection=this.session.state.selection;
+    const cells:number[]=[];
+    this.session.doc.descendants((node,pos) => {if(node.type===schema.nodes.table_cell) cells.push(pos+1);});
+    const at=cells.indexOf(selection.$from.start());
+    const target=cells[at+(back?-1:1)];
+    if(target==null) return back ? false : this.afterRoot();
+    this.view.dispatch(this.session.state.tr.setSelection(TextSelection.create(this.session.doc,target)).scrollIntoView());return true;
+  }
+  private decorations(state:EditorState) {
+    const decorations:Decoration[]=[];
+    this.#matches=[];
+    state.doc.descendants((node,pos) => {
+      if(node.attrs.id && node.isBlock) {
+        const attrs:Record<string,string>={'data-block-id':node.attrs.id};
+        if(node.type===schema.nodes.heading) attrs.id='block-'+node.attrs.id;
+        if(node.isTextblock && !node.content.size) {
+          let label=node.type===schema.nodes.heading ? `Header ${node.attrs.level}` : node.type===schema.nodes.code_block ? 'Code' : 'Text';
+          const parent=state.doc.resolve(pos).parent;
+          if(parent.type===schema.nodes.blockquote) label='Quote';
+          if(parent.type===schema.nodes.list_item) label=parent.attrs.checked==null?'List item':'To-do';
+          if(node.type===schema.nodes.table_cell) label='Cell';
+          attrs['data-placeholder']=label; attrs.class='is-empty';
+        }
+        decorations.push(Decoration.node(pos,pos+node.nodeSize,attrs));
+      }
+      if(this.#search && node.isText) {
+        const text=node.text!.toLocaleLowerCase(),term=this.#search.toLocaleLowerCase();
+        for(let i=text.indexOf(term);i>=0;i=text.indexOf(term,i+term.length)) {
+          decorations.push(Decoration.inline(pos+i,pos+i+term.length,{class:'visual-match'}));
+          this.#matches.push({from:pos+i,to:pos+i+term.length});
+        }
+      }
+    });
+    return DecorationSet.create(state.doc,decorations);
+  }
+  private taskView(node:PMNode,view:EditorView,getPos:()=>number|undefined):NodeView {
+    const dom=document.createElement('li'), contentDOM=document.createElement('div');
+    const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.contentEditable='false';checkbox.setAttribute('aria-label','Toggle task');
+    const paint=(current:PMNode) => {
+      checkbox.hidden=current.attrs.checked==null; checkbox.checked=!!current.attrs.checked;
+      dom.classList.toggle('task-item',current.attrs.checked!=null);
+    };
+    checkbox.addEventListener('mousedown',e=>e.preventDefault());
+    checkbox.addEventListener('change',()=>{
+      const pos=getPos(); if(pos==null)return;
+      const current=view.state.doc.nodeAt(pos)!;
+      if(this.#frozen){paint(current);return;}
+      view.dispatch(closeHistory(view.state.tr.setNodeMarkup(pos,undefined,{...current.attrs,checked:!current.attrs.checked})));
+    });
+    dom.append(checkbox,contentDOM);paint(node);
+    return {dom,contentDOM,update:current=>{if(current.type!==schema.nodes.list_item)return false;paint(current);return true;},
+      stopEvent:event=>event.target===checkbox};
+  }
+  private atomView(node:PMNode,view:EditorView,getPos:()=>number|undefined):NodeView {
+    const dom=document.createElement(node.isInline?'span':'div');dom.className='visual-atom';dom.contentEditable='false';
+    const content=document.createElement('span'),button=document.createElement('button');button.type='button';button.textContent='Edit';
+    const paint=(current:PMNode)=>{
+      content.replaceChildren();
+      if(current.type===schema.nodes.equation||current.type===schema.nodes.inline_math) {
+        if(current.attrs.value) content.innerHTML=katex.renderToString(current.attrs.value,{displayMode:!current.isInline,throwOnError:false,trust:false,strict:'warn'});
+        else content.textContent='Equation';
+      } else if(current.type===schema.nodes.image_block||current.type===schema.nodes.inline_image) {
+        const url=this.#options.imageURL?.(current.attrs.src);
+        if(url) {const image=document.createElement('img');image.src=url;image.alt=current.attrs.alt;image.dataset.source=current.attrs.src;content.append(image);}
+        else content.textContent=current.attrs.alt||'Image';
+        if(current.attrs.caption) {const caption=document.createElement('span');caption.textContent=current.attrs.caption;content.append(caption);}
+      } else {content.textContent='Preserved content';button.textContent='View source';}
+    };
+    button.addEventListener('click',()=>{
+      const pos=getPos();if(pos==null)return;
+      const current=view.state.doc.nodeAt(pos)!;
+      if(!this.#editable && current.type!==schema.nodes.raw_source)return;
+      const dialog=document.createElement('dialog'),form=document.createElement('form');form.method='dialog';
+      const label=document.createElement('label');label.textContent=current.type===schema.nodes.raw_source?'Preserved source':current.type.name.includes('image')?'Image URL':'Equation';
+      const input=document.createElement('textarea'); input.value=current.attrs.raw??current.attrs.src??current.attrs.value??'';
+      input.readOnly=current.type===schema.nodes.raw_source; label.append(input);form.append(label);
+      const cancel=document.createElement('button');cancel.textContent='Cancel';cancel.value='cancel';form.append(cancel);
+      if(!input.readOnly){const save=document.createElement('button');save.textContent='Apply';save.value='apply';form.append(save);}
+      dialog.append(form);document.body.append(dialog);
+      dialog.addEventListener('close',()=>{
+        if(dialog.returnValue==='apply'&&!this.#frozen){
+          const key=current.type.name.includes('image')?'src':'value';
+          view.dispatch(closeHistory(view.state.tr.setNodeMarkup(pos,undefined,{...current.attrs,[key]:input.value})));
+        }
+        dialog.remove();view.focus();
+      });dialog.showModal();input.focus();
+    });
+    dom.append(content,button);paint(node);
+    return {dom,update:current=>{if(current.type!==node.type)return false;paint(current);return true;},stopEvent:()=>true};
+  }
+  setEditable(value:boolean) {
+    this.#editable=value;this.view.setProps({editable:()=>this.#editable&&!this.#frozen});
+    this.toolbar.hidden=!value;
+  }
+  history(forward:boolean) {
+    if(this.#frozen)return false;
+    return (forward?redo:undo)(this.session.state,tr=>this.view.dispatch(tr.setMeta('bloctHistory',true)));
+  }
+  freezeIfClean() {
+    const dirty=this.session.changed||this.view.composing;
+    if(!dirty){this.#frozen=true;this.view.setProps({editable:()=>false});}
+    return dirty;
+  }
+  unfreeze() {this.#frozen=false;this.view.setProps({editable:()=>this.#editable});}
+  async snapshot() {
+    const deadline=Date.now()+1500;
+    while(this.view.composing && Date.now()<deadline) await new Promise(r=>setTimeout(r,20));
+    if(this.view.composing) throw new Error('Finish text composition before saving.');
+    const snapshot=this.session.snapshot(),token=crypto.randomUUID();this.#snapshots.set(token,snapshot);
+    return {text:snapshot.markdown,token,revision:snapshot.revision};
+  }
+  acknowledge(token:string,closing=false) {
+    const snapshot=this.#snapshots.get(token);if(!snapshot)return false;
+    this.#snapshots.delete(token);this.session.markSaved(snapshot);
+    const clean=!this.session.changed&&!this.view.composing;
+    if(closing&&clean){this.#frozen=true;this.view.setProps({editable:()=>false});}
+    this.notify();return clean;
+  }
+  reload(markdown:string) {
+    this.session.acceptExternal(markdown);this.session.configure(this.plugins());
+    this.view.updateState(this.session.state);this.#snapshots.clear();this.unfreeze();this.notify();
+  }
+  search(term:string) {this.#search=term;this.#matchIndex=-1;this.view.updateState(this.session.state);}
+  navigate(forward:boolean) {
+    if(!this.#matches.length)return;
+    this.#matchIndex=(this.#matchIndex+(forward?1:-1)+this.#matches.length)%this.#matches.length;
+    const found=this.#matches[this.#matchIndex];this.view.domAtPos(found.from).node.parentElement?.scrollIntoView({block:'center'});
+  }
+  focus(){this.view.focus();}
+  destroy(){this.view.destroy();this.toolbar.remove();this.status.remove();}
+}
+
+export function mountVisualEditor(host:HTMLElement,markdown:string,options:VisualOptions={}) {
+  return new VisualEditor(host,markdown,options);
+}

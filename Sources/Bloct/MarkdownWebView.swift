@@ -127,6 +127,7 @@ struct MarkdownWebView: NSViewRepresentable {
     var onReload: () -> Void = {}
     var onBeforeEdit: ((@escaping (Bool) -> Void) -> Void)? = nil
     var reloadGeneration: Int = 0
+    var visualEditing: Bool = false
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -269,7 +270,11 @@ struct MarkdownWebView: NSViewRepresentable {
                     self.onTextCommit?(text)
                 }
             case "editorDirty":
-                if let dirty = message.body as? Bool {
+                if let payload = message.body as? [String: Any],
+                   payload["generation"] as? Int == (message.webView as? DocumentWebView)?.documentGeneration,
+                   let dirty = payload["dirty"] as? Bool {
+                    self.onEditorDirtyChanged?(dirty)
+                } else if let dirty = message.body as? Bool {
                     self.onEditorDirtyChanged?(dirty)
                 }
             case "reloadDocument":
@@ -452,6 +457,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 pendingAutoFocus = false
                 webView.evaluateJavaScript("""
                     (function() {
+                        if (window._bloctVisual) { window._bloctVisual.focus(); return; }
                         var el = document.querySelector('.mv-block') || document.getElementById('mv-append-zone');
                         if (el && window._mvStartBlockEdit) window._mvStartBlockEdit(el, 0, false);
                     })();
@@ -598,6 +604,7 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     func buildHTML(imageOrigin: String = "") -> String {
+        if visualEditing { return buildVisualHTML(imageOrigin: imageOrigin) }
         let base64Markdown = Data(markdown.utf8).base64EncodedString()
         let nonce = UUID().uuidString
 

@@ -1,0 +1,8 @@
+PASS: discarded FileDocument snapshots reject delayed native writes
+PASS: exactly one Undo per commit, Redo, isolated save snapshots and discard
+PASS: 25 delayed discard cycles never publish abandoned drafts
+PASS: staged save starts once after the SwiftUI observation boundary
+PASS: save completion waits, forwards failure/success and releases its delegate
+PASS: disk inspection/update never asks the file presenter to autosave or delete
+PASS: same-time atomic replacement, coordinated conflict rejection, successful save and deleted-file protection
+PASS: independent previews, owned cleanup and preservation of existing files

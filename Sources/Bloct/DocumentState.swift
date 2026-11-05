@@ -33,6 +33,12 @@ final class DocumentState: ObservableObject {
         if !isReplaying { undoManager.endUndoGrouping() }
     }
 
+    // Visual editing owns its history in ProseMirror. Native Save only mirrors
+    // a fixed snapshot and must not register a second string-based Undo step.
+    func receiveVisualSnapshot(_ snapshot: String) {
+        text = snapshot
+    }
+
     func restore(_ savedText: String) {
         text = savedText
         undoManager.removeAllActions()

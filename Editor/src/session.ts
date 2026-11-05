@@ -1,5 +1,5 @@
 import {Fragment, type Node as PMNode} from '@tiptap/pm/model';
-import {EditorState, TextSelection, type Transaction} from '@tiptap/pm/state';
+import {EditorState, TextSelection, type Transaction, type Plugin} from '@tiptap/pm/state';
 import {history, undo, redo, closeHistory} from '@tiptap/pm/history';
 import {sinkListItem, liftListItem, splitListItem} from '@tiptap/pm/schema-list';
 import {importMarkdown, type ImportedDocument} from './importer.ts';
@@ -34,14 +34,32 @@ export class BlockSession {
   #references = new WeakSet<object>();
   #snapshots = new WeakSet<object>();
   #savedRevision = 0;
+  #savedDoc: PMNode;
+  #snapshotDocs = new WeakMap<object, PMNode>();
 
   constructor(markdown: string) {
     this.#imported = importMarkdown(markdown);
     this.#state = this.createState(this.#imported.doc);
     this.#saved = markdown;
+    this.#savedDoc = this.#state.doc;
   }
   private createState(doc: PMNode) {return EditorState.create({schema, doc, plugins: [history()]});}
   get doc() {return this.#state.doc;}
+  get state() {return this.#state;}
+  get changed() {return !this.doc.eq(this.#savedDoc);}
+  configure(plugins: Plugin[]) {
+    this.#state = this.#state.reconfigure({plugins: [...this.#state.plugins, ...plugins]});
+  }
+  // EditorView sends native typing, composition and selection transactions here.
+  // Continuous typing keeps the engine's normal history grouping.
+  dispatch(tr: Transaction) {
+    if (!tr.before.eq(this.doc)) throw new Error('Stale editor transaction');
+    if (tr.docChanged && !tr.getMeta('bloctHistory')) normalize(tr, this.doc, /\r\n|\r|\n/.exec(this.#imported.original)?.[0] ?? '\n');
+    const result = this.#state.applyTransaction(tr);
+    result.state.doc.check();
+    this.#state = result.state;
+    if (result.transactions.some(t => t.docChanged)) this.#revision++;
+  }
   get revision() {return this.#revision;}
   get generation() {return this.#generation;}
   get selection() {return this.#state.selection.toJSON();}
@@ -54,6 +72,7 @@ export class BlockSession {
     const snapshot = Object.freeze({documentId: this.documentId, generation: this.#generation,
       revision: this.#revision, markdown: this.markdown()});
     this.#snapshots.add(snapshot);
+    this.#snapshotDocs.set(snapshot, this.doc);
     return snapshot;
   }
 
@@ -64,6 +83,7 @@ export class BlockSession {
         || snapshot.revision < this.#savedRevision) return false;
     this.#snapshots.delete(snapshot);
     this.#saved = snapshot.markdown;
+    this.#savedDoc = this.#snapshotDocs.get(snapshot)!;
     this.#savedRevision = snapshot.revision;
     return true;
   }
@@ -71,6 +91,7 @@ export class BlockSession {
     this.#imported = importMarkdown(markdown);
     this.#state = this.createState(this.#imported.doc);
     this.#saved = markdown;
+    this.#savedDoc = this.#state.doc;
     this.#generation++;
     this.#revision++;
     this.#references = new WeakSet();

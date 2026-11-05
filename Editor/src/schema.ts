@@ -11,35 +11,40 @@ export const schema = new Schema({
     doc: {content: 'block+', attrs: {tail: {default: ''}, bom: {default: ''}}},
     paragraph: {
       group: 'block', content: 'inline*', attrs: blockAttrs,
-      toDOM: () => ['p', 0],
+      toDOM: () => ['p', 0], parseDOM: [{tag: 'p'}],
     },
     heading: {
       group: 'block', content: 'inline*', defining: true,
       attrs: {...blockAttrs, level: {default: 1}},
       toDOM: node => [`h${node.attrs.level}`, 0],
+      parseDOM: [1,2,3,4,5,6].map(level => ({tag: `h${level}`, attrs: {level}})),
     },
     bullet_list: {
       group: 'block', content: 'list_item+',
-      attrs: {...blockAttrs, marker: {default: '-'}}, toDOM: () => ['ul', 0],
+      attrs: {...blockAttrs, marker: {default: '-'}}, toDOM: () => ['ul', 0], parseDOM: [{tag:'ul'}],
     },
     ordered_list: {
       group: 'block', content: 'list_item+',
       attrs: {...blockAttrs, start: {default: 1}, marker: {default: '.'}},
       toDOM: node => ['ol', {start: node.attrs.start}, 0],
+      parseDOM: [{tag:'ol', getAttrs: element => ({start: Number(element.getAttribute('start')) || 1})}],
     },
     list_item: {
       content: 'paragraph block*', defining: true,
       attrs: {...blockAttrs, checked: {default: null}, taskOffset: {default: null}},
       toDOM: () => ['li', 0],
+      parseDOM: [{tag:'li'}],
     },
     blockquote: {
       group: 'block', content: 'block+', defining: true, attrs: blockAttrs,
       toDOM: () => ['blockquote', 0],
+      parseDOM: [{tag:'blockquote'}],
     },
     code_block: {
       group: 'block', content: 'text*', marks: '', code: true, defining: true,
       attrs: {...blockAttrs, language: {default: ''}},
       toDOM: () => ['pre', ['code', 0]],
+      parseDOM: [{tag:'pre', preserveWhitespace:'full'}],
     },
     equation: {
       group: 'block', atom: true,
@@ -54,7 +59,7 @@ export const schema = new Schema({
       toDOM: node => ['span', {'data-image-source': node.attrs.src}, node.attrs.alt],
     },
     horizontal_rule: {
-      group: 'block', atom: true, attrs: blockAttrs, toDOM: () => ['hr'],
+      group: 'block', atom: true, attrs: blockAttrs, toDOM: () => ['hr'], parseDOM:[{tag:'hr'}],
     },
     raw_source: {
       group: 'block', atom: true, isolating: true,
@@ -65,12 +70,13 @@ export const schema = new Schema({
       group: 'block', content: 'table_row+', isolating: true,
       attrs: {...blockAttrs, align: {default: []}},
       toDOM: () => ['table', ['tbody', 0]],
+      parseDOM: [{tag:'table'}],
     },
-    table_row: {content: 'table_cell+', attrs: blockAttrs, toDOM: () => ['tr', 0]},
-    table_cell: {content: 'inline*', attrs: blockAttrs, toDOM: () => ['td', 0]},
+    table_row: {content: 'table_cell+', attrs: blockAttrs, toDOM: () => ['tr', 0], parseDOM:[{tag:'tr'}]},
+    table_cell: {content: 'inline*', attrs: blockAttrs, toDOM: () => ['td', 0], parseDOM:[{tag:'td'},{tag:'th'}]},
     text: {group: 'inline'},
-    soft_break: {group: 'inline', inline: true, atom: true, toDOM: () => ['span', ' ']},
-    hard_break: {group: 'inline', inline: true, selectable: false, toDOM: () => ['br']},
+    soft_break: {group: 'inline', inline: true, atom: true, toDOM: () => ['span', {'data-soft-break':''}, ' '], parseDOM:[{tag:'span[data-soft-break]'}]},
+    hard_break: {group: 'inline', inline: true, selectable: false, toDOM: () => ['br'], parseDOM:[{tag:'br'}]},
     inline_math: {
       group: 'inline', inline: true, atom: true,
       attrs: {value: {default: ''}}, toDOM: node => ['span', node.attrs.value],
@@ -82,13 +88,14 @@ export const schema = new Schema({
     },
   },
   marks: {
-    strong: {toDOM: () => ['strong', 0]},
-    em: {toDOM: () => ['em', 0]},
-    code: {code: true, excludes: '_', toDOM: () => ['code', 0]},
+    strong: {toDOM: () => ['strong', 0], parseDOM:[{tag:'strong'},{tag:'b'}]},
+    em: {toDOM: () => ['em', 0], parseDOM:[{tag:'em'},{tag:'i'}]},
+    code: {code: true, excludes: '_', toDOM: () => ['code', 0], parseDOM:[{tag:'code'}]},
     link: {
       attrs: {href: {}, title: {default: null}}, inclusive: false,
       // Navigation/URL validation must be added by the UI adapter before use.
       toDOM: mark => ['span', {'data-link-source': mark.attrs.href}, 0],
+      parseDOM: [{tag:'a[href]', getAttrs: element => ({href: element.getAttribute('href'), title: element.getAttribute('title')})}],
     },
   },
 });
