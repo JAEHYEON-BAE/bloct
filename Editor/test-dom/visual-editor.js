@@ -122,6 +122,27 @@ await check('input conversion Undo restores literal prefix; document history rem
   assert(editor.session.doc.firstChild.textContent==='## ');
   serialized();
 });
+await check('Backspace after block conversion restores the caret to the literal marker before the following block',()=>{
+  for(const prefix of ['> ','- ','+ ','* ','1. ','[] ','## ','```js ','--- ','$$ ']) {
+    fresh('replace\n\nFollowing');
+    editor.view.dispatch(editor.view.state.tr.delete(1,8));
+    type(prefix);assert(key('Backspace'),prefix);
+    assert(editor.session.doc.firstChild.type.name==='paragraph',prefix);
+    assert(editor.view.state.selection.from===prefix.length+1,prefix+': '+JSON.stringify(editor.session.selection));
+    assert(editor.view.state.selection.$from.parent===editor.session.doc.firstChild,prefix);
+    type('X');
+    assert(editor.session.doc.firstChild.textContent===prefix+'X',prefix+': '+editor.session.doc.textContent);
+    assert(editor.session.doc.lastChild.textContent==='Following',prefix);
+  }
+});
+await check('keyboard Undo of quote and list input rules restores selection on the same line',()=>{
+  for(const prefix of ['> ','- ']) {
+    fresh('replace\n\nFollowing');editor.view.dispatch(editor.view.state.tr.delete(1,8));
+    type(prefix);key('z',{metaKey:true});type('X');
+    assert(editor.session.doc.firstChild.textContent===prefix+'X');
+    assert(editor.session.doc.lastChild.textContent==='Following');
+  }
+});
 await check('save snapshot acknowledgement keeps later typing dirty and Undo available',async()=>{
   fresh();type('A');const snapshot=await editor.snapshot();type('B');
   assert(!editor.acknowledge(snapshot.token));assert(editor.session.changed);

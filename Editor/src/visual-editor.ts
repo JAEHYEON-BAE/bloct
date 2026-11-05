@@ -22,6 +22,21 @@ export const formats = [
   ['equation','Equation'], ['image_block','Image'], ['table','Table'],
 ];
 
+// Inverting a structural rule can map the selection into the following block.
+// The input-rules record retains the source insertion position before wrapping.
+const undoTypingRule: Command = (state, dispatch) => {
+  for (const plugin of state.plugins) {
+    if (!(plugin.spec as {isInputRules?: boolean}).isInputRules) continue;
+    const record = plugin.getState(state) as {from:number;text:string}|null;
+    if (!record) continue;
+    return undoInputRule(state, dispatch && (tr => {
+      tr.setSelection(TextSelection.create(tr.doc, record.from + record.text.length));
+      dispatch(tr.scrollIntoView());
+    }));
+  }
+  return false;
+};
+
 function rules(): InputRule[] {
   const blockRule = (pattern: RegExp, kind: string, attributes: (m: RegExpMatchArray) => object = () => ({})) =>
     new InputRule(pattern, (state, match, start, end) => {
@@ -214,7 +229,7 @@ export class VisualEditor {
     };
     const backspace: Command=(state,dispatch,view) => {
       if (this.view?.composing) return false;
-      if (undoInputRule(state,dispatch)) return true;
+      if (undoTypingRule(state,dispatch)) return true;
       const {$from,empty}=state.selection;
       if (empty && !$from.parentOffset && $from.parent.type===schema.nodes.heading) return setBlockType(schema.nodes.paragraph)(state,dispatch);
       if (empty && !$from.parentOffset && $from.depth>1 && $from.node(-1).type===schema.nodes.blockquote) return lift(state,dispatch);
@@ -222,7 +237,7 @@ export class VisualEditor {
       return baseKeymap.Backspace(state,dispatch,view);
     };
     return [inputRules({rules:rules()}), keymap({
-      'Mod-z':chainCommands(undoInputRule,historyCommand(false)),
+      'Mod-z':chainCommands(undoTypingRule,historyCommand(false)),
       'Shift-Mod-z':historyCommand(true), 'Mod-y':historyCommand(true),
       'Mod-b':toggleMark(schema.marks.strong), 'Mod-i':toggleMark(schema.marks.em),
       'Mod-e':toggleMark(schema.marks.code), Enter:enter, Backspace:backspace,
