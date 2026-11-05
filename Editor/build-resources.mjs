@@ -15,7 +15,7 @@ for(const match of [...css.matchAll(/url\((fonts\/[^)]+)\)/g)]) {
 // own no-wrap/internal positioning rules still take precedence below it.
 css+='\n.katex { white-space:normal; overflow-wrap:normal; text-indent:0; }\n';
 await writeFile('dist/math.css',css);
-await writeFile('dist/visual.css',css+'\n'+await readFile('src/visual.css','utf8'));
+await writeFile('dist/visual.css',css+'\n'+await readFile('../Sources/Bloct/style.css','utf8')+'\n'+await readFile('src/visual.css','utf8'));
 const lock=JSON.parse(await readFile('package-lock.json','utf8'));
 let notices='Bloct visual editor — dependency license notices\n';
 for(const [path,entry] of Object.entries(lock.packages)) {

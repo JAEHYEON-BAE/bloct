@@ -14,6 +14,7 @@ import WebKit
         let discard: () -> Void
         let requestClose: () -> Void
         let switchEditor: () -> Void
+        let canSwitch: () -> Bool
     }
     static var actions: [URL: Actions] = [:]
     static var holdSaves = false, saveWaiting = false
@@ -22,11 +23,11 @@ import WebKit
     static func attach(_ url: URL?, _ state: DocumentState, _ save: @escaping () -> Void,
                        _ close: @escaping () -> Void, _ discard: @escaping () -> Void,
                        _ undo: @escaping () -> Void, _ redo: @escaping () -> Void,
-                       _ requestClose: @escaping () -> Void, _ switchEditor: @escaping () -> Void) {
+                       _ requestClose: @escaping () -> Void, _ switchEditor: @escaping () -> Void, _ canSwitch: @escaping () -> Bool) {
         guard let url else { return }
-        actions[url] = Actions(state: state, undo: undo, redo: redo, save: save, saveAndClose: close, discard: discard, requestClose: requestClose, switchEditor: switchEditor)
+        actions[url] = Actions(state: state, undo: undo, redo: redo, save: save, saveAndClose: close, discard: discard, requestClose: requestClose, switchEditor: switchEditor, canSwitch: canSwitch)
     }
-    static func presentError(_ error: Error) { errors += 1 }
+    static func presentError(_ error: Error) { errors += 1; print("PROBE ERROR: \(error)") }
     static func beforeSave() async {
         saveWaiting = true
         while holdSaves { try? await Task.sleep(for: .milliseconds(10)) }
@@ -51,22 +52,26 @@ import WebKit
         let second = try Session(root.appendingPathComponent("second.md"), original)
         let delayed = try Session(root.appendingPathComponent("delayed.md"), original)
         let switching = try Session(root.appendingPathComponent("switching.md"), original)
+        let originalWeb = switching.web, originalPage = switching.web.url
+        _ = js(switching.web, "window.modePageMarker = 42; true")
         switching.toggle()
         let visualDraft = switching.raw
-        switching.actions.switchEditor()
+        switching.switchEditor()
         check("dirty visual mode hands off to Markdown without saving or dropping text",
               wait { !switching.isVisual && switching.raw == visualDraft && switching.window.isDocumentEdited }
               && switching.disk == original && switching.model.document.text == original)
+        check("mode switch retains native WebView, page URL and live JS document", switching.web === originalWeb && switching.web.url == originalPage && js(switching.web,"window.modePageMarker") as? Int == 42)
         _ = js(switching.web, "window._mvStartBlockEdit(document.querySelector('.mv-block'), Infinity, true); true")
         check("legacy draft is active before mode handoff", wait {
             js(switching.web, "!!document.getElementById('mv-block-editor')") as? Bool == true
         })
         _ = js(switching.web, "let ta=document.getElementById('mv-block-editor'); ta.value += ' extra'; ta.dispatchEvent(new Event('input',{bubbles:true})); true")
         let markdownDraft = switching.raw
-        switching.actions.switchEditor()
+        switching.switchEditor()
         check("active unsaved Markdown text survives visual reentry and stays dirty",
               wait { switching.isVisual && switching.raw == markdownDraft && switching.window.isDocumentEdited }
               && markdownDraft != visualDraft && switching.disk == original)
+        check("visual reentry uses the same native WebView and page", switching.web === originalWeb && switching.web.url == originalPage && js(switching.web,"window.modePageMarker") as? Int == 42)
         switching.actions.undo()
         check("mode-boundary Undo returns to the previous draft with its dirty baseline",
               wait { switching.raw == visualDraft && switching.window.isDocumentEdited })
@@ -76,16 +81,32 @@ import WebKit
         switching.actions.save()
         check("saving after a dirty roundtrip acknowledges the exact carried draft",
               wait { switching.disk == markdownDraft && !switching.window.isDocumentEdited })
-        switching.actions.switchEditor()
+        switching.switchEditor()
         check("saved visual mode can still leave and reenter", wait { !switching.isVisual })
-        switching.actions.switchEditor()
+        switching.switchEditor()
         check("saved visual reentry stays clean", wait { switching.isVisual && switching.raw == markdownDraft && !switching.window.isDocumentEdited })
         switching.toggle()
-        switching.actions.switchEditor()
+        switching.switchEditor()
         check("dirty handoff leaves the file unchanged", wait { !switching.isVisual && switching.window.isDocumentEdited } && switching.disk == markdownDraft)
         switching.actions.discard()
         check("Don't Save after switching preserves the disk baseline", wait { switching.window.closeCount > 0 } && switching.disk == markdownDraft)
         switching.teardown()
+
+        let legacyStart = try Session(root.appendingPathComponent("legacy-start.md"), original, visual: false)
+        legacyStart.switchEditor()
+        check("default Markdown startup enters Aa without a new JS generation", wait { legacyStart.isVisual })
+        legacyStart.toggle()
+        let legacySnapshot = legacyStart.raw
+        VisualProbe.holdSaves = true
+        legacyStart.actions.save()
+        check("first Aa Save from Markdown startup freezes its exact snapshot", wait { VisualProbe.saveWaiting })
+        legacyStart.toggle(1)
+        let legacyLater = legacyStart.raw
+        VisualProbe.holdSaves = false
+        check("first Aa Save cannot reload away later typing or invalidate acknowledgement", wait { legacyStart.disk == legacySnapshot && legacyStart.window.isDocumentEdited } && legacyStart.raw == legacyLater)
+        legacyStart.actions.undo()
+        check("first Aa Save keeps engine Undo and its saved baseline", wait { legacyStart.raw == legacySnapshot && !legacyStart.window.isDocumentEdited })
+        legacyStart.teardown()
 
         let warnings = VisualProbe.closeWarnings
         // Change the real engine while intentionally suppressing its native dirty
@@ -191,7 +212,7 @@ import WebKit
     let window: TestWindow, native = NativeDocument(), controller: NSWindowController
     var web: WKWebView { findWeb(hosting)! }
     private var tornDown = false
-    init(_ file: URL, _ raw: String) throws {
+    init(_ file: URL, _ raw: String, visual: Bool = true) throws {
         self.file = file
         try raw.write(to: file, atomically: true, encoding: .utf8)
         model = FileModel(raw)
@@ -206,13 +227,17 @@ import WebKit
         window.contentView = hosting
         hosting.layoutSubtreeIfNeeded()
         guard let found = findWeb(hosting) else { fatalError("No production WebView") }
-        precondition(wait { (js(found, "typeof window._mvBuildTOC === 'function' && !!window._bloctVisual") as? Bool) == true })
+        precondition(wait { (js(found, "typeof window._mvBuildTOC === 'function' && !!window._bloctVisual === \(visual ? "true" : "false")") as? Bool) == true })
         precondition(wait { VisualProbe.actions[file] != nil && window.delegate is CloseProxy })
     }
     var actions: VisualProbe.Actions { VisualProbe.actions[file]! }
     var isVisual: Bool { js(web, "!!window._bloctVisual") as? Bool == true }
     var raw: String { js(web, "window._bloctVisual ? window._bloctVisual.session.markdown() : window._mvRawLines?.join('\\n')") as? String ?? "<missing>" }
     var disk: String { (try? String(contentsOf: file, encoding: .utf8)) ?? "<missing>" }
+    func switchEditor() {
+        precondition(wait { actions.canSwitch() }, "Mode button still busy")
+        actions.switchEditor()
+    }
     func toggle(_ index: Int = 0) {
         let before = raw
         _ = js(web, "document.querySelectorAll('li.task-item input')[\(index)].click(); true")

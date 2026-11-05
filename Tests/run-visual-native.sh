@@ -5,7 +5,7 @@ output_dir=$(mktemp -d "${TMPDIR:-/tmp}/bloct-visual-native.XXXXXX")
 trap 'rm -rf "$output_dir"' EXIT
 app_dir="$output_dir/VisualEditorNative.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
+cp Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
 cp Editor/dist/math.js Editor/dist/math.css "$app_dir/Resources/"
 cp Editor/dist/blocks.js Editor/dist/visual.css Editor/dist/editor-licenses.txt "$app_dir/Resources/"
 python3 - "$output_dir" <<'PY'
@@ -14,10 +14,11 @@ import sys
 out=Path(sys.argv[1])
 s=Path('Sources/Bloct/ContentView.swift').read_text()
 s=s.replace('@State private var visualEditing = false', '@State private var visualEditing = true')
+s=s.replace('_isEditMode = State(initialValue: fileURL == nil)', '_isEditMode = State(initialValue: fileURL == nil)\n        _visualEditing = State(initialValue: fileURL?.lastPathComponent != "legacy-start.md")')
 needle='var body: some View {\n        MarkdownWebView('
 assert s.count(needle)==1
 s=s.replace(needle,'''var body: some View {
-        let _ = VisualProbe.attach(sourceURL, docState, { saveDocument() }, { saveAndClose() }, { discardAndClose() }, { replayEdit(redo: false) }, { replayEdit(redo: true) }, { requestVisualClose() }, { switchEditor() })
+        let _ = VisualProbe.attach(sourceURL, docState, { saveDocument() }, { saveAndClose() }, { discardAndClose() }, { replayEdit(redo: false) }, { replayEdit(redo: true) }, { requestVisualClose() }, { switchEditor() }, { !isSaving && !isSwitchingEditor })
         MarkdownWebView(''')
 s=s.replace('NSApp.presentError(', 'VisualProbe.presentError(')
 s=s.replace('self.showCloseWarning = true', 'VisualProbe.closeWarnings += 1')

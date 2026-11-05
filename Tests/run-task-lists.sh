@@ -5,7 +5,7 @@ output_dir=$(mktemp -d "${TMPDIR:-/tmp}/bloct-task-tests.XXXXXX")
 trap 'rm -rf "$output_dir"' EXIT
 app_dir="$output_dir/TaskListRegression.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
+cp Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
 cp Editor/dist/math.js Editor/dist/math.css "$app_dir/Resources/"
 python3 - "$output_dir" <<'PY'
 from pathlib import Path

@@ -51,17 +51,28 @@ sh Tests/run-visual-native.sh
 ```
 
 The visual native harness hosts the complete production ContentView with the
-experimental mode selected. Its 27 checks cover separate documents, dirty state
+experimental mode selected. Its 33 checks cover separate documents, dirty state
 without autosave, native/engine Undo/Redo and mode-boundary checkpoints, fixed Save snapshots and
 later changes, save failure/retry, clean external reload, Don't Save, Save-and-close
 and preview cleanup, including close before a queued dirty notification arrives.
 It also checks dirty mode roundtrips, active textarea handoff, carried saved baseline,
-checkpoint Undo/Redo and exhausted Undo preserving Redo.
+checkpoint Undo/Redo, exhausted Undo preserving Redo, and the same native WebView,
+page URL and JavaScript document across mode changes. Four checks start in the default
+Markdown mode and verify first-Aa Save, later input and Undo against its saved baseline.
+The harness waits for the
+real Save/switch busy flags before invoking the mode action, matching the toolbar.
 Temporary source copies expose actions, pause disk writes
 and capture errors/close warnings; NSDocument revert/close are controlled. First-save panels,
 conflict buttons, permission dialogs, real clipboard/IME, PDF, accessibility and
 performance require separate validation. CUA evidence and current limitations are
 linked in F5. All harnesses leave the installed app untouched.
+
+`sh Tests/run-webkit.sh` also runs [EditorSwitchLayout.js](EditorSwitchLayout.js):
+22 renderer/security/math checks plus 28 layout checks at 900/640px with TOC on/off.
+It compares common block geometry and fonts, visible heading offset by toolbar height,
+source/page identity and repeated roundtrip drift. Intermediate coordinates use a
+16ms timer because offscreen WebKit suspends rAF; this is not painted-frame video.
+
 
 ## Current app regression checks
 

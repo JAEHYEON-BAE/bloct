@@ -185,5 +185,21 @@ struct WebKitRegression {
         _ = js(inlineView, "window.webkit.messageHandlers.commitEdit.postMessage(btoa('new document')); await new Promise(r => setTimeout(r, 100)); return true;")
         wait("inline commit", until: { inlineCommit })
         print("PASS: new-document inline page retains native bridge access")
+        let layoutSuite = try String(contentsOfFile: CommandLine.arguments[2], encoding: .utf8)
+        var layoutFailures = 0
+        for width in [900, 640] {
+            webView.frame.size.width = CGFloat(width)
+            for toc in [false, true] {
+                let report = js(webView, layoutSuite, arguments: ["toc": toc]) as! String
+                let data = try JSONSerialization.jsonObject(with: Data(report.utf8)) as! [String: Any]
+                for result in data["results"] as! [[String: Any]] {
+                    let pass = result["pass"] as? Bool == true
+                    print("\(pass ? "PASS" : "FAIL") [layout \(width), TOC \(toc)]: \(result["name"]!)")
+                    if !pass { layoutFailures += 1; print(result["detail"] ?? "") }
+                }
+            }
+        }
+        precondition(layoutFailures == 0, "Editor-switch layout failures: \(layoutFailures)")
+
     }
 }

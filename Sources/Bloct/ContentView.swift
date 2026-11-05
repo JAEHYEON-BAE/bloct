@@ -261,7 +261,6 @@ struct ContentView: View {
             if isSaving { allowed(true) } // New edits stay outside the in-flight Save snapshot.
             else { checkDisk(beforeEdit: allowed) }
         }, reloadGeneration: reloadGeneration, visualEditing: visualEditing, savedMarkdown: originalText)
-            .id(visualEditing)
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
@@ -391,40 +390,36 @@ struct ContentView: View {
     }
 
     private func switchEditor() {
-        guard !isSaving, !isSwitchingEditor, !diskCheck.inProgress,
+        guard !isSaving, !isSwitchingEditor,
               let webView = webViewStore.webView else { return }
         isSwitchingEditor = true
-        let generation = reloadGeneration
-        webView.callAsyncJavaScript("""
-            if (window._bloctVisual) return await window._bloctVisual.handoff();
-            if (!window._mvCloseEditor || !window._mvRawLines) throw new Error('Editor not ready');
-            const deadline = Date.now() + 1500;
-            while (window._mvComposing && Date.now() < deadline) await new Promise(r => setTimeout(r,20));
-            if (window._mvComposing) throw new Error('Finish text composition before switching editors.');
-            window._mvCloseEditor(true);
-            window._mvDiskChecking = true;
-            return {text: window._mvRawLines.join('\\n')};
-            """, arguments: [:], in: nil, in: .page) { result in
-            DispatchQueue.main.async {
-                self.isSwitchingEditor = false
-                guard !self.isClosed, self.reloadGeneration == generation,
-                      self.webViewStore.webView === webView else {
-                    webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
-                    return
+        Task { @MainActor in
+            while self.diskCheck.inProgress { try? await Task.sleep(for: .milliseconds(10)) }
+            guard !self.isClosed else { self.isSwitchingEditor = false; return }
+            let generation = self.reloadGeneration
+            webView.callAsyncJavaScript("""
+                return await window._mvSwitchEditor(on, baseline);
+                """, arguments: ["on": !visualEditing, "baseline": originalText], in: nil, in: .page) { result in
+                DispatchQueue.main.async {
+                    self.isSwitchingEditor = false
+                    guard !self.isClosed, self.reloadGeneration == generation,
+                          self.webViewStore.webView === webView else {
+                        webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
+                        return
+                    }
+                    guard case .success(let value) = result, let payload = value as? [String: Any],
+                          let text = payload["text"] as? String else {
+                        webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
+                        if case .failure(let error) = result { NSApp.presentError(error) }
+                        return
+                    }
+                    // A mode boundary is one native Undo checkpoint. It never writes
+                    // the file model or changes the last successful Save baseline.
+                    self.docState.commit(text)
+                    self.isBlockEditorDirty = !self.visualEditing && text != self.originalText
+                    self.visualEditing.toggle()
+                    self.isEditMode = true
                 }
-                guard case .success(let value) = result, let payload = value as? [String: Any],
-                      let text = payload["text"] as? String else {
-                    webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
-                    if case .failure(let error) = result { NSApp.presentError(error) }
-                    return
-                }
-                // A mode boundary is one native Undo checkpoint. It never writes
-                // the file model or changes the last successful Save baseline.
-                self.docState.commit(text)
-                self.isBlockEditorDirty = !self.visualEditing && text != self.originalText
-                self.reloadGeneration += 1
-                self.visualEditing.toggle()
-                self.isEditMode = true
             }
         }
     }

@@ -611,7 +611,6 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     func buildHTML(imageOrigin: String = "") -> String {
-        if visualEditing { return buildVisualHTML(imageOrigin: imageOrigin) }
         let base64Markdown = Data(markdown.utf8).base64EncodedString()
         let nonce = UUID().uuidString
 
@@ -639,7 +638,8 @@ struct MarkdownWebView: NSViewRepresentable {
                     #mv-block-editor { background: #161b22; border-color: #388bfd; }
                 }
             </style>
-            <style>\(Self.mathResource("css"))</style>
+            <style>\(visualEditorStyles().isEmpty ? Self.mathResource("css") : visualEditorStyles())</style>
+            <script nonce="\(nonce)">\(visualEditorBundle())</script>
             <script nonce="\(nonce)">\(Self.purifyJS)</script>
             <script nonce="\(nonce)">\(Self.markedJS)</script>
             <script nonce="\(nonce)">\(Self.mathResource("js").replacingOccurrences(of: "</script", with: "<\\/script", options: .caseInsensitive))</script>
@@ -1116,7 +1116,7 @@ struct MarkdownWebView: NSViewRepresentable {
 
                 // Click in the bottom padding area — forward to the append zone.
                 document.addEventListener('click', function(e) {
-                    if (!window._mvEditMode) return;
+                    if (!window._mvEditMode || window._bloctVisual) return;
                     var az = document.getElementById('mv-append-zone');
                     if (!az) return;
                     var content = document.getElementById('content');
@@ -1278,6 +1278,7 @@ struct MarkdownWebView: NSViewRepresentable {
                     }
                 }
                 document.addEventListener('copy', function(e) {
+                    if (window._bloctVisual) return;
                     var sel = window.getSelection();
                     if (!sel || sel.isCollapsed) return;
                     var frag = sel.getRangeAt(0).cloneContents();
@@ -1287,6 +1288,7 @@ struct MarkdownWebView: NSViewRepresentable {
                     e.clipboardData.setData('text/plain', md);
                     e.preventDefault();
                 });
+                \(visualEditorBootstrap())
             </script>
         </body>
         </html>
