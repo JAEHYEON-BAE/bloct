@@ -36,8 +36,9 @@ rules, H1–H6/quote/list/task/code placeholders, all 16 menu formats, inline ma
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus attached matrix delimiters, display mode, formula-surface editing and Undo.
-The 106 visual checks simulate DOM events/engine text handlers, including formula
-click/keyboard activation, Read/freeze guards, drag suppression and pointer CSS.
+The 116 visual checks simulate DOM events/engine text handlers, including formula
+click/keyboard activation, Read/freeze guards, drag suppression and pointer CSS, inline-code termination, input-rule Undo caret
+restoration and unsaved handoff/freeze/baseline restoration.
 They do not verify native physical-pointer hover or continuous dwell. Synthetic composition
 is a guard test, not real Korean IME acceptance. It uses temporary files and does
 not open or replace the installed Bloct app.
@@ -48,10 +49,12 @@ sh Tests/run-visual-native.sh
 ```
 
 The visual native harness hosts the complete production ContentView with the
-experimental mode selected. Its 17 checks cover separate documents, dirty state
-without autosave/native string Undo, native Undo/Redo, fixed Save snapshots and
+experimental mode selected. Its 27 checks cover separate documents, dirty state
+without autosave, native/engine Undo/Redo and mode-boundary checkpoints, fixed Save snapshots and
 later changes, save failure/retry, clean external reload, Don't Save, Save-and-close
 and preview cleanup, including close before a queued dirty notification arrives.
+It also checks dirty mode roundtrips, active textarea handoff, carried saved baseline,
+checkpoint Undo/Redo and exhausted Undo preserving Redo.
 Temporary source copies expose actions, pause disk writes
 and capture errors/close warnings; NSDocument revert/close are controlled. First-save panels,
 conflict buttons, permission dialogs, real clipboard/IME, PDF, accessibility and

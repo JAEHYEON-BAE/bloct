@@ -287,5 +287,17 @@ await check('dragging across a formula and a frozen editor never open the math d
   assert(!editor.freezeIfClean());math.click();assert(!document.querySelector('dialog'));
   editor.unfreeze();assert(!editor.session.changed);
 });
+await check('unsaved handoff freezes the serialized draft and restore keeps the disk baseline',async()=>{
+  fresh('Saved');type('Draft ');
+  const draft=serialized(),snapshot=await editor.handoff();
+  assert(snapshot.text===draft && !editor.view.editable);
+  const before=editor.session.doc;type('blocked');assert(editor.session.doc.eq(before));
+  editor.restoreDraft(draft,'Saved');assert(editor.view.editable && editor.session.changed);
+  assert(serialized()===draft);
+  editor.restoreDraft('Saved','Saved');assert(!editor.session.changed);
+  type('New ');assert(editor.session.changed);
+  const saved=await editor.snapshot();assert(editor.acknowledge(saved.token));
+  assert(!editor.session.changed);
+});
 if(editor){editor.destroy();host.remove();}
 return JSON.stringify({results});

@@ -17,7 +17,7 @@ s=s.replace('@State private var visualEditing = false', '@State private var visu
 needle='var body: some View {\n        MarkdownWebView('
 assert s.count(needle)==1
 s=s.replace(needle,'''var body: some View {
-        let _ = VisualProbe.attach(sourceURL, docState, { saveDocument() }, { saveAndClose() }, { discardAndClose() }, { replayEdit(redo: false) }, { replayEdit(redo: true) }, { requestVisualClose() })
+        let _ = VisualProbe.attach(sourceURL, docState, { saveDocument() }, { saveAndClose() }, { discardAndClose() }, { replayEdit(redo: false) }, { replayEdit(redo: true) }, { requestVisualClose() }, { switchEditor() })
         MarkdownWebView(''')
 s=s.replace('NSApp.presentError(', 'VisualProbe.presentError(')
 s=s.replace('self.showCloseWarning = true', 'VisualProbe.closeWarnings += 1')

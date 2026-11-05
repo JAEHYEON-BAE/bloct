@@ -11,6 +11,7 @@ extension MarkdownWebView {
         let script = resource("blocks", "js").replacingOccurrences(of: "</script", with: "<\\/script", options: .caseInsensitive)
         let css = resource("visual", "css")
         let base64 = Data(markdown.utf8).base64EncodedString()
+        let savedBase64 = Data((savedMarkdown ?? markdown).utf8).base64EncodedString()
         return """
         <!doctype html><html><head><meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,7 +39,7 @@ extension MarkdownWebView {
                 return source && window._mvImageOrigin ? window._mvImageOrigin + '?src=' + encodeURIComponent(source) : null;
             };
             const editor = BloctBlocks.mountVisualEditor(document.getElementById('content'), decode('\(base64)'), {
-                imageURL,
+                imageURL, savedMarkdown: decode('\(savedBase64)'),
                 onChange: dirty => post('editorDirty', {dirty, generation: window._mvGeneration})
             });
             window._bloctVisual = editor;

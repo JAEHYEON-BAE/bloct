@@ -34,19 +34,19 @@ export class BlockSession {
   #references = new WeakSet<object>();
   #snapshots = new WeakSet<object>();
   #savedRevision = 0;
-  #savedDoc: PMNode;
+  #savedDoc: PMNode | null;
   #snapshotDocs = new WeakMap<object, PMNode>();
 
-  constructor(markdown: string) {
+  constructor(markdown: string, savedMarkdown = markdown) {
     this.#imported = importMarkdown(markdown);
     this.#state = this.createState(this.#imported.doc);
-    this.#saved = markdown;
-    this.#savedDoc = this.#state.doc;
+    this.#saved = savedMarkdown;
+    this.#savedDoc = savedMarkdown === markdown ? this.#state.doc : null;
   }
   private createState(doc: PMNode) {return EditorState.create({schema, doc, plugins: [history()]});}
   get doc() {return this.#state.doc;}
   get state() {return this.#state;}
-  get changed() {return !this.doc.eq(this.#savedDoc);}
+  get changed() {return this.#savedDoc ? !this.doc.eq(this.#savedDoc) : this.dirty;}
   configure(plugins: Plugin[]) {
     this.#state = this.#state.reconfigure({plugins: [...this.#state.plugins, ...plugins]});
   }
@@ -86,6 +86,10 @@ export class BlockSession {
     this.#savedDoc = this.#snapshotDocs.get(snapshot)!;
     this.#savedRevision = snapshot.revision;
     return true;
+  }
+  setSavedBaseline(markdown: string) {
+    this.#saved = markdown;
+    this.#savedDoc = this.markdown() === markdown ? this.doc : null;
   }
   acceptExternal(markdown: string) {
     this.#imported = importMarkdown(markdown);

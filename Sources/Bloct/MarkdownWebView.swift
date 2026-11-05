@@ -128,6 +128,7 @@ struct MarkdownWebView: NSViewRepresentable {
     var onBeforeEdit: ((@escaping (Bool) -> Void) -> Void)? = nil
     var reloadGeneration: Int = 0
     var visualEditing: Bool = false
+    var savedMarkdown: String? = nil
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),

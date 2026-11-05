@@ -13,6 +13,7 @@ import WebKit
         let saveAndClose: () -> Void
         let discard: () -> Void
         let requestClose: () -> Void
+        let switchEditor: () -> Void
     }
     static var actions: [URL: Actions] = [:]
     static var holdSaves = false, saveWaiting = false
@@ -21,9 +22,9 @@ import WebKit
     static func attach(_ url: URL?, _ state: DocumentState, _ save: @escaping () -> Void,
                        _ close: @escaping () -> Void, _ discard: @escaping () -> Void,
                        _ undo: @escaping () -> Void, _ redo: @escaping () -> Void,
-                       _ requestClose: @escaping () -> Void) {
+                       _ requestClose: @escaping () -> Void, _ switchEditor: @escaping () -> Void) {
         guard let url else { return }
-        actions[url] = Actions(state: state, undo: undo, redo: redo, save: save, saveAndClose: close, discard: discard, requestClose: requestClose)
+        actions[url] = Actions(state: state, undo: undo, redo: redo, save: save, saveAndClose: close, discard: discard, requestClose: requestClose, switchEditor: switchEditor)
     }
     static func presentError(_ error: Error) { errors += 1 }
     static func beforeSave() async {
@@ -49,6 +50,43 @@ import WebKit
         let first = try Session(root.appendingPathComponent("first.md"), original)
         let second = try Session(root.appendingPathComponent("second.md"), original)
         let delayed = try Session(root.appendingPathComponent("delayed.md"), original)
+        let switching = try Session(root.appendingPathComponent("switching.md"), original)
+        switching.toggle()
+        let visualDraft = switching.raw
+        switching.actions.switchEditor()
+        check("dirty visual mode hands off to Markdown without saving or dropping text",
+              wait { !switching.isVisual && switching.raw == visualDraft && switching.window.isDocumentEdited }
+              && switching.disk == original && switching.model.document.text == original)
+        _ = js(switching.web, "window._mvStartBlockEdit(document.querySelector('.mv-block'), Infinity, true); true")
+        check("legacy draft is active before mode handoff", wait {
+            js(switching.web, "!!document.getElementById('mv-block-editor')") as? Bool == true
+        })
+        _ = js(switching.web, "let ta=document.getElementById('mv-block-editor'); ta.value += ' extra'; ta.dispatchEvent(new Event('input',{bubbles:true})); true")
+        let markdownDraft = switching.raw
+        switching.actions.switchEditor()
+        check("active unsaved Markdown text survives visual reentry and stays dirty",
+              wait { switching.isVisual && switching.raw == markdownDraft && switching.window.isDocumentEdited }
+              && markdownDraft != visualDraft && switching.disk == original)
+        switching.actions.undo()
+        check("mode-boundary Undo returns to the previous draft with its dirty baseline",
+              wait { switching.raw == visualDraft && switching.window.isDocumentEdited })
+        switching.actions.redo()
+        check("mode-boundary Redo restores the carried Markdown draft",
+              wait { switching.raw == markdownDraft && switching.window.isDocumentEdited })
+        switching.actions.save()
+        check("saving after a dirty roundtrip acknowledges the exact carried draft",
+              wait { switching.disk == markdownDraft && !switching.window.isDocumentEdited })
+        switching.actions.switchEditor()
+        check("saved visual mode can still leave and reenter", wait { !switching.isVisual })
+        switching.actions.switchEditor()
+        check("saved visual reentry stays clean", wait { switching.isVisual && switching.raw == markdownDraft && !switching.window.isDocumentEdited })
+        switching.toggle()
+        switching.actions.switchEditor()
+        check("dirty handoff leaves the file unchanged", wait { !switching.isVisual && switching.window.isDocumentEdited } && switching.disk == markdownDraft)
+        switching.actions.discard()
+        check("Don't Save after switching preserves the disk baseline", wait { switching.window.closeCount > 0 } && switching.disk == markdownDraft)
+        switching.teardown()
+
         let warnings = VisualProbe.closeWarnings
         // Change the real engine while intentionally suppressing its native dirty
         // notification, modeling a close racing that queued message.
@@ -70,8 +108,10 @@ import WebKit
         first.actions.undo()
         let undone = wait { first.raw == original && !first.window.isDocumentEdited }
         check("native Undo command reaches the engine and restores clean source", undone)
+        first.actions.undo()
+        spin(0.1)
         first.actions.redo()
-        check("native Redo reaches the same engine history", undone && wait { first.raw == changed && first.window.isDocumentEdited })
+        check("native Redo reaches the same engine history after exhausted Undo", undone && wait { first.raw == changed && first.window.isDocumentEdited })
         first.actions.save()
         check("native Save writes the exact engine snapshot and acknowledges clean", wait { first.disk == changed && !first.window.isDocumentEdited }
               && !first.actions.state.undoManager.canUndo)
@@ -149,7 +189,7 @@ import WebKit
 @MainActor private final class Session {
     let file: URL, model: FileModel, hosting: NSHostingView<AnyView>
     let window: TestWindow, native = NativeDocument(), controller: NSWindowController
-    let web: WKWebView
+    var web: WKWebView { findWeb(hosting)! }
     private var tornDown = false
     init(_ file: URL, _ raw: String) throws {
         self.file = file
@@ -166,12 +206,12 @@ import WebKit
         window.contentView = hosting
         hosting.layoutSubtreeIfNeeded()
         guard let found = findWeb(hosting) else { fatalError("No production WebView") }
-        web = found
         precondition(wait { (js(found, "typeof window._mvBuildTOC === 'function' && !!window._bloctVisual") as? Bool) == true })
         precondition(wait { VisualProbe.actions[file] != nil && window.delegate is CloseProxy })
     }
     var actions: VisualProbe.Actions { VisualProbe.actions[file]! }
-    var raw: String { js(web, "window._bloctVisual.session.markdown()") as? String ?? "<missing>" }
+    var isVisual: Bool { js(web, "!!window._bloctVisual") as? Bool == true }
+    var raw: String { js(web, "window._bloctVisual ? window._bloctVisual.session.markdown() : window._mvRawLines?.join('\\n')") as? String ?? "<missing>" }
     var disk: String { (try? String(contentsOf: file, encoding: .utf8)) ?? "<missing>" }
     func toggle(_ index: Int = 0) {
         let before = raw

@@ -11,6 +11,7 @@ import {BlockSession} from './session.ts';
 import {schema} from './schema.ts';
 
 export interface VisualOptions {
+  savedMarkdown?: string;
   onChange?: (dirty: boolean) => void;
   imageURL?: (source: string) => string | null;
 }
@@ -134,7 +135,7 @@ export class VisualEditor {
   constructor(host: HTMLElement, markdown: string, options: VisualOptions = {}) {
     this.host = host;
     this.#options = options;
-    this.session = new BlockSession(markdown);
+    this.session = new BlockSession(markdown, options.savedMarkdown);
     this.toolbar = document.createElement('div');
     this.toolbar.className = 'visual-toolbar';
     this.toolbar.setAttribute('role','toolbar'); this.toolbar.setAttribute('aria-label','Formatting');
@@ -467,6 +468,19 @@ export class VisualEditor {
     if(this.view.composing) throw new Error('Finish text composition before saving.');
     const snapshot=this.session.snapshot(),token=crypto.randomUUID();this.#snapshots.set(token,snapshot);
     return {text:snapshot.markdown,token,revision:snapshot.revision};
+  }
+  async handoff() {
+    const snapshot=await this.snapshot();
+    // Freeze in the same JS continuation as serialization, before native code
+    // replaces the view. Keystrokes after this point cannot escape the snapshot.
+    this.#frozen=true;this.view.setProps({editable:()=>false});
+    return snapshot;
+  }
+  restoreDraft(markdown:string,savedMarkdown:string) {
+    this.session.acceptExternal(markdown);
+    this.session.setSavedBaseline(savedMarkdown);
+    this.session.configure(this.plugins());
+    this.view.updateState(this.session.state);this.#snapshots.clear();this.unfreeze();this.notify();
   }
   acknowledge(token:string,closing=false) {
     const snapshot=this.#snapshots.get(token);if(!snapshot)return false;

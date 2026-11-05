@@ -260,7 +260,7 @@ struct ContentView: View {
         MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 }, onReload: { checkDisk(manual: true) }, onBeforeEdit: { allowed in
             if isSaving { allowed(true) } // New edits stay outside the in-flight Save snapshot.
             else { checkDisk(beforeEdit: allowed) }
-        }, reloadGeneration: reloadGeneration, visualEditing: visualEditing)
+        }, reloadGeneration: reloadGeneration, visualEditing: visualEditing, savedMarkdown: originalText)
             .id(visualEditing)
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .focusedValue(\.zoomLevel, $zoomLevel)
@@ -271,7 +271,7 @@ struct ContentView: View {
         .focusedValue(\.documentUndo, { replayEdit(redo: false) })
         .focusedValue(\.documentRedo, { replayEdit(redo: true) })
         .focusedValue(\.closeDocument, {
-            guard !isSaving else { return }
+            guard !isSaving, !isSwitchingEditor else { return }
             if visualEditing { closeProxy?.window?.performClose(nil) }
             else if hasUnsavedChanges { showCloseWarning = true }
             else { closeProxy?.window?.performClose(nil) }
@@ -349,8 +349,8 @@ struct ContentView: View {
                     Button { switchEditor() } label: {
                         Label(visualEditing ? "Visual Editor" : "Markdown Editor", systemImage: "textformat")
                     }
-                    .disabled(hasUnsavedChanges || isSaving || isSwitchingEditor)
-                    .help(hasUnsavedChanges ? "Save changes before switching editors" : "Switch between visual and Markdown editing (Preview)")
+                    .disabled(isSaving || isSwitchingEditor)
+                    .help("Switch between visual and Markdown editing (Preview)")
                 }
                 ToolbarItem(placement: .automatic) {
                     Button {
@@ -391,21 +391,38 @@ struct ContentView: View {
     }
 
     private func switchEditor() {
-        guard !isSaving, !isSwitchingEditor, let webView = webViewStore.webView else { return }
+        guard !isSaving, !isSwitchingEditor, !diskCheck.inProgress,
+              let webView = webViewStore.webView else { return }
         isSwitchingEditor = true
+        let generation = reloadGeneration
         webView.callAsyncJavaScript("""
-            if (window._bloctVisual) return window._bloctVisual.freezeIfClean();
-            return !window._mvRawLines || !!window._mvBlockDirty || !!window._mvComposing
-                || window._mvRawLines.join('\\n') !== baseline;
-            """, arguments: ["baseline": originalText], in: nil, in: .page) { result in
+            if (window._bloctVisual) return await window._bloctVisual.handoff();
+            if (!window._mvCloseEditor || !window._mvRawLines) throw new Error('Editor not ready');
+            const deadline = Date.now() + 1500;
+            while (window._mvComposing && Date.now() < deadline) await new Promise(r => setTimeout(r,20));
+            if (window._mvComposing) throw new Error('Finish text composition before switching editors.');
+            window._mvCloseEditor(true);
+            window._mvDiskChecking = true;
+            return {text: window._mvRawLines.join('\\n')};
+            """, arguments: [:], in: nil, in: .page) { result in
             DispatchQueue.main.async {
                 self.isSwitchingEditor = false
-                guard !self.isClosed else { return }
-                guard (try? result.get()) as? Bool == false else {
-                    self.isBlockEditorDirty = true
+                guard !self.isClosed, self.reloadGeneration == generation,
+                      self.webViewStore.webView === webView else {
+                    webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
                     return
                 }
-                self.docState.restore(self.originalText)
+                guard case .success(let value) = result, let payload = value as? [String: Any],
+                      let text = payload["text"] as? String else {
+                    webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
+                    if case .failure(let error) = result { NSApp.presentError(error) }
+                    return
+                }
+                // A mode boundary is one native Undo checkpoint. It never writes
+                // the file model or changes the last successful Save baseline.
+                self.docState.commit(text)
+                self.isBlockEditorDirty = !self.visualEditing && text != self.originalText
+                self.reloadGeneration += 1
                 self.visualEditing.toggle()
                 self.isEditMode = true
             }
@@ -415,7 +432,7 @@ struct ContentView: View {
     // Native dirty notifications can be queued behind the close command. Query
     // and freeze the live engine before allowing a clean visual document to close.
     private func requestVisualClose() {
-        guard !isSaving, !isCheckingVisualClose, let webView = webViewStore.webView else { return }
+        guard !isSaving, !isSwitchingEditor, !isCheckingVisualClose, let webView = webViewStore.webView else { return }
         isCheckingVisualClose = true
         webView.callAsyncJavaScript("return window._bloctVisual.freezeIfClean();",
                                    arguments: [:], in: nil, in: .page) { result in
@@ -475,7 +492,7 @@ struct ContentView: View {
     // Take an explicit JS snapshot: native message delivery need not finish before
     // evaluateJavaScript's completion. Save the same text that the editor committed.
     private func saveDocument(then completion: (() -> Void)? = nil) {
-        guard !isSaving else { return }
+        guard !isSaving, !isSwitchingEditor else { return }
         guard let webView = webViewStore.webView,
               let nativeDocument = closeProxy?.window?
                 .windowController?.document as? NSDocument else {
@@ -569,7 +586,7 @@ struct ContentView: View {
     private func checkDisk(manual: Bool = false, beforeEdit: ((Bool) -> Void)? = nil) {
         guard !isClosed else { beforeEdit?(false); return }
         guard let url = sourceURL else { beforeEdit?(true); return }
-        guard !isSaving, !diskCheck.inProgress else { beforeEdit?(false); return }
+        guard !isSaving, !isSwitchingEditor, !diskCheck.inProgress else { beforeEdit?(false); return }
         diskCheck.inProgress = true
         let generation = reloadGeneration
         Task { @MainActor in
@@ -710,20 +727,33 @@ struct ContentView: View {
     }
 
     private func replayEdit(redo: Bool) {
+        guard !isSwitchingEditor else { return }
         // Let an active textarea keep its native character-level editing history.
         webViewStore.webView?.evaluateJavaScript("""
             (() => {
                 if (window._bloctVisual) {
-                    return window._bloctVisual.history(\(redo ? "true" : "false"));
+                    if (window._bloctVisual.history(\(redo ? "true" : "false"))) return true;
+                    return {text: window._bloctVisual.session.markdown()};
                 }
                 if (!document.getElementById('mv-block-editor')) return false;
                 document.execCommand('\(redo ? "redo" : "undo")');
                 return true;
             })();
             """) { handled, error in
-                guard error == nil, (handled as? Bool) == false else { return }
-                if redo { docState.undoManager.redo() }
-                else { docState.undoManager.undo() }
+                guard error == nil, (handled as? Bool) != true else { return }
+                if let payload = handled as? [String: Any], let text = payload["text"] as? String {
+                    guard redo ? docState.undoManager.canRedo : docState.undoManager.canUndo else { return }
+                    docState.receiveVisualSnapshot(text)
+                    if redo { docState.undoManager.redo() }
+                    else { docState.undoManager.undo() }
+                    webViewStore.webView?.callAsyncJavaScript(
+                        "window._bloctVisual.restoreDraft(text, baseline);",
+                        arguments: ["text": docState.text, "baseline": originalText], in: nil, in: .page,
+                        completionHandler: nil)
+                } else {
+                    if redo { docState.undoManager.redo() }
+                    else { docState.undoManager.undo() }
+                }
             }
     }
 

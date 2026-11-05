@@ -38,8 +38,8 @@ editing, semantic blocks and Markdown source preservation. Implementation starts
 with the B01–B12 block model/import and command checks in
 [the block plan](WYSIWYG_BLOCK_PLAN.md); current results and remaining integration
 work are tracked in [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집).
-Development builds now include an opt-in **Visual Editor**. Save any current
-changes, then use the **Aa** toolbar button to switch editors. The default remains
+Development builds now include an opt-in **Visual Editor**. Use the **Aa** toolbar
+button to switch editors; unsaved changes stay in memory until you save. The default remains
 the Markdown editor described below while IME and feature validation continues.
 
 ### Visual Editor preview
@@ -55,7 +55,9 @@ for a subtle highlight, then click it to edit; Enter/Space also opens the dialog
 when the formula has keyboard focus.
 
 Changes render while typing; **⌘S** writes a fixed Markdown snapshot. Undo/Redo
-uses the editor history. Unsupported source stays in a protected node with a
+uses the editor history, with one text checkpoint per editor-mode boundary. Closing
+a backtick-delimited inline code span returns subsequent typing to plain text.
+Unsupported source stays in a protected node with a
 read-only source viewer. Actual Korean IME, first-save panels, rich clipboard/PDF,
 advanced table/image controls and performance remain under validation; see F5.
 

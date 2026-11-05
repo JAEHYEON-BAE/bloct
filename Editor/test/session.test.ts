@@ -247,3 +247,26 @@ test('unsupported mixed-source restructuring fails closed and Undo retains the e
   assert.equal(s.markdown(), source);
   assert.equal(s.dirty, false);
 });
+
+
+test('a mode handoff imports an unsaved draft against the disk baseline', () => {
+  const source = '# Saved';
+  const s = new BlockSession('# Draft', source);
+  assert.equal(s.changed, true);
+  assert.equal(s.dirty, true);
+  assert.equal(s.markdown(), '# Draft');
+  const snapshot = s.snapshot();
+  s.dispatch(s.state.tr.insertText(' later', s.doc.content.size - 1));
+  assert.equal(s.markSaved(snapshot), true);
+  assert.equal(s.changed, true);
+  assert.equal(s.markdown(), '# Draft later');
+  s.undo();
+  assert.equal(s.changed, false);
+  assert.equal(s.markdown(), '# Draft');
+  s.acceptExternal(source);
+  assert.equal(s.changed, false);
+  s.setSavedBaseline('# Other saved');
+  assert.equal(s.changed, true);
+  s.setSavedBaseline(source);
+  assert.equal(s.changed, false);
+});
