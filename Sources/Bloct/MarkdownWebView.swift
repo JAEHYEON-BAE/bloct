@@ -136,6 +136,12 @@ struct MarkdownWebView: NSViewRepresentable {
         return content
     }()
 
+    private static func mathResource(_ ext: String) -> String {
+        guard let url = Bundle.main.url(forResource: "math", withExtension: ext),
+              let content = try? String(contentsOf: url, encoding: .utf8) else { return "" }
+        return content
+    }
+
     private static let taskListsJS: String = {
         guard let url = Bundle.main.url(forResource: "task-lists", withExtension: "js"),
               let content = try? String(contentsOf: url, encoding: .utf8)
@@ -613,7 +619,7 @@ struct MarkdownWebView: NSViewRepresentable {
         <html>
         <head>
             <meta charset="UTF-8">
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-\(nonce)'; script-src-attr 'none'; style-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css; font-src https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/; img-src file: bloct-image: data: https: http:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-\(nonce)'; script-src-attr 'none'; style-src 'unsafe-inline'; font-src data:; img-src file: bloct-image: data: https: http:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
             <meta name="color-scheme" content="light dark">
             <style>\(Self.css)</style>
             <style>
@@ -632,10 +638,10 @@ struct MarkdownWebView: NSViewRepresentable {
                     #mv-block-editor { background: #161b22; border-color: #388bfd; }
                 }
             </style>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+            <style>\(Self.mathResource("css"))</style>
             <script nonce="\(nonce)">\(Self.purifyJS)</script>
             <script nonce="\(nonce)">\(Self.markedJS)</script>
-            <script nonce="\(nonce)" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+            <script nonce="\(nonce)">\(Self.mathResource("js").replacingOccurrences(of: "</script", with: "<\\/script", options: .caseInsensitive))</script>
         </head>
         <body>
             <article class="markdown-body">
@@ -827,14 +833,13 @@ struct MarkdownWebView: NSViewRepresentable {
                     return _mvSanitize(html);
                 }
 
-                // KaTeX comes from a CDN; when offline it is undefined, so fall back to the
-                // raw TeX instead of throwing and leaving the whole document blank.
+                // Missing bundled math resources must not blank the document.
                 function _mvRenderMath(item) {
                     if (typeof katex === 'undefined') {
                         var d = item.display ? '$$' : '$';
                         return (d + item.tex + d).replace(/&/g, '&amp;').replace(/</g, '&lt;');
                     }
-                    return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display });
+                    return katex.renderToString(item.tex, { throwOnError: false, displayMode: item.display, trust: false, strict: 'warn' });
                 }
 
                 function _mvSafeDecodeURI(s) {

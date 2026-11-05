@@ -41,13 +41,8 @@ struct WebKitRegression {
         let view = MarkdownWebView(markdown: "# Initial\n\nText", fileURL: nil,
                                    zoomLevel: 1, showTOC: false, isEditMode: false,
                                    webViewStore: WebViewStore())
-        // Deterministic offline checks: omit only the two external KaTeX resources.
-        // All bundled scripts, nonce CSP, renderer and coordinator are production code.
+        // All rendering assets are bundled; no CDN or test renderer is involved.
         let html = view.buildHTML()
-            .replacingOccurrences(of: #"<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex[^"]+">"#,
-                                  with: "", options: .regularExpression)
-            .replacingOccurrences(of: #"<script nonce="[^"]+" src="https://cdn.jsdelivr.net/npm/katex[^"]+"></script>"#,
-                                  with: "", options: .regularExpression)
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("bloct-webkit-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer {
@@ -72,10 +67,58 @@ struct WebKitRegression {
         func render(_ raw: String) {
             _ = js(webView, "window._mvRender(md); return true;", arguments: ["md": Data(raw.utf8).base64EncodedString()])
         }
+        let fixture = try String(contentsOfFile: CommandLine.arguments[1], encoding: .utf8)
+            + "\n## Heading $\\frac{a}{b}$\n"
+        render(fixture)
+        check(webView, "document.querySelectorAll('.katex-display').length === 2 && !document.querySelector('.katex-error')", "state-space matrix and later equation render completely in Markdown mode")
+        let metrics = """
+            await document.fonts.ready;
+            return Array.from(document.querySelectorAll('#content .katex')).map(e => {
+                const style=getComputedStyle(e);
+                const boxes=Array.from(e.querySelectorAll('.katex-html > .katex-base'),n=>n.getBoundingClientRect());
+                return {tex:e.querySelector('annotation').textContent,display:!!e.closest('.katex-display'),
+                    font:style.fontFamily,size:style.fontSize,width:boxes.reduce((sum,r)=>sum+r.width,0),height:Math.max(...boxes.map(r=>r.height))};
+            });
+            """
+        let baseline = js(webView, metrics) as! [[String:Any]]
+        let visual = WKWebView(frame: webView.frame, configuration: WKWebViewConfiguration())
+        visual.loadHTMLString(MarkdownWebView(markdown: fixture, fileURL: nil, zoomLevel: 1,
+            showTOC: false, isEditMode: true, webViewStore: WebViewStore(), visualEditing: true).buildHTML(), baseURL: directory)
+        wait("visual math page", until: { !visual.isLoading && js(visual,"return !!window._bloctVisual;") as? Bool == true })
+        check(visual,"document.querySelectorAll('.katex-display').length === 2 && !document.querySelector('.katex-error')", "Aa mode retains the whole state-space matrix and following equation")
+        let actual = js(visual, metrics) as! [[String:Any]]
+        precondition(baseline.count==11 && actual.count==baseline.count)
+        precondition(zip(baseline,actual).allSatisfy { a,b in
+            a["tex"] as? String == b["tex"] as? String && a["display"] as? Bool == b["display"] as? Bool
+        },"math TeX/display mode changed")
+        print("PASS: identical original TeX and display/inline mode across Aa (11 equations)")
+        for (a,b) in zip(baseline,actual) {
+            if abs((a["width"] as! Double)-(b["width"] as! Double))>=0.1
+                || abs((a["height"] as! Double)-(b["height"] as! Double))>=0.1
+                || a["size"] as? String != b["size"] as? String {
+                print("METRIC baseline \(a) visual \(b)")
+            } else if a["font"] as? String != b["font"] as? String {
+                print("METRIC baseline \(a) visual \(b)")
+            }
+        }
+        precondition(zip(baseline,actual).allSatisfy { a,b in
+            a["font"] as? String == b["font"] as? String && a["size"] as? String == b["size"] as? String
+            && abs((a["width"] as! Double)-(b["width"] as! Double))<0.1
+            && abs((a["height"] as! Double)-(b["height"] as! Double))<0.1
+        },"math font or glyph geometry changed")
+        print("PASS: identical math font/size and glyph geometry across Aa (11 equations, <0.1px)")
+        let fixtureJSON = String(data: try JSONSerialization.data(withJSONObject: [fixture]), encoding:.utf8)!
+        check(visual, "window._bloctVisual.session.markdown() === \(fixtureJSON)[0] && !window._bloctVisual.session.changed", "Aa display preserves exact Markdown and clean state")
+        check(visual,"document.querySelectorAll('.visual-math > button').length===11", "Edit controls are siblings of unchanged math rendering")
+        visual.stopLoading()
         render("MVMATH0X MVCODE0X MVMATH999X MVCODE999X and $x$ and `safe`")
         check(webView, "document.getElementById('content').textContent.includes('MVMATH0X MVCODE0X MVMATH999X MVCODE999X')", "literal internal-looking placeholders remain unchanged")
         render("**bold** and `code` and $x$\n\n$$y$$")
+        check(webView, "!!document.querySelector('.katex-display') && document.querySelectorAll('.katex').length === 2 && !document.querySelector('script[src],link[href]')", "bundled math renders inline/display without external resources")
+        _ = js(webView, "window.savedMathRuntime=window.katex; delete window.katex;window._mvStale=true;return true;")
+        render("**bold** and `code` and $x$\n\n$$y$$")
         check(webView, "document.querySelector('strong').textContent === 'bold' && document.querySelector('code').textContent === 'code' && document.getElementById('content').textContent.includes('$x$') && document.getElementById('content').textContent.includes('$$y$$')", "Markdown and offline inline/display math survive sanitizing")
+        _ = js(webView, "window.katex=window.savedMathRuntime;delete window.savedMathRuntime;return true;")
         // A KaTeX-shaped fixture checks the sanitizer's MathML/SVG/style compatibility.
         let mathHTML = "<span class=\"katex\"><span class=\"katex-mathml\"><math><semantics><mi>x</mi><annotation encoding=\"application/x-tex\">x</annotation></semantics></math></span><span class=\"katex-html\" style=\"height:1em\">x<svg><path d=\"M0 0\"></path></svg></span></span>"
         _ = js(webView, "document.getElementById('content').innerHTML = _mvSanitize(html); return true;", arguments: ["html": mathHTML])

@@ -2,7 +2,7 @@ import {fromMarkdown} from 'mdast-util-from-markdown';
 import {gfmFromMarkdown} from 'mdast-util-gfm';
 import {gfm} from 'micromark-extension-gfm';
 import {mathFromMarkdown} from 'mdast-util-math';
-import {math} from 'micromark-extension-math';
+import {bloctMath} from './math-syntax.ts';
 import type {Node as PMNode, Mark} from '@tiptap/pm/model';
 import type {RootContent, PhrasingContent, Root} from 'mdast';
 import {schema} from './schema.ts';
@@ -16,7 +16,7 @@ export interface ImportedDocument {
 
 function parse(text: string): Root {
   return fromMarkdown(text, {
-    extensions: [gfm(), math()],
+    extensions: [gfm(), bloctMath()],
     mdastExtensions: [gfmFromMarkdown(), mathFromMarkdown()],
   });
 }
@@ -84,9 +84,10 @@ export function importMarkdown(original: string): ImportedDocument {
           // Currency/space-delimited fragments stay literal. Bloct's strike
           // policy is also intentionally not replaced by GFM's default mark.
           const source = raw(n, base);
+          const display = source.startsWith('$$');
           const inner = source.replace(/^\$+|\$+$/g, '');
-          if (/^\s|\s$/.test(inner)) return [schema.text(source, marks)];
-          return [schema.nodes.inline_math.create({value: n.value}, null, marks)];
+          if (!display && /^\s|\s$/.test(inner)) return [schema.text(source, marks)];
+          return [schema.nodes.inline_math.create({value: display ? n.value.trim() : n.value, display}, null, marks)];
         }
         default: return raw(n, base) ? [schema.text(raw(n, base), marks)] : [];
       }

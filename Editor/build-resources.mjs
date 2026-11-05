@@ -1,16 +1,21 @@
 import {readFile,writeFile,readdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 let css=await readFile('node_modules/katex/dist/katex.min.css','utf8');
-css=css.replace(/src:([^;]+);/g,(whole,source)=>{
+// KaTeX minifies the final declaration as src:...} without a semicolon.
+// Never consume the closing brace or the next @font-face/.katex rule.
+css=css.replace(/src:([^;}]+)(?=[;}])/g,(whole,source)=>{
   const woff2=/url\(([^)]+\.woff2)\)\s*format\([^)]+\)/.exec(source);
-  return woff2 ? `src:url(${woff2[1]}) format("woff2");` : whole;
+  return woff2 ? `src:url(${woff2[1]}) format("woff2")` : whole;
 });
 for(const match of [...css.matchAll(/url\((fonts\/[^)]+)\)/g)]) {
   const bytes=await readFile('node_modules/katex/dist/'+match[1]);
   css=css.replace(match[0],`url(data:font/woff2;base64,${bytes.toString('base64')})`);
 }
-css+='\n'+await readFile('src/visual.css','utf8');
-await writeFile('dist/visual.css',css);
+// Reset editable-root wrapping at the math boundary in both modes. KaTeX's
+// own no-wrap/internal positioning rules still take precedence below it.
+css+='\n.katex { white-space:normal; overflow-wrap:normal; text-indent:0; }\n';
+await writeFile('dist/math.css',css);
+await writeFile('dist/visual.css',css+'\n'+await readFile('src/visual.css','utf8'));
 const lock=JSON.parse(await readFile('package-lock.json','utf8'));
 let notices='Bloct visual editor — dependency license notices\n';
 for(const [path,entry] of Object.entries(lock.packages)) {

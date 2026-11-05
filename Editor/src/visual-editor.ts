@@ -77,7 +77,10 @@ function rules(): InputRule[] {
     }),
     new InputRule(/`([^`]+)`$/, (state, match, start, end) => state.tr.insertText(match[1], start, end)
       .addMark(start, start + match[1].length, schema.marks.code.create())),
+    new InputRule(/\$\$([^$\n]+)\$\$$/, (state,match,start,end) =>
+      state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1].trim(),display:true}))),
     new InputRule(/\$([^$\n]+)\$$/, (state,match,start,end) => {
+      if(start>0 && state.doc.textBetween(start-1,start)==='$')return null;
       if(/^\s|\s$/.test(match[1]))return null;
       return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1]}));
     }),
@@ -360,12 +363,15 @@ export class VisualEditor {
       stopEvent:event=>event.target===checkbox};
   }
   private atomView(node:PMNode,view:EditorView,getPos:()=>number|undefined):NodeView {
-    const dom=document.createElement(node.isInline?'span':'div');dom.className='visual-atom';dom.contentEditable='false';
+    const isMath=node.type===schema.nodes.equation||node.type===schema.nodes.inline_math;
+    const dom=document.createElement(node.isInline?'span':'div');dom.className=isMath?'visual-math':'visual-atom';dom.contentEditable='false';
     const content=document.createElement('span'),button=document.createElement('button');button.type='button';button.textContent='Edit';
     const paint=(current:PMNode)=>{
       content.replaceChildren();
       if(current.type===schema.nodes.equation||current.type===schema.nodes.inline_math) {
-        if(current.attrs.value) content.innerHTML=katex.renderToString(current.attrs.value,{displayMode:!current.isInline,throwOnError:false,trust:false,strict:'warn'});
+        const display=!current.isInline||!!current.attrs.display;
+        dom.classList.toggle('visual-math-display',display);
+        if(current.attrs.value) content.innerHTML=katex.renderToString(current.attrs.value,{displayMode:display,throwOnError:false,trust:false,strict:'warn'});
         else content.textContent='Equation';
       } else if(current.type===schema.nodes.image_block||current.type===schema.nodes.inline_image) {
         const url=this.#options.imageURL?.(current.attrs.src);

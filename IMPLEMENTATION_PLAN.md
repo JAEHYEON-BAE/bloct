@@ -25,7 +25,7 @@
 | F2 | 큰 문서 성능·중복 코드 정리 | 검토 대기 / 효과 미측정. 입력·재렌더링·검색 지연을 먼저 측정 |
 | F3 | 문서 타입 메타데이터·확대 단축키 | 검토 대기 / 동작 미검증. 선언 정합성·실제 키 입력 확인 |
 | F4 | 별도 정의 참조 링크의 확인·편집 및 지원 | 2026-10-17 사용자 정책으로 보류. 정의 관리 수단과 함께 재검토 |
-| F5 | Notion 방식의 블록 관리·연속 편집 | 2026-11-05 구현 후 검증 대기 / 연속 시각 편집 실험 경로·형식별 입력·native 저장 통합. 실제 IME·전체 기능 대응은 아래 F5 참조. [상세 계약·실행 순서](WYSIWYG_BLOCK_PLAN.md) 참조 |
+| F5 | Notion 방식의 블록 관리·연속 편집 | 2026-11-05 구현 후 검증 대기 / 연속 시각 편집 실험 경로·형식별 입력·native 저장 통합. 수식 호환 수정 [27·28번](BUG_FIXES.md#bug-27). 실제 IME·전체 기능 대응은 아래 F5 참조. [상세 계약·실행 순서](WYSIWYG_BLOCK_PLAN.md) 참조 |
 
 ## F1. 체크박스 토글 및 상태 저장
 
@@ -65,6 +65,8 @@
 
 ## F5. Notion 방식의 블록 관리와 연속 편집
 
+- **수식 호환 보완(2026-11-05):** 폰트 CSS 경계 손실·붙어 있는 `$$` 본문 파싱을 수정하고 공통 오프라인 KaTeX를 적용했습니다. 최신 재현·검증·한계는 [버그 27·28번](BUG_FIXES.md#bug-27)에서 관리합니다. 아래 표는 최초 연속 편집 구현(`a1816fd`) 당시의 검증 근거를 보존합니다.
+
 - **2026-11-05 / 구현 후 검증 대기 — 선택형 연속 시각 편집 구현, 기본값 전환 전.** `@tiptap/pm`의 ProseMirror `EditorView`를 하나의 편집 루트로 연결했습니다. 기본 경로는 기존 Markdown 편집이며, 저장된 상태에서 상단 **Aa** 버튼으로 Visual Editor를 선택합니다. 미저장 중에는 전환을 막습니다.
 - 이번 구현: 문단·H1~H6·인용문·일반/번호/할 일 목록·코드·구분선·수식·이미지·표를 시각 노드로 표시합니다. 빈 문단의 Markdown 입력 규칙, 타입별 회색 placeholder, Enter/Shift+Enter·목록 들여쓰기·engine Undo/Redo를 연결했습니다. 표·이미지·수식은 형식 메뉴와 전용 편집 UI도 제공합니다. 보존 원문은 `Preserved content`와 읽기 전용 `View source`로 보호하며 일반 입력 중 Markdown textarea를 사용하지 않습니다. 전체 입력 규칙은 [계획 9절](WYSIWYG_BLOCK_PLAN.md#9-구현-순서와-단계별-산출물)에 둡니다.
 - 저장: Swift는 실시간 문자열을 다시 편집기로 보내지 않고 dirty만 받습니다. 명시적 Save 시 고정 스냅샷을 직렬화하고 성공 응답의 token만 저장 기준으로 승인합니다. 쓰기 중 후속 입력은 dirty로 남고, 저장 실패·Don't Save·외부 변경 보호를 유지합니다. native 메뉴와 키보드는 engine history를 공유하며 native 문자열 Undo를 중복 등록하지 않습니다. 조합 중 Save는 완료를 기다리다 시간 초과 시 저장을 거절합니다.
@@ -80,5 +82,5 @@
 | 기존 경로 회귀 | 2026-11-05 [Native](Tests/results/2026-11-05/f5-visual-legacy-native.log) 8그룹·[WebKit](Tests/results/2026-11-05/f5-visual-legacy-webkit.log) 15개·[기존 체크 저장](Tests/results/2026-11-05/f5-visual-legacy-tasks.log) 17개·[Hosted](Tests/results/2026-11-05/f5-visual-hosted.log) **317 통과**, 실패/XFAIL/SKIP 0. 통합 전 GUI의 [관찰](Tests/results/2026-11-05/f5-ui-observations.json)·[빌드](Tests/results/2026-11-05/f5-ui-build.log)도 보존. 기존 경로 결과를 새 모드 전체 기능 검증으로 합산하지 않음 |
 
 - 보존 한계: 미지원 원문이 있는 컨테이너의 재구조화는 export를 거절하고 dirty·Undo를 유지합니다. 형제 이동/목록 indent·outdent 범위, 빈 문단의 개별 ID/서식이 Markdown 재열기 시 gap으로 돌아오는 한계는 유지합니다. HTML 붙여넣기는 schema parser를 사용하지만 임의 형식·이미지/표의 왕복 보존까지 검증한 것은 아닙니다. 링크는 안전한 시각 span이며 열기/주소 수정 UI, 이미지 크기/캡션 조절·표 행/열 편집은 후속입니다.
-- 실험 모드의 dirty는 generation을 검사하고 Save는 엔진 내부의 문서별 token으로 승인합니다. 계획의 전체 message envelope(schemaVersion/documentId/requestId 등) 통합, 실제 IME·위 미검증 기능을 마치기 전에는 기본값을 바꾸거나 기존 편집 코드를 제거하지 않습니다.
+- 실험 모드의 dirty는 generation을 검사하고 Save는 엔진 내부의 문서별 token으로 승인합니다. 계획의 전체 message envelope(schemaVersion/documentId/requestId 등) 통합, 실제 IME·위 미검증 기능과 [종료 cleanup 29번](BUG_FIXES.md#29-앱-메뉴-quit-후-고유-미리보기-파일-잔류)을 확인하기 전에는 기본값을 바꾸거나 기존 편집 코드를 제거하지 않습니다.
 - 의존성은 lockfile 고정이며 KaTeX·폰트·라이선스를 오프라인 앱 리소스로 번들합니다. [빌드/재검사 방법](Tests/README.md#new-block-model-f5), [라이선스](THIRD_PARTY.md). 원격 CI·공개 배포는 이번 로컬 구현 범위 밖입니다.

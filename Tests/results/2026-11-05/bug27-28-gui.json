@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "a1816fd0a48cb63154593f8c0cd3fe291a0aa757",
+  "before_app": "/private/tmp/bloct-background-math-20261105-ir2oj79n/BloctMathCheck.app",
+  "fixed_app": "/private/tmp/bloct-background-math-20261105-ir2oj79n/Product/BloctMathFixed.app",
+  "fixed_bundle_id": "com.personal.Bloct.MathFixed20261105",
+  "binary_sha256": "e9a5b5679539fdd50bfe0501ba75851c909106e1b2707d8a1f9a89b041f41ba1",
+  "editor_sha256": "3e1e0bf61a1ed5e9460342ee7645f11e3a82d9324837b7bc0a1b43da9f756fa9",
+  "math_css_sha256": "8f3acc279cc96d65314ab697903b9412f8936c6d0b043d9b9dfdd37f3163775c",
+  "fixture": "Tests/fixtures/f5-state-space-math.md",
+  "before_observations": [
+    "Markdown mode rendered the full state-space matrix and later integral normally.",
+    "Aa changed typography. Matrix first line was lost; red KaTeX error included the subsequent Math appearance heading and equations.",
+    "Parser treated opening-line TeX as math metadata and did not recognize the attached closing delimiter."
+  ],
+  "fixed_observations": [
+    "Opened the identical temporary fixture in Markdown mode and inspected its formulas.",
+    "Aa retained bold s_t, matrix delimiters, four rows including vdots, and R^(N x 3); later heading, inline formulas and integral remained rendered. Edit controls are outside KaTeX.",
+    "Matrix Edit contained the complete original TeX including its first line, row separators, end{pmatrix} and R^(N x 3).",
+    "Changed only N x 3 to N x 4, Apply and Command-S; editor switch reenabled after acknowledgement.",
+    "Closed/reopened the saved file and switched to Aa. N x 4 and the following document rendered correctly.",
+    "App-menu Quit removed both isolated apps from running inventory; a separate process query confirmed no BloctMathCheck/BloctMathFixed processes. No stale-handle queries."
+  ],
+  "screenshots_inspected_in_cua_trace": true,
+  "saved_fixture": "## State Space\nLet $N$ denote the total number of chapters in the subject.\nThe environment state at time step $t$ is defined as a matrix $\\mathbf{s}_t \\in \\mathcal{S}$,\nwhere $\\mathcal{S} \\subseteq [0,1] \\times \\mathbb{Z}_{\\geq 0} \\times \\mathbb{Z}_{\\geq 0}$ raised to the $N$-th power:\n$$\n\\mathbf{s}_t =\n\\begin{pmatrix}\nR_0^{(t)}      & k_0^{(t)}      & \\Delta t_0^{(t)}      \\\\\nR_1^{(t)}      & k_1^{(t)}      & \\Delta t_1^{(t)}      \\\\\n\\vdots         & \\vdots         & \\vdots                \\\\\nR_{N-1}^{(t)} & k_{N-1}^{(t)} & \\Delta t_{N-1}^{(t)}\n\\end{pmatrix}\n\\in \\mathbb{R}^{N \\times 4}\n$$\n\n## Math appearance\nInline $x^2 + y^2 = z^2$, $\\frac{a}{b}$ and $\\sum_{i=0}^{N} x_i$.\n\n$$\n\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}\n$$\n",
+  "saved_source_matches_expected": true,
+  "non_math_source_unchanged": true,
+  "remaining_owned_previews": [
+    ".mv_preview-621914A9-EDDE-4F10-9E22-1825313B94C6.html",
+    ".mv_preview-A5D27CAD-A653-4452-A940-1F65BE7F3205.html"
+  ],
+  "cleanup_note": "One preview from each direct menu-Quit run remained despite process exit; tracked separately as bug 29. Explicit document close/reopen removed its corresponding previews.",
+  "installed_app_modified": false,
+  "previous_visual_test_app_modified": false,
+  "limits": [
+    "GUI checked current macOS light appearance; full dark-mode/PDF/macOS 14-device verification was not performed.",
+    "Original user file was not supplied; reproduction uses the provided State Space structure in a temporary fixture.",
+    "Glyph geometry is compared by the real WKWebView harness, not whole-editor screenshot pixel equality."
+  ]
+}

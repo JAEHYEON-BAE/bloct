@@ -19,6 +19,7 @@ PY
 app_dir="$output_dir/RelativeImageRegression.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
 cp Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
+cp Editor/dist/math.js Editor/dist/math.css "$app_dir/Resources/"
 sed '/^@main$/d' Sources/Bloct/BloctApp.swift > "$output_dir/BloctApp.swift"
 set --
 for source in Sources/Bloct/*.swift; do

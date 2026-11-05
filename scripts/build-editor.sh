@@ -9,5 +9,5 @@ fi
 npm run build
 if [ "$#" -gt 0 ]; then
     mkdir -p "$1"
-    cp dist/blocks.js dist/visual.css dist/editor-licenses.txt "$1/"
+    cp dist/blocks.js dist/visual.css dist/math.js dist/math.css dist/editor-licenses.txt "$1/"
 fi

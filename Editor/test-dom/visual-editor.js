@@ -174,5 +174,43 @@ await check('empty checked and unchecked tasks save and reimport without literal
     assert(item.firstChild.content.size===0);
   }
 });
+await check('attached matrix delimiters render the first line and all rows without consuming the next block',()=>{
+  const tex=String.raw`\mathbf{s}_t =
+\begin{pmatrix} R_0 & k_0 \\ R_1 & k_1 \end{pmatrix}
+\in \mathbb{R}^{2\times2}`;
+  const source='Before\n$$'+tex+'$$\n\n## After';
+  fresh(source);
+  assert(!host.querySelector('.katex-error'));
+  assert(host.querySelectorAll('.katex-display').length===1);
+  assert(host.querySelector('.katex annotation').textContent===tex);
+  assert(host.querySelector('h2').textContent==='After');
+  assert(serialized()===source && !editor.session.changed);
+  assert(!host.querySelector('.katex button'),'Edit must not alter KaTeX DOM');
+  assert(getComputedStyle(host.querySelector('.visual-math-display > button')).position==='absolute');
+});
+await check('double-dollar typing in text retains display mode and editable-root wrapping cannot affect math',()=>{
+  fresh();type('Before $$x^2$$ after');
+  const math=editor.session.doc.firstChild.child(1);
+  assert(math.type.name==='inline_math' && math.attrs.display===true);
+  assert(host.querySelector('.katex-display'));
+  assert(getComputedStyle(host.querySelector('.visual-math')).whiteSpace==='normal');
+  assert(serialized().includes('$$x^2$$'));
+});
+await check('matrix Edit dialog retains exact TeX and saves modified math with Undo',()=>{
+  const tex=String.raw`\mathbf{s}_t = \begin{pmatrix}a & b \\ c & d\end{pmatrix}`;
+  const source='$$'+tex+'$$\n\nTail';fresh(source);
+  host.querySelector('.visual-math > button').click();
+  const dialog=document.querySelector('dialog');assert(dialog);
+  const input=dialog.querySelector('textarea');assert(input.value===tex);
+  input.value+=' + 0';dialog.close('apply');
+});
+// The dialog close event is queued by WebKit.
+await new Promise(resolve=>setTimeout(resolve,0));
+await check('applying a math edit preserves following content and Undo restores original spelling',()=>{
+  assert(editor.session.doc.firstChild.attrs.value.endsWith(' + 0'));
+  assert(!host.querySelector('.katex-error'));assert(serialized().endsWith('\n\nTail'));
+  assert(editor.history(false));assert(serialized().startsWith('$$\\mathbf{s}_t ='));
+  assert(!editor.session.changed);
+});
 if(editor){editor.destroy();host.remove();}
 return JSON.stringify({results});

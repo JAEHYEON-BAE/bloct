@@ -82,7 +82,7 @@ await sleep(50);
 if (hasKatex) {
   check('keeps KaTeX MathML annotation and HTML', C().querySelectorAll('.katex annotation').length === 2 && C().querySelectorAll('.katex-html').length === 2, C().innerHTML.slice(0, 200));
 } else {
-  skip('keeps KaTeX MathML annotation and HTML', 'KaTeX CDN unreachable');
+  check('keeps KaTeX MathML annotation and HTML', false, 'Bundled KaTeX missing');
 }
 {
   const sel = window.getSelection(); const r = document.createRange();
@@ -102,7 +102,7 @@ if (hasKatex) {
   const katexFonts = Array.from(document.fonts).filter(f => /KaTeX/.test(f.family));
   check('KaTeX web fonts load under CSP', katexFonts.some(f => f.status === 'loaded'), katexFonts.map(f => f.family + ':' + f.status).join(', '));
 } else {
-  skip('KaTeX web fonts load under CSP', 'KaTeX CDN unreachable');
+  check('KaTeX web fonts load under CSP', false, 'Bundled KaTeX missing');
 }
 check('no CSP violations while rendering legitimate content', violations.length === 0, violations.join(' | '));
 

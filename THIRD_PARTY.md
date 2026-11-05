@@ -8,12 +8,12 @@ Exact dependency versions and npm archive integrity values are recorded in
 extensions (MIT). TypeScript (Apache-2.0), esbuild (MIT) and Node type definitions
 (MIT) are development tools. Installed dependency packages retain their license
 files. `Editor/build-resources.mjs` collects production dependency license texts
-into `editor-licenses.txt`, bundled in the app with `blocks.js` and `visual.css`.
+into `editor-licenses.txt`, bundled with `blocks.js`, `visual.css`, `math.js` and
+`math.css`.
 
-The visual editor uses KaTeX 0.18.2 (MIT), including its WOFF2 fonts embedded in
-the CSS for offline rendering. Its renderer uses `trust: false`; the tokenizer's
-indirect KaTeX is pinned to the same version. The legacy renderer's CDN version
-below is unchanged.
+Both the Markdown preview and visual editor use KaTeX 0.18.2 (MIT), including
+its WOFF2 fonts embedded in the CSS for offline rendering. Its renderer uses `trust: false`; the tokenizer's
+indirect KaTeX is pinned to the same version. The same locked version and options are used across editor switches.
 
 ## DOMPurify 3.4.17
 
@@ -29,5 +29,5 @@ When upgrading it, review upstream security notes and run `sh Tests/run-webkit.s
 
 ## Existing renderer assets
 
-`Sources/Bloct/marked.min.js` retains its upstream license header. KaTeX 0.16.11
-continues to load from jsDelivr at runtime in the legacy Markdown editor.
+`Sources/Bloct/marked.min.js` retains its upstream license header. The former
+KaTeX 0.16.11 CDN script/stylesheet are replaced by the shared bundled assets.

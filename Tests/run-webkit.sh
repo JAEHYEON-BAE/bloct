@@ -6,6 +6,7 @@ trap 'rm -rf "$output_dir"' EXIT
 app_dir="$output_dir/Regression.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
 cp Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
+cp Editor/dist/math.js Editor/dist/math.css Editor/dist/blocks.js Editor/dist/visual.css "$app_dir/Resources/"
 # Keep the production commands/delegate, substituting only the test entry point.
 sed '/^@main$/d' Sources/Bloct/BloctApp.swift > "$output_dir/BloctApp.swift"
 set --
@@ -15,4 +16,4 @@ done
 xcrun swiftc -swift-version 6 -parse-as-library -module-cache-path /private/tmp/bloct-regression-module-cache \
     "$@" "$output_dir/BloctApp.swift" Tests/WebKitRegression.swift \
     -o "$app_dir/MacOS/Regression"
-"$app_dir/MacOS/Regression"
+"$app_dir/MacOS/Regression" "$PWD/Tests/fixtures/f5-state-space-math.md"

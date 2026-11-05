@@ -12,8 +12,8 @@ sh Tests/run-block-model.sh
 ```
 
 The runner checks TypeScript, executes the headless ProseMirror/import tests, and
-builds `Editor/dist/blocks.js`, offline CSS/fonts and license notices for Safari
-17/WKWebView. Xcode bundles these resources in the opt-in visual editor; the
+builds `Editor/dist/blocks.js`, shared `math.js`/`math.css`, offline fonts and
+license notices for Safari 17/WKWebView. Native runners require these built assets. Xcode bundles these resources in the opt-in visual editor; the
 default remains the legacy Markdown editor. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
 the existing #16 policy fixture and exact UTF-16 source offsets.
 `Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
@@ -34,8 +34,9 @@ Without options it checks engine/serializer execution (18 checks). Add `--visual
 to mount the actual EditorView in both file and inline WKWebViews and test typing
 rules, H1–H6/quote/list/task/code placeholders, all 16 menu formats, inline marks,
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
-round trips, search, protected source, engine history and snapshot acknowledgements.
-The 92 visual checks simulate DOM events/engine text handlers. Synthetic composition
+round trips, search, protected source, engine history and snapshot acknowledgements,
+plus attached matrix delimiters, display mode, Edit and Undo.
+The 100 visual checks simulate DOM events/engine text handlers. Synthetic composition
 is a guard test, not real Korean IME acceptance. It uses temporary files and does
 not open or replace the installed Bloct app.
 
@@ -81,14 +82,17 @@ sh Tests/run-webkit.sh
 
 The WebKit harness builds a temporary app-shaped test bundle and compiles the
 production sources with the test entry point. It loads the production HTML in
-real WKWebViews. The two remote KaTeX resources are omitted for deterministic
-offline tests; math fallback and a KaTeX-shaped MathML/SVG fixture are checked.
+real WKWebViews. The shared bundled KaTeX renders offline. The state-space fixture plus a math
+heading checks 11 equations across Markdown/visual modes: exact TeX/display mode,
+loaded font family/size and glyph geometry within 0.1 CSS pixels. Missing-runtime
+fallback is simulated explicitly; the MathML/SVG sanitizer fixture is also checked.
 It covers sanitizer behavior, placeholder collisions, CSP enforcement, native
 bridge callbacks, navigation blocking, image URLs and actual local image loading,
 and new-document inline HTML loading. It requires permission to launch WebKit
 processes and Swift compiler plugins; run outside a restrictive sandbox.
 
-Live KaTeX CDN rendering and interactive Save panels are not covered.
+Interactive Save panels are not covered. Both modes use the same offline assets;
+there is no KaTeX CDN dependency.
 
 ```sh
 sh Tests/run-menu-polling.sh
@@ -136,7 +140,7 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
     survive sanitizing, KaTeX fonts and CSP violations.
 
 Every file in `Tests/js` returns `JSON.stringify({ results: [{ name, pass, detail, skip }] })`.
-Checks that need the KaTeX CDN are skipped when it is unreachable.
+Missing bundled KaTeX is a test failure; math checks do not depend on a CDN.
 
 Known defects are listed in `knownFailures` at the top of `HostedRegression.swift`
 together with their [BUG_FIXES.md](../BUG_FIXES.md) item. They print `XFAIL` and do not fail the run.

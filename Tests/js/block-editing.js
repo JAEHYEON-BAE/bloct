@@ -2,8 +2,7 @@
 // a page loaded by the production MarkdownWebView (including the didFinish scripts).
 //
 // The test WebView has no key window, so focus()/blur() do nothing; the suite dispatches
-// the blur event the editor listens for instead. Checks that need the KaTeX CDN are
-// skipped when it is unreachable.
+// the blur event the editor listens for instead. KaTeX is bundled and required.
 //
 // Result protocol (shared by every file in Tests/js):
 //   return JSON.stringify({ results: [{ name, pass, detail, skip }] })
@@ -144,10 +143,10 @@ reset(DOC);
     check('6a inline math rendered by KaTeX', !!document.querySelector('#content .katex'));
     check('6b display math rendered by KaTeX', !!document.querySelector('#content .katex-display'));
   } else {
-    skip('6a inline math rendered by KaTeX', 'KaTeX CDN unreachable');
-    skip('6b display math rendered by KaTeX', 'KaTeX CDN unreachable');
+    check('6a inline math rendered by KaTeX', false, 'Bundled KaTeX missing');
+    check('6b display math rendered by KaTeX', false, 'Bundled KaTeX missing');
   }
-  const saved = window.katex; delete window.katex;      // simulate the CDN being offline
+  const saved = window.katex; delete window.katex;      // simulate a missing bundled runtime
   let threw = '';
   try { reset('Cost $x+1$ here\n\n$$\na = b\n$$\n\nplain tail'); } catch (e) { threw = e.message; }
   check('6c offline: render does not throw', !threw, threw);

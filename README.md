@@ -50,7 +50,7 @@ block, type a marker and Space: `#` through `######` for headings, `>` for a quo
 three backticks (optionally a language) for code, `---` for a divider, and `$$` for
 an equation. Empty text blocks show a muted placeholder for their type. Enter
 creates the next block; Shift-Enter inserts a hard break in text. The format menu
-also inserts images, equations and tables. Math renders offline.
+also inserts images, equations and tables. Both editor modes share the same offline KaTeX renderer and fonts.
 
 Changes render while typing; **⌘S** writes a fixed Markdown snapshot. Undo/Redo
 uses the editor history. Unsupported source stays in a protected node with a

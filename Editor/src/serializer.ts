@@ -54,7 +54,10 @@ function inline(node: PMNode): string {
       } else value = escapeText(child.text!);
     } else if (child.type.name === 'soft_break') value = '\n';
     else if (child.type.name === 'hard_break') value = '\\\n';
-    else if (child.type.name === 'inline_math') value = `$${child.attrs.value}$`;
+    else if (child.type.name === 'inline_math') {
+      const delimiter=child.attrs.display?'$$':'$';
+      value=delimiter+child.attrs.value+delimiter;
+    }
     else if (child.type.name === 'inline_image') value = image(child.attrs);
     else throw new Error(`Unsupported inline node: ${child.type.name}`);
     for (const mark of [...child.marks].reverse()) {

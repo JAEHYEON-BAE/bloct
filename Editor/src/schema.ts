@@ -79,7 +79,7 @@ export const schema = new Schema({
     hard_break: {group: 'inline', inline: true, selectable: false, toDOM: () => ['br'], parseDOM:[{tag:'br'}]},
     inline_math: {
       group: 'inline', inline: true, atom: true,
-      attrs: {value: {default: ''}}, toDOM: node => ['span', node.attrs.value],
+      attrs: {value: {default: ''}, display: {default:false}}, toDOM: node => ['span', node.attrs.value],
     },
     inline_image: {
       group: 'inline', inline: true, atom: true,
