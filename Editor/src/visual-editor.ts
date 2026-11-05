@@ -76,7 +76,8 @@ function rules(): InputRule[] {
         .addMark(start + prefix, start + prefix + match[1].length, schema.marks.em.create());
     }),
     new InputRule(/`([^`]+)`$/, (state, match, start, end) => state.tr.insertText(match[1], start, end)
-      .addMark(start, start + match[1].length, schema.marks.code.create())),
+      .addMark(start, start + match[1].length, schema.marks.code.create())
+      .removeStoredMark(schema.marks.code)),
     new InputRule(/\$\$([^$\n]+)\$\$$/, (state,match,start,end) =>
       state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1].trim(),display:true}))),
     new InputRule(/\$([^$\n]+)\$$/, (state,match,start,end) => {

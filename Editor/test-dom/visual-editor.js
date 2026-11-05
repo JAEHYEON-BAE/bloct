@@ -92,6 +92,25 @@ await check('bold, italic, inline code, inline math, link and image input rules'
     serialized();
   }
 });
+await check('closing inline code limits the code mark to the delimited text',()=>{
+  fresh();type('`code`tail');
+  const p=editor.session.doc.firstChild;
+  assert(p.childCount===2 && p.child(0).text==='code' && p.child(1).text==='tail');
+  assert(p.child(0).marks.some(m=>m.type.name==='code'));
+  assert(!p.child(1).marks.length);
+  assert(serialized()==='`code`tail',serialized());
+});
+await check('separate inline code spans and cancelled conversion keep ordinary typing available',()=>{
+  fresh();type('Before `one` and `two` after');
+  const codes=[];editor.session.doc.descendants(n=>{if(n.isText&&n.marks.some(m=>m.type.name==='code'))codes.push(n.text);});
+  assert(JSON.stringify(codes)===JSON.stringify(['one','two']),JSON.stringify(codes));
+  const reopened=BloctBlocks.importMarkdown(serialized()).doc;
+  assert(reopened.firstChild.textContent==='Before one and two after');
+  assert(reopened.firstChild.child(1).marks.some(m=>m.type.name==='code'));
+  fresh();type('`one`');key('Backspace');type(' next');
+  assert(!editor.session.doc.firstChild.firstChild.marks.length);
+  assert(serialized().includes('one'));
+});
 await check('divider and equation input rules consume markers',()=>{
   for(const [prefix,kind]of[['--- ','horizontal_rule'],['$$ ','equation']]){
     fresh();type(prefix);assert(editor.session.doc.firstChild.type.name===kind);serialized();
