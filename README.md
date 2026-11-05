@@ -47,8 +47,10 @@ the Markdown editor described below while IME and feature validation continues.
 Edit the rendered document directly in one continuous surface. On an empty text
 block, type a marker and Space: `#` through `######` for headings, `>` for a quote,
 `-`/`+`/`*` for bullets, `1.` for a numbered list, `[]`/`[ ]`/`[x]` for a task,
-three backticks (optionally a language) for code, `---` for a divider, and `$$` for
-an equation. Empty text blocks show a muted placeholder for their type. Enter
+three backticks (optionally a language) for code, and `---` for a divider.
+`$$` followed by Space stays as text; close a nonempty `$$...$$` expression to
+render a block equation. Enter/Shift-Enter may separate its lines before closing.
+`$...$` renders inline math. Empty text blocks show a muted placeholder for their type. Enter
 creates the next block; Shift-Enter inserts a hard break in text. The format menu
 also inserts images, equations and tables. Both editor modes share the same offline KaTeX renderer and fonts. Hover a formula
 for a subtle highlight, then click it to edit; Enter/Space also opens the dialog

@@ -111,8 +111,8 @@ await check('separate inline code spans and cancelled conversion keep ordinary t
   assert(!editor.session.doc.firstChild.firstChild.marks.length);
   assert(serialized().includes('one'));
 });
-await check('divider and equation input rules consume markers',()=>{
-  for(const [prefix,kind]of[['--- ','horizontal_rule'],['$$ ','equation']]){
+await check('divider input rule consumes its marker',()=>{
+  for(const [prefix,kind]of[['--- ','horizontal_rule']]){
     fresh();type(prefix);assert(editor.session.doc.firstChild.type.name===kind);serialized();
   }
 });
@@ -123,7 +123,7 @@ await check('input conversion Undo restores literal prefix; document history rem
   serialized();
 });
 await check('Backspace after block conversion restores the caret to the literal marker before the following block',()=>{
-  for(const prefix of ['> ','- ','+ ','* ','1. ','[] ','## ','```js ','--- ','$$ ']) {
+  for(const prefix of ['> ','- ','+ ','* ','1. ','[] ','## ','```js ','--- ']) {
     fresh('replace\n\nFollowing');
     editor.view.dispatch(editor.view.state.tr.delete(1,8));
     type(prefix);assert(key('Backspace'),prefix);
@@ -228,6 +228,69 @@ await check('attached matrix delimiters render the first line and all rows witho
   assert(!host.querySelector('.katex button'),'Edit must not alter KaTeX DOM');
   assert(!host.querySelector('.visual-math button'));
   assert(getComputedStyle(host.querySelector('.visual-math')).cursor==='pointer');
+});
+await check('an opening double dollar plus Space stays literal and survives a snapshot/reimport',async()=>{
+  for(const raw of ['$$ ','$$$$','$$   $$']) {
+    fresh();type(raw);
+    assert(editor.session.doc.firstChild.type.name==='paragraph',raw);
+    assert(editor.session.doc.firstChild.textContent===raw,raw);
+    assert(!host.querySelector('.visual-math'),raw);
+    const snap=await editor.snapshot();const reopened=BloctBlocks.importMarkdown(snap.text).doc;
+    assert(reopened.firstChild.type.name==='paragraph' && reopened.firstChild.textContent===raw,raw);
+  }
+});
+await check('only closing double dollars convert a complete standalone expression to a block equation',()=>{
+  fresh();type('$$ ');type('x^2 ');
+  assert(!host.querySelector('.visual-math'));
+  type('$');assert(!host.querySelector('.visual-math'));
+  type('$');
+  assert(editor.session.doc.firstChild.type.name==='equation');
+  assert(editor.session.doc.firstChild.attrs.value==='x^2');
+  assert(host.querySelector('.katex-display'));
+  assert(!editor.session.doc.firstChild.isInline);
+  assert(editor.view.state.selection.$from.parent.type.name==='paragraph');
+  type('After');assert(editor.session.doc.lastChild.textContent==='After');
+  assert(BloctBlocks.importMarkdown(serialized()).doc.firstChild.type.name==='equation');
+});
+await check('multiline double-dollar drafts close as one equation and preserve surrounding blocks and Undo',()=>{
+  fresh('replace\n\nFollowing');editor.view.dispatch(editor.view.state.tr.delete(1,8));
+  type('$$');key('Enter');type('x +');key('Enter');type('y');key('Enter');
+  type('$');assert(!host.querySelector('.visual-math'),'literal: '+JSON.stringify(editor.session.doc.toJSON()));
+  type('$');
+  assert(editor.session.doc.firstChild.type.name==='equation','block equation: '+JSON.stringify(editor.session.doc.toJSON()));
+  assert(editor.session.doc.firstChild.attrs.value==='x +\ny','TeX: '+editor.session.doc.firstChild.attrs.value);
+  assert(editor.session.doc.lastChild.textContent==='Following');
+  serialized();key('Backspace');
+  assert(!host.querySelector('.visual-math'),'literal: '+JSON.stringify(editor.session.doc.toJSON()));
+  assert(editor.session.doc.child(3).textContent==='$$','undo: '+JSON.stringify(editor.session.doc.toJSON()));
+  assert(editor.view.state.selection.$from.parent===editor.session.doc.child(3));
+  assert(editor.session.doc.lastChild.textContent==='Following');
+});
+await check('hard-break math drafts close correctly and never collect across a different block type',()=>{
+  fresh();type('$$');key('Enter',{shiftKey:true});type('x');key('Enter',{shiftKey:true});type('$$');
+  assert(editor.session.doc.firstChild.type.name==='equation');
+  assert(editor.session.doc.firstChild.attrs.value==='x');serialized();
+  fresh();type('$$');key('Enter');type('# ');type('Heading');key('Enter');type('$$');
+  assert(!host.querySelector('.visual-math'));
+  assert(editor.session.doc.child(1).type.name==='heading');serialized();
+});
+await check('an unfinished math snapshot remains editable after reimport and completes on the final delimiter',async()=>{
+  fresh();type('$$ ');const snapshot=await editor.snapshot();
+  fresh(snapshot.text);const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);editor.view.updateState(editor.session.state);
+  type('x $$');assert(editor.session.doc.firstChild.type.name==='equation');
+  assert(editor.session.doc.firstChild.attrs.value==='x');serialized();
+  key('Backspace');assert(editor.session.doc.firstChild.type.name==='paragraph');
+  assert(editor.session.doc.firstChild.textContent==='$$ x $$');
+});
+await check('inline dollars remain inline and display drafts protect their body from inline math rules',()=>{
+  fresh();type('$x$');assert(editor.session.doc.firstChild.firstChild.type.name==='inline_math');
+  assert(editor.session.doc.firstChild.firstChild.attrs.display===false);
+  fresh();type('$$ ');type('$x$');assert(!host.querySelector('.visual-math'));
+  fresh('`code`');const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),4);editor.view.updateState(editor.session.state);
+  type('$$ x $$');assert(!host.querySelector('.visual-math'));
+  assert(editor.session.doc.firstChild.firstChild.marks.some(m=>m.type.name==='code'));
 });
 await check('double-dollar typing in text retains display mode and editable-root wrapping cannot affect math',()=>{
   fresh();type('Before $$x^2$$ after');

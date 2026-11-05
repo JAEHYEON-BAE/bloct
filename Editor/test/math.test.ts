@@ -52,3 +52,15 @@ test('double-dollar math in a paragraph stays display math through surrounding e
   assert.equal(importMarkdown(session.markdown()).doc.firstChild!.child(1).attrs.display,true);
   assert.ok(session.undo());assert.equal(session.dirty,false);
 });
+
+test('literal pending or empty math delimiters save without becoming math on reimport',()=>{
+  for(const text of ['$$ ','$$$$','$$   $$','price $5 and $10']) {
+    const s=new BlockSession('');
+    s.dispatch(s.state.tr.insertText(text));
+    const saved=s.snapshot().markdown;
+    const reopened=importMarkdown(saved).doc;
+    assert.equal(equations(reopened).length,0,text);
+    assert.equal(reopened.firstChild!.type.name,'paragraph',text);
+    assert.equal(reopened.firstChild!.textContent,text);
+  }
+});

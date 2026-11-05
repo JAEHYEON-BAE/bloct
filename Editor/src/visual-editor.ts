@@ -38,6 +38,31 @@ const undoTypingRule: Command = (state, dispatch) => {
   return false;
 };
 
+// Pending display math stays ordinary text until a nonempty pair is closed.
+// Enter may have split its lines into adjacent paragraphs; never cross another
+// block type, inline atom or formatting mark while collecting those lines.
+function displayDraft(doc:PMNode, pos:number, closing=false) {
+  const $pos=doc.resolve(pos);
+  if($pos.depth!==1 || $pos.parent.type!==schema.nodes.paragraph)return null;
+  const lines:string[]=[];
+  let from=$pos.before();
+  for(let index=$pos.index(0);index>=0;index--) {
+    const node=doc.child(index);let plain=true;
+    node.forEach(child=>{if(child.marks.length || !['text','soft_break','hard_break'].includes(child.type.name))plain=false;});
+    if(node.type!==schema.nodes.paragraph || !plain)break;
+    lines.unshift(node.textBetween(0,node.content.size,'\n','\n'));
+    if(/^\$\$(?!\$)/.test(lines[0]) && !(closing && lines.length===1 && /^\$\$[ \t]*$/.test(lines[0])))
+      return {from,to:$pos.after(),raw:lines.join('\n')};
+    if(index)from-=doc.child(index-1).nodeSize;
+  }
+  return null;
+}
+function escapedDollar(state:EditorState,pos:number) {
+  const $pos=state.doc.resolve(pos);
+  const before=$pos.parent.textBetween(0,$pos.parentOffset);
+  return ((/\\+$/.exec(before)?.[0].length ?? 0)%2)===1;
+}
+
 function rules(): InputRule[] {
   const blockRule = (pattern: RegExp, kind: string, attributes: (m: RegExpMatchArray) => object = () => ({})) =>
     new InputRule(pattern, (state, match, start, end) => {
@@ -80,7 +105,6 @@ function rules(): InputRule[] {
     blockRule(/^(\d{1,9})([.)]) $/, 'ordered_list', m => ({start:Number(m[1]),marker:m[2]})),
     blockRule(/^(?:```|~~~)([\w+-]*) $/, 'code_block', m => ({language:m[1]})),
     blockRule(/^(?:---|\*\*\*) $/, 'horizontal_rule'),
-    blockRule(/^\$\$ $/, 'equation'),
     new InputRule(/(?:^|\s)\*\*([^*]+)\*\*$/, (state, match, start, end) => {
       const prefix = match[0].startsWith(' ') ? 1 : 0;
       return state.tr.insertText(match[1], start + prefix, end)
@@ -94,13 +118,29 @@ function rules(): InputRule[] {
     new InputRule(/`([^`]+)`$/, (state, match, start, end) => state.tr.insertText(match[1], start, end)
       .addMark(start, start + match[1].length, schema.marks.code.create())
       .removeStoredMark(schema.marks.code)),
-    new InputRule(/\$\$([^$\n]+)\$\$$/, (state,match,start,end) =>
-      state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1].trim(),display:true}))),
+    new InputRule(/\$\$$/, (state,match,start,end) => {
+      const tr=state.tr.insertText(match[0],start,end);
+      const cursor=start+match[0].length,$cursor=tr.doc.resolve(cursor);
+      if(cursor!==$cursor.end())return null;
+      const draft=displayDraft(tr.doc,cursor,true);
+      const value=draft && /^\$\$(?!\$)([\s\S]*?)\$\$$/.exec(draft.raw)?.[1].trim();
+      if(!draft || !value || /(?<!\\)\$\$/.test(value))return null;
+      const first=tr.doc.nodeAt(draft.from)!;
+      const equation=schema.nodes.equation.create({...first.attrs,value});
+      tr.replaceWith(draft.from,draft.to,[equation,schema.nodes.paragraph.create()]);
+      return tr.setSelection(TextSelection.create(tr.doc,draft.from+equation.nodeSize+1));
+    },{inCodeMark:false}),
+    new InputRule(/\$\$([^$\n]+)\$\$$/, (state,match,start,end) => {
+      if(!match[1].trim() || escapedDollar(state,start) || (start>0 && state.doc.textBetween(start-1,start)==='$'))return null;
+      return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1].trim(),display:true}));
+    },{inCodeMark:false}),
     new InputRule(/\$([^$\n]+)\$$/, (state,match,start,end) => {
-      if(start>0 && state.doc.textBetween(start-1,start)==='$')return null;
+      if(escapedDollar(state,start) || (start>0 && state.doc.textBetween(start-1,start)==='$'))return null;
+      const draft=displayDraft(state.doc,end);
+      if(draft && !/(?<!\\)\$\$/.test(draft.raw.slice(2)))return null;
       if(/^\s|\s$/.test(match[1]))return null;
       return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1]}));
-    }),
+    },{inCodeMark:false}),
     new InputRule(/!\[([^\]]*)\]\(([^)\s]+)\)$/, (state,match,start,end) => {
       const $from=state.doc.resolve(start);
       const attrs={src:match[2],alt:match[1]};
