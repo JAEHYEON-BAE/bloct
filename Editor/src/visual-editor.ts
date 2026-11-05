@@ -364,7 +364,7 @@ export class VisualEditor {
   }
   private atomView(node:PMNode,view:EditorView,getPos:()=>number|undefined):NodeView {
     const isMath=node.type===schema.nodes.equation||node.type===schema.nodes.inline_math;
-    const dom=document.createElement(node.isInline?'span':'div');dom.className=isMath?'visual-math':'visual-atom';dom.contentEditable='false';
+    const dom:HTMLElement=document.createElement(node.isInline?'span':'div');dom.className=isMath?'visual-math':'visual-atom';dom.contentEditable='false';
     const content=document.createElement('span'),button=document.createElement('button');button.type='button';button.textContent='Edit';
     const paint=(current:PMNode)=>{
       content.replaceChildren();
@@ -380,9 +380,10 @@ export class VisualEditor {
         if(current.attrs.caption) {const caption=document.createElement('span');caption.textContent=current.attrs.caption;content.append(caption);}
       } else {content.textContent='Preserved content';button.textContent='View source';}
     };
-    button.addEventListener('click',()=>{
+    const openEditor=()=>{
       const pos=getPos();if(pos==null)return;
       const current=view.state.doc.nodeAt(pos)!;
+      if(this.#frozen)return;
       if(!this.#editable && current.type!==schema.nodes.raw_source)return;
       const dialog=document.createElement('dialog'),form=document.createElement('form');form.method='dialog';
       const label=document.createElement('label');label.textContent=current.type===schema.nodes.raw_source?'Preserved source':current.type.name.includes('image')?'Image URL':'Equation';
@@ -398,13 +399,41 @@ export class VisualEditor {
         }
         dialog.remove();view.focus();
       });dialog.showModal();input.focus();
-    });
-    dom.append(content,button);paint(node);
-    return {dom,update:current=>{if(current.type!==node.type)return false;paint(current);return true;},stopEvent:()=>true};
+    };
+    if(isMath) {
+      dom.setAttribute('role','button');dom.setAttribute('aria-label','Edit equation');
+      let pointerStart: {x:number;y:number}|undefined;
+      dom.addEventListener('mousedown',event=>{pointerStart={x:event.clientX,y:event.clientY};});
+      dom.addEventListener('click',event=>{
+        const moved=pointerStart && (Math.abs(event.clientX-pointerStart.x)>4||Math.abs(event.clientY-pointerStart.y)>4);
+        pointerStart=undefined;
+        if(!moved)openEditor();
+      });
+      dom.addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' ') {
+          event.preventDefault();event.stopPropagation();
+          if(!event.repeat)openEditor();
+        }
+      });
+      dom.append(content);
+    } else {
+      button.addEventListener('click',openEditor);dom.append(content,button);
+    }
+    const update=(current:PMNode)=>{
+      if(current.type!==node.type)return false;
+      paint(current);
+      if(isMath){dom.tabIndex=this.#editable?0:-1;dom.setAttribute('aria-disabled',String(!this.#editable));}
+      return true;
+    };
+    update(node);
+    return {dom,update,stopEvent:()=>true};
   }
   setEditable(value:boolean) {
     this.#editable=value;this.view.setProps({editable:()=>this.#editable&&!this.#frozen});
     this.toolbar.hidden=!value;
+    for(const math of this.view.dom.querySelectorAll<HTMLElement>('.visual-math')) {
+      math.tabIndex=value?0:-1;math.setAttribute('aria-disabled',String(!value));
+    }
   }
   history(forward:boolean) {
     if(this.#frozen)return false;

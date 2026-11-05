@@ -35,8 +35,10 @@ to mount the actual EditorView in both file and inline WKWebViews and test typin
 rules, H1–H6/quote/list/task/code placeholders, all 16 menu formats, inline marks,
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
-plus attached matrix delimiters, display mode, Edit and Undo.
-The 100 visual checks simulate DOM events/engine text handlers. Synthetic composition
+plus attached matrix delimiters, display mode, formula-surface editing and Undo.
+The 106 visual checks simulate DOM events/engine text handlers, including formula
+click/keyboard activation, Read/freeze guards, drag suppression and pointer CSS.
+They do not verify native physical-pointer hover or continuous dwell. Synthetic composition
 is a guard test, not real Korean IME acceptance. It uses temporary files and does
 not open or replace the installed Bloct app.
 

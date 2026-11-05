@@ -186,7 +186,8 @@ await check('attached matrix delimiters render the first line and all rows witho
   assert(host.querySelector('h2').textContent==='After');
   assert(serialized()===source && !editor.session.changed);
   assert(!host.querySelector('.katex button'),'Edit must not alter KaTeX DOM');
-  assert(getComputedStyle(host.querySelector('.visual-math-display > button')).position==='absolute');
+  assert(!host.querySelector('.visual-math button'));
+  assert(getComputedStyle(host.querySelector('.visual-math')).cursor==='pointer');
 });
 await check('double-dollar typing in text retains display mode and editable-root wrapping cannot affect math',()=>{
   fresh();type('Before $$x^2$$ after');
@@ -199,7 +200,7 @@ await check('double-dollar typing in text retains display mode and editable-root
 await check('matrix Edit dialog retains exact TeX and saves modified math with Undo',()=>{
   const tex=String.raw`\mathbf{s}_t = \begin{pmatrix}a & b \\ c & d\end{pmatrix}`;
   const source='$$'+tex+'$$\n\nTail';fresh(source);
-  host.querySelector('.visual-math > button').click();
+  host.querySelector('.visual-math').click();
   const dialog=document.querySelector('dialog');assert(dialog);
   const input=dialog.querySelector('textarea');assert(input.value===tex);
   input.value+=' + 0';dialog.close('apply');
@@ -211,6 +212,40 @@ await check('applying a math edit preserves following content and Undo restores 
   assert(!host.querySelector('.katex-error'));assert(serialized().endsWith('\n\nTail'));
   assert(editor.history(false));assert(serialized().startsWith('$$\\mathbf{s}_t ='));
   assert(!editor.session.changed);
+});
+await check('inline and display math open on the formula surface without editing controls or dirtying source',async()=>{
+  for(const source of ['$x^2$','$$x^2$$']) {
+    fresh(source);const math=host.querySelector('.visual-math');
+    assert(!math.querySelector('button'));
+    assert(math.getAttribute('role')==='button' && math.tabIndex===0);
+    const before=math.querySelector('.katex').outerHTML;
+    math.click();const dialog=document.querySelector('dialog');assert(dialog);
+    assert(dialog.querySelector('textarea').value==='x^2');
+    dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,0));
+    assert(!editor.session.changed && serialized()===source);
+    assert(math.querySelector('.katex').outerHTML===before);
+  }
+});
+await check('math surfaces support keyboard activation and stay inactive in Read mode',async()=>{
+  fresh('$x$');const math=host.querySelector('.visual-math');
+  for(const key of ['Enter',' ']) {
+    math.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true}));
+    const dialog=document.querySelector('dialog');assert(dialog);
+    dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,0));
+  }
+  editor.setEditable(false);math.click();
+  assert(!document.querySelector('dialog'));
+  assert(math.tabIndex===-1 && math.getAttribute('aria-disabled')==='true');
+  assert(getComputedStyle(math).cursor!=='pointer');
+  editor.setEditable(true);assert(math.tabIndex===0);
+});
+await check('dragging across a formula and a frozen editor never open the math dialog',()=>{
+  fresh('$x$');const math=host.querySelector('.visual-math');
+  math.dispatchEvent(new MouseEvent('mousedown',{clientX:10,clientY:10,bubbles:true}));
+  math.dispatchEvent(new MouseEvent('click',{clientX:30,clientY:10,bubbles:true}));
+  assert(!document.querySelector('dialog'));
+  assert(!editor.freezeIfClean());math.click();assert(!document.querySelector('dialog'));
+  editor.unfreeze();assert(!editor.session.changed);
 });
 if(editor){editor.destroy();host.remove();}
 return JSON.stringify({results});

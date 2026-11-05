@@ -1,0 +1,127 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-block-webkit.1fW6Va/BlockModel.app: 1 (Operation not permitted)
+PASS [file]: semantic import and BOM
+PASS [file]: reject forged target
+PASS [file]: task transaction
+PASS [file]: one source character
+PASS [file]: undo exact source
+PASS [file]: redo
+PASS [file]: stale target rejected
+PASS [file]: empty H2 conversion
+PASS [file]: empty heading reimport
+PASS [file]: H1: typed marker converts to editable heading and placeholder 
+PASS [file]: H2: typed marker converts to editable heading and placeholder 
+PASS [file]: H3: typed marker converts to editable heading and placeholder 
+PASS [file]: H4: typed marker converts to editable heading and placeholder 
+PASS [file]: H5: typed marker converts to editable heading and placeholder 
+PASS [file]: H6: typed marker converts to editable heading and placeholder 
+PASS [file]: "> ": block conversion, placeholder and round-trip 
+PASS [file]: "- ": block conversion, placeholder and round-trip 
+PASS [file]: "+ ": block conversion, placeholder and round-trip 
+PASS [file]: "3. ": block conversion, placeholder and round-trip 
+PASS [file]: "[] ": block conversion, placeholder and round-trip 
+PASS [file]: "[x] ": block conversion, placeholder and round-trip 
+PASS [file]: "```js ": block conversion, placeholder and round-trip 
+PASS [file]: "~~~ ": block conversion, placeholder and round-trip 
+PASS [file]: heading Enter creates paragraph; Shift-Enter stays within text block 
+PASS [file]: quote Enter and empty quote exit preserve block structure 
+PASS [file]: task split resets checked, blank item Enter exits the list 
+PASS [file]: code fence Enter converts and code Enter inserts a literal newline 
+PASS [file]: format menu paragraph: schema-valid editable/atomic block 
+PASS [file]: format menu heading_1: schema-valid editable/atomic block 
+PASS [file]: format menu heading_2: schema-valid editable/atomic block 
+PASS [file]: format menu heading_3: schema-valid editable/atomic block 
+PASS [file]: format menu heading_4: schema-valid editable/atomic block 
+PASS [file]: format menu heading_5: schema-valid editable/atomic block 
+PASS [file]: format menu heading_6: schema-valid editable/atomic block 
+PASS [file]: format menu blockquote: schema-valid editable/atomic block 
+PASS [file]: format menu bullet_list: schema-valid editable/atomic block 
+PASS [file]: format menu ordered_list: schema-valid editable/atomic block 
+PASS [file]: format menu task_list: schema-valid editable/atomic block 
+PASS [file]: format menu code_block: schema-valid editable/atomic block 
+PASS [file]: format menu horizontal_rule: schema-valid editable/atomic block 
+PASS [file]: format menu equation: schema-valid editable/atomic block 
+PASS [file]: format menu image_block: schema-valid editable/atomic block 
+PASS [file]: format menu table: schema-valid editable/atomic block 
+PASS [file]: bold, italic, inline code, inline math, link and image input rules 
+PASS [file]: divider and equation input rules consume markers 
+PASS [file]: input conversion Undo restores literal prefix; document history remains coherent 
+PASS [file]: save snapshot acknowledgement keeps later typing dirty and Undo available 
+PASS [file]: saved baseline becomes clean; search and selection never dirty the document 
+PASS [file]: HTML metadata cannot create source authority; protected source is hidden by default 
+PASS [file]: separate list groups remain independent after actual view typing 
+PASS [file]: synthetic composition does not run Markdown input rules mid-composition 
+PASS [file]: quote conversion before existing content keeps the caret inside the new quote 
+PASS [file]: single-line Unicode paste keeps the heading type, marks and cursor context 
+PASS [file]: multiline plain paste preserves hard breaks and paragraph boundaries 
+PASS [file]: empty checked and unchecked tasks save and reimport without literal brackets 
+PASS [file]: attached matrix delimiters render the first line and all rows without consuming the next block 
+PASS [file]: double-dollar typing in text retains display mode and editable-root wrapping cannot affect math 
+PASS [file]: matrix Edit dialog retains exact TeX and saves modified math with Undo 
+PASS [file]: applying a math edit preserves following content and Undo restores original spelling 
+PASS [file]: inline and display math open on the formula surface without editing controls or dirtying source 
+PASS [file]: math surfaces support keyboard activation and stay inactive in Read mode 
+PASS [file]: dragging across a formula and a frozen editor never open the math dialog 
+PASS [inline]: semantic import and BOM
+PASS [inline]: reject forged target
+PASS [inline]: task transaction
+PASS [inline]: one source character
+PASS [inline]: undo exact source
+PASS [inline]: redo
+PASS [inline]: stale target rejected
+PASS [inline]: empty H2 conversion
+PASS [inline]: empty heading reimport
+PASS [inline]: H1: typed marker converts to editable heading and placeholder 
+PASS [inline]: H2: typed marker converts to editable heading and placeholder 
+PASS [inline]: H3: typed marker converts to editable heading and placeholder 
+PASS [inline]: H4: typed marker converts to editable heading and placeholder 
+PASS [inline]: H5: typed marker converts to editable heading and placeholder 
+PASS [inline]: H6: typed marker converts to editable heading and placeholder 
+PASS [inline]: "> ": block conversion, placeholder and round-trip 
+PASS [inline]: "- ": block conversion, placeholder and round-trip 
+PASS [inline]: "+ ": block conversion, placeholder and round-trip 
+PASS [inline]: "3. ": block conversion, placeholder and round-trip 
+PASS [inline]: "[] ": block conversion, placeholder and round-trip 
+PASS [inline]: "[x] ": block conversion, placeholder and round-trip 
+PASS [inline]: "```js ": block conversion, placeholder and round-trip 
+PASS [inline]: "~~~ ": block conversion, placeholder and round-trip 
+PASS [inline]: heading Enter creates paragraph; Shift-Enter stays within text block 
+PASS [inline]: quote Enter and empty quote exit preserve block structure 
+PASS [inline]: task split resets checked, blank item Enter exits the list 
+PASS [inline]: code fence Enter converts and code Enter inserts a literal newline 
+PASS [inline]: format menu paragraph: schema-valid editable/atomic block 
+PASS [inline]: format menu heading_1: schema-valid editable/atomic block 
+PASS [inline]: format menu heading_2: schema-valid editable/atomic block 
+PASS [inline]: format menu heading_3: schema-valid editable/atomic block 
+PASS [inline]: format menu heading_4: schema-valid editable/atomic block 
+PASS [inline]: format menu heading_5: schema-valid editable/atomic block 
+PASS [inline]: format menu heading_6: schema-valid editable/atomic block 
+PASS [inline]: format menu blockquote: schema-valid editable/atomic block 
+PASS [inline]: format menu bullet_list: schema-valid editable/atomic block 
+PASS [inline]: format menu ordered_list: schema-valid editable/atomic block 
+PASS [inline]: format menu task_list: schema-valid editable/atomic block 
+PASS [inline]: format menu code_block: schema-valid editable/atomic block 
+PASS [inline]: format menu horizontal_rule: schema-valid editable/atomic block 
+PASS [inline]: format menu equation: schema-valid editable/atomic block 
+PASS [inline]: format menu image_block: schema-valid editable/atomic block 
+PASS [inline]: format menu table: schema-valid editable/atomic block 
+PASS [inline]: bold, italic, inline code, inline math, link and image input rules 
+PASS [inline]: divider and equation input rules consume markers 
+PASS [inline]: input conversion Undo restores literal prefix; document history remains coherent 
+PASS [inline]: save snapshot acknowledgement keeps later typing dirty and Undo available 
+PASS [inline]: saved baseline becomes clean; search and selection never dirty the document 
+PASS [inline]: HTML metadata cannot create source authority; protected source is hidden by default 
+PASS [inline]: separate list groups remain independent after actual view typing 
+PASS [inline]: synthetic composition does not run Markdown input rules mid-composition 
+PASS [inline]: quote conversion before existing content keeps the caret inside the new quote 
+PASS [inline]: single-line Unicode paste keeps the heading type, marks and cursor context 
+PASS [inline]: multiline plain paste preserves hard breaks and paragraph boundaries 
+PASS [inline]: empty checked and unchecked tasks save and reimport without literal brackets 
+PASS [inline]: attached matrix delimiters render the first line and all rows without consuming the next block 
+PASS [inline]: double-dollar typing in text retains display mode and editable-root wrapping cannot affect math 
+PASS [inline]: matrix Edit dialog retains exact TeX and saves modified math with Undo 
+PASS [inline]: applying a math edit preserves following content and Undo restores original spelling 
+PASS [inline]: inline and display math open on the formula surface without editing controls or dirtying source 
+PASS [inline]: math surfaces support keyboard activation and stay inactive in Read mode 
+PASS [inline]: dragging across a formula and a frozen editor never open the math dialog 
+18 passed, 0 failed; browser bundle only, no visual/IME/native-save coverage
+106 visual DOM/input simulation checks passed; real IME/native Save separate

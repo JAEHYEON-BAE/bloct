@@ -65,6 +65,8 @@
 
 ## F5. Notion 방식의 블록 관리와 연속 편집
 
+- **수식 표면 편집(2026-11-05 / 구현·클릭 검증 완료, 실제 hover 확인 대기):** 인라인/블록 수식의 `Edit` 버튼을 제거하고, 편집 모드에서 수식 영역 hover 시 옅은 회색·pointer 커서, 클릭/키보드 Enter·Space로 기존 수식 창을 여는 방식으로 변경했습니다. 읽기 모드·저장 freeze에서는 비활성화하고 드래그 선택은 창을 열지 않습니다. 코드 블록은 기존 직접 편집입니다. [모델 30](Tests/results/2026-11-05/f5-math-hover-model.log)·[시각 입력 106 + 브라우저 모델 18](Tests/results/2026-11-05/f5-math-hover-visual.log)·[WebKit 22](Tests/results/2026-11-05/f5-math-hover-webkit.log) 통과, 실패/SKIP 0. 수식 11개의 기존 폰트·크기 비교도 유지했습니다. [Debug 빌드](Tests/results/2026-11-05/f5-math-hover-build.log)·[GUI/디스크 근거](Tests/results/2026-11-05/f5-math-hover-gui.json): 두 수식 클릭→원문→취소, 한 글자 수정·Apply·⌘S·닫기·미리보기 0개 확인. 백그라운드 조작과 offscreen mouseMoved로 실제 `:hover` 상태를 만들지 못했으므로 물리 포인터의 강조색·커서 형태·연속 dwell은 별도 GUI 검증이 남았습니다.
+
 - **수식 호환 보완(2026-11-05):** 폰트 CSS 경계 손실·붙어 있는 `$$` 본문 파싱을 수정하고 공통 오프라인 KaTeX를 적용했습니다. 최신 재현·검증·한계는 [버그 27·28번](BUG_FIXES.md#bug-27)에서 관리합니다. 아래 표는 최초 연속 편집 구현(`a1816fd`) 당시의 검증 근거를 보존합니다.
 
 - **2026-11-05 / 구현 후 검증 대기 — 선택형 연속 시각 편집 구현, 기본값 전환 전.** `@tiptap/pm`의 ProseMirror `EditorView`를 하나의 편집 루트로 연결했습니다. 기본 경로는 기존 Markdown 편집이며, 저장된 상태에서 상단 **Aa** 버튼으로 Visual Editor를 선택합니다. 미저장 중에는 전환을 막습니다.

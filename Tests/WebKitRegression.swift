@@ -109,7 +109,7 @@ struct WebKitRegression {
         print("PASS: identical math font/size and glyph geometry across Aa (11 equations, <0.1px)")
         let fixtureJSON = String(data: try JSONSerialization.data(withJSONObject: [fixture]), encoding:.utf8)!
         check(visual, "window._bloctVisual.session.markdown() === \(fixtureJSON)[0] && !window._bloctVisual.session.changed", "Aa display preserves exact Markdown and clean state")
-        check(visual,"document.querySelectorAll('.visual-math > button').length===11", "Edit controls are siblings of unchanged math rendering")
+        check(visual,"document.querySelectorAll('.visual-math[role=button]').length===11 && !document.querySelector('.visual-math button')", "formula surfaces are accessible click targets without Edit controls")
         visual.stopLoading()
         render("MVMATH0X MVCODE0X MVMATH999X MVCODE999X and $x$ and `safe`")
         check(webView, "document.getElementById('content').textContent.includes('MVMATH0X MVCODE0X MVMATH999X MVCODE999X')", "literal internal-looking placeholders remain unchanged")

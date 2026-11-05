@@ -1,0 +1,58 @@
+
+> check
+> tsc --noEmit
+
+
+> test
+> node --test test/*.test.ts
+
+✔ B01: adjacent semantic blocks and independent list item IDs (8.937916ms)
+✔ B02: physical soft lines and explicit hard breaks stay inside paragraphs (1.999583ms)
+✔ B03: existing B/C policy fixture keeps list groups and separate indented code (15.464209ms)
+✔ B04: nested/quoted duplicate labels have exact parents and source spans (1.756375ms)
+✔ B05: code protects blank lines, longer fences, unclosed fences and indented syntax (1.907542ms)
+✔ B06: block math protects blanks; code and currency never become equations (1.558667ms)
+✔ B07: Setext precedence, GFM table, inline images and block image metadata (3.748208ms)
+✔ B08: HTML, comments and reference syntax are accessible protected source (2.349041ms)
+✔ B09: BOM, CRLF, CR, tabs, spaces and UTF-16 positions survive import (1.377792ms)
+✔ B12: empty input, whitespace gaps, trailing newlines and empty headings (2.260416ms)
+✔ changed trees cannot be exported as the unchanged initial source (0.509083ms)
+✔ same-line display delimiters keep the matrix first line, rows and following document (18.13375ms)
+✔ attached/display-only delimiters protect blank lines and exact UTF-16 source positions (3.210791ms)
+✔ quoted/list math uses container-aware tokens while code and escaped delimiters stay literal (2.48175ms)
+✔ double-dollar math in a paragraph stays display math through surrounding edits and Undo (2.420042ms)
+✔ B10: paragraph split/join preserve identity, selection, source and history (15.182583ms)
+✔ B10: list split, indent and outdent use real schema-list transactions (6.493416ms)
+✔ B10: duplicate allocates descendant IDs; move preserves them; delete restores on Undo (5.504625ms)
+✔ B10: type conversion and empty heading preserve ID and are separate Undo steps (1.25425ms)
+✔ B10: splitting at a heading start preserves heading identity and creates a paragraph before it (0.57925ms)
+✔ B10: invalid positions, surrogate splits, parent cycles and unsupported merges fail without changes (0.594ms)
+✔ B11: exact one-character task patch across duplicate, quoted, nested and CRLF cases (11.624542ms)
+✔ B11: line-count changes before a task rebase by tree identity, not an old source offset (3.659375ms)
+✔ B11: forged, cross-session and old-generation references cannot edit (0.577208ms)
+✔ B12: selection alone, deleting the last block and Save snapshots track actual content (1.588458ms)
+✔ source-preserving serializer keeps unrelated lexical styles after text edits (1.749333ms)
+✔ B10: moving selected content preserves its relative cursor and raw CRLF source (1.247042ms)
+✔ save acknowledgements reject forged, consumed, older and previous-generation snapshots (0.672041ms)
+✔ B10: changed adjacency widens only the affected source boundary (1.080583ms)
+✔ unsupported mixed-source restructuring fails closed and Undo retains the exact source (0.748833ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 230.278542
+
+> build
+> esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js && esbuild src/math-runtime.ts --bundle --format=iife --platform=browser --target=safari17 --outfile=dist/math.js && node build-resources.mjs
+
+
+  dist/blocks.js  1.2mb ⚠️
+
+⚡ Done in 25ms
+
+  dist/math.js  506.7kb
+
+⚡ Done in 12ms

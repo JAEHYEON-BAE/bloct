@@ -30,9 +30,11 @@ span.visual-atom { display:inline-flex; vertical-align:middle; gap:4px; padding:
 .visual-atom button { font-size:11px; margin-left:12px; }
 .visual-atom img { max-width:100%; height:auto; display:block; }
 .visual-math { white-space:normal; overflow-wrap:normal; padding:0; margin:0; vertical-align:baseline; }
-.visual-math button { font-size:11px; margin:0 4px; padding:2px 5px; vertical-align:baseline; }
-.visual-math-display { display:block; position:relative; }
-.visual-math-display > button { position:absolute; right:0; top:50%; transform:translateY(-50%); }
+.visual-math-display { display:block; }
+.ProseMirror[contenteditable="true"] .visual-math { cursor:pointer; border-radius:4px; }
+.ProseMirror[contenteditable="true"] .visual-math:hover,
+.ProseMirror[contenteditable="true"] .visual-math:focus-visible { background:color-mix(in srgb,var(--muted) 14%,var(--bg)); }
+.ProseMirror[contenteditable="true"] .visual-math:focus-visible { outline:2px solid #388bfd; outline-offset:2px; }
 .visual-status { color:var(--muted); font-size:13px; }
 .visual-match { background:#ffe676; color:#202124; }
 .ProseMirror-selectednode { outline:2px solid #388bfd; }

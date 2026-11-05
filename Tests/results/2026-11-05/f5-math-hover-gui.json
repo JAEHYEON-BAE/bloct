@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "74e1f9f1c790dfac99859b23b512cfa810c59603",
+  "app_path": "/private/tmp/bloct-background-math-hover-20261105-r4mrgt05/Product/BloctMathHover.app",
+  "bundle_id": "com.personal.Bloct.MathHover20261105",
+  "binary_sha256": "643daa32d9c688e9267872c652c10fd714388af2e935559df194afa445170eac",
+  "editor_sha256": "755c741702c583c1d3bb3c1eea1033e70b1df1a565dc0ae9d4c84f729ac60937",
+  "css_sha256": "0feae04758eef8decea1896b0c5f2c4634a7721abde0b7a0c9d63902c30b7dde",
+  "computer_use_observations": [
+    "Aa shows inline and block math without visible Edit buttons; code remains directly editable without an Edit button.",
+    "Clicking inline formula opens Equation with exact original TeX; Escape closes without changes.",
+    "Clicking the block matrix opens the same Equation dialog; Escape closes without changes.",
+    "Changed a & b to x & b through the formula click dialog, applied and saved using Command-S.",
+    "Explicitly closed the temporary document, then Quit via app menu; no old handle query after Quit."
+  ],
+  "hover_visual_verified": false,
+  "hover_limit": "Scoped background CUA clicks and drag did not produce a stable native hover highlight; offscreen view-local mouse moves also did not activate :hover. Physical pointer dwell/highlight and actual cursor shape remain unverified. No simulated hover result is claimed.",
+  "covered_by_wk_dom_tests": [
+    "pointer cursor computed on an editable math surface",
+    "inline/display click opens exact TeX",
+    "keyboard Enter/Space activation",
+    "Read mode and frozen editor reject editing",
+    "drag across math does not open dialog",
+    "cancel preserves clean state; Apply and Undo preserve source"
+  ],
+  "screenshots_inspected_in_cua_trace": true,
+  "fixture_before": "# Formula interactions\n\nInline $x^2 + y^2 = z^2$.\n\n$$\n\\mathbf{s}_t = \\begin{pmatrix}a & b \\\\ c & d\\end{pmatrix}\n$$\n\n```js\nconst result = 1;\n```\n",
+  "saved_fixture": "# Formula interactions\n\nInline $x^2 + y^2 = z^2$.\n\n$$\n\\mathbf{s}_t = \\begin{pmatrix}x & b \\\\ c & d\\end{pmatrix}\n$$\n\n```js\nconst result = 1;\n```\n",
+  "only_expected_math_character_changed": true,
+  "remaining_owned_previews": 0,
+  "app_absent_from_running_inventory": true,
+  "installed_or_previous_test_apps_modified": false
+}
