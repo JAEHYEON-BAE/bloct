@@ -244,7 +244,7 @@ export class VisualEditor {
     const enter: Command = (state,dispatch,view) => {
       const {$from,empty}=state.selection;
       if (this.view?.composing) return false;
-      if ($from.parent.type === schema.nodes.table_cell) return this.nextCell(false);
+      if ($from.parent.type === schema.nodes.table_cell) return this.nextCell(false,true);
       if ($from.parent.type === schema.nodes.code_block) return newlineInCode(state,dispatch);
       if (empty && $from.parent.type === schema.nodes.paragraph && /^(?:```|~~~)[\w+-]*$/.test($from.parent.textContent)) {
         const language=$from.parent.textContent.slice(3);
@@ -404,13 +404,16 @@ export class VisualEditor {
     if(/[\uD800-\uDBFF]$/.test($target.nodeBefore?.text??'') && /^[\uDC00-\uDFFF]/.test($target.nodeAfter?.text??'')) pos--;
     this.view.dispatch(state.tr.setSelection(TextSelection.create(state.doc,pos)).scrollIntoView());return true;
   }
-  private nextCell(back:boolean) {
+  private nextCell(back:boolean,nextRow=false) {
     const context=this.tableContext();
     if(!context || this.view.composing) return false;
     let {row,column}=context;
-    column+=back?-1:1;
-    if(column<0) {row--;column=row>=0?context.table.child(row).childCount-1:0;}
-    else if(column>=context.table.child(row).childCount) {row++;column=0;}
+    if(nextRow) {row++;column=0;}
+    else {
+      column+=back?-1:1;
+      if(column<0) {row--;column=row>=0?context.table.child(row).childCount-1:0;}
+      else if(column>=context.table.child(row).childCount) {row++;column=0;}
+    }
     const target=this.tableCellAt(row,column);
     if(!target) {
       if(back) return false;

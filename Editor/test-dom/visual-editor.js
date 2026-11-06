@@ -161,6 +161,32 @@ await check('Enter in other cells stays in the current table; at document end it
   assert(editor.session.doc.child(1).textContent==='New paragraph');
   assert(editor.session.doc.lastChild.textContent==='Existing paragraph');serialized();
 });
+await check('Enter from every table column moves to the next row first cell; Tab keeps cell order',()=>{
+  const source='| A | B | C |\n| --- | --- | --- |\n| D | E | F |\n| G | H | I |\n\n| Next | Table |\n| --- | --- |\n| Keep | Safe |';
+  for(const row of [0,1])for(const column of [0,1,2]) {
+    fresh(source);selectTableCell(row,column,1);assert(key('Enter'));
+    assert(editor.view.state.selection.$from.parent===editor.session.doc.firstChild.child(row+1).firstChild);
+    assert(editor.view.state.selection.$from.parentOffset===0);
+    assert(serialized()===source && !editor.session.changed);
+    type('row-start');assert(editor.session.doc.firstChild.child(row+1).firstChild.textContent.startsWith('row-start'));
+    assert(editor.history(false));assert(serialized()===source && !editor.session.changed);
+  }
+  for(const column of [0,1,2]) {
+    fresh(source);selectTableCell(2,column);assert(key('Enter'));
+    assert(editor.view.state.selection.$from.parent.type.name==='paragraph');
+    assert(editor.session.doc.child(1).type.name==='paragraph');
+    assert(editor.session.doc.lastChild.textContent==='NextTableKeepSafe');serialized();
+  }
+  fresh(source);selectTableCell(1,1);assert(key('Tab'));
+  assert(editor.view.state.selection.$from.parent.textContent==='F');
+});
+await check('Enter targets an empty next row first cell and preserves existing cell text',()=>{
+  const source='| A | B |\n| --- | --- |\n|  |  |\n| C | D |';
+  fresh(source);selectTableCell(0,0);assert(key('Enter'));
+  assert(editor.view.state.selection.$from.parent===editor.session.doc.firstChild.child(1).firstChild);
+  type('first');assert(editor.session.doc.firstChild.child(1).firstChild.textContent==='first');
+  assert(editor.session.doc.firstChild.firstChild.textContent==='AB');serialized();
+});
 await check('Shift-Enter inserts an empty row below the current row, keeping the column and all existing data',()=>{
   const source='| A | B | C |\n| :--- | :---: | ---: |\n| D | E | F |\n| G | H | I |\n\nFollowing';
   for(const row of [0,1,2])for(const column of [0,1,2]) {

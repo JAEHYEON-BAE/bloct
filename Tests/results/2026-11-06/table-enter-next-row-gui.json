@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-06",
+  "app_path": "/Users/jaehyeon/PersonalProjects/bloct/build/TableFollowup/Bloct.app",
+  "snapshot_app": "/Users/jaehyeon/PersonalProjects/bloct/build/TableFollowupSnapshots/EnterNextRow.app",
+  "bundle_id": "com.personal.Bloct.TableFollowup20261106",
+  "observed": [
+    "Click E, Enter, type NEXT -> G becomes NEXTG (next row, first column).",
+    "Click B, Enter, type ROW2 -> D becomes ROW2D. Command-S clears Edited.",
+    "Close document, Command-Q; fresh CUA inventory confirms isRunning false."
+  ],
+  "saved_markdown": "# Enter rows\n\nBefore table.\n\n| A | B | C |\n| --- | --- | --- |\n| ROW2D | E | F |\n| NEXTG | H | I |\n\nAfter table.\n",
+  "remaining_previews": 0,
+  "app_exited": true,
+  "editor_sha256": "f83b3cb8b9970f46e7ecb4130f2285ef280e645bc8a92109d5049160908a1109",
+  "limits": [
+    "GUI uses temporary .txt containing Markdown.",
+    "All row/column and last-row/Tab/Undo cases are automated WebKit checks; real IME not tested."
+  ]
+}
