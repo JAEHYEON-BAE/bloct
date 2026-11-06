@@ -58,6 +58,11 @@ also inserts images, equations and tables. Both editor modes share the same offl
 for a subtle highlight, then click it to edit; Enter/Space also opens the dialog
 when the formula has keyboard focus.
 
+In tables, empty cells stay blank. Arrow keys move between adjacent cells at text/line
+boundaries. Enter moves to the next cell; from the last cell it creates a text paragraph
+below the current table. Shift-Enter inserts an empty row immediately below the current
+row, including in the middle of a table, and keeps the cursor in the same column.
+
 Changes render while typing; **⌘S** writes a fixed Markdown snapshot. Undo/Redo
 uses the editor history, with one text checkpoint per editor-mode boundary. Closing
 a backtick-delimited inline code span returns subsequent typing to plain text.

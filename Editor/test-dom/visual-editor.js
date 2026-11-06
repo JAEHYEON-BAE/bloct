@@ -135,6 +135,78 @@ await check('wrapped table cells keep native vertical movement until the first o
   assert(!key('ArrowUp') && !key('ArrowDown'));
   assert(editor.view.state.selection.$from.parent===cell && !editor.session.changed);
 });
+await check('Enter at the last cell inserts a paragraph immediately below this table, not in the next table',()=>{
+  const source='| A | B |\n| --- | --- |\n| C | D |\n\n| Next | Table |\n| --- | --- |\n| Keep | Safe |';
+  fresh(source);const next=editor.session.doc.child(1);selectTableCell(1,1,1);
+  assert(key('Enter'));assert(editor.session.doc.childCount===3);
+  assert(editor.session.doc.child(1).type.name==='paragraph');
+  assert(editor.view.state.selection.$from.parent===editor.session.doc.child(1));
+  assert(editor.session.doc.child(2).eq(next));serialized();
+  assert(editor.history(false));assert(serialized()===source && !editor.session.changed);
+  assert(editor.history(true));type('Below first');
+  assert(serialized().includes('\n\nBelow first\n\n| Next | Table |'));
+  const reopened=BloctBlocks.importMarkdown(serialized()).doc;
+  assert(reopened.child(1).type.name==='paragraph' && reopened.child(1).textContent==='Below first');
+  assert(reopened.child(2).textContent==='NextTableKeepSafe');
+});
+await check('Enter in other cells stays in the current table; at document end it creates editable text',()=>{
+  fresh('| A | B |\n| --- | --- |\n| C | D |');
+  selectTableCell(0,1);assert(key('Enter'));assert(editor.view.state.selection.$from.parent.textContent==='C');
+  assert(!editor.session.changed);
+  selectTableCell(1,1);assert(key('Enter'));type('After table');
+  assert(editor.session.doc.lastChild.type.name==='paragraph');
+  assert(serialized().endsWith('\n\nAfter table'));
+  fresh('| A | B |\n| --- | --- |\n| C | D |\n\nExisting paragraph');
+  selectTableCell(1,1);key('Enter');type('New paragraph');
+  assert(editor.session.doc.child(1).textContent==='New paragraph');
+  assert(editor.session.doc.lastChild.textContent==='Existing paragraph');serialized();
+});
+await check('Shift-Enter inserts an empty row below the current row, keeping the column and all existing data',()=>{
+  const source='| A | B | C |\n| :--- | :---: | ---: |\n| D | E | F |\n| G | H | I |\n\nFollowing';
+  for(const row of [0,1,2])for(const column of [0,1,2]) {
+    fresh(source);const before=editor.session.doc.firstChild;selectTableCell(row,column);
+    assert(key('Enter',{shiftKey:true}));const table=editor.session.doc.firstChild;
+    assert(table.childCount===4 && table.child(row+1).childCount===3);
+    assert(table.child(row+1).textContent==='');
+    assert(editor.view.state.selection.$from.parent===table.child(row+1).child(column));
+    for(let i=0;i<3;i++)assert(table.child(i>row?i+1:i).eq(before.child(i)));
+    assert(JSON.stringify(table.attrs.align)===JSON.stringify(['left','center','right']));
+    assert(editor.session.doc.lastChild.textContent==='Following');
+    const reopened=BloctBlocks.importMarkdown(serialized()).doc.firstChild;
+    assert(reopened.childCount===4 && !reopened.child(row+1).textContent);
+    assert(editor.history(false));assert(serialized()===source && !editor.session.changed);
+    assert(editor.history(true));assert(editor.session.doc.firstChild.childCount===4);
+  }
+});
+await check('inserted row accepts text, repeated insertion and snapshots preserve row order and second table',async()=>{
+  const source='| A | B |\n| --- | --- |\n| C | D |\n\n| Next | Table |\n| --- | --- |\n| Keep | Safe |';
+  fresh(source);selectTableCell(0,1);key('Enter',{shiftKey:true});type('middle');
+  key('Enter',{shiftKey:true});type('another');
+  const table=editor.session.doc.firstChild;
+  assert(table.childCount===4 && table.child(1).child(1).textContent==='middle');
+  assert(table.child(2).child(1).textContent==='another' && table.lastChild.textContent==='CD');
+  const snapshot=await editor.snapshot();assert(editor.acknowledge(snapshot.token));
+  const reopened=BloctBlocks.importMarkdown(snapshot.text).doc;
+  assert(reopened.firstChild.childCount===4 && reopened.child(1).textContent==='NextTableKeepSafe');
+});
+await check('table exit and row insertion work inside quotes and preserve CRLF',()=>{
+  const source='> | A | B |\r\n> | --- | --- |\r\n> | C | D |\r\n\r\nOutside';
+  fresh(source);selectTableCell(0,1);key('Enter',{shiftKey:true});type('inside');
+  const table=editor.session.doc.firstChild.firstChild;
+  assert(table.childCount===3 && table.child(1).child(1).textContent==='inside');
+  selectTableCell(2,1);key('Enter');type('Below quoted table');
+  assert(editor.session.doc.firstChild.child(1).type.name==='paragraph');
+  assert(editor.session.doc.lastChild.textContent==='Outside');
+  const output=serialized();assert(output.includes('> Below quoted table'));
+  assert(!/(^|[^\r])\n/.test(output),'CRLF preserved');
+});
+await check('Tab shares local cell order and cannot jump into a later table',()=>{
+  fresh('| A | B |\n| --- | --- |\n| C | D |\n\n| Next | Table |\n| --- | --- |\n| Keep | Safe |');
+  selectTableCell(1,0);assert(key('Tab'));assert(editor.view.state.selection.$from.parent.textContent==='D');
+  assert(key('Tab',{shiftKey:true}));assert(editor.view.state.selection.$from.parent.textContent==='C');
+  selectTableCell(1,1);assert(key('Tab'));assert(editor.view.state.selection.$from.parent.type.name==='paragraph');
+  assert(editor.session.doc.lastChild.textContent==='NextTableKeepSafe');serialized();
+});
 await check('bold, italic, inline code, inline math, link and image input rules',()=>{
   const examples=[['**bold**','strong','bold'],['*italic*','em','italic'],['`code`','code','code'],
     ['$x+1$',null,'inline_math'],['[link](https://example.invalid)','link','link'],['![alt](a.png)',null,'image_block']];

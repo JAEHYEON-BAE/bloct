@@ -283,9 +283,10 @@ export class VisualEditor {
       'Mod-b':toggleMark(schema.marks.strong), 'Mod-i':toggleMark(schema.marks.em),
       'Mod-e':toggleMark(schema.marks.code), Enter:enter, Backspace:backspace,
       'Shift-Enter':(state,dispatch) => {
+        if(this.view?.composing) return false;
         if(state.selection.$from.parent.type===schema.nodes.heading) return enter(state,dispatch);
         if(state.selection.$from.parent.type===schema.nodes.code_block) return newlineInCode(state,dispatch);
-        if(state.selection.$from.parent.type===schema.nodes.table_cell) return this.nextCell(false);
+        if(state.selection.$from.parent.type===schema.nodes.table_cell) return this.insertTableRow();
         dispatch?.(state.tr.replaceSelectionWith(schema.nodes.hard_break.create()).scrollIntoView()); return true;
       },
       'Mod-Enter':(state,dispatch) => exitCode(state,dispatch) || this.afterRoot(),
@@ -404,13 +405,32 @@ export class VisualEditor {
     this.view.dispatch(state.tr.setSelection(TextSelection.create(state.doc,pos)).scrollIntoView());return true;
   }
   private nextCell(back:boolean) {
-    const selection=this.session.state.selection;
-    const cells:number[]=[];
-    this.session.doc.descendants((node,pos) => {if(node.type===schema.nodes.table_cell) cells.push(pos+1);});
-    const at=cells.indexOf(selection.$from.start());
-    const target=cells[at+(back?-1:1)];
-    if(target==null) return back ? false : this.afterRoot();
-    this.view.dispatch(this.session.state.tr.setSelection(TextSelection.create(this.session.doc,target)).scrollIntoView());return true;
+    const context=this.tableContext();
+    if(!context || this.view.composing) return false;
+    let {row,column}=context;
+    column+=back?-1:1;
+    if(column<0) {row--;column=row>=0?context.table.child(row).childCount-1:0;}
+    else if(column>=context.table.child(row).childCount) {row++;column=0;}
+    const target=this.tableCellAt(row,column);
+    if(!target) {
+      if(back) return false;
+      const at=context.$from.after(context.depth);
+      const tr=this.session.state.tr.insert(at,schema.nodes.paragraph.create());
+      tr.setSelection(TextSelection.create(tr.doc,at+1));
+      this.view.dispatch(closeHistory(tr).scrollIntoView());return true;
+    }
+    this.view.dispatch(this.session.state.tr.setSelection(TextSelection.create(this.session.doc,target.pos)).scrollIntoView());return true;
+  }
+  private insertTableRow() {
+    const context=this.tableContext();
+    if(!context || this.view.composing) return false;
+    const count=context.table.firstChild!.childCount;
+    const row=schema.nodes.table_row.create(null,Array.from({length:count},()=>schema.nodes.table_cell.create()));
+    const at=context.$from.after(context.depth+1);
+    const tr=this.session.state.tr.insert(at,row);
+    // Keep the same column in the newly inserted, empty row.
+    tr.setSelection(TextSelection.create(tr.doc,at+2+Math.min(context.column,count-1)*2));
+    this.view.dispatch(closeHistory(tr).scrollIntoView());return true;
   }
   private decorations(state:EditorState) {
     const decorations:Decoration[]=[];

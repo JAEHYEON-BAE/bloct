@@ -65,7 +65,7 @@
 
 ## F5. Notion 방식의 블록 관리와 연속 편집
 
-- **표 입력(2026-11-06):** 빈 셀의 `Cell` 안내를 제거하고, 화살표를 행·열 기반으로 이동하도록 했습니다. 셀 내부 커서 이동·표 경계는 유지합니다. 자동·실제 GUI 입력/저장 검증 완료. [버그 35번](BUG_FIXES.md#35-aa-표의-빈-셀-안내-문구)·[36번](BUG_FIXES.md#36-aa-표의-화살표-셀-이동).
+- **표 입력(2026-11-06):** 빈 셀의 `Cell` 안내 제거·화살표의 행/열 이동·마지막 Enter의 표 아래 문단 생성·Shift+Enter의 현재 행 아래 빈 행 삽입을 구현했습니다. 셀 내부 커서 이동·표 경계를 유지하며 자동·실제 GUI 입력/Undo/저장/재열기 검증 완료. 상세 근거·한계는 [35번](BUG_FIXES.md#35-aa-표의-빈-셀-안내-문구)·[36번](BUG_FIXES.md#36-aa-표의-화살표-셀-이동)·[37번](BUG_FIXES.md#37-aa-표의-enter-탈출과-shiftenter-행-삽입).
 
 - **Aa 표시 연속성(2026-11-05):** 같은 WebView/페이지와 공통 본문 스타일 안에서 전환하며 현재 위치·좌우 정렬을 유지합니다. 메뉴 행 높이만큼만 표시가 이동합니다. [버그 34번](BUG_FIXES.md#bug-34)의 자동/GUI 검증 완료. 전체 문서 형식의 표시 대응 한계는 해당 항목과 아래 다음 순서에서 관리합니다.
 
@@ -91,6 +91,6 @@
 | 실제 Computer Use·빌드 | 2026-11-05 [독립 Debug 빌드](Tests/results/2026-11-05/f5-visual-build.log) 성공. [관찰·디스크 근거](Tests/results/2026-11-05/f5-visual-gui.json): `##` Space→회색 Header 2→한글 붙여넣기→실시간 제목, `>` Space→Quote, `[]` Space→To-do·체크, ⌘Z/⇧⌘Z·⌘S·재열기 확인. 실제 한글 조합 입력은 미검증. 닫기 경고/취소·모드 왕복·clean 닫기 확인. 모드 전환 직후 편집 영역 포커스 없는 ⌘W는 백그라운드 조작에서 닫히지 않아 후속 포커스/단축키 검증에 남김. 설치 앱 교체 없음 |
 | 기존 경로 회귀 | 2026-11-05 [Native](Tests/results/2026-11-05/f5-visual-legacy-native.log) 8그룹·[WebKit](Tests/results/2026-11-05/f5-visual-legacy-webkit.log) 15개·[기존 체크 저장](Tests/results/2026-11-05/f5-visual-legacy-tasks.log) 17개·[Hosted](Tests/results/2026-11-05/f5-visual-hosted.log) **317 통과**, 실패/XFAIL/SKIP 0. 통합 전 GUI의 [관찰](Tests/results/2026-11-05/f5-ui-observations.json)·[빌드](Tests/results/2026-11-05/f5-ui-build.log)도 보존. 기존 경로 결과를 새 모드 전체 기능 검증으로 합산하지 않음 |
 
-- 보존 한계: 미지원 원문이 있는 컨테이너의 재구조화는 export를 거절하고 dirty·Undo를 유지합니다. 형제 이동/목록 indent·outdent 범위, 빈 문단의 개별 ID/서식이 Markdown 재열기 시 gap으로 돌아오는 한계는 유지합니다. HTML 붙여넣기는 schema parser를 사용하지만 임의 형식·이미지/표의 왕복 보존까지 검증한 것은 아닙니다. 링크는 안전한 시각 span이며 열기/주소 수정 UI, 이미지 크기/캡션 조절·표 행/열 편집은 후속입니다.
+- 보존 한계: 미지원 원문이 있는 컨테이너의 재구조화는 export를 거절하고 dirty·Undo를 유지합니다. 형제 이동/목록 indent·outdent 범위, 빈 문단의 개별 ID/서식이 Markdown 재열기 시 gap으로 돌아오는 한계는 유지합니다. HTML 붙여넣기는 schema parser를 사용하지만 임의 형식·이미지/표의 왕복 보존까지 검증한 것은 아닙니다. 링크는 안전한 시각 span이며 열기/주소 수정 UI, 이미지 크기/캡션 조절·표의 행 삭제/열 편집 UI는 후속입니다(Shift+Enter 행 삽입은 위 37번).
 - 실험 모드의 dirty는 generation을 검사하고 Save는 엔진 내부의 문서별 token으로 승인합니다. 계획의 전체 message envelope(schemaVersion/documentId/requestId 등) 통합, 실제 IME·위 미검증 기능과 [종료 cleanup 29번](BUG_FIXES.md#29-앱-메뉴-quit-후-고유-미리보기-파일-잔류)을 확인하기 전에는 기본값을 바꾸거나 기존 편집 코드를 제거하지 않습니다.
 - 의존성은 lockfile 고정이며 KaTeX·폰트·라이선스를 오프라인 앱 리소스로 번들합니다. [빌드/재검사 방법](Tests/README.md#new-block-model-f5), [라이선스](THIRD_PARTY.md). 원격 CI·공개 배포는 이번 로컬 구현 범위 밖입니다.
