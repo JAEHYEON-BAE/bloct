@@ -446,8 +446,8 @@ export class VisualEditor {
     const row=schema.nodes.table_row.create(null,Array.from({length:count},()=>schema.nodes.table_cell.create()));
     const at=context.$from.after(context.depth+1);
     const tr=this.session.state.tr.insert(at,row);
-    // Keep the same column in the newly inserted, empty row.
-    tr.setSelection(TextSelection.create(tr.doc,at+2+Math.min(context.column,count-1)*2));
+    // Begin at the first cell of the new row, independent of the source column.
+    tr.setSelection(TextSelection.create(tr.doc,at+2));
     this.view.dispatch(closeHistory(tr).scrollIntoView());return true;
   }
   private decorations(state:EditorState) {

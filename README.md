@@ -62,7 +62,7 @@ In tables, empty cells stay blank. Arrow keys move between adjacent cells at tex
 boundaries. Up from the first row moves before the table, creating a paragraph above
 the first document block if necessary. Enter moves to the first cell of the next row; from the last row it creates a
 text paragraph below the current table. Tab moves to the next cell. Shift-Enter inserts an empty row immediately below the current
-row, including in the middle of a table, and keeps the cursor in the same column.
+row, including in the middle of a table, and moves the cursor to the first column of the new row.
 
 Changes render while typing; **⌘S** writes a fixed Markdown snapshot. Undo/Redo
 uses the editor history, with one text checkpoint per editor-mode boundary. Closing

@@ -1,8 +1,8 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-11-06** — Aa 표 Enter의 아래 행 첫 셀 이동과 첫 행 ↑의 표 이전 이동(36번)을 자동/GUI 검증했습니다. 새 행 첫 열 커서(37번)는 추가 요구로 진행 중입니다. 최우선은 F5 연속 편집 전환이며, 실제 IME·기존 기능 대응과 종료 cleanup(29번) 조사는 남아 있습니다.
-- 현재: 총 37개 중 **20개 해당 범위 검증 완료**, **16번 보류**, **16개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
-- 다음 순서: **Shift+Enter 새 행 첫 열 이동(37번)** 이후 **[F5 시각 편집기의 IME·기존 기능 대응 검증](WYSIWYG_BLOCK_PLAN.md#9-구현-순서와-단계별-산출물)**을 최우선으로 진행합니다. 기존 버그는 새 모델의 관련 검증에 연결하며, 기존 경로를 별도 수정할 때의 순서는 **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**입니다. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 38번입니다.
+- 최신화: **2026-11-06** — Aa 표의 추가 요구인 Enter의 아래 행 첫 셀 이동·첫 행 ↑의 이전 영역 이동·Shift+Enter의 새 행 첫 열 이동(36·37번)을 자동/GUI 검증했습니다. 테스트 앱은 각 검증 뒤 종료했습니다. 최우선은 F5 연속 편집 전환이며, 실제 IME·기존 기능 대응과 종료 cleanup(29번) 조사는 남아 있습니다.
+- 현재: 총 37개 중 **21개 해당 범위 검증 완료**, **16번 보류**, **15개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
+- 다음 순서: **[F5 시각 편집기의 IME·기존 기능 대응 검증](WYSIWYG_BLOCK_PLAN.md#9-구현-순서와-단계별-산출물)**을 최우선으로 진행합니다. 기존 버그는 새 모델의 관련 검증에 연결하며, 기존 경로를 별도 수정할 때의 순서는 **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**입니다. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 38번입니다.
 
 ## 항목별 상태
 
@@ -46,14 +46,14 @@
 | 34 | Aa 전환 시 상단으로 이동 후 복귀·본문 좌우 정렬 변경 | 수정·해당 범위 검증 완료(2026-11-05) | 같은 WebView/페이지 유지, 공통 스타일·가시 블록 위치 보존 |
 | 35 | Aa 표의 빈 셀에 불필요한 Cell 안내 표시 | 수정·해당 범위 검증 완료(2026-11-06) | 셀 placeholder 제외, 자동/GUI 입력·저장 확인 |
 | 36 | Aa 표의 화살표 이동·첫 행 ↑ 탈출 | 수정·해당 범위 검증 완료(2026-11-06) | 행·열 이동·첫 행에서 표 앞 영역 이동, 문서 맨 앞이면 새 문단 생성 |
-| 37 | Aa 표의 Enter 행 이동·Shift+Enter 행 삽입 | 조사 중(2026-11-06 추가 요구) | Enter는 아래 행 첫 셀 이동 검증 완료. Shift+Enter의 새 행 첫 열 이동은 다음 조치 |
+| 37 | Aa 표의 Enter 행 이동·Shift+Enter 행 삽입 | 수정·해당 범위 검증 완료(2026-11-06) | Enter는 아래 행 첫 셀, Shift+Enter는 새 행 첫 셀 이동. Undo·저장·재열기 확인 |
 
 ## 37. Aa 표의 Enter 탈출과 Shift+Enter 행 삽입
 
-- **2026-11-06 / Enter 추가 요구 검증 완료·Shift+Enter 커서 위치 조사 중.** 초기에는 Enter와 Shift+Enter가 문서 전체 셀 목록을 순회하는 같은 명령을 사용해 마지막 셀에서 다음 표로 넘어갔습니다. 현재 Enter는 어느 열에서든 바로 아래 행의 첫 셀(본문 시작)로 이동하고, 마지막 행에서는 표 바로 아래 새 paragraph를 만듭니다. Tab/Shift+Tab은 현재 표의 다음/이전 셀 순서를 유지합니다. 다음 표·기존 문단은 유지합니다.
-- 다음 조치: Shift+Enter 삽입 직후 커서를 새 행 첫 열로 바꿉니다(추가 요구). 현재 구현은 같은 열을 유지합니다.
-- Shift+Enter는 머리글·중간·마지막 어느 행에서든 현재 행 바로 아래에 표 열 수만큼의 빈 셀을 가진 행을 삽입하며 같은 열로 커서를 옮깁니다. 기존 셀 내용·열 정렬은 보존하고 조합 중 명령은 실행하지 않습니다. 구조 변경은 history 경계로 기록합니다.
-- 최신 Enter 검증: [모델 32](Tests/results/2026-11-06/table-enter-next-row-model.log)·[WebKit 브라우저 모델 18/시각 입력 154](Tests/results/2026-11-06/table-enter-next-row-visual.log) 통과, 실패/SKIP 0. 3×3 모든 출발 열·빈 행·마지막 행·Tab 구분·원문/dirty·후속 입력 Undo를 검사했습니다. [빌드](Tests/results/2026-11-06/table-enter-next-row-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-enter-next-row-gui.json)·[화면](Tests/results/2026-11-06/table-enter-next-row-gui.png): 중간 E→G 및 B→D 첫 위치 입력·저장·문서 닫기·앱 종료 확인.
+- **2026-11-06 / 추가 요구까지 수정·해당 범위 검증 완료.** 초기에는 Enter와 Shift+Enter가 문서 전체 셀 목록을 순회하는 같은 명령을 사용해 마지막 셀에서 다음 표로 넘어갔습니다. 현재 Enter는 어느 열에서든 바로 아래 행의 첫 셀(본문 시작)로 이동하고, 마지막 행에서는 표 바로 아래 새 paragraph를 만듭니다. Tab/Shift+Tab은 현재 표의 다음/이전 셀 순서를 유지합니다. 다음 표·기존 문단은 유지합니다.
+- Shift+Enter는 머리글·중간·마지막 어느 행에서든 현재 행 바로 아래에 표 열 수만큼의 빈 셀을 가진 행을 삽입하며 출발 열과 관계없이 새 행 첫 열의 시작으로 커서를 옮깁니다. 기존 셀 내용·열 정렬은 보존하고 조합 중 명령은 실행하지 않습니다. 구조 변경은 history 경계로 기록합니다.
+- 최종 검증: [모델 32](Tests/results/2026-11-06/table-row-first-column-model.log)·[WebKit 브라우저 모델 18/시각 입력 164](Tests/results/2026-11-06/table-row-first-column-visual.log)·[native 저장/Undo/수명 33](Tests/results/2026-11-06/table-row-first-column-native.log)·[WebKit 통합/레이아웃 50](Tests/results/2026-11-06/table-row-first-column-webkit.log) 통과, 실패/SKIP 0. 모든 3×3 출발 행/열의 첫 열/offset 0·기존 셀/정렬 보존·Undo/Redo·snapshot 재파싱·새 행 후 화살표/Enter·이전 mark 미전파·인용/CRLF를 확인했습니다. [빌드](Tests/results/2026-11-06/table-row-first-column-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-row-first-column-gui.json)·[화면](Tests/results/2026-11-06/table-row-first-column-gui.png)·[재열기](Tests/results/2026-11-06/table-row-first-column-reopened.png): 머리글 C·중간 E·끝 I에서 Shift+Enter 뒤 새 행 첫 열 입력, Undo/Redo·Enter/↑ 통합·⌘S·닫기/재열기/Aa·미리보기 0·앱 종료 확인.
+- Enter 단계(`7968f1f`) 검증: [모델 32](Tests/results/2026-11-06/table-enter-next-row-model.log)·[WebKit 브라우저 모델 18/시각 입력 154](Tests/results/2026-11-06/table-enter-next-row-visual.log) 통과, 실패/SKIP 0. 3×3 모든 출발 열·빈 행·마지막 행·Tab 구분·원문/dirty·후속 입력 Undo를 검사했습니다. [빌드](Tests/results/2026-11-06/table-enter-next-row-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-enter-next-row-gui.json)·[화면](Tests/results/2026-11-06/table-enter-next-row-gui.png): 중간 E→G 및 B→D 첫 위치 입력·저장·문서 닫기·앱 종료 확인.
 - 초기 구현(`fa31bbe`, Enter는 다음 셀·삽입 후 같은 열이던 시점) 검증: [TypeScript·모델 32](Tests/results/2026-11-06/table-enter-model.log), [WebKit 브라우저 모델 18·시각 입력 150](Tests/results/2026-11-06/table-enter-visual.log), [native 저장/Undo/문서 수명 33](Tests/results/2026-11-06/table-enter-native.log), [기존 WebKit 통합·레이아웃 50](Tests/results/2026-11-06/table-enter-webkit.log) 통과, 실패/SKIP 0. 문서 끝/다음 표/기존 문단·3×3 모든 행/열 위치 삽입·Undo/Redo·빈 행 직렬화·반복 삽입·snapshot 재파싱·인용 안 입력·CRLF를 검사했습니다.
 - [Debug 빌드](Tests/results/2026-11-06/table-enter-build.log)·[GUI/디스크 근거](Tests/results/2026-11-06/table-enter-gui.json)·[저장 화면](Tests/results/2026-11-06/table-enter-gui.png)·[재열기](Tests/results/2026-11-06/table-enter-reopened.png): 실제 Shift+Enter로 머리글/중간/끝 아래 삽입·⌘Z/Redo·마지막 Enter로 다음 표 앞 일반 문단 생성·⌘S·닫기/재열기/Aa·다음 표 불변·미리보기 0개 확인.
 - 한계: `.txt` Markdown fixture 사용은 35번과 같고, 실제 IME·macOS 14 기기·모든 중첩 컨테이너 경계는 미검증입니다. 빈 문단 자체의 identity/재열기는 기존 F5의 Markdown gap 한계를 유지합니다.

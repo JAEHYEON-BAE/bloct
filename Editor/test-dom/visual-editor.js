@@ -226,14 +226,15 @@ await check('Enter targets an empty next row first cell and preserves existing c
   type('first');assert(editor.session.doc.firstChild.child(1).firstChild.textContent==='first');
   assert(editor.session.doc.firstChild.firstChild.textContent==='AB');serialized();
 });
-await check('Shift-Enter inserts an empty row below the current row, keeping the column and all existing data',()=>{
+await check('Shift-Enter from every column inserts an empty row and selects its first cell, preserving existing data',()=>{
   const source='| A | B | C |\n| :--- | :---: | ---: |\n| D | E | F |\n| G | H | I |\n\nFollowing';
   for(const row of [0,1,2])for(const column of [0,1,2]) {
     fresh(source);const before=editor.session.doc.firstChild;selectTableCell(row,column);
     assert(key('Enter',{shiftKey:true}));const table=editor.session.doc.firstChild;
     assert(table.childCount===4 && table.child(row+1).childCount===3);
     assert(table.child(row+1).textContent==='');
-    assert(editor.view.state.selection.$from.parent===table.child(row+1).child(column));
+    assert(editor.view.state.selection.$from.parent===table.child(row+1).firstChild);
+    assert(editor.view.state.selection.$from.parentOffset===0);
     for(let i=0;i<3;i++)assert(table.child(i>row?i+1:i).eq(before.child(i)));
     assert(JSON.stringify(table.attrs.align)===JSON.stringify(['left','center','right']));
     assert(editor.session.doc.lastChild.textContent==='Following');
@@ -248,8 +249,8 @@ await check('inserted row accepts text, repeated insertion and snapshots preserv
   fresh(source);selectTableCell(0,1);key('Enter',{shiftKey:true});type('middle');
   key('Enter',{shiftKey:true});type('another');
   const table=editor.session.doc.firstChild;
-  assert(table.childCount===4 && table.child(1).child(1).textContent==='middle');
-  assert(table.child(2).child(1).textContent==='another' && table.lastChild.textContent==='CD');
+  assert(table.childCount===4 && table.child(1).firstChild.textContent==='middle');
+  assert(table.child(2).firstChild.textContent==='another' && table.lastChild.textContent==='CD');
   const snapshot=await editor.snapshot();assert(editor.acknowledge(snapshot.token));
   const reopened=BloctBlocks.importMarkdown(snapshot.text).doc;
   assert(reopened.firstChild.childCount===4 && reopened.child(1).textContent==='NextTableKeepSafe');
@@ -258,12 +259,21 @@ await check('table exit and row insertion work inside quotes and preserve CRLF',
   const source='> | A | B |\r\n> | --- | --- |\r\n> | C | D |\r\n\r\nOutside';
   fresh(source);selectTableCell(0,1);key('Enter',{shiftKey:true});type('inside');
   const table=editor.session.doc.firstChild.firstChild;
-  assert(table.childCount===3 && table.child(1).child(1).textContent==='inside');
+  assert(table.childCount===3 && table.child(1).firstChild.textContent==='inside');
   selectTableCell(2,1);key('Enter');type('Below quoted table');
   assert(editor.session.doc.firstChild.child(1).type.name==='paragraph');
   assert(editor.session.doc.lastChild.textContent==='Outside');
   const output=serialized();assert(output.includes('> Below quoted table'));
   assert(!/(^|[^\r])\n/.test(output),'CRLF preserved');
+});
+await check('new row first-cell focus supports arrows, next-row Enter and unmarked text after a formatted source cell',()=>{
+  fresh('| A | **B** |\n| --- | --- |\n| C | D |');
+  selectTableCell(0,1,1);key('Enter',{shiftKey:true});type('new');
+  const row=editor.session.doc.firstChild.child(1);
+  assert(row.firstChild.textContent==='new' && !row.firstChild.firstChild.marks.length);
+  assert(key('ArrowRight'));assert(editor.view.state.selection.$from.parent===row.child(1));
+  assert(key('Enter'));assert(editor.view.state.selection.$from.parent.textContent==='C');
+  assert(editor.view.state.selection.$from.parentOffset===0);serialized();
 });
 await check('Tab shares local cell order and cannot jump into a later table',()=>{
   fresh('| A | B |\n| --- | --- |\n| C | D |\n\n| Next | Table |\n| --- | --- |\n| Keep | Safe |');
