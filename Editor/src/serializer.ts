@@ -7,8 +7,8 @@ export function semantics(node: PMNode): unknown {
   const {id, source, before, taskOffset, tail, bom, ...attrs} = node.attrs;
   const children: unknown[] = [];
   node.forEach(n => {
-    // Empty top-level paragraphs are stored as gaps, as documented in §4.4.
-    // Their identity cannot round-trip through plain Markdown.
+    // Empty top-level paragraphs are stored as gaps (IMPLEMENTATION_PLAN.md,
+    // F5 preservation contract); their identity cannot round-trip through Markdown.
     if (node.type.name === 'doc' && n.type.name === 'paragraph' && !n.content.size) return;
     children.push(semantics(n));
   });

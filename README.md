@@ -34,10 +34,10 @@ xattr -dr com.apple.quarantine /Applications/Bloct.app
 ## Development direction
 
 The top development priority is a Notion-like block editor with continuous visual
-editing, semantic blocks and Markdown source preservation. Implementation starts
-with the B01–B12 block model/import and command checks in
-[the block plan](WYSIWYG_BLOCK_PLAN.md); current results and remaining integration
-work are tracked in [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집).
+editing, semantic blocks and Markdown source preservation. Current behavior, design
+contracts, validation and remaining work are tracked in
+[F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집);
+[BUG_FIXES.md](BUG_FIXES.md) records defects and their verification evidence.
 Development builds now include an opt-in **Visual Editor**. Use the **Aa** toolbar
 button to switch editors; unsaved changes stay in memory until you save. The viewed
 section and document alignment stay in place, with space added for the formatting row.

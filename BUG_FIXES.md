@@ -1,8 +1,8 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-11-06** — Aa 표의 마지막 행 ↓로 표 뒤 영역 이동(36번)을 자동/GUI 검증했습니다. Enter·첫 행 ↑·새 행 첫 열 이동(37번 포함)의 기존 검증도 유지합니다. 테스트 앱은 각 검증 뒤 종료했습니다. 최우선은 F5 연속 편집 전환이며, 실제 IME·기존 기능 대응과 종료 cleanup(29번) 조사는 남아 있습니다.
+- 최신화: **2026-11-07**. 문서·소스·기존 증거 정리이며 실행 검증은 추가하지 않았습니다. 마지막 표 검증은 2026-11-06입니다.
 - 현재: 총 37개 중 **21개 해당 범위 검증 완료**, **16번 보류**, **15개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
-- 다음 순서: **[F5 시각 편집기의 IME·기존 기능 대응 검증](WYSIWYG_BLOCK_PLAN.md#9-구현-순서와-단계별-산출물)**을 최우선으로 진행합니다. 기존 버그는 새 모델의 관련 검증에 연결하며, 기존 경로를 별도 수정할 때의 순서는 **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**입니다. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 38번입니다.
+- 다음 순서: **[F5의 다음 순서와 전환 관문](IMPLEMENTATION_PLAN.md#다음-순서와-기본값-전환-관문)**을 최우선으로 진행합니다. 기존 버그는 새 모델의 관련 검증에 연결하며, 기존 경로를 별도 수정할 때의 순서는 **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**입니다. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 38번입니다.
 
 ## 항목별 상태
 
@@ -50,23 +50,16 @@
 
 ## 37. Aa 표의 Enter 탈출과 Shift+Enter 행 삽입
 
-- **2026-11-06 / 추가 요구까지 수정·해당 범위 검증 완료.** 초기에는 Enter와 Shift+Enter가 문서 전체 셀 목록을 순회하는 같은 명령을 사용해 마지막 셀에서 다음 표로 넘어갔습니다. 현재 Enter는 어느 열에서든 바로 아래 행의 첫 셀(본문 시작)로 이동하고, 마지막 행에서는 표 바로 아래 새 paragraph를 만듭니다. Tab/Shift+Tab은 현재 표의 다음/이전 셀 순서를 유지합니다. 다음 표·기존 문단은 유지합니다.
-- Shift+Enter는 머리글·중간·마지막 어느 행에서든 현재 행 바로 아래에 표 열 수만큼의 빈 셀을 가진 행을 삽입하며 출발 열과 관계없이 새 행 첫 열의 시작으로 커서를 옮깁니다. 기존 셀 내용·열 정렬은 보존하고 조합 중 명령은 실행하지 않습니다. 구조 변경은 history 경계로 기록합니다.
-- 최종 검증: [모델 32](Tests/results/2026-11-06/table-row-first-column-model.log)·[WebKit 브라우저 모델 18/시각 입력 164](Tests/results/2026-11-06/table-row-first-column-visual.log)·[native 저장/Undo/수명 33](Tests/results/2026-11-06/table-row-first-column-native.log)·[WebKit 통합/레이아웃 50](Tests/results/2026-11-06/table-row-first-column-webkit.log) 통과, 실패/SKIP 0. 모든 3×3 출발 행/열의 첫 열/offset 0·기존 셀/정렬 보존·Undo/Redo·snapshot 재파싱·새 행 후 화살표/Enter·이전 mark 미전파·인용/CRLF를 확인했습니다. [빌드](Tests/results/2026-11-06/table-row-first-column-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-row-first-column-gui.json)·[화면](Tests/results/2026-11-06/table-row-first-column-gui.png)·[재열기](Tests/results/2026-11-06/table-row-first-column-reopened.png): 머리글 C·중간 E·끝 I에서 Shift+Enter 뒤 새 행 첫 열 입력, Undo/Redo·Enter/↑ 통합·⌘S·닫기/재열기/Aa·미리보기 0·앱 종료 확인.
-- Enter 단계(`7968f1f`) 검증: [모델 32](Tests/results/2026-11-06/table-enter-next-row-model.log)·[WebKit 브라우저 모델 18/시각 입력 154](Tests/results/2026-11-06/table-enter-next-row-visual.log) 통과, 실패/SKIP 0. 3×3 모든 출발 열·빈 행·마지막 행·Tab 구분·원문/dirty·후속 입력 Undo를 검사했습니다. [빌드](Tests/results/2026-11-06/table-enter-next-row-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-enter-next-row-gui.json)·[화면](Tests/results/2026-11-06/table-enter-next-row-gui.png): 중간 E→G 및 B→D 첫 위치 입력·저장·문서 닫기·앱 종료 확인.
-- 초기 구현(`fa31bbe`, Enter는 다음 셀·삽입 후 같은 열이던 시점) 검증: [TypeScript·모델 32](Tests/results/2026-11-06/table-enter-model.log), [WebKit 브라우저 모델 18·시각 입력 150](Tests/results/2026-11-06/table-enter-visual.log), [native 저장/Undo/문서 수명 33](Tests/results/2026-11-06/table-enter-native.log), [기존 WebKit 통합·레이아웃 50](Tests/results/2026-11-06/table-enter-webkit.log) 통과, 실패/SKIP 0. 문서 끝/다음 표/기존 문단·3×3 모든 행/열 위치 삽입·Undo/Redo·빈 행 직렬화·반복 삽입·snapshot 재파싱·인용 안 입력·CRLF를 검사했습니다.
-- [Debug 빌드](Tests/results/2026-11-06/table-enter-build.log)·[GUI/디스크 근거](Tests/results/2026-11-06/table-enter-gui.json)·[저장 화면](Tests/results/2026-11-06/table-enter-gui.png)·[재열기](Tests/results/2026-11-06/table-enter-reopened.png): 실제 Shift+Enter로 머리글/중간/끝 아래 삽입·⌘Z/Redo·마지막 Enter로 다음 표 앞 일반 문단 생성·⌘S·닫기/재열기/Aa·다음 표 불변·미리보기 0개 확인.
-- 한계: `.txt` Markdown fixture 사용은 35번과 같고, 실제 IME·macOS 14 기기·모든 중첩 컨테이너 경계는 미검증입니다. 빈 문단 자체의 identity/재열기는 기존 F5의 Markdown gap 한계를 유지합니다.
+- **2026-11-06 / 해당 범위 검증 완료.** Enter는 아래 행 첫 셀, 마지막 행이면 현재 표 바로 아래 새 문단으로 이동합니다. Tab/Shift+Tab은 현재 표의 다음/이전 셀입니다. Shift+Enter는 머리글·중간·끝 어느 행에서든 바로 아래 빈 행을 삽입하고 **새 행 첫 열 시작**으로 이동합니다. 기존 셀·정렬·다음 표를 보존하고 구조 변경은 Undo 경계로 기록합니다(`7968f1f`·`9692df8`).
+- 검증: [모델 32](Tests/results/2026-11-06/table-row-first-column-model.log)·[브라우저 모델 18/시각 입력 164](Tests/results/2026-11-06/table-row-first-column-visual.log)·[native 33](Tests/results/2026-11-06/table-row-first-column-native.log)·[WebKit 50](Tests/results/2026-11-06/table-row-first-column-webkit.log) 통과,실패/SKIP 0. 모든 3×3 출발 행/열·정렬/원문·Undo/Redo·snapshot 재파싱·인용/CRLF 검사. [빌드](Tests/results/2026-11-06/table-row-first-column-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-row-first-column-gui.json)·[화면](Tests/results/2026-11-06/table-row-first-column-gui.png)·[재열기](Tests/results/2026-11-06/table-row-first-column-reopened.png): C/E/I에서 삽입 후 첫 열 입력·Enter/↑·저장/재열기·미리보기 0·앱 종료 확인. 이후 ↓ 변경까지의 자동 회귀는 36번의 174개를 따릅니다.
+- 한계: GUI는 Markdown 내용의 임시 `.txt`를 사용했습니다. 실제 IME·macOS 14 기기·모든 중첩 컨테이너 경계와 빈 문단 identity는 [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집)에 남아 있습니다. 초기 단계의 다른 Enter/커서 계약은 Git 이력·원시 로그로 추적합니다.
 
 ## 36. Aa 표의 화살표 셀 이동
 
-- **2026-11-06 / 위·아래 탈출 추가 요구까지 수정·해당 범위 검증 완료.** 첫 행의 첫 표시 줄에서 ↑는 표 앞 영역의 끝으로, 마지막 행의 마지막 표시 줄에서 ↓는 표 뒤 영역의 시작으로 이동합니다. 문단/제목/목록/인용/다른 표는 기존 내용을 유지하며, 인접 원자 블록은 삭제하지 않고 선택합니다. 이전/이후 영역이 전혀 없으면 첫/마지막 최상위 블록 앞/뒤에 빈 문단을 만들어 이동하고 Undo로 복원합니다. 셀의 접힌 줄 안에서는 native 줄 이동을 유지합니다.
-- 최신 ↓ 검증: [모델 32](Tests/results/2026-11-06/table-down-exit-model.log)·[WebKit 브라우저 모델 18/시각 입력 174](Tests/results/2026-11-06/table-down-exit-visual.log)·[native 저장/Undo/수명 33](Tests/results/2026-11-06/table-down-exit-native.log)·[WebKit 통합/레이아웃 50](Tests/results/2026-11-06/table-down-exit-webkit.log) 통과, 실패/SKIP 0. 모든 출발 열·이후 문단/제목/목록/인용/수식/표·문서 끝 표/인용 안 표·빈 셀/빈 후속 문단·접힌 마지막 행·Undo/Redo·재파싱을 확인했습니다. [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-down-exit-gui.json)·[기존 문단](Tests/results/2026-11-06/table-down-exit-gui.png)·[문서 끝](Tests/results/2026-11-06/table-down-end-gui.png)·[재열기](Tests/results/2026-11-06/table-down-end-reopened.png): 마지막 행 ↓ 후 기존 문단 시작 입력, 문서 끝 새 문단·Undo/Redo·⌘S·재열기·두 문서 전환/닫기·미리보기 0·앱 종료 확인.
-- ↑ 단계 검증(`84c2405`): [모델 32](Tests/results/2026-11-06/table-up-exit-model.log)·[WebKit 브라우저 모델 18/시각 입력 162](Tests/results/2026-11-06/table-up-exit-visual.log) 통과, 실패/SKIP 0. 모든 출발 열·이전 문단/제목/인용/목록/수식·문서 맨 앞 표/인용 안 표·Undo/Redo·재파싱·첫 행 여러 줄을 검사했습니다. 문단 삽입 시 바뀌는 빈 줄 경계 메타데이터 대신 기존 표 콘텐츠·재파싱·Undo 복원을 보존 기준으로 삼습니다. [빌드](Tests/results/2026-11-06/table-up-exit-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-up-exit-gui.json)·[기존 문단](Tests/results/2026-11-06/table-up-exit-gui.png)·[문서 시작](Tests/results/2026-11-06/table-up-start-gui.png): 실제 ↑ 후 앞 문단 입력, 맨 앞 새 문단·Undo/Redo·저장·두 문서 전환/닫기·미리보기 0·앱 종료 확인.
-
-- 초기 구현(`5774ad6`): 시각 편집기에 표 방향키 명령이 없어 WebKit의 선형 텍스트 이동이 인접 행/열과 달랐습니다. 위·아래는 같은 열의 이전/다음 행, 좌·우는 텍스트 시작/끝에서 같은 행의 옆 셀로 이동합니다. 셀 안의 글자·접힌 줄 이동은 native에 맡기며, 이 초기 단계에서는 표 가장자리에 머물렀고, 현재는 위·아래 경계에 위의 탈출 계약을 적용합니다. Shift/Option 등의 조합키는 가로채지 않습니다. 기존 영역으로의 이동은 원문·dirty·Undo를 변경하지 않으며, 문서 경계의 새 문단 생성만 구조 변경입니다.
-- 초기 검증(첫 행 ↑ 탈출 요구 전): [TypeScript·모델 32](Tests/results/2026-11-06/table-arrows-model.log), [WebKit 브라우저 모델 18·시각 입력 138](Tests/results/2026-11-06/table-arrows-visual.log) 통과, 실패/SKIP 0. 3×3·표 경계·다른 표 보호·빈/짧은/이모지 셀·여러 줄 내부 이동·수정키를 검사했습니다. [Debug 빌드](Tests/results/2026-11-06/table-arrows-build.log)·[GUI/디스크 근거](Tests/results/2026-11-06/table-arrows-gui.json)·[화면](Tests/results/2026-11-06/table-arrows-gui.png): 네 방향 이동 뒤 대상 셀 입력·⌘S·두 문서 전환/닫기·미리보기 0개 확인.
-- 한계: GUI는 일반 네 방향·위/아래 탈출·문서 시작/끝을 확인했고, 여러 줄·빈 셀·Unicode·컨테이너별 세부 경계는 WebKit 자동 검증입니다. `.txt` Markdown fixture 사용·실제 IME/macOS 14 미검증은 35번과 같습니다.
+- **2026-11-06 / 해당 범위 검증 완료.** 셀 안 글자/접힌 줄 이동은 native에 맡기고 경계에서 같은 열의 위/아래 또는 같은 행의 좌/우 셀로 이동합니다. 첫 행의 첫 표시 줄 ↑는 표 앞 영역 끝, 마지막 행의 마지막 표시 줄 ↓는 표 뒤 영역 시작으로 이동합니다. 영역이 없으면 최상위 블록 앞/뒤에 빈 문단을 만들고 Undo로 복원합니다. 인접 원자 블록은 삭제 없이 선택합니다. 기존 영역 이동은 원문/dirty/history를 바꾸지 않습니다(`5774ad6`·`84c2405`·`3622265`).
+- 최종 회귀: [모델 32](Tests/results/2026-11-06/table-down-exit-model.log)·[브라우저 모델 18/시각 입력 174](Tests/results/2026-11-06/table-down-exit-visual.log)·[native 33](Tests/results/2026-11-06/table-down-exit-native.log)·[WebKit/레이아웃 50](Tests/results/2026-11-06/table-down-exit-webkit.log) 통과, 실패/SKIP 0. 모든 출발 열·이전/이후 문단/제목/목록/인용/수식/표·빈 셀/문단·문서 시작/끝·접힌 줄·Unicode·Undo/재파싱 검사.
+- 실제 앱: [↑ GUI/디스크/종료](Tests/results/2026-11-06/table-up-exit-gui.json)·[기존 문단](Tests/results/2026-11-06/table-up-exit-gui.png)·[문서 시작](Tests/results/2026-11-06/table-up-start-gui.png), [↓ 빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-down-exit-gui.json)·[기존 문단](Tests/results/2026-11-06/table-down-exit-gui.png)·[문서 끝](Tests/results/2026-11-06/table-down-end-gui.png)·[재열기](Tests/results/2026-11-06/table-down-end-reopened.png): 이동 후 입력·새 문단/Undo/Redo·저장/재열기·두 문서 전환/닫기·미리보기 0·앱 종료 확인.
+- 한계: 접힌 줄·빈 셀·Unicode·컨테이너별 세부 경계는 WebKit 자동 검증입니다. GUI의 임시 `.txt` 사용·실제 IME/macOS 14 미검증은 35번과 같습니다.
 
 ## 35. Aa 표의 빈 셀 안내 문구
 
@@ -78,27 +71,23 @@
 
 ## 34. Aa 전환 시 스크롤 왕복과 좌우 정렬 변경
 
-- **2026-11-05 / 수정·해당 범위 검증 완료.** 긴 문서 중간에서 Aa를 누르면 상단이 보였다가 내려오고 본문 폭과 간격이 바뀌었습니다(사용자 재현). `.id(visualEditing)`의 WebView 교체와 `didFinish`의 100ms 지연 smooth-scroll 복원, 별도 980px/54px 본문 스타일이 원인이었습니다.
-- 같은 WKWebView·페이지·800px/24px 본문 영역 안에서 편집 루트만 교체합니다. 공통 Markdown 스타일을 사용해 제목·문단·목록·인용·코드·표·수식의 글꼴/간격/정렬을 맞췄습니다. 현재 보이는 블록과 중복 순번을 기준으로 즉시 위치를 맞추며 서식 메뉴 높이만큼만 내려오고 종료 시 되돌립니다. 모드 변경에는 페이지 탐색·초기 스크롤 복원을 실행하지 않습니다. 이전 루트는 문서에서 분리해 중복 목차·검색·클릭을 막고, 기존 textarea close/render가 활성 시각 루트를 덮어쓰지 않도록 분리했습니다. 저장·조합·원본 기준·Undo checkpoint 보호를 유지합니다. 최초 페이지와 전환의 세대 값을 동기화해 첫 Aa Save가 후속 입력·engine Undo를 초기화하지 않도록 했습니다.
-- 검증: [WebKit 50](Tests/results/2026-11-05/f5-layout-webkit.log)(기존 22 + 레이아웃 28), [native 33](Tests/results/2026-11-05/f5-layout-native.log)(기존 27 + 동일 WebView/URL/JS 문서 2 + 기본 Markdown 시작의 첫 Aa Save 4), [모델 32/빌드](Tests/results/2026-11-05/f5-layout-model.log), [브라우저 모델 18·시각 입력 128](Tests/results/2026-11-05/f5-layout-visual.log), [Hosted 317](Tests/results/2026-11-05/f5-layout-hosted.log), [기존 체크 저장 17](Tests/results/2026-11-05/f5-layout-tasks.log) 통과, 실패/XFAIL/SKIP 0. 레이아웃 검사는 900/640px·목차 on/off의 좌우 좌표·폭·블록 크기·폰트/색(<0.1px), 메뉴 높이만큼의 가시 제목 이동(<1px), 지연 좌표 샘플·반복 왕복을 확인합니다. offscreen rAF는 정지하므로 샘플은 16ms 타이머이며 실제 painted-frame 영상으로 표현하지 않습니다.
-- [독립 Debug 빌드](Tests/results/2026-11-05/f5-layout-build.log)·[GUI/디스크 근거](Tests/results/2026-11-05/f5-layout-gui.json): 24개 섹션 중간(Section 17)에서 Aa 전후 본문 정렬·메뉴 행 높이 변화와 원위치 복귀, 동일 preview URL을 확인했습니다. 편집·⌘S·재열기·두 문서 전환/닫기·미리보기 0개 확인. CUA는 전후 스크린샷 관찰이며 연속 프레임 영상은 없습니다. 사용자 설치 앱은 교체하지 않았습니다.
-- 남은 범위: 이미지의 사용자 지정 속성·보호 원문 노드·빈 문단·dark/zoom/PDF/실제 IME까지 모든 문서의 픽셀 동일성을 검증한 것은 아닙니다. 이들은 F5 기존 기능 대응 단계에서 보완합니다. 가시 블록을 대응할 수 없으면 기존 scrollY를 유지합니다.
+- **2026-11-05 / 해당 범위 검증 완료.** 긴 문서 중간의 Aa 전환에서 WebView 교체·지연 smooth-scroll·별도 본문 폭이 상단 왕복/정렬 변경을 만들었습니다. 같은 WKWebView/페이지·공통 800px/24px 스타일 안에서 루트만 교체하고 가시 블록·중복 순번으로 즉시 위치를 맞춥니다. 메뉴 행 높이만 이동하며 모드 탐색/초기 스크롤 복원은 하지 않습니다. 최초 세대 동기화로 첫 Aa Save의 입력/history 초기화도 방지했습니다(`cb88297`).
+- 검증: [WebKit 50](Tests/results/2026-11-05/f5-layout-webkit.log)·[native 33](Tests/results/2026-11-05/f5-layout-native.log)·[모델 32](Tests/results/2026-11-05/f5-layout-model.log)·[브라우저 모델 18/시각 입력 128](Tests/results/2026-11-05/f5-layout-visual.log)·[Hosted 317](Tests/results/2026-11-05/f5-layout-hosted.log)·[체크 저장 17](Tests/results/2026-11-05/f5-layout-tasks.log) 통과, 실패/XFAIL/SKIP 0. [빌드](Tests/results/2026-11-05/f5-layout-build.log)·[GUI/디스크](Tests/results/2026-11-05/f5-layout-gui.json): 24섹션 중간 Aa 왕복·같은 preview URL·저장/재열기·두 문서·미리보기 0 확인.
+- 한계: 좌표/폰트 검사는 900/640px·TOC on/off와 16ms 타이머 샘플입니다. CUA는 전후 화면이며 연속 painted-frame 영상은 없습니다. 이미지 속성·보호 원문·빈 문단·dark/zoom/PDF/실제 IME의 전체 표시 대응은 F5 관문에 남아 있습니다.
 
 <a id="bug-33"></a>
 
 ## 33. 빈 $$와 Space만으로 Equation이 생성됨
 
-- **2026-11-05 / 수정·해당 범위 검증 완료.** Aa에서 `$$` Space만 입력해도 빈 Equation이 생겼습니다. 별도 블록 단축키 규칙이 원인이었습니다. 이를 제거해 `$$`·`$$$$`·공백뿐인 `$$   $$`는 텍스트로 유지합니다. 최상위 문단의 비어 있지 않은 `$$...$$`는 마지막 `$`에서 블록 수식으로 변환하고 뒤 입력 문단으로 이동합니다. Enter/Shift+Enter로 나뉜 본문도 닫힐 때 모으되 다른 블록 타입·서식/원자 노드는 넘지 않습니다. `$x$` 인라인·문장 속 display 수식은 기존 경로를 유지합니다.
-- 미완성 구분자·일반 텍스트의 `$`를 저장할 때 이스케이프해 재열기·모드 왕복 시 수식으로 오인하지 않게 했습니다. 이미 노드인 수식은 해당 구분자로 저장하며 기존 파일의 importer 규약은 바꾸지 않았습니다.
-- 검증: [수정 전 재현](Tests/results/2026-11-05/f5-dollar-before.log) → [모델 32·TypeScript/번들](Tests/results/2026-11-05/f5-dollar-model.log)·[브라우저 모델 18/시각 입력 128](Tests/results/2026-11-05/f5-dollar-visual.log)·[native 저장/수명 27](Tests/results/2026-11-05/f5-dollar-native.log)·[WebKit 22](Tests/results/2026-11-05/f5-dollar-webkit.log) 통과, 실패/SKIP 0. 빈/미종결/완결·줄바꿈·후속 문서·코드 mark 보호·snapshot/재파싱·Backspace/Undo 확인. 기본 Markdown 경로의 통화 오인(13번) 해결 근거로 합산하지 않습니다.
-- [독립 Debug 빌드](Tests/results/2026-11-05/f5-dollar-build.log)·[GUI/디스크 근거](Tests/results/2026-11-05/f5-dollar-gui.json): 실제 달러 키/Space에서 텍스트 유지, 미완성 상태 Save·Aa 왕복, 마지막 닫는 키에서 단일/여러 줄 수식 변환, Save·닫기·재열기·clean 닫기 후 미리보기 0개 확인. 실제 IME·PDF와 컨테이너 내부 여러 문단을 모으는 입력은 검증 범위 밖입니다.
+- **2026-11-05 / 해당 범위 검증 완료.** `$$`+Space의 빈 수식 단축키를 제거했습니다. `$$`·`$$$$`·공백뿐인 수식은 텍스트로 유지하고, 비어 있지 않은 닫힌 `$$...$$`만 변환합니다. 여러 줄은 연속 최상위 일반 문단에서만 모으며 미완성/일반 `$`는 이스케이프해 저장·재열기를 보존합니다. 기존 importer와 기본 Markdown의 통화 오인(13번)은 별도입니다.
+- 검증: [수정 전](Tests/results/2026-11-05/f5-dollar-before.log) → [모델 32](Tests/results/2026-11-05/f5-dollar-model.log)·[브라우저 모델 18/시각 입력 128](Tests/results/2026-11-05/f5-dollar-visual.log)·[native 27](Tests/results/2026-11-05/f5-dollar-native.log)·[WebKit 22](Tests/results/2026-11-05/f5-dollar-webkit.log) 통과, 실패/SKIP 0. [빌드](Tests/results/2026-11-05/f5-dollar-build.log)·[GUI/디스크](Tests/results/2026-11-05/f5-dollar-gui.json): 실제 달러/Space·미완성 Save/Aa·닫는 키 변환·여러 줄·저장/재열기·미리보기 0 확인.
+- 한계: 실제 IME·PDF·컨테이너 내부 여러 문단 수집은 미검증입니다.
 
 ## 32. Aa 편집 후 버튼 비활성화로 모드 재진입 불가
 
-- **2026-11-05 / 수정·해당 범위 검증 완료.** Aa에서 한 글자만 바꿔도 모드 버튼이 비활성화됐습니다. 미저장 문서의 전환을 막는 초기 보호 정책이 원인이었습니다. 현재는 양쪽 편집기의 최신 스냅샷을 버퍼로 전달하고, 마지막 디스크 저장 기준과 dirty를 따로 유지합니다. 시각 편집기는 직렬화 직후 freeze하고, 기존 textarea도 조합 완료를 기다린 뒤 확정합니다. 저장·전환 중 중복 요청을 막고, 실패 시 현재 편집기를 유지합니다. 전환 자체는 파일을 저장하지 않습니다.
-- Undo는 모드 경계를 native 문자열 checkpoint 하나로 유지하며, 새 시각 엔진의 history를 다 사용한 뒤 경계 이전 초안으로 복원할 수 있습니다. 재구성 전 엔진의 개별 키 입력 history는 유지하지 않습니다.
-- 검증: [모델 31·TypeScript/번들](Tests/results/2026-11-05/f5-switch-model.log), [브라우저 모델 18·시각 입력 116](Tests/results/2026-11-05/f5-switch-visual.log), [native 수명 27](Tests/results/2026-11-05/f5-switch-native.log) 통과. 미저장 양방향 왕복·활성 textarea 인계·dirty·경계 Undo/Redo·소진 Undo 후 Redo·명시적 Save·실패/재시도·폐기·다중 문서·미리보기 정리 확인. [공유 WebKit 22](Tests/results/2026-11-05/f5-switch-webkit.log)·[기존 체크 저장 17](Tests/results/2026-11-05/f5-switch-tasks.log)·[Hosted 317](Tests/results/2026-11-05/f5-switch-hosted.log) 통과, 실패/XFAIL/SKIP 0.
-- [Debug 빌드](Tests/results/2026-11-05/f5-input-fix-build.log)·[GUI/디스크 근거](Tests/results/2026-11-05/f5-input-fix-gui.json): Edited 상태에서 Aa 왕복·내용/dirty 유지, Save 전 디스크 불변, ⌘S·닫기·재열기·다중 문서 전환·clean 닫기 후 미리보기 0개 확인. 실제 IME 조합 중 전환·최초 Save 패널·권한/충돌 UI는 미검증이며 기존 F5의 후속 범위를 유지합니다. 설치본·기존 테스트 앱은 교체하지 않았습니다.
+- **2026-11-05 / 해당 범위 검증 완료.** 미저장 전환 금지 정책을 없애고 최신 스냅샷/마지막 디스크 기준을 분리해 양방향 인계합니다. 시각 엔진은 직렬화 후 freeze, textarea는 조합 확정 뒤 인계하며 실패하면 현재 편집기에 남습니다. 전환은 저장하지 않습니다. Undo는 모드 경계 checkpoint 하나이며 이전 엔진의 개별 입력 history는 유지하지 않습니다.
+- 검증: [모델 31](Tests/results/2026-11-05/f5-switch-model.log)·[브라우저 모델 18/시각 입력 116](Tests/results/2026-11-05/f5-switch-visual.log)·[native 27](Tests/results/2026-11-05/f5-switch-native.log)·[WebKit 22](Tests/results/2026-11-05/f5-switch-webkit.log)·[체크 저장 17](Tests/results/2026-11-05/f5-switch-tasks.log)·[Hosted 317](Tests/results/2026-11-05/f5-switch-hosted.log) 통과,실패/XFAIL/SKIP 0. [빌드](Tests/results/2026-11-05/f5-input-fix-build.log)·[GUI/디스크](Tests/results/2026-11-05/f5-input-fix-gui.json): 미저장 Aa 왕복·dirty/내용·Save 전 디스크 불변·저장/재열기·두 문서·미리보기 0 확인.
+- 한계: 실제 IME 조합 중 전환·최초 Save/권한/충돌 UI는 F5 관문입니다. 저장 실패/지연 쓰기·native revert의 통제 범위를 실제 패널 통과로 보지 않습니다.
 
 ## 31. 블록 입력 변환 취소 후 커서가 다음 줄로 이동
 
@@ -115,23 +104,23 @@
 
 ## 27·28. Aa 전환 시 수식 폰트 변형과 행렬 파싱 손상
 
-- **27·28번 / 2026-11-05 / 수정·해당 범위 검증 완료.** 최소 재현은 [State Space fixture](Tests/fixtures/f5-state-space-math.md)를 열고 **Aa**를 누르는 것입니다. 기본 화면의 행렬은 정상이지만 시각 모드에서 글꼴이 바뀌고, 행렬 첫 줄이 빠지며 다음 제목·수식까지 빨간 오류 본문으로 흡수됐습니다. 독립 앱에서 두 현상을 GUI로 재현했습니다.
-- **27번 원인·수정:** 오프라인 폰트 변환의 `src:...;` 정규식이 세미콜론 없이 `}`로 끝나는 minified 선언을 넘어 다음 규칙까지 소비했습니다. 중괄호 경계를 보존하고 양쪽 모드가 KaTeX **0.18.2**의 동일 JS/CSS/내장 WOFF2를 사용하도록 통일했습니다(기존 Markdown 모드의 0.16.11 CDN 제거). 수식은 편집 루트의 pre-wrap/flex 스타일과 상호작용 컨트롤 배치에서 분리합니다. 후속 수식 표면 클릭 UI는 [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집)에서 관리합니다. 제목 안 수식도 기본 화면과 글자 크기를 맞춥니다.
-- **28번 원인·수정:** 기존 math-flow 문법은 `$$\mathbf{s}_t =`의 본문을 opening metadata로 버리고 `...}$$`를 닫는 줄로 인정하지 않았습니다. micromark 토큰 단계에서 본문과 붙은 구분자를 처리해 코드 보호·컨테이너·빈 줄·UTF-16 source 위치를 유지합니다. 문장 속 `$$...$$`도 display 속성/구분자를 보존합니다. 미수정 수식은 원문 재사용, 수정 수식은 표준 `$$` 줄 형식으로 저장합니다.
-- **검증:** [모델 30](Tests/results/2026-11-05/bug27-28-model.log)·[시각 입력 100 + 브라우저 모델 18](Tests/results/2026-11-05/bug27-28-visual.log)·[WebKit 22](Tests/results/2026-11-05/bug27-28-webkit.log) 통과. 상태 행렬·후속 수식·제목 수식 **11개**의 TeX/display 구분·font family/size·글리프 크기 차이 **0.1 CSS px 미만**, clean 원문 보존과 당시(`74e1f9f`)의 Edit 형제 배치를 확인했습니다. [Hosted 317](Tests/results/2026-11-05/bug27-28-hosted.log)·[시각 native 저장 17](Tests/results/2026-11-05/bug27-28-native.log)·[기존 체크 저장 17](Tests/results/2026-11-05/bug27-28-tasks.log)도 통과, 실패/XFAIL/SKIP 0입니다.
-- **GUI·한계:** [Debug 빌드](Tests/results/2026-11-05/bug27-28-build.log)·[Computer Use/디스크 근거](Tests/results/2026-11-05/bug27-28-gui.json). 전환 전후 행렬·인라인/블록 수식, Edit 원문 전체, 한 값 수정→Apply→⌘S→재열기→Aa를 확인했습니다. 수식 밖 원문 불변·실제 프로세스 종료 확인. 설치본과 이전 테스트 앱은 보존했습니다. 전체 dark/PDF·macOS 14 기기·사용자 원본 파일 자체는 별도 검증 범위이며, 종료 후 미리보기 잔류는 아래 29번입니다.
+- **2026-11-05 / 해당 범위 검증 완료.** [State Space fixture](Tests/fixtures/f5-state-space-math.md) → Aa에서 수식 폰트가 달라지고 행렬 첫 줄이 누락되며 뒤 문서를 흡수했습니다(독립 GUI 재현).
+- **27번:** minified CSS의 세미콜론 없는 `src:...}`를 정규식이 넘어가던 문제를 수정하고 양 모드에 오프라인 KaTeX 0.18.2·동일 CSS/WOFF2를 적용했습니다. 수식은 편집 루트의 wrapping/컨트롤 배치에서 분리합니다. **28번:** micromark 토큰에서 본문과 붙은 `$$` 시작/종료를 처리해 코드·컨테이너·빈 줄·UTF-16 위치를 유지합니다. 미수정 수식은 원문 재사용, 수정 수식은 표준 줄 구분자로 저장합니다.
+- 검증: [모델 30](Tests/results/2026-11-05/bug27-28-model.log)·[브라우저 모델 18/시각 입력 100](Tests/results/2026-11-05/bug27-28-visual.log)·[WebKit 22](Tests/results/2026-11-05/bug27-28-webkit.log)·[Hosted 317](Tests/results/2026-11-05/bug27-28-hosted.log)·[native 17](Tests/results/2026-11-05/bug27-28-native.log)·[체크 저장 17](Tests/results/2026-11-05/bug27-28-tasks.log) 통과, 실패/XFAIL/SKIP 0. 11개 수식의 TeX/display·폰트/글리프 크기 차이 <0.1px·후속 문서·무편집 원문 보존 확인.
+- [빌드](Tests/results/2026-11-05/bug27-28-build.log)·[GUI/디스크](Tests/results/2026-11-05/bug27-28-gui.json): 전환 전후·원문 창·값 수정/Apply/Save·재열기/Aa·수식 밖 원문 보존 확인. 당시 Edit 버튼 UI는 현재 F5의 표면 클릭 UI로 교체됐습니다. dark/PDF·macOS 14·사용자 원본 자체는 미검증이며 열린 문서 Quit 잔류는 29번에서 조사합니다.
 
 ## 29. 앱 메뉴 Quit 후 고유 미리보기 파일 잔류
 
 - **2026-11-05 / 조사 중.** 임시 수식 문서를 열고 시각 모드로 전환한 뒤 앱 메뉴 Quit. 수정 전/후 격리 앱 두 실행에서 각각 마지막 `.mv_preview-*.html` 1개가 남았습니다. 전역 앱 목록과 별도 프로세스 조회에서 앱 종료를 확인했습니다. 명시적 문서 닫기→재열기의 미리보기는 정리됐습니다. [파일명·관찰 근거](Tests/results/2026-11-05/bug27-28-gui.json).
-- 다음 조치: `applicationWillTerminate`→`removeAllPreviewFiles` 실행/소유권과 NSDocument/SwiftUI 종료 수명을 계측하고 일반 빌드에서도 비교합니다. 18번의 공유 원본 덮어쓰기 방지와 구분하며, 잔류 증거를 삭제해 cleanup 통과로 표현하지 않습니다. 수식 수정의 범위 밖이며 이번 코드에서는 변경하지 않았습니다.
+- 다음 조치: `applicationWillTerminate`→`removeAllPreviewFiles` 실행/소유권과 NSDocument/SwiftUI 종료 수명을 계측하고 일반 빌드에서도 비교합니다. 18번의 공유 원본 덮어쓰기 방지와 구분하며, 잔류 증거를 삭제해 cleanup 통과로 표현하지 않습니다. 문서 닫기 후 Quit한 2026-11-06 [표 GUI](Tests/results/2026-11-06/table-down-exit-gui.json)는 미리보기 0개였지만 열린 문서의 Quit 경로를 검증한 것은 아닙니다.
 
 ## 26. GUI 테스트 중 Finder “Bloct is not open anymore”
 
-- **2026-10-26 / 조사 중 — 자동화 종료 경합 확인, 새 절차의 반복 검증 대기**. 사용자가 GUI 테스트 중 반복 팝업을 보고했습니다. 이 세션의 최소 조건은 Debug 앱 Quit 직후 같은 앱 핸들로 `getAXState()`를 요청한 흐름입니다. 팝업 자체의 독립 캡처는 없습니다.
+- **2026-10-26 / 조사 중 — 자동화 종료 경합 확인, 새 절차의 반복 검증 대기**. 사용자가 GUI 테스트 중 반복 팝업을 보고했습니다. 2026-10-26 최소 재현은 Debug 앱 Quit 직후 같은 앱 핸들로 `getAXState()`를 요청한 흐름입니다. 팝업 자체의 독립 캡처는 없습니다.
 - [원시 발췌](Tests/results/2026-10-26/finder-quit-race.log): 13:47:44·13:49:47·13:56:39에 CoreServicesUIAgent가 종료 중인 Bloct에 `aevt/rapp` 재활성화 이벤트를 보내다 `-600 procNotFound`를 반환했습니다. 확인한 Debug 주 프로세스 종료 5회는 모두 `launchd (0, 0, 0)`이며 새 Bloct 충돌 보고서는 없습니다. F1 기능 자체의 충돌을 확인한 결과가 아닙니다.
-- 다음 조치: 앱 메뉴의 Quit 이후 이전 핸들에 추가 조회/재활성화를 보내지 않습니다. 전역 앱 목록만으로 종료를 확정하지 않고, 필요하면 실제 프로세스 종료를 확인한 뒤 새 핸들을 얻습니다. 독립 검증 앱의 [최종 정렬 검사](Tests/results/2026-10-26/checkbox-indent-gui.json)에서는 메뉴 Quit 후 실제 종료를 확인했습니다. 다음 GUI 작업에서 새 절차의 재발 여부를 확인합니다. 자동화와 무관한 일반 Finder 문서 열기의 동일 오류는 미재현입니다.
+- 다음 조치: 앱 메뉴의 Quit 이후 이전 핸들에 추가 조회/재활성화를 보내지 않습니다. 전역 앱 목록만으로 종료를 확정하지 않고, 필요하면 실제 프로세스 종료를 확인한 뒤 새 핸들을 얻습니다. 독립 검증 앱의 [최종 정렬 검사](Tests/results/2026-10-26/checkbox-indent-gui.json)에서는 메뉴 Quit 후 실제 종료를 확인했습니다. 다음 조치에는 열린 문서 Quit 및 종료 핸들 경합을 별도 재현합니다. 자동화와 무관한 일반 Finder 문서 열기의 동일 오류는 미재현입니다.
 - 2026-11-05 [독립 GUI 검사 1회](Tests/results/2026-11-05/f5-ui-observations.json): 문서 닫기→앱 메뉴 Quit→전역 목록·실제 프로세스 종료 확인, 이전 앱 핸들 재조회 없음. 팝업은 관찰되지 않았습니다. 단일 실행이므로 반복 재검증 대기 상태는 유지합니다.
+- 2026-11-06 [표 GUI](Tests/results/2026-11-06/table-down-exit-gui.json)도 문서 닫기→Quit→새 목록의 종료 상태를 확인했습니다. 원래 종료 경합 조건의 반복 검증/독립 프로세스 계측을 대신하지 않으므로 조사 상태를 유지합니다.
 - 별개 설치 환경: `/Applications/Bloct.app` v1.7.6은 ad-hoc 서명과 `com.apple.quarantine`이 있어 Gatekeeper에 차단됐습니다. 사용자 요청으로 해당 격리 속성만 제거한 뒤 설치본의 Open 창 정상 실행을 확인했습니다. 실행 파일 SHA256·provenance는 보존했고 앱 교체·공증·전역 Gatekeeper 변경은 하지 않았습니다. [조사·로컬 조치 근거](Tests/results/2026-10-26/finder-launch-investigation.json). 배포 시의 기존 제한이며 재다운로드에는 격리 속성이 다시 붙을 수 있습니다.
 
 ## 25. macOS Edit·Window 메뉴의 지속적인 깜빡임과 선택 어려움
@@ -200,13 +189,11 @@
 
 ### 21. 외부 문서 변경과 편집 상태의 불일치
 
-- **2026-10-17 / 구현·해당 범위 검증 완료**, `0ff3e30` / v1.7.4. 수정 전에는 최초 Binding 이후 외부 원문을 편집 버퍼·기준·미리보기에 수용하는 경로가 없었습니다(소스 확인, 구버전 GUI 덮어쓰기 재현은 미실행).
-- 구현: `ContentView.checkDisk`의 0.6초 내용 폴링·Binding/URL 관찰, `⌘R`·기존 우클릭 Reload. 깨끗하면 자동 수용하고, 미저장 입력에는 Keep Editing / Discard Edits and Reload / Save a Copy…를 제공합니다. 같은 원본/심볼릭 링크에 사본 저장하지 않으며, 새 문서 Reload는 비활성입니다. 오래된 문서 세대의 commit은 거절합니다.
-- 재발 방지: `DocumentDisk`의 조정 I/O는 백그라운드에서 실행합니다. 읽기는 `.withoutChanges`, 내용 쓰기는 `.forReplacing` 없이 같은 accessor에서 원본 비교 후 원자적 쓰기를 사용합니다. 수용은 NSDocument 재읽기로 모델·기준·버퍼·Undo를 맞춥니다. 삭제 시 마지막 URL·공유 쓰기 취소/보호·native 폐기로 과거 원문 재생성을 막고, rename/최초 Save는 새 URL을 따릅니다. 닫힌 문서의 콜백과 키 감시는 해제합니다.
-- 최소 재검증: 임시 문서에서 외부 직접 쓰기·원자적 교체(수정 시각 유지 포함) → 깨끗한 읽기/편집 자동 갱신. 활성 초안에서 Reload → 유지 후 Save 거절·사본 저장/취소·명시적 버리기·Undo 경계. 이어 정상/최초 Save·두 문서·rename·삭제 후 Save 실패/Close Cancel/Don't Save와 디스크·소유 파일 정리를 확인합니다.
-- 자동 결과: [Native 8그룹](Tests/results/2026-10-17/reload-native.log), [WebKit 15개](Tests/results/2026-10-17/reload-webkit.log), [상대 이미지 70개](Tests/results/2026-10-17/reload-relative-images.log) 통과. [Hosted](Tests/results/2026-10-17/reload-hosted.log) **134 통과·0 일반 실패·20번 XFAIL 2·0 SKIP**.
-- 실제 DocumentGroup: 위 시나리오를 별도 `BloctReloadCheck.app`에서 확인했습니다. [GUI](Tests/results/2026-10-17/reload-gui.log), [디스크](Tests/results/2026-10-17/reload-disk.log), [빌드/체크섬](Tests/results/2026-10-17/reload-artifact.json). 설치 앱은 교체하지 않았습니다.
-- 미검증: 실제 한국어 IME(합성 composition만 검사), 지연시킨 동시 writer/Save, 외장/네트워크/iCloud·큰 문서 폴링, 기존 문서 Save As·PDF·macOS 14 실제 기기. 파일 조정을 무시한 외부 writer까지 절대적인 CAS는 보장하지 않습니다.
+- **2026-10-17 / 해당 범위 검증 완료**, `0ff3e30` / v1.7.4. 최초 Binding 이후 외부 변경 수용 경로가 없었습니다(소스 확인, 구버전 GUI 덮어쓰기 미재현). 0.6초 내용 폴링·Binding/URL 관찰·⌘R/우클릭 Reload로 깨끗한 문서는 수용하고 초안에는 유지/폐기 후 Reload/사본 저장을 제공합니다. 같은 원본/심볼릭 링크에 사본 저장은 거절하며 새 문서 Reload는 비활성입니다.
+- 보호 계약: 백그라운드 조정 I/O에서 읽기는 `.withoutChanges`, 쓰기는 `.forReplacing` 없이 같은 accessor의 원본 비교 후 원자적 쓰기입니다. NSDocument 재읽기로 모델·기준·버퍼·Undo를 맞추고 rename/최초 Save는 새 URL을 따릅니다. 삭제·폐기 시 과거 원문 재생성, 오래된 세대 commit, 닫힌 문서 콜백을 차단합니다. 외부 writer까지 절대적인 CAS를 보장하지 않습니다.
+- 재검증: 외부 직접 쓰기/원자적 교체(수정 시각 유지) → 깨끗한 읽기/편집 갱신; 초안 Reload/Save 거절/사본 취소/폐기·Undo 경계; 이어 Save/최초 Save·두 문서·rename/삭제·Close 취소/폐기·소유 파일 정리를 확인합니다.
+- 근거: [Native 8그룹](Tests/results/2026-10-17/reload-native.log)·[WebKit 15](Tests/results/2026-10-17/reload-webkit.log)·[이미지 70](Tests/results/2026-10-17/reload-relative-images.log) 통과. [Hosted](Tests/results/2026-10-17/reload-hosted.log)는 **134 통과·20번 XFAIL 2·일반 실패/SKIP 0**. 독립 DocumentGroup [GUI](Tests/results/2026-10-17/reload-gui.log)·[디스크](Tests/results/2026-10-17/reload-disk.log)·[빌드/체크섬](Tests/results/2026-10-17/reload-artifact.json) 확인.
+- 미검증: 실제 IME·지연 동시 writer/Save·외장/네트워크/iCloud·대형 문서 폴링·기존 문서 Save As/PDF·macOS 14 기기. 설치본은 교체하지 않았습니다.
 
 ## 24. 상대경로 이미지 로드 실패
 
@@ -223,7 +210,7 @@
 - 근거: [최초 원격 실행](Tests/results/2026-10-15/tap-sync-actions.json)은 4개 검사·변경 없는 push 통과. 2026-10-17에는 v1.7.3·v1.7.4의 실제 변경 커밋과 수동 dispatch 성공도 확인했습니다. 예약 시점 자체의 실행은 별도 미검증입니다. 로컬 `gh`가 sandbox에서 invalid를 출력해도 키체인 제한일 수 있으므로 일반 권한의 조회와 구분합니다(2026-10-17 확인).
 - **23번 / 2026-10-15 구현·배포 검증 완료**, `67263f1` / v1.7.2. 공유 빌드·검사 스크립트에서 **Xcode/SDK 27.0·최소 macOS 14.0·arm64/x86_64 Universal**을 강제합니다. [공개 ZIP](Tests/results/2026-10-15/sdk27-published.json) 두 CPU 검증 완료. 당시 Release는 tap 단계 실패로 전체 실패였고, cask는 수동 복구했습니다. 이후 22번으로 자동화를 대체했습니다. macOS 14 실제 실행·OS 간 UI 동일성은 보장하지 않습니다.
 
-## 최신 배포 검증 기록 — 2026-10-26
+## 마지막 기록된 공개 배포 — 2026-10-26
 
 v1.8.0은 2026-10-26 공개 ZIP·Homebrew 검증을 완료한 기능 릴리스입니다. v1.7.5·v1.7.6는 2026-10-22, 이전 버전 행은 2026-10-17의 배포 검증입니다. 설치 앱 교체·공개 Release의 실제 GUI·macOS 14 기기 실행은 범위 밖입니다.
 
