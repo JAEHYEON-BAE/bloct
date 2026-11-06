@@ -1,6 +1,6 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-11-06** — Aa 표의 추가 요구인 Enter의 아래 행 첫 셀 이동·첫 행 ↑의 이전 영역 이동·Shift+Enter의 새 행 첫 열 이동(36·37번)을 자동/GUI 검증했습니다. 테스트 앱은 각 검증 뒤 종료했습니다. 최우선은 F5 연속 편집 전환이며, 실제 IME·기존 기능 대응과 종료 cleanup(29번) 조사는 남아 있습니다.
+- 최신화: **2026-11-06** — Aa 표의 마지막 행 ↓로 표 뒤 영역 이동(36번)을 자동/GUI 검증했습니다. Enter·첫 행 ↑·새 행 첫 열 이동(37번 포함)의 기존 검증도 유지합니다. 테스트 앱은 각 검증 뒤 종료했습니다. 최우선은 F5 연속 편집 전환이며, 실제 IME·기존 기능 대응과 종료 cleanup(29번) 조사는 남아 있습니다.
 - 현재: 총 37개 중 **21개 해당 범위 검증 완료**, **16번 보류**, **15개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
 - 다음 순서: **[F5 시각 편집기의 IME·기존 기능 대응 검증](WYSIWYG_BLOCK_PLAN.md#9-구현-순서와-단계별-산출물)**을 최우선으로 진행합니다. 기존 버그는 새 모델의 관련 검증에 연결하며, 기존 경로를 별도 수정할 때의 순서는 **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**입니다. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 38번입니다.
 
@@ -45,7 +45,7 @@
 | 33 | 빈 $$에 Space만 입력해도 Equation 생성 | 수정·해당 범위 검증 완료(2026-11-05) | 여는 구분자 단축키 제거, 본문·닫는 $$를 확인해 블록 변환 |
 | 34 | Aa 전환 시 상단으로 이동 후 복귀·본문 좌우 정렬 변경 | 수정·해당 범위 검증 완료(2026-11-05) | 같은 WebView/페이지 유지, 공통 스타일·가시 블록 위치 보존 |
 | 35 | Aa 표의 빈 셀에 불필요한 Cell 안내 표시 | 수정·해당 범위 검증 완료(2026-11-06) | 셀 placeholder 제외, 자동/GUI 입력·저장 확인 |
-| 36 | Aa 표의 화살표 이동·첫 행 ↑ 탈출 | 수정·해당 범위 검증 완료(2026-11-06) | 행·열 이동·첫 행에서 표 앞 영역 이동, 문서 맨 앞이면 새 문단 생성 |
+| 36 | Aa 표의 화살표 이동·위/아래 탈출 | 수정·해당 범위 검증 완료(2026-11-06) | 첫 행 ↑는 표 앞, 마지막 행 ↓는 표 뒤 영역 이동. 문서 시작/끝이면 새 문단 생성 |
 | 37 | Aa 표의 Enter 행 이동·Shift+Enter 행 삽입 | 수정·해당 범위 검증 완료(2026-11-06) | Enter는 아래 행 첫 셀, Shift+Enter는 새 행 첫 셀 이동. Undo·저장·재열기 확인 |
 
 ## 37. Aa 표의 Enter 탈출과 Shift+Enter 행 삽입
@@ -60,12 +60,13 @@
 
 ## 36. Aa 표의 화살표 셀 이동
 
-- **2026-11-06 / 추가 요구까지 수정·해당 범위 검증 완료.** 첫 행의 첫 표시 줄에서 ↑를 누르면 표 앞의 기존 문단/제목/목록/인용 등의 끝으로 이동합니다. 바로 앞이 원자 블록이면 내용을 삭제하지 않고 해당 노드를 선택합니다. 이전 영역이 전혀 없으면 첫 최상위 블록 앞에 빈 문단을 만들어 이동하며 Undo로 되돌릴 수 있습니다. 셀의 접힌 줄 안에서는 native 줄 이동을 유지합니다.
-- 최신 검증: [모델 32](Tests/results/2026-11-06/table-up-exit-model.log)·[WebKit 브라우저 모델 18/시각 입력 162](Tests/results/2026-11-06/table-up-exit-visual.log) 통과, 실패/SKIP 0. 모든 출발 열·이전 문단/제목/인용/목록/수식·문서 맨 앞 표/인용 안 표·Undo/Redo·재파싱·첫 행 여러 줄을 검사했습니다. 문단 삽입 시 바뀌는 빈 줄 경계 메타데이터 대신 기존 표 콘텐츠·재파싱·Undo 복원을 보존 기준으로 삼습니다. [빌드](Tests/results/2026-11-06/table-up-exit-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-up-exit-gui.json)·[기존 문단](Tests/results/2026-11-06/table-up-exit-gui.png)·[문서 시작](Tests/results/2026-11-06/table-up-start-gui.png): 실제 ↑ 후 앞 문단 입력, 맨 앞 새 문단·Undo/Redo·저장·두 문서 전환/닫기·미리보기 0·앱 종료 확인.
+- **2026-11-06 / 위·아래 탈출 추가 요구까지 수정·해당 범위 검증 완료.** 첫 행의 첫 표시 줄에서 ↑는 표 앞 영역의 끝으로, 마지막 행의 마지막 표시 줄에서 ↓는 표 뒤 영역의 시작으로 이동합니다. 문단/제목/목록/인용/다른 표는 기존 내용을 유지하며, 인접 원자 블록은 삭제하지 않고 선택합니다. 이전/이후 영역이 전혀 없으면 첫/마지막 최상위 블록 앞/뒤에 빈 문단을 만들어 이동하고 Undo로 복원합니다. 셀의 접힌 줄 안에서는 native 줄 이동을 유지합니다.
+- 최신 ↓ 검증: [모델 32](Tests/results/2026-11-06/table-down-exit-model.log)·[WebKit 브라우저 모델 18/시각 입력 174](Tests/results/2026-11-06/table-down-exit-visual.log)·[native 저장/Undo/수명 33](Tests/results/2026-11-06/table-down-exit-native.log)·[WebKit 통합/레이아웃 50](Tests/results/2026-11-06/table-down-exit-webkit.log) 통과, 실패/SKIP 0. 모든 출발 열·이후 문단/제목/목록/인용/수식/표·문서 끝 표/인용 안 표·빈 셀/빈 후속 문단·접힌 마지막 행·Undo/Redo·재파싱을 확인했습니다. [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-down-exit-gui.json)·[기존 문단](Tests/results/2026-11-06/table-down-exit-gui.png)·[문서 끝](Tests/results/2026-11-06/table-down-end-gui.png)·[재열기](Tests/results/2026-11-06/table-down-end-reopened.png): 마지막 행 ↓ 후 기존 문단 시작 입력, 문서 끝 새 문단·Undo/Redo·⌘S·재열기·두 문서 전환/닫기·미리보기 0·앱 종료 확인.
+- ↑ 단계 검증(`84c2405`): [모델 32](Tests/results/2026-11-06/table-up-exit-model.log)·[WebKit 브라우저 모델 18/시각 입력 162](Tests/results/2026-11-06/table-up-exit-visual.log) 통과, 실패/SKIP 0. 모든 출발 열·이전 문단/제목/인용/목록/수식·문서 맨 앞 표/인용 안 표·Undo/Redo·재파싱·첫 행 여러 줄을 검사했습니다. 문단 삽입 시 바뀌는 빈 줄 경계 메타데이터 대신 기존 표 콘텐츠·재파싱·Undo 복원을 보존 기준으로 삼습니다. [빌드](Tests/results/2026-11-06/table-up-exit-build.log)·[GUI/디스크/종료](Tests/results/2026-11-06/table-up-exit-gui.json)·[기존 문단](Tests/results/2026-11-06/table-up-exit-gui.png)·[문서 시작](Tests/results/2026-11-06/table-up-start-gui.png): 실제 ↑ 후 앞 문단 입력, 맨 앞 새 문단·Undo/Redo·저장·두 문서 전환/닫기·미리보기 0·앱 종료 확인.
 
-- 초기 구현(`5774ad6`): 시각 편집기에 표 방향키 명령이 없어 WebKit의 선형 텍스트 이동이 인접 행/열과 달랐습니다. 위·아래는 같은 열의 이전/다음 행, 좌·우는 텍스트 시작/끝에서 같은 행의 옆 셀로 이동합니다. 셀 안의 글자·접힌 줄 이동은 native에 맡기며, 첫 행 ↑를 제외한 표 가장자리는 그대로 유지합니다. Shift/Option 등의 조합키는 가로채지 않습니다. 이동은 원문·dirty·Undo를 변경하지 않습니다.
+- 초기 구현(`5774ad6`): 시각 편집기에 표 방향키 명령이 없어 WebKit의 선형 텍스트 이동이 인접 행/열과 달랐습니다. 위·아래는 같은 열의 이전/다음 행, 좌·우는 텍스트 시작/끝에서 같은 행의 옆 셀로 이동합니다. 셀 안의 글자·접힌 줄 이동은 native에 맡기며, 이 초기 단계에서는 표 가장자리에 머물렀고, 현재는 위·아래 경계에 위의 탈출 계약을 적용합니다. Shift/Option 등의 조합키는 가로채지 않습니다. 기존 영역으로의 이동은 원문·dirty·Undo를 변경하지 않으며, 문서 경계의 새 문단 생성만 구조 변경입니다.
 - 초기 검증(첫 행 ↑ 탈출 요구 전): [TypeScript·모델 32](Tests/results/2026-11-06/table-arrows-model.log), [WebKit 브라우저 모델 18·시각 입력 138](Tests/results/2026-11-06/table-arrows-visual.log) 통과, 실패/SKIP 0. 3×3·표 경계·다른 표 보호·빈/짧은/이모지 셀·여러 줄 내부 이동·수정키를 검사했습니다. [Debug 빌드](Tests/results/2026-11-06/table-arrows-build.log)·[GUI/디스크 근거](Tests/results/2026-11-06/table-arrows-gui.json)·[화면](Tests/results/2026-11-06/table-arrows-gui.png): 네 방향 이동 뒤 대상 셀 입력·⌘S·두 문서 전환/닫기·미리보기 0개 확인.
-- 한계: GUI는 일반 단일 행 셀 네 방향을 확인했고, 여러 줄·빈 셀·Unicode·표 경계는 WebKit 자동 검증입니다. `.txt` Markdown fixture 사용·실제 IME/macOS 14 미검증은 35번과 같습니다.
+- 한계: GUI는 일반 네 방향·위/아래 탈출·문서 시작/끝을 확인했고, 여러 줄·빈 셀·Unicode·컨테이너별 세부 경계는 WebKit 자동 검증입니다. `.txt` Markdown fixture 사용·실제 IME/macOS 14 미검증은 35번과 같습니다.
 
 ## 35. Aa 표의 빈 셀 안내 문구
 

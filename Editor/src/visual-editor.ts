@@ -396,9 +396,13 @@ export class VisualEditor {
       : context.$from.parentOffset!==(backward?0:context.$from.parent.content.size)) return false;
     const target=this.tableCellAt(context.row+(vertical?(backward?-1:1):0),
       context.column+(vertical?0:(backward?-1:1)));
-    // The top edge exits to preceding content; other edges must not flatten
-    // cells into WebKit's linear text order.
-    if(!target) return direction==='up' && context.row===0 ? this.beforeTable() : true;
+    // Vertical table edges exit to surrounding content. Horizontal edges
+    // must not flatten cells into WebKit's linear text order.
+    if(!target) {
+      if(direction==='up' && context.row===0) return this.beforeTable();
+      if(direction==='down' && context.row===context.table.childCount-1) return this.afterTable();
+      return true;
+    }
     let pos=target.pos+(vertical?Math.min(context.$from.parentOffset,target.node.content.size)
       :backward?target.node.content.size:0);
     const $target=state.doc.resolve(pos);
@@ -415,6 +419,20 @@ export class VisualEditor {
     // With no preceding content, provide an editable area above the first
     // top-level block (also avoids an unrepresentable empty nested paragraph).
     const at=context.$from.before(1);
+    const tr=state.tr.insert(at,schema.nodes.paragraph.create());
+    tr.setSelection(TextSelection.create(tr.doc,at+1));
+    this.view.dispatch(closeHistory(tr).scrollIntoView());return true;
+  }
+  private afterTable() {
+    const context=this.tableContext(),state=this.session.state;
+    if(!context) return false;
+    const next=Selection.findFrom(state.doc.resolve(context.$from.after(context.depth)),1);
+    if(next) {
+      this.view.dispatch(state.tr.setSelection(next).scrollIntoView());return true;
+    }
+    // At document end, provide an editable area after the last top-level
+    // block, including when the final table is inside a container.
+    const at=context.$from.after(1);
     const tr=state.tr.insert(at,schema.nodes.paragraph.create());
     tr.setSelection(TextSelection.create(tr.doc,at+1));
     this.view.dispatch(closeHistory(tr).scrollIntoView());return true;

@@ -1,0 +1,10 @@
+{
+  "artifact": "/Users/jaehyeon/PersonalProjects/bloct/build/TableFollowup/Bloct-Test-Tables-DownExit.zip",
+  "bytes": 1416726,
+  "sha256": "aed07beb5e22bb6ed3674c1ce7d2efb4b12aafa734f1d6965ddbaecc832a9d18",
+  "configuration": "Debug",
+  "architecture": "arm64",
+  "bundle_id": "com.personal.Bloct.TableFollowup20261106",
+  "current_editor_resources_match": true,
+  "test_app_exited": true
+}

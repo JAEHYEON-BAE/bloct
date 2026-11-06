@@ -104,7 +104,7 @@ await check('table vertical arrows keep the column and leave the source and dirt
   assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='B');
   assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='E');
   assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='H');
-  assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='H','bottom edge stays in this table');
+  assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='X','bottom edge moves into the following area');
   selectTableCell(0,1);assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='Before');
   assert(serialized()===source && !editor.session.changed);
 });
@@ -146,6 +146,50 @@ await check('Up inside a wrapped first-row cell exits only from its first visual
   assert(!editor.view.endOfTextblock('up'));assert(!key('ArrowUp'));
   selectTableCell(0,1);assert(key('ArrowUp'));
   assert(editor.view.state.selection.$from.parent.textContent==='Before' && !editor.session.changed);
+});
+await check('Down from every last-row column exits to the following text block without editing',()=>{
+  for(const suffix of ['After','## After','> After','- After'])for(const column of [0,1,2]) {
+    const source='| A | B | C |\n| --- | --- | --- |\n| D | E | F |\n\n'+suffix;
+    fresh(source);selectTableCell(1,column,1);assert(key('ArrowDown'));
+    assert(editor.view.state.selection.$from.parent.textContent==='After');
+    assert(editor.view.state.selection.$from.parentOffset===0);
+    assert(serialized()===source && !editor.session.changed);
+    type('below ');assert(editor.session.doc.lastChild.textContent==='below After');
+    assert(editor.history(false));assert(serialized()===source && !editor.session.changed);
+  }
+});
+await check('Down after a document-end table creates an editable paragraph and Undo restores source',()=>{
+  for(const prefix of ['', '> ']) {
+    const source=prefix+'| A | B |\n'+prefix+'| --- | --- |\n'+prefix+'| C | D |';
+    fresh(source);const original=editor.session.doc;selectTableCell(1,1);assert(key('ArrowDown'));
+    assert(editor.session.doc.lastChild.type.name==='paragraph');
+    assert(editor.view.state.selection.$from.parent===editor.session.doc.lastChild);
+    assert(editor.session.doc.firstChild.eq(original.firstChild));serialized();
+    assert(editor.history(false));assert(editor.session.doc.eq(original) && serialized()===source);
+    assert(editor.history(true));type('Below table');
+    const reopened=BloctBlocks.importMarkdown(serialized()).doc;
+    assert(reopened.lastChild.textContent==='Below table');
+    assert(reopened.firstChild.type.name===(prefix?'blockquote':'table'));
+  }
+});
+await check('Down selects an immediately following atomic block without changing it',()=>{
+  const source='| A | B |\n| --- | --- |\n| C | D |\n\n$$x$$';
+  fresh(source);selectTableCell(1,1);assert(key('ArrowDown'));
+  assert(editor.view.state.selection.node?.type.name==='equation');
+  assert(serialized()===source && !editor.session.changed);
+});
+await check('Down inside a wrapped last-row cell exits only from its last visual line',()=>{
+  fresh('| A | B |\n| --- | --- |\n| short | '+('wrapped words '.repeat(40)).trim()+' |\n\nAfter');
+  host.style.width='240px';const cell=selectTableCell(1,1,100);
+  assert(!editor.view.endOfTextblock('down'));assert(!key('ArrowDown'));
+  selectTableCell(1,1,cell.content.size);assert(key('ArrowDown'));
+  assert(editor.view.state.selection.$from.parent.textContent==='After' && !editor.session.changed);
+});
+await check('Down from an empty last-row cell uses the following empty paragraph without inserting another',()=>{
+  fresh();assert(editor.format('table'));const before=editor.session.doc;
+  selectTableCell(1,1);assert(key('ArrowDown'));
+  assert(editor.view.state.selection.$from.parent===editor.session.doc.lastChild);
+  assert(editor.session.doc.eq(before));serialized();
 });
 await check('horizontal cell arrows cross only at text edges and never wrap to another row',()=>{
   fresh('| AA | BB |\n| --- | --- |\n| CC | DD |');
