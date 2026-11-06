@@ -1,5 +1,5 @@
 import {EditorView, Decoration, DecorationSet, type NodeView} from '@tiptap/pm/view';
-import {Plugin, TextSelection, NodeSelection, type Command, type EditorState, type Transaction} from '@tiptap/pm/state';
+import {Plugin, Selection, TextSelection, NodeSelection, type Command, type EditorState, type Transaction} from '@tiptap/pm/state';
 import {InputRule, inputRules, undoInputRule} from '@tiptap/pm/inputrules';
 import {keymap} from '@tiptap/pm/keymap';
 import {baseKeymap, chainCommands, exitCode, lift, liftEmptyBlock, newlineInCode, setBlockType, splitBlock, toggleMark, wrapIn} from '@tiptap/pm/commands';
@@ -396,13 +396,28 @@ export class VisualEditor {
       : context.$from.parentOffset!==(backward?0:context.$from.parent.content.size)) return false;
     const target=this.tableCellAt(context.row+(vertical?(backward?-1:1):0),
       context.column+(vertical?0:(backward?-1:1)));
-    // Consume edge arrows: WebKit otherwise flattens cells into text order.
-    if(!target) return true;
+    // The top edge exits to preceding content; other edges must not flatten
+    // cells into WebKit's linear text order.
+    if(!target) return direction==='up' && context.row===0 ? this.beforeTable() : true;
     let pos=target.pos+(vertical?Math.min(context.$from.parentOffset,target.node.content.size)
       :backward?target.node.content.size:0);
     const $target=state.doc.resolve(pos);
     if(/[\uD800-\uDBFF]$/.test($target.nodeBefore?.text??'') && /^[\uDC00-\uDFFF]/.test($target.nodeAfter?.text??'')) pos--;
     this.view.dispatch(state.tr.setSelection(TextSelection.create(state.doc,pos)).scrollIntoView());return true;
+  }
+  private beforeTable() {
+    const context=this.tableContext(),state=this.session.state;
+    if(!context) return false;
+    const previous=Selection.findFrom(state.doc.resolve(context.$from.before(context.depth)),-1);
+    if(previous) {
+      this.view.dispatch(state.tr.setSelection(previous).scrollIntoView());return true;
+    }
+    // With no preceding content, provide an editable area above the first
+    // top-level block (also avoids an unrepresentable empty nested paragraph).
+    const at=context.$from.before(1);
+    const tr=state.tr.insert(at,schema.nodes.paragraph.create());
+    tr.setSelection(TextSelection.create(tr.doc,at+1));
+    this.view.dispatch(closeHistory(tr).scrollIntoView());return true;
   }
   private nextCell(back:boolean,nextRow=false) {
     const context=this.tableContext();

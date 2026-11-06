@@ -59,7 +59,8 @@ for a subtle highlight, then click it to edit; Enter/Space also opens the dialog
 when the formula has keyboard focus.
 
 In tables, empty cells stay blank. Arrow keys move between adjacent cells at text/line
-boundaries. Enter moves to the first cell of the next row; from the last row it creates a
+boundaries. Up from the first row moves before the table, creating a paragraph above
+the first document block if necessary. Enter moves to the first cell of the next row; from the last row it creates a
 text paragraph below the current table. Tab moves to the next cell. Shift-Enter inserts an empty row immediately below the current
 row, including in the middle of a table, and keeps the cursor in the same column.
 

@@ -99,14 +99,53 @@ await check('empty table cells stay blank while ordinary text placeholders remai
   type('typed');assert(host.querySelector('td').textContent==='typed');serialized();
 });
 await check('table vertical arrows keep the column and leave the source and dirty state unchanged',()=>{
-  const source='| A | B | C |\n| --- | --- | --- |\n| D | E | F |\n| G | H | I |\n\n| X | Y |\n| --- | --- |\n| Z | W |';
+  const source='Before\n\n| A | B | C |\n| --- | --- | --- |\n| D | E | F |\n| G | H | I |\n\n| X | Y |\n| --- | --- |\n| Z | W |';
   fresh(source);selectTableCell(1,1);
   assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='B');
   assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='E');
   assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='H');
   assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='H','bottom edge stays in this table');
-  selectTableCell(0,1);assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='B');
+  selectTableCell(0,1);assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='Before');
   assert(serialized()===source && !editor.session.changed);
+});
+await check('Up from every first-row column exits to the preceding text block without editing',()=>{
+  for(const prefix of ['Before','## Before','> Before','- Before'])for(const column of [0,1,2]) {
+    const source=prefix+'\n\n| A | B | C |\n| --- | --- | --- |\n| D | E | F |';
+    fresh(source);selectTableCell(0,column);assert(key('ArrowUp'));
+    assert(editor.view.state.selection.$from.parent.textContent==='Before');
+    assert(editor.view.state.selection.$from.parentOffset===6);
+    assert(serialized()===source && !editor.session.changed);
+    type(' up');assert(editor.session.doc.firstChild.textContent==='Before up');
+    assert(editor.history(false));assert(serialized()===source && !editor.session.changed);
+  }
+});
+await check('Up before a document-start table creates an editable paragraph and Undo restores the exact table',()=>{
+  for(const prefix of ['', '> ']) {
+    const source=prefix+'| A | B |\n'+prefix+'| --- | --- |\n'+prefix+'| C | D |';
+    fresh(source);const original=editor.session.doc;selectTableCell(0,1);assert(key('ArrowUp'));
+    assert(editor.session.doc.firstChild.type.name==='paragraph');
+    assert(editor.view.state.selection.$from.parent===editor.session.doc.firstChild);
+    assert(editor.session.doc.child(1).type===original.firstChild.type
+      && editor.session.doc.child(1).content.eq(original.firstChild.content),'table contents preserved after its blank-line prefix changes');serialized();
+    assert(editor.history(false));assert(editor.session.doc.eq(original) && serialized()===source);
+    assert(editor.history(true));type('Above table');
+    const reopened=BloctBlocks.importMarkdown(serialized()).doc;
+    assert(reopened.firstChild.textContent==='Above table');
+    assert(reopened.child(1).type.name===(prefix?'blockquote':'table'));
+  }
+});
+await check('Up selects an immediately preceding atomic block without deleting or skipping it',()=>{
+  const source='$$x$$\n\n| A | B |\n| --- | --- |\n| C | D |';
+  fresh(source);selectTableCell(0,1);assert(key('ArrowUp'));
+  assert(editor.view.state.selection.node?.type.name==='equation');
+  assert(serialized()===source && !editor.session.changed);
+});
+await check('Up inside a wrapped first-row cell exits only from its first visual line',()=>{
+  fresh('Before\n\n| A | '+('wrapped words '.repeat(40)).trim()+' |\n| --- | --- |\n| C | D |');
+  host.style.width='240px';selectTableCell(0,1,100);
+  assert(!editor.view.endOfTextblock('up'));assert(!key('ArrowUp'));
+  selectTableCell(0,1);assert(key('ArrowUp'));
+  assert(editor.view.state.selection.$from.parent.textContent==='Before' && !editor.session.changed);
 });
 await check('horizontal cell arrows cross only at text edges and never wrap to another row',()=>{
   fresh('| AA | BB |\n| --- | --- |\n| CC | DD |');

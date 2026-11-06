@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-06",
+  "app_path": "/Users/jaehyeon/PersonalProjects/bloct/build/TableFollowup/Bloct.app",
+  "snapshot_app": "/Users/jaehyeon/PersonalProjects/bloct/build/TableFollowupSnapshots/UpExit.app",
+  "bundle_id": "com.personal.Bloct.TableFollowup20261106",
+  "observed": [
+    "First-row B, Up, type UP -> preceding paragraph becomes Before table.UP; saved (serializer escapes the literal period).",
+    "Opened start.txt alongside up.txt. First-row B, Up -> Text placeholder above the document-start table.",
+    "Command-Z removes new paragraph; Command-Shift-Z restores it; type ABOVE and save.",
+    "Close start -> up document; close up, Quit; fresh inventory confirms isRunning false."
+  ],
+  "saved_up": "# Up exit\n\nBefore table\\.UP\n\n| A | B |\n| --- | --- |\n| C | D |\n\nAfter table.\n",
+  "saved_start": "ABOVE\n\n| A | B |\n| --- | --- |\n| C | D |\n",
+  "remaining_previews": 0,
+  "app_exited": true,
+  "editor_sha256": "aa8545886992d38c262249ebc89875ff5924cf0b798e2c3a82d7b15889533e14",
+  "limits": [
+    "Temporary .txt containing Markdown; real IME untested.",
+    "Previous heading/list/quote/atomic blocks and wrapped first-row cells covered by WebKit automated tests; GUI used preceding paragraph and document-start table."
+  ]
+}
