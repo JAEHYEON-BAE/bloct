@@ -289,6 +289,8 @@ export class VisualEditor {
         dispatch?.(state.tr.replaceSelectionWith(schema.nodes.hard_break.create()).scrollIntoView()); return true;
       },
       'Mod-Enter':(state,dispatch) => exitCode(state,dispatch) || this.afterRoot(),
+      ArrowUp:() => this.arrowCell('up'), ArrowDown:() => this.arrowCell('down'),
+      ArrowLeft:() => this.arrowCell('left'), ArrowRight:() => this.arrowCell('right'),
       Tab: (state,dispatch) => this.inTable() ? this.nextCell(false) : sinkListItem(schema.nodes.list_item)(state,dispatch),
       'Shift-Tab':(state,dispatch) => this.inTable() ? this.nextCell(true) : liftListItem(schema.nodes.list_item)(state,dispatch),
     }),keymap(baseKeymap),new Plugin({props:{decorations:state => this.decorations(state)}})];
@@ -365,6 +367,42 @@ export class VisualEditor {
     tr.setSelection(TextSelection.create(tr.doc,at+1));this.view.dispatch(closeHistory(tr));return true;
   }
   private inTable() {return this.session.state.selection.$from.parent.type===schema.nodes.table_cell;}
+  private tableContext() {
+    const {$from}=this.session.state.selection;
+    if($from.parent.type!==schema.nodes.table_cell || $from.depth<3) return null;
+    const depth=$from.depth-2, table=$from.node(depth);
+    if(table.type!==schema.nodes.table) return null;
+    return {$from,table,depth,row:$from.index(depth),column:$from.index(depth+1)};
+  }
+  private tableCellAt(row:number,column:number) {
+    const context=this.tableContext();
+    if(!context || row<0 || row>=context.table.childCount) return null;
+    const targetRow=context.table.child(row);
+    if(column<0 || column>=targetRow.childCount) return null;
+    let pos=context.$from.start(context.depth);
+    for(let i=0;i<row;i++) pos+=context.table.child(i).nodeSize;
+    pos++; // Row content starts after its opening token.
+    for(let i=0;i<column;i++) pos+=targetRow.child(i).nodeSize;
+    return {node:targetRow.child(column),pos:pos+1};
+  }
+  private arrowCell(direction:'up'|'down'|'left'|'right') {
+    const context=this.tableContext(),state=this.session.state;
+    if(!context || !state.selection.empty || this.view.composing) return false;
+    const vertical=direction==='up'||direction==='down';
+    const backward=direction==='up'||direction==='left';
+    // Keep ordinary character and wrapped-line movement inside the cell native.
+    if(vertical ? !this.view.endOfTextblock(direction,state)
+      : context.$from.parentOffset!==(backward?0:context.$from.parent.content.size)) return false;
+    const target=this.tableCellAt(context.row+(vertical?(backward?-1:1):0),
+      context.column+(vertical?0:(backward?-1:1)));
+    // Consume edge arrows: WebKit otherwise flattens cells into text order.
+    if(!target) return true;
+    let pos=target.pos+(vertical?Math.min(context.$from.parentOffset,target.node.content.size)
+      :backward?target.node.content.size:0);
+    const $target=state.doc.resolve(pos);
+    if(/[\uD800-\uDBFF]$/.test($target.nodeBefore?.text??'') && /^[\uDC00-\uDFFF]/.test($target.nodeAfter?.text??'')) pos--;
+    this.view.dispatch(state.tr.setSelection(TextSelection.create(state.doc,pos)).scrollIntoView());return true;
+  }
   private nextCell(back:boolean) {
     const selection=this.session.state.selection;
     const cells:number[]=[];

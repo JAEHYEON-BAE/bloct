@@ -21,6 +21,12 @@ const key=(value,options={})=>{
   let handled=false;editor.view.someProp('handleKeyDown',handler=>{handled=handler(editor.view,event);return handled;});return handled;
 };
 const serialized=()=>editor.session.markdown();
+const selectTableCell=(row,column,offset=0,tableIndex=0)=>{
+  const tables=[];editor.session.doc.descendants(n=>{if(n.type.name==='table')tables.push(n);});
+  const cell=tables[tableIndex].child(row).child(column);
+  assert(editor.session.setSelection(editor.session.reference(cell.attrs.id),offset));
+  editor.view.updateState(editor.session.state);editor.focus();return cell;
+};
 
 for(let level=1;level<=6;level++)await check(`H${level}: typed marker converts to editable heading and placeholder`,()=>{
   fresh();type('#'.repeat(level)+' ');
@@ -91,6 +97,43 @@ await check('empty table cells stay blank while ordinary text placeholders remai
   assert(!host.querySelector('td[data-placeholder],td.is-empty'));
   assert(host.querySelector('p[data-placeholder="Text"]'),'paragraph placeholder preserved');
   type('typed');assert(host.querySelector('td').textContent==='typed');serialized();
+});
+await check('table vertical arrows keep the column and leave the source and dirty state unchanged',()=>{
+  const source='| A | B | C |\n| --- | --- | --- |\n| D | E | F |\n| G | H | I |\n\n| X | Y |\n| --- | --- |\n| Z | W |';
+  fresh(source);selectTableCell(1,1);
+  assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='B');
+  assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='E');
+  assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='H');
+  assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.textContent==='H','bottom edge stays in this table');
+  selectTableCell(0,1);assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='B');
+  assert(serialized()===source && !editor.session.changed);
+});
+await check('horizontal cell arrows cross only at text edges and never wrap to another row',()=>{
+  fresh('| AA | BB |\n| --- | --- |\n| CC | DD |');
+  selectTableCell(1,1,1);assert(!key('ArrowLeft'));assert(!key('ArrowRight'));
+  selectTableCell(1,1);assert(key('ArrowLeft'));assert(editor.view.state.selection.$from.parent.textContent==='CC');
+  assert(editor.view.state.selection.$from.parentOffset===2);
+  assert(key('ArrowRight'));assert(editor.view.state.selection.$from.parent.textContent==='DD');
+  assert(editor.view.state.selection.$from.parentOffset===0);
+  selectTableCell(1,0);assert(key('ArrowLeft'));assert(editor.view.state.selection.$from.parent.textContent==='CC');
+  selectTableCell(0,1,2);assert(key('ArrowRight'));assert(editor.view.state.selection.$from.parent.textContent==='BB');
+  assert(!key('ArrowUp',{shiftKey:true}) && !key('ArrowLeft',{altKey:true}));
+  assert(!editor.session.changed);
+});
+await check('vertical cell navigation handles empty, short and Unicode target text',()=>{
+  fresh('| A | 😀 |\n| --- | --- |\n|  | Long |');
+  selectTableCell(1,1,1);assert(key('ArrowUp'));assert(editor.view.state.selection.$from.parent.textContent==='😀');
+  assert(editor.view.state.selection.$from.parentOffset===0,'no surrogate split');
+  selectTableCell(0,0,1);assert(key('ArrowDown'));assert(editor.view.state.selection.$from.parent.content.size===0);
+  assert(editor.view.state.selection.$from.parentOffset===0);serialized();
+});
+await check('wrapped table cells keep native vertical movement until the first or last visual line',()=>{
+  fresh('| A | B |\n| --- | --- |\n| short | '+('wrapped words '.repeat(40)).trim()+' |');
+  host.style.width='240px';
+  const cell=selectTableCell(1,1,100);
+  assert(!editor.view.endOfTextblock('up') && !editor.view.endOfTextblock('down'));
+  assert(!key('ArrowUp') && !key('ArrowDown'));
+  assert(editor.view.state.selection.$from.parent===cell && !editor.session.changed);
 });
 await check('bold, italic, inline code, inline math, link and image input rules',()=>{
   const examples=[['**bold**','strong','bold'],['*italic*','em','italic'],['`code`','code','code'],

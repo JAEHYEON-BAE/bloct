@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-06",
+  "app_path": "/Users/jaehyeon/PersonalProjects/bloct/build/TableStep2/Bloct.app",
+  "bundle_id": "com.personal.Bloct.TableStep2",
+  "observed": [
+    "Aa; click E, Up, type U -> B cell becomes UB.",
+    "Down twice, type V -> H cell becomes HV.",
+    "Click E, Home, Left, type L -> D cell becomes DL.",
+    "Right, type R -> E cell becomes RE. Command-S clears Edited.",
+    "Open second.txt alongside arrows.txt; close second -> arrows with saved content; close arrows -> noWindowsAvailable."
+  ],
+  "saved_markdown": "# Arrow grid\n\n| A | UB | C |\n| --- | --- | --- |\n| DL | RE | F |\n| G | HV | I |\n\nEnd marker.\n",
+  "second_document_unchanged": true,
+  "remaining_previews": 0,
+  "editor_sha256": "3859230a8018da46e3442db679288c3d27a7780928b42133e2dfe4ce83f5402c",
+  "limits": [
+    "GUI uses .txt containing Markdown because isolated Open panel disables .md (existing F3 scope).",
+    "Wrapped-line/empty/Unicode/boundary and modifier cases verified by actual WebKit DOM tests; GUI covered four ordinary arrows.",
+    "No real IME or macOS 14 hardware validation."
+  ]
+}
