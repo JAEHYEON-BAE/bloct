@@ -381,12 +381,11 @@ export class VisualEditor {
       if(node.attrs.id && node.isBlock) {
         const attrs:Record<string,string>={'data-block-id':node.attrs.id};
         if(node.type===schema.nodes.heading) attrs.id='block-'+node.attrs.id;
-        if(node.isTextblock && !node.content.size) {
+        if(node.isTextblock && !node.content.size && node.type!==schema.nodes.table_cell) {
           let label=node.type===schema.nodes.heading ? `Header ${node.attrs.level}` : node.type===schema.nodes.code_block ? 'Code' : 'Text';
           const parent=state.doc.resolve(pos).parent;
           if(parent.type===schema.nodes.blockquote) label='Quote';
           if(parent.type===schema.nodes.list_item) label=parent.attrs.checked==null?'List item':'To-do';
-          if(node.type===schema.nodes.table_cell) label='Cell';
           attrs['data-placeholder']=label; attrs.class='is-empty';
         }
         decorations.push(Decoration.node(pos,pos+node.nodeSize,attrs));

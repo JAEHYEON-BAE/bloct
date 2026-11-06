@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-06",
+  "app_path": "/Users/jaehyeon/PersonalProjects/bloct/build/TableStep1/Bloct.app",
+  "bundle_id": "com.personal.Bloct.TableStep1",
+  "observed": [
+    "Aa entered Visual Editor; two empty cells showed no Cell text (screenshot).",
+    "Clicked empty Value cell on A row, typed GUI, Command-S; Edited cleared.",
+    "Command-W closed the document; CUA reported noWindowsAvailable."
+  ],
+  "saved_markdown": "# Blank cells\n\n| Name | Value |\n| --- | --- |\n| A | GUI |\n|  | B |\n\nEnd marker.\n",
+  "remaining_previews": 0,
+  "editor_sha256": "6b77d7e71a2b179561aae250fc04bd9c8685734949220bce691ca39d46a8dd50",
+  "limits": [
+    "The isolated bundle Open panel disabled .md; same Markdown content was opened through supported .txt. File-type metadata is the existing F3 follow-up.",
+    "No actual IME or macOS 14 hardware validation."
+  ]
+}

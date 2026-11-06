@@ -81,6 +81,17 @@ for(const kind of ['paragraph','heading_1','heading_2','heading_3','heading_4','
     serialized();
   });
 }
+await check('empty table cells stay blank while ordinary text placeholders remain',()=>{
+  fresh('| A |  |\n| --- | --- |\n|  | B |');
+  assert(host.querySelectorAll('td').length===4);
+  assert(!host.querySelector('td[data-placeholder],td.is-empty'));
+  assert([...host.querySelectorAll('td')].filter(cell=>!cell.textContent).length===2);
+  assert(!serialized().includes('Cell'));
+  fresh();assert(editor.format('table'));
+  assert(!host.querySelector('td[data-placeholder],td.is-empty'));
+  assert(host.querySelector('p[data-placeholder="Text"]'),'paragraph placeholder preserved');
+  type('typed');assert(host.querySelector('td').textContent==='typed');serialized();
+});
 await check('bold, italic, inline code, inline math, link and image input rules',()=>{
   const examples=[['**bold**','strong','bold'],['*italic*','em','italic'],['`code`','code','code'],
     ['$x+1$',null,'inline_math'],['[link](https://example.invalid)','link','link'],['![alt](a.png)',null,'image_block']];
