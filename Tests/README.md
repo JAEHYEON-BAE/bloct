@@ -36,7 +36,7 @@ rules, H1–H6/quote/list/task/code placeholders, all 16 menu formats, inline ma
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus attached matrix delimiters, display mode, formula-surface editing and Undo.
-The 128 visual checks simulate DOM events/engine text handlers, including formula
+The 200 visual checks simulate DOM events/engine text handlers, including formula
 click/keyboard activation, Read/freeze guards, drag suppression and pointer CSS, inline-code termination, input-rule Undo caret
 restoration and unsaved handoff/freeze/baseline restoration. Dollar tests cover
 empty/unclosed text, a completed block equation, Enter/Shift-Enter multiline drafts,
@@ -68,10 +68,19 @@ performance require separate validation. CUA evidence and current limitations ar
 linked in F5. All harnesses leave the installed app untouched.
 
 `sh Tests/run-webkit.sh` also runs [EditorSwitchLayout.js](EditorSwitchLayout.js):
-22 renderer/security/math checks plus 28 layout checks at 900/640px with TOC on/off.
+51 renderer/security/math/new-document/layout checks at 900/640px with TOC on/off.
 It compares common block geometry and fonts, visible heading offset by toolbar height,
 source/page identity and repeated roundtrip drift. Intermediate coordinates use a
-16ms timer because offscreen WebKit suspends rAF; this is not painted-frame video.
+16ms timer because offscreen WebKit suspends rAF; this is not painted-frame video. The same runner also executes
+[EditorAppearance.js](EditorAppearance.js): 864 appearance/interaction checks across
+15 element groups at 900/640px, light/dark, 100/125% page zoom and TOC on/off.
+It checks checkboxes, nested/ordered lists, headings, inline styles and whitespace,
+code, quotes, aligned/striped tables, rules, block/inline/sized/captioned images,
+and sanitized read-only source previews. Element geometry uses 0.1 CSS px tolerance;
+word Range edges allow 1px (width 1.25px) for WebKit collapsed-space rounding.
+Image editing/Undo/snapshots, blank clicks after images and inert author inputs are
+also exercised. Set `BLOCT_APPEARANCE_SNAPSHOTS=/absolute/path/prefix` to save
+optional before/after paragraph PNG crops; these are not a pixel-identity assertion.
 
 
 ## Current app regression checks

@@ -1,0 +1,152 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-webkit-tests.eEy0dV/Regression.app: 1 (Operation not permitted)
+PASS: bundled sanitizer and initial renderer load under CSP
+PASS: state-space matrix and later equation render completely in Markdown mode
+PASS: Aa mode retains the whole state-space matrix and following equation
+PASS: identical original TeX and display/inline mode across Aa (11 equations)
+PASS: identical math font/size and glyph geometry across Aa (11 equations, <0.1px)
+PASS: Aa display preserves exact Markdown and clean state
+PASS: formula surfaces are accessible click targets without Edit controls
+PASS: literal internal-looking placeholders remain unchanged
+PASS: bundled math renders inline/display without external resources
+PASS: Markdown and offline inline/display math survive sanitizing
+PASS: sanitizer preserves math markup
+PASS: untrusted HTML loses executable attributes, dangerous URLs and editor impersonation
+PASS: user HTML cannot create editor blocks
+PASS: malicious HTML cannot send an edit through the native bridge
+PASS: custom image attributes are escaped and local image URLs survive
+PASS: relative local images survive sanitizing
+PASS: relative local image actually loads from the unique preview file
+PASS: CSP independently blocks event handlers and untrusted inline scripts
+PASS: remote page navigation is blocked
+PASS: authorized preview can still commit through the native bridge
+PASS: new-document inline HTML load works with navigation policy
+PASS: new-document inline page retains native bridge access
+Empty document Aa: ["ok": 1]
+PASS [layout 900, TOC false]: Aa reuses the JS document and exact source
+PASS [layout 900, TOC false]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 900, TOC false]: Aa moves the visible heading only by the formatting row height
+PASS [layout 900, TOC false]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 900, TOC false]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 900, TOC false]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 900, TOC false]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+PASS [layout 900, TOC true]: Aa reuses the JS document and exact source
+PASS [layout 900, TOC true]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 900, TOC true]: Aa moves the visible heading only by the formatting row height
+PASS [layout 900, TOC true]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 900, TOC true]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 900, TOC true]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 900, TOC true]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+PASS [layout 640, TOC false]: Aa reuses the JS document and exact source
+PASS [layout 640, TOC false]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 640, TOC false]: Aa moves the visible heading only by the formatting row height
+PASS [layout 640, TOC false]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 640, TOC false]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 640, TOC false]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 640, TOC false]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+PASS [layout 640, TOC true]: Aa reuses the JS document and exact source
+PASS [layout 640, TOC true]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 640, TOC true]: Aa moves the visible heading only by the formatting row height
+PASS [layout 640, TOC true]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 640, TOC true]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 640, TOC true]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 640, TOC true]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+FAIL [appearance 900]: checkboxes: same geometry, fonts, colors and decoration across Aa
+[{"i":1,"key":"x","before":252,"after":259.5},{"i":1,"key":"width","before":18,"after":12.375},{"i":1,"key":"height","before":18,"after":12.375},{"i":1,"key":"fontFamily","before":"-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif","after":"system-ui"},{"i":1,"key":"fontSize","before":"16px","after":"11px"},{"i":1,"key":"lineHeight","before":"25.6px","after":"normal"},{"i":1,"key":"borderTopWidth","before":"1.5px","after":"0px"},{"i":1,"key":"borderTopStyle","before":"solid","after":"none"},{"i":1,"key":"borderTopColor","before":"rgb(99, 108, 118)","after":"rgb(0, 0, 0)"},{"i":1,"key":"appearance","before":"none","after":"auto"},{"i":1,"checkmark":[{"content":"\"\"","width":"4.796875px","height":"9.59375px","borderRightWidth":"1.5px","borderRightColor":"rgb(255, 255, 255)","transform":"matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, -1.28)","opacity":"0"},{"content":"none","width":"auto","height":"auto","borderRightWidth":"0px","borderRightColor":"rgb(0, 0, 0)","transform":"none","opacity":"1"}]},{"i":2,"key":"height","before":55.1875,"after":51.1875},{"i":3,"key":"x","before":252,"after":259.5},{"i":3,"key":"width","before":18,"after":12.375},{"i":3,"key":"height","before":18,"after":12.375},{"i":3,"key":"fontFamily","before":"-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif","after":"system-ui"},{"i":3,"key":"fontSize","before":"16px","after":"11px"},{"i":3,"key":"lineHeight","before":"25.6px","after":"normal"},{"i":3,"key":"backgroundColor","before":"rgb(9, 105, 218)","after":"rgba(0, 0, 0, 0)"},{"i":3,"key":"borderTopWidth","before":"1.5px","after":"0px"},{"i":3,"key":"borderTopStyle","before":"solid","after":"none"},{"i":3,"key":"borderTopColor","before":"rgb(9, 105, 218)","after":"rgb(0, 0, 0)"},{"i":3,"key":"appearance","before":"none","after":"auto"},{"i":3,"checkmark":[{"content":"\"\"","width":"4.796875px","height":"9.59375px","borderRightWidth":"1.5px","borderRightColor":"rgb(255, 255, 255)","transform":"matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, -1.28)","opacity":"1"},{"content":"none","width":"auto","height":"auto","borderRightWidth":"0px","borderRightColor":"rgb(0, 0, 0)","transform":"none","opacity":"1"}]},{"i":5,"key":"x","before":284,"after":291.5},{"i":5,"key":"width","before":18,"after":12.375},{"i":5,"key":"height","before":18,"after":12.375},{"i":5,"key":"fontFamily","before":"-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif","after":"system-ui"},{"i":5,"key":"fontSize","before":"16px","after":"11px"},{"i":5,"key":"lineHeight","before":"25.6px","after":"normal"},{"i":5,"key":"borderTopWidth","before":"1.5px","after":"0px"},{"i":5,"key":"borderTopStyle","before":"solid","after":"none"},{"i":5,"key":"borderTopColor","before":"rgb(99, 108, 118)","after":"rgb(0, 0, 0)"},{"i":5,"key":"appearance","before":"none","after":"auto"},{"i":5,"checkmark":[{"content":"\"\"","width":"4.796875px","height":"9.59375px","borderRightWidth":"1.5px","borderRightColor":"rgb(255, 255, 255)","transform":"matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, -1.28)","opacity":"0"},{"content":"none","width":"auto","height":"auto","borderRightWidth":"0px","borderRightColor":"rgb(0, 0, 0)","transform":"none","opacity":"1"}]}]
+PASS [appearance 900]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900]: checkboxes: leaving Aa preserves source
+PASS [appearance 900]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900]: loose lists: leaving Aa preserves source
+FAIL [appearance 900]: nested lists: same geometry, fonts, colors and decoration across Aa
+[{"i":0,"key":"height","before":114.375,"after":122.375},{"i":1,"key":"height","before":84.78125,"after":80.78125},{"i":2,"key":"marginTop","before":"4px","after":"0px"},{"i":2,"key":"marginBottom","before":"0px","after":"16px"}]
+PASS [appearance 900]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900]: nested lists: leaving Aa preserves source
+PASS [appearance 900]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900]: ordered lists: leaving Aa preserves source
+PASS [appearance 900]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900]: headings: preview keeps exact source and clean state
+PASS [appearance 900]: headings: leaving Aa preserves source
+PASS [appearance 900]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900]: inline styles: leaving Aa preserves source
+PASS [appearance 900]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900]: code: preview keeps exact source and clean state
+PASS [appearance 900]: code: leaving Aa preserves source
+PASS [appearance 900]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900]: quote: preview keeps exact source and clean state
+PASS [appearance 900]: quote: leaving Aa preserves source
+FAIL [appearance 900]: table: same geometry, fonts, colors and decoration across Aa
+[{"i":1,"key":"textAlign","before":"center","after":"start"},{"i":2,"key":"textAlign","before":"-webkit-left","after":"start"},{"i":3,"key":"textAlign","before":"-webkit-center","after":"start"},{"i":4,"key":"textAlign","before":"-webkit-right","after":"start"},{"i":6,"key":"textAlign","before":"-webkit-left","after":"start"},{"i":7,"key":"textAlign","before":"-webkit-center","after":"start"},{"i":8,"key":"textAlign","before":"-webkit-right","after":"start"}]
+PASS [appearance 900]: table: preview keeps exact source and clean state
+PASS [appearance 900]: table: leaving Aa preserves source
+PASS [appearance 900]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900]: rule: preview keeps exact source and clean state
+PASS [appearance 900]: rule: leaving Aa preserves source
+FAIL [appearance 900]: image: same geometry, fonts, colors and decoration across Aa
+[{"count":[3,2]},{"i":0,"key":"x","before":244,"after":252},{"i":0,"key":"width","before":632,"after":1},{"i":0,"key":"height","before":25.59375,"after":1},{"i":0,"key":"borderRadius","before":"0px","after":"6px"},{"i":0,"key":"marginBottom","before":"16px","after":"0px"},{"i":1,"key":"width","before":1,"after":632},{"i":1,"key":"height","before":1,"after":25.59375},{"i":1,"key":"borderRadius","before":"6px","after":"0px"},{"i":1,"key":"marginBottom","before":"0px","after":"16px"}]
+PASS [appearance 900]: image: preview keeps exact source and clean state
+PASS [appearance 900]: image: leaving Aa preserves source
+FAIL [appearance 900]: image attributes: same geometry, fonts, colors and decoration across Aa
+[{"i":0,"key":"x","before":528,"after":252},{"i":0,"key":"width","before":64,"after":1},{"i":0,"key":"height","before":48,"after":1},{"i":0,"key":"textAlign","before":"center","after":"start"}]
+PASS [appearance 900]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900]: image attributes: leaving Aa preserves source
+FAIL [appearance 900]: image caption: same geometry, fonts, colors and decoration across Aa
+[{"i":0,"key":"x","before":244,"after":252},{"i":0,"key":"width","before":64,"after":1},{"i":0,"key":"height","before":64,"after":1}]
+PASS [appearance 900]: image caption: preview keeps exact source and clean state
+PASS [appearance 900]: image caption: leaving Aa preserves source
+FAIL [appearance 900]: protected HTML: same geometry, fonts, colors and decoration across Aa
+[{"count":[3,1]},{"i":0,"key":"width","before":121.890625,"after":632},{"i":0,"key":"height","before":18.84375,"after":25.59375},{"i":0,"key":"fontWeight","before":"700","after":"400"},{"i":0,"key":"marginBottom","before":"0px","after":"16px"}]
+PASS [appearance 900]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900]: protected HTML: leaving Aa preserves source
+FAIL [appearance 640]: checkboxes: same geometry, fonts, colors and decoration across Aa
+[{"i":1,"key":"x","before":252,"after":259.5},{"i":1,"key":"width","before":18,"after":12.375},{"i":1,"key":"height","before":18,"after":12.375},{"i":1,"key":"fontFamily","before":"-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif","after":"system-ui"},{"i":1,"key":"fontSize","before":"16px","after":"11px"},{"i":1,"key":"lineHeight","before":"25.6px","after":"normal"},{"i":1,"key":"borderTopWidth","before":"1.5px","after":"0px"},{"i":1,"key":"borderTopStyle","before":"solid","after":"none"},{"i":1,"key":"borderTopColor","before":"rgb(99, 108, 118)","after":"rgb(0, 0, 0)"},{"i":1,"key":"appearance","before":"none","after":"auto"},{"i":1,"checkmark":[{"content":"\"\"","width":"4.796875px","height":"9.59375px","borderRightWidth":"1.5px","borderRightColor":"rgb(255, 255, 255)","transform":"matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, -1.28)","opacity":"0"},{"content":"none","width":"auto","height":"auto","borderRightWidth":"0px","borderRightColor":"rgb(0, 0, 0)","transform":"none","opacity":"1"}]},{"i":2,"key":"height","before":55.1875,"after":51.1875},{"i":3,"key":"x","before":252,"after":259.5},{"i":3,"key":"width","before":18,"after":12.375},{"i":3,"key":"height","before":18,"after":12.375},{"i":3,"key":"fontFamily","before":"-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif","after":"system-ui"},{"i":3,"key":"fontSize","before":"16px","after":"11px"},{"i":3,"key":"lineHeight","before":"25.6px","after":"normal"},{"i":3,"key":"backgroundColor","before":"rgb(9, 105, 218)","after":"rgba(0, 0, 0, 0)"},{"i":3,"key":"borderTopWidth","before":"1.5px","after":"0px"},{"i":3,"key":"borderTopStyle","before":"solid","after":"none"},{"i":3,"key":"borderTopColor","before":"rgb(9, 105, 218)","after":"rgb(0, 0, 0)"},{"i":3,"key":"appearance","before":"none","after":"auto"},{"i":3,"checkmark":[{"content":"\"\"","width":"4.796875px","height":"9.59375px","borderRightWidth":"1.5px","borderRightColor":"rgb(255, 255, 255)","transform":"matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, -1.28)","opacity":"1"},{"content":"none","width":"auto","height":"auto","borderRightWidth":"0px","borderRightColor":"rgb(0, 0, 0)","transform":"none","opacity":"1"}]},{"i":5,"key":"x","before":284,"after":291.5},{"i":5,"key":"width","before":18,"after":12.375},{"i":5,"key":"height","before":18,"after":12.375},{"i":5,"key":"fontFamily","before":"-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif","after":"system-ui"},{"i":5,"key":"fontSize","before":"16px","after":"11px"},{"i":5,"key":"lineHeight","before":"25.6px","after":"normal"},{"i":5,"key":"borderTopWidth","before":"1.5px","after":"0px"},{"i":5,"key":"borderTopStyle","before":"solid","after":"none"},{"i":5,"key":"borderTopColor","before":"rgb(99, 108, 118)","after":"rgb(0, 0, 0)"},{"i":5,"key":"appearance","before":"none","after":"auto"},{"i":5,"checkmark":[{"content":"\"\"","width":"4.796875px","height":"9.59375px","borderRightWidth":"1.5px","borderRightColor":"rgb(255, 255, 255)","transform":"matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, -1.28)","opacity":"0"},{"content":"none","width":"auto","height":"auto","borderRightWidth":"0px","borderRightColor":"rgb(0, 0, 0)","transform":"none","opacity":"1"}]}]
+PASS [appearance 640]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640]: checkboxes: leaving Aa preserves source
+PASS [appearance 640]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640]: loose lists: leaving Aa preserves source
+FAIL [appearance 640]: nested lists: same geometry, fonts, colors and decoration across Aa
+[{"i":0,"key":"height","before":114.375,"after":122.375},{"i":1,"key":"height","before":84.78125,"after":80.78125},{"i":2,"key":"marginTop","before":"4px","after":"0px"},{"i":2,"key":"marginBottom","before":"0px","after":"16px"}]
+PASS [appearance 640]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640]: nested lists: leaving Aa preserves source
+PASS [appearance 640]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640]: ordered lists: leaving Aa preserves source
+PASS [appearance 640]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640]: headings: preview keeps exact source and clean state
+PASS [appearance 640]: headings: leaving Aa preserves source
+PASS [appearance 640]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640]: inline styles: leaving Aa preserves source
+PASS [appearance 640]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640]: code: preview keeps exact source and clean state
+PASS [appearance 640]: code: leaving Aa preserves source
+PASS [appearance 640]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640]: quote: preview keeps exact source and clean state
+PASS [appearance 640]: quote: leaving Aa preserves source
+FAIL [appearance 640]: table: same geometry, fonts, colors and decoration across Aa
+[{"i":1,"key":"textAlign","before":"center","after":"start"},{"i":2,"key":"textAlign","before":"-webkit-left","after":"start"},{"i":3,"key":"textAlign","before":"-webkit-center","after":"start"},{"i":4,"key":"textAlign","before":"-webkit-right","after":"start"},{"i":6,"key":"textAlign","before":"-webkit-left","after":"start"},{"i":7,"key":"textAlign","before":"-webkit-center","after":"start"},{"i":8,"key":"textAlign","before":"-webkit-right","after":"start"}]
+PASS [appearance 640]: table: preview keeps exact source and clean state
+PASS [appearance 640]: table: leaving Aa preserves source
+PASS [appearance 640]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640]: rule: preview keeps exact source and clean state
+PASS [appearance 640]: rule: leaving Aa preserves source
+FAIL [appearance 640]: image: same geometry, fonts, colors and decoration across Aa
+[{"count":[3,2]},{"i":0,"key":"x","before":244,"after":252},{"i":0,"key":"width","before":372,"after":1},{"i":0,"key":"height","before":25.59375,"after":1},{"i":0,"key":"borderRadius","before":"0px","after":"6px"},{"i":0,"key":"marginBottom","before":"16px","after":"0px"},{"i":1,"key":"width","before":1,"after":372},{"i":1,"key":"height","before":1,"after":25.59375},{"i":1,"key":"borderRadius","before":"6px","after":"0px"},{"i":1,"key":"marginBottom","before":"0px","after":"16px"}]
+PASS [appearance 640]: image: preview keeps exact source and clean state
+PASS [appearance 640]: image: leaving Aa preserves source
+FAIL [appearance 640]: image attributes: same geometry, fonts, colors and decoration across Aa
+[{"i":0,"key":"x","before":398,"after":252},{"i":0,"key":"width","before":64,"after":1},{"i":0,"key":"height","before":48,"after":1},{"i":0,"key":"textAlign","before":"center","after":"start"}]
+PASS [appearance 640]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640]: image attributes: leaving Aa preserves source
+FAIL [appearance 640]: image caption: same geometry, fonts, colors and decoration across Aa
+[{"i":0,"key":"x","before":244,"after":252},{"i":0,"key":"width","before":64,"after":1},{"i":0,"key":"height","before":64,"after":1}]
+PASS [appearance 640]: image caption: preview keeps exact source and clean state
+PASS [appearance 640]: image caption: leaving Aa preserves source
+FAIL [appearance 640]: protected HTML: same geometry, fonts, colors and decoration across Aa
+[{"count":[3,1]},{"i":0,"key":"width","before":121.890625,"after":372},{"i":0,"key":"height","before":18.84375,"after":25.59375},{"i":0,"key":"fontWeight","before":"700","after":"400"},{"i":0,"key":"marginBottom","before":"0px","after":"16px"}]
+PASS [appearance 640]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640]: protected HTML: leaving Aa preserves source
+Regression/WebKitRegression.swift:226: Precondition failed: Editor appearance failures: 14
+Tests/run-webkit.sh: line 19:  9860 Trace/BPT trap: 5       "$app_dir/MacOS/Regression" "$PWD/Tests/fixtures/f5-state-space-math.md" "$PWD/Tests/EditorSwitchLayout.js" "$PWD/Tests/EditorAppearance.js"

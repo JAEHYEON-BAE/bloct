@@ -37,7 +37,7 @@ window._mvInstallEditorSwitch = function(config) {
         generation=window._mvGeneration;
         legacyHost.replaceWith(visualHost);visualHost.id='content';legacyHost.removeAttribute('id');
         editor=BloctBlocks.mountVisualEditor(visualHost,raw,{
-            savedMarkdown:baseline,imageURL,
+            savedMarkdown:baseline,imageURL,renderPreview:source=>_mvRenderOneBlock(source,0),
             onChange:dirty=>{if(visual)window.webkit?.messageHandlers.editorDirty?.postMessage({dirty,generation:window._mvGeneration});}
         });
         visual=true;window._bloctVisual=editor;editor.setEditable(editable);editor.unfreeze();
@@ -77,7 +77,7 @@ window._mvInstallEditorSwitch = function(config) {
         const text=decode(value);window._mvStale=false;
         if(generation!==window._mvGeneration){generation=window._mvGeneration;editor.reload(text);}
         else if(!editor.session.changed && text!==editor.session.markdown())editor.reload(text);
-        visualHost.querySelectorAll('img[data-source]').forEach(img=>{const url=imageURL(img.dataset.source);if(url && img.src!==url)img.src=url;});
+        visualHost.querySelectorAll('img[data-source],img[data-mv-image-source]').forEach(img=>{const url=imageURL(img.dataset.source||img.dataset.mvImageSource);if(url && img.src!==url)img.src=url;});
     };
     window._mvSetEditMode = on => {
         editable=on;

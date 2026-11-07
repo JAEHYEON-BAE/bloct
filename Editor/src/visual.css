@@ -4,19 +4,27 @@
 .visual-toolbar[hidden] { display:none; }
 button,select { font:inherit; font-size:13px; padding:5px 9px; border:1px solid var(--border); border-radius:5px; color:var(--fg); background:var(--bg); }
 button { cursor:pointer; }
-.ProseMirror { outline:none; min-height:50vh; white-space:pre-wrap; overflow-wrap:break-word; }
+.ProseMirror { outline:none; min-height:50vh; white-space:pre-line; overflow-wrap:break-word; }
 .ProseMirror p:empty { min-height:1.6em; }
+.ProseMirror p,.ProseMirror h1,.ProseMirror h2,.ProseMirror h3,.ProseMirror h4,.ProseMirror h5,.ProseMirror h6,.ProseMirror td { white-space:normal; }
 .ProseMirror .is-empty::before { content:attr(data-placeholder); color:var(--muted); float:left; height:0; pointer-events:none; }
 .ProseMirror li > div { display:contents; }
 .ProseMirror li > div > p { margin:0; }
-.ProseMirror li.task-item { position:relative; list-style:none; }
-.ProseMirror li.task-item > input { position:absolute; left:-1.5em; top:calc((1lh - 1.125em) / 2); width:1.125em; height:1.125em; margin:0; }
+.ProseMirror li > div > ul,.ProseMirror li > div > ol { margin-top:0.25em; margin-bottom:0; }
 .ProseMirror [data-link-source] { color:var(--color-link); }
-.ProseMirror tr:first-child { font-weight:600; }
+.ProseMirror [data-link-source]:hover { text-decoration:underline; }
+.ProseMirror table[data-visual-table] > tbody > tr:first-child > td { font-weight:600; }
+.ProseMirror table[data-visual-table] > tbody > tr { background:transparent; }
+.ProseMirror table[data-visual-table] > tbody > tr:nth-child(2n+3) { background:var(--color-table-row-alt); }
 .visual-atom { border-radius:5px; padding:8px; margin:8px 0; }
 span.visual-atom { display:inline-flex; vertical-align:middle; gap:4px; padding:0 3px; }
 .visual-atom button { font-size:11px; margin-left:12px; }
 .visual-atom img { max-width:100%; height:auto; display:block; }
+.visual-atom.visual-image,.visual-atom.visual-preview,.visual-image > span,.visual-preview > span { display:contents; padding:0; margin:0; vertical-align:baseline; }
+.visual-image,.visual-preview { white-space:normal; }
+.visual-image img { display:inline; }
+.visual-rule { min-height:2em; }
+.ProseMirror[contenteditable="true"] .visual-image img { cursor:pointer; }
 .visual-math { white-space:normal; overflow-wrap:normal; padding:0; margin:0; vertical-align:baseline; }
 .visual-math-display { display:block; }
 .ProseMirror[contenteditable="true"] .visual-math { cursor:pointer; border-radius:4px; }

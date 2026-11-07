@@ -16,4 +16,4 @@ done
 xcrun swiftc -swift-version 6 -parse-as-library -module-cache-path /private/tmp/bloct-regression-module-cache \
     "$@" "$output_dir/BloctApp.swift" Tests/WebKitRegression.swift \
     -o "$app_dir/MacOS/Regression"
-"$app_dir/MacOS/Regression" "$PWD/Tests/fixtures/f5-state-space-math.md" "$PWD/Tests/EditorSwitchLayout.js"
+"$app_dir/MacOS/Regression" "$PWD/Tests/fixtures/f5-state-space-math.md" "$PWD/Tests/EditorSwitchLayout.js" "$PWD/Tests/EditorAppearance.js"

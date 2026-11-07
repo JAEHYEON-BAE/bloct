@@ -71,6 +71,10 @@ function inline(node: PMNode): string {
 }
 function title(value: string | null) {return value ? ` "${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` : '';}
 function image(attrs: PMNode['attrs']) {return `![${escapeText(attrs.alt)}](${destination(attrs.src)}${title(attrs.title)})`;}
+export function imageBlockMarkdown(attrs: PMNode['attrs']) {
+  return image(attrs) + (attrs.imageAttrs ? `{${attrs.imageAttrs}}` : '')
+    + (attrs.caption ? `\n*[${attrs.caption}]*` : '');
+}
 
 export function serialize(imported: ImportedDocument, doc: PMNode, verify = true): string {
   if (doc.eq(imported.doc)) return imported.original;
@@ -112,9 +116,7 @@ export function serialize(imported: ImportedDocument, doc: PMNode, verify = true
         return `${fence}${node.attrs.language}\n${node.textContent}\n${fence}`;
       }
       case 'equation': return `$$\n${node.attrs.value}\n$$`;
-      case 'image_block': return image(node.attrs)
-        + (node.attrs.imageAttrs ? `{${node.attrs.imageAttrs}}` : '')
-        + (node.attrs.caption ? `\n*[${escapeText(node.attrs.caption)}]*` : '');
+      case 'image_block': return imageBlockMarkdown(node.attrs);
       case 'blockquote': {
         const contents: string[] = [];
         node.forEach(child => contents.push(block(child, true)));

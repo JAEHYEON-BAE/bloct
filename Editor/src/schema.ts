@@ -59,7 +59,7 @@ export const schema = new Schema({
       toDOM: node => ['span', {'data-image-source': node.attrs.src}, node.attrs.alt],
     },
     horizontal_rule: {
-      group: 'block', atom: true, attrs: blockAttrs, toDOM: () => ['hr'], parseDOM:[{tag:'hr'}],
+      group: 'block', atom: true, attrs: blockAttrs, toDOM: () => ['div', {class:'visual-rule'}, ['hr']], parseDOM:[{tag:'hr'}],
     },
     raw_source: {
       group: 'block', atom: true, isolating: true,
@@ -69,7 +69,7 @@ export const schema = new Schema({
     table: {
       group: 'block', content: 'table_row+', isolating: true,
       attrs: {...blockAttrs, align: {default: []}},
-      toDOM: () => ['table', ['tbody', 0]],
+      toDOM: () => ['table', {'data-visual-table':''}, ['tbody', 0]],
       parseDOM: [{tag:'table'}],
     },
     table_row: {content: 'table_cell+', attrs: blockAttrs, toDOM: () => ['tr', 0], parseDOM:[{tag:'tr'}]},

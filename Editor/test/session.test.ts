@@ -27,6 +27,20 @@ function oneCharacter(before: string, after: string) {
   assert.match(before.slice(positions[0] - 1, positions[0] + 2), /^\[[ xX]\]$/);
 }
 
+test('editing an image URL preserves caption Markdown, dimensions and unrelated source',()=>{
+  const source='![image](old.png){width=64 align=center}\n*[Figure **caption**]*\n\nUnrelated **text**';
+  const session=new BlockSession(source),image=session.doc.firstChild!;
+  session.dispatch(session.state.tr.setNodeMarkup(0,undefined,{...image.attrs,src:'new.png'}));
+  const snapshot=session.snapshot(),reopened=importMarkdown(snapshot.markdown).doc;
+  assert.equal(reopened.firstChild!.attrs.src,'new.png');
+  assert.equal(reopened.firstChild!.attrs.imageAttrs,'width=64 align=center');
+  assert.equal(reopened.firstChild!.attrs.caption,'Figure **caption**');
+  assert.ok(snapshot.markdown.endsWith('Unrelated **text**'));
+  assert.deepEqual(semantics(reopened),semantics(session.doc));
+  assert.equal(session.undo(),true);
+  assert.equal(session.markdown(),source);
+});
+
 test('B10: paragraph split/join preserve identity, selection, source and history', () => {
   const source = '__untouched__\n\n한글😀문장\n\n~~~js\nx\n~~~~\n';
   const s = new BlockSession(source);

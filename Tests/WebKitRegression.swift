@@ -211,5 +211,51 @@ struct WebKitRegression {
         }
         precondition(layoutFailures == 0, "Editor-switch layout failures: \(layoutFailures)")
 
+        let appearanceSuite = try String(contentsOfFile: CommandLine.arguments[3], encoding: .utf8)
+        var appearanceFailures = 0
+        for width in [900, 640] {
+            webView.frame.size.width = CGFloat(width)
+            for dark in [false, true] {
+                webView.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+                for zoom in [1.0, 1.25] {
+                    webView.pageZoom = zoom
+                    for toc in [false, true] {
+                        let report = js(webView, appearanceSuite, arguments: ["toc":toc,"dark":dark]) as! String
+                        let data = try JSONSerialization.jsonObject(with: Data(report.utf8)) as! [String: Any]
+                        for result in data["results"] as! [[String: Any]] {
+                            let pass = result["pass"] as? Bool == true
+                            print("\(pass ? "PASS" : "FAIL") [appearance \(width), dark \(dark), zoom \(zoom), TOC \(toc)]: \(result["name"]!)")
+                            if !pass { appearanceFailures += 1; print(result["detail"] ?? "") }
+                        }
+                    }
+                }
+            }
+        }
+        if let output = ProcessInfo.processInfo.environment["BLOCT_APPEARANCE_SNAPSHOTS"] {
+            webView.appearance = NSAppearance(named: .aqua)
+            webView.pageZoom = 1
+            webView.frame.size.width = 900
+            let sample="Paragraph **bold** *italic* `code` [link](https://example.invalid) and  multiple   spaces.\nsoft line\\\nhard line"
+            render(sample)
+            _ = js(webView,"document.body.style.paddingLeft=''; document.getElementById('toc').style.transform='translateX(-220px)'; window.scrollTo(0,0); return true;")
+            for visual in [false,true] {
+                if visual { _ = js(webView,"await window._mvSwitchEditor(true, source); window.scrollTo(0,0); return true;",arguments:["source":sample]) }
+                let rect = js(webView,"const r=document.querySelector('#content p').getBoundingClientRect(); return [r.x,r.y,r.width,r.height];") as! [Double]
+                let config=WKSnapshotConfiguration()
+                config.rect=NSRect(x:rect[0],y:rect[1],width:rect[2],height:rect[3])
+                config.afterScreenUpdates=false
+                var complete=false
+                webView.takeSnapshot(with:config) { image,error in
+                    precondition(error == nil, "Snapshot failed: \(String(describing:error))")
+                    let png=NSBitmapImageRep(data:image!.tiffRepresentation!)!.representation(using:.png,properties:[:])!
+                    try! png.write(to:URL(fileURLWithPath:output+"-\(visual ? "after" : "before").png"))
+                    complete=true
+                }
+                wait("appearance snapshot",until:{complete})
+            }
+            _ = js(webView,"await window._mvSwitchEditor(false, source); return true;",arguments:["source":sample])
+        }
+        precondition(appearanceFailures == 0, "Editor appearance failures: \(appearanceFailures)")
+
     }
 }

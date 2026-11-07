@@ -790,6 +790,9 @@ struct MarkdownWebView: NSViewRepresentable {
                             if (w && /^(?:[0-9]+(?:\\.[0-9]+)?)(?:px|%|em|rem|vw|vh)?$/.test(w[1])) { const v = w[1]; style += 'width:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
                             if (h && /^(?:[0-9]+(?:\\.[0-9]+)?)(?:px|%|em|rem|vw|vh)?$/.test(h[1])) { const v = h[1]; style += 'height:' + (/^[\\d.]+$/.test(v) ? v + 'px' : v) + ';'; }
                             const img = document.createElement('img');
+                            // The editor serializes destinations with angle brackets.
+                            const destination = /^<([^>]+)>(?:[ \\t]+["'][^"']*["'])?$/.exec(src);
+                            if (destination) src = destination[1];
                             img.setAttribute('src', src);
                             img.setAttribute('alt', alt);
                             if (style) img.setAttribute('style', style);

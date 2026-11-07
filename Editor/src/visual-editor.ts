@@ -10,11 +10,14 @@ import {Fragment, Slice, type Node as PMNode} from '@tiptap/pm/model';
 import katex from 'katex';
 import {BlockSession} from './session.ts';
 import {schema} from './schema.ts';
+import {imageBlockMarkdown} from './serializer.ts';
 
 export interface VisualOptions {
   savedMarkdown?: string;
   onChange?: (dirty: boolean) => void;
   imageURL?: (source: string) => string | null;
+  // The native host supplies the same sanitized renderer used before Aa.
+  renderPreview?: (markdown: string) => string;
 }
 
 export const formats = [
@@ -250,7 +253,13 @@ export class VisualEditor {
         && target !== document.body && target !== document.documentElement) return;
     if (!this.host.isConnected) return;
     const lastDOM = this.view.dom.lastElementChild;
-    if (!lastDOM || event.clientY < lastDOM.getBoundingClientRect().bottom) return;
+    if (!lastDOM) return;
+    let lastRect=lastDOM.getBoundingClientRect();
+    if(!lastRect.height) {
+      const range=document.createRange();range.selectNodeContents(lastDOM);
+      lastRect=range.getBoundingClientRect();
+    }
+    if (event.clientY < lastRect.bottom) return;
     const rect = this.view.dom.getBoundingClientRect();
     if (event.clientX < rect.left || event.clientX > rect.right) return;
 
@@ -506,6 +515,17 @@ export class VisualEditor {
     const decorations:Decoration[]=[];
     this.#matches=[];
     state.doc.descendants((node,pos) => {
+      if(node.type===schema.nodes.table) {
+        node.forEach((row,rowOffset,rowIndex)=>row.forEach((cell,cellOffset,column)=>{
+          const align=node.attrs.align[column];
+          const attrs:Record<string,string>={};
+          if(['left','center','right'].includes(align))attrs.align=align;
+          else if(rowIndex===0)attrs.style='text-align:center';
+          if(rowIndex===0)attrs.role='columnheader';
+          const at=pos+rowOffset+cellOffset+2;
+          decorations.push(Decoration.node(at,at+cell.nodeSize,attrs));
+        }));
+      }
       if(node.attrs.id && node.isBlock) {
         const attrs:Record<string,string>={'data-block-id':node.attrs.id};
         if(node.type===schema.nodes.heading) attrs.id='block-'+node.attrs.id;
@@ -533,6 +553,7 @@ export class VisualEditor {
     const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.contentEditable='false';checkbox.setAttribute('aria-label','Toggle task');
     const paint=(current:PMNode) => {
       checkbox.hidden=current.attrs.checked==null; checkbox.checked=!!current.attrs.checked;
+      checkbox.classList.toggle('mv-task-checkbox',current.attrs.checked!=null);
       dom.classList.toggle('task-item',current.attrs.checked!=null);
     };
     checkbox.addEventListener('mousedown',e=>e.preventDefault());
@@ -558,11 +579,34 @@ export class VisualEditor {
         if(current.attrs.value) content.innerHTML=katex.renderToString(current.attrs.value,{displayMode:display,throwOnError:false,trust:false,strict:'warn'});
         else content.textContent='Equation';
       } else if(current.type===schema.nodes.image_block||current.type===schema.nodes.inline_image) {
+        dom.classList.add('visual-image');
+        if(this.#options.renderPreview) {
+          content.innerHTML=this.#options.renderPreview(imageBlockMarkdown(current.attrs));
+          for(const child of Array.from(content.childNodes)) {
+            if(child.nodeType===Node.TEXT_NODE && !child.textContent?.trim())child.remove();
+          }
+          if(current.isInline && content.childNodes.length===1 && content.firstElementChild?.tagName==='P') {
+            content.replaceChildren(...content.firstElementChild.childNodes);
+          }
+          for(const image of content.querySelectorAll<HTMLImageElement>('img')) {
+            image.dataset.source=current.attrs.src;
+            const url=this.#options.imageURL?.(current.attrs.src);
+            if(url)image.src=url;
+          }
+          return;
+        }
         const url=this.#options.imageURL?.(current.attrs.src);
         if(url) {const image=document.createElement('img');image.src=url;image.alt=current.attrs.alt;image.dataset.source=current.attrs.src;content.append(image);}
         else content.textContent=current.attrs.alt||'Image';
         if(current.attrs.caption) {const caption=document.createElement('span');caption.textContent=current.attrs.caption;content.append(caption);}
-      } else {content.textContent='Preserved content';button.textContent='View source';}
+      } else {
+        dom.classList.toggle('visual-preview',!!this.#options.renderPreview);
+        if(this.#options.renderPreview) {
+          content.innerHTML=this.#options.renderPreview(current.attrs.raw);
+          content.querySelectorAll<HTMLInputElement>('input').forEach(input=>{input.disabled=true;});
+        } else content.textContent='Preserved content';
+        button.textContent='View source';
+      }
     };
     const openEditor=()=>{
       const pos=getPos();if(pos==null)return;
@@ -584,14 +628,15 @@ export class VisualEditor {
         dialog.remove();view.focus();
       });dialog.showModal();input.focus();
     };
-    if(isMath) {
-      dom.setAttribute('role','button');dom.setAttribute('aria-label','Edit equation');
+    if(isMath || node.type!==schema.nodes.raw_source || this.#options.renderPreview) {
+      dom.dataset.visualSurface=node.type.name;
+      dom.setAttribute('role','button');dom.setAttribute('aria-label',isMath?'Edit equation':node.type===schema.nodes.raw_source?'View source':'Edit image');
       let pointerStart: {x:number;y:number}|undefined;
       dom.addEventListener('mousedown',event=>{pointerStart={x:event.clientX,y:event.clientY};});
       dom.addEventListener('click',event=>{
         const moved=pointerStart && (Math.abs(event.clientX-pointerStart.x)>4||Math.abs(event.clientY-pointerStart.y)>4);
         pointerStart=undefined;
-        if(!moved)openEditor();
+        if(!moved){event.preventDefault();openEditor();}
       });
       dom.addEventListener('keydown',event=>{
         if(event.key==='Enter'||event.key===' ') {
@@ -606,7 +651,10 @@ export class VisualEditor {
     const update=(current:PMNode)=>{
       if(current.type!==node.type)return false;
       paint(current);
-      if(isMath){dom.tabIndex=this.#editable?0:-1;dom.setAttribute('aria-disabled',String(!this.#editable));}
+      if(isMath || dom.hasAttribute('role')){
+        const enabled=this.#editable || current.type===schema.nodes.raw_source;
+        dom.tabIndex=enabled?0:-1;dom.setAttribute('aria-disabled',String(!enabled));
+      }
       return true;
     };
     update(node);
@@ -615,8 +663,9 @@ export class VisualEditor {
   setEditable(value:boolean) {
     this.#editable=value;this.view.setProps({editable:()=>this.#editable&&!this.#frozen});
     this.toolbar.hidden=!value;
-    for(const math of this.view.dom.querySelectorAll<HTMLElement>('.visual-math')) {
-      math.tabIndex=value?0:-1;math.setAttribute('aria-disabled',String(!value));
+    for(const surface of this.view.dom.querySelectorAll<HTMLElement>('[data-visual-surface]')) {
+      const enabled=value || surface.dataset.visualSurface==='raw_source';
+      surface.tabIndex=enabled?0:-1;surface.setAttribute('aria-disabled',String(!enabled));
     }
   }
   history(forward:boolean) {
