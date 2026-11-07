@@ -185,6 +185,16 @@ struct WebKitRegression {
         _ = js(inlineView, "window.webkit.messageHandlers.commitEdit.postMessage(btoa('new document')); await new Promise(r => setTimeout(r, 100)); return true;")
         wait("inline commit", until: { inlineCommit })
         print("PASS: new-document inline page retains native bridge access")
+        let emptySwitch = js(inlineView, """
+            window._mvRender('');
+            try {
+                const result = await window._mvSwitchEditor(true, '');
+                return {ok: result.text === '' && !!window._bloctVisual};
+            } catch (error) { return {ok:false,error:String(error),stack:error.stack}; }
+            """) as! [String: Any]
+        print("Empty document Aa: \(emptySwitch)")
+        precondition(emptySwitch["ok"] as? Bool == true, "Empty document Aa failed")
+        _ = js(inlineView, "await window._mvSwitchEditor(false, ''); return true;")
         let layoutSuite = try String(contentsOfFile: CommandLine.arguments[2], encoding: .utf8)
         var layoutFailures = 0
         for width in [900, 640] {

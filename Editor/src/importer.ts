@@ -1,3 +1,4 @@
+import {randomID} from './id.ts';
 import {fromMarkdown} from 'mdast-util-from-markdown';
 import {gfmFromMarkdown} from 'mdast-util-gfm';
 import {gfm} from 'micromark-extension-gfm';
@@ -55,7 +56,7 @@ function regions(text: string): SourceSpan[] {
 export function importMarkdown(original: string): ImportedDocument {
   const bom = original.startsWith('\uFEFF') ? '\uFEFF' : '';
   const text = original.slice(bom.length);
-  const id = () => crypto.randomUUID();
+  const id = () => randomID();
   const attrs = (n: {position?: RootContent['position']}, base: number, extra = {}) => ({
     id: id(), source: n.position ? {
       from: base + n.position.start.offset!, to: base + n.position.end.offset!,

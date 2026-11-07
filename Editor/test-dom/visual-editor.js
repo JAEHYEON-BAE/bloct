@@ -21,12 +21,63 @@ const key=(value,options={})=>{
   let handled=false;editor.view.someProp('handleKeyDown',handler=>{handled=handler(editor.view,event);return handled;});return handled;
 };
 const serialized=()=>editor.session.markdown();
+const blankClick=(target=editor.view.dom,options={})=>{
+  const rect=editor.view.dom.getBoundingClientRect(),last=editor.view.dom.lastElementChild.getBoundingClientRect();
+  const event=new MouseEvent('mousedown',{button:0,detail:1,bubbles:true,cancelable:true,
+    clientX:rect.left+rect.width/2,clientY:last.bottom+12,...options});
+  target.dispatchEvent(event);return event.defaultPrevented;
+};
 const selectTableCell=(row,column,offset=0,tableIndex=0)=>{
   const tables=[];editor.session.doc.descendants(n=>{if(n.type.name==='table')tables.push(n);});
   const cell=tables[tableIndex].child(row).child(column);
   assert(editor.session.setSelection(editor.session.reference(cell.attrs.id),offset));
   editor.view.updateState(editor.session.state);editor.focus();return cell;
 };
+
+await check('empty document blank click reuses the first line without dirtying or adding a leading blank',async()=>{
+  fresh();const revision=editor.session.revision,id=editor.session.doc.firstChild.attrs.id;
+  assert(blankClick());assert(blankClick(document.body));
+  assert(editor.session.doc.childCount===1 && editor.session.doc.firstChild.attrs.id===id);
+  assert(editor.session.revision===revision && !editor.session.changed && editor.view.hasFocus());
+  type('First 한글😀');const snap=await editor.snapshot();
+  assert(snap.text==='First 한글😀');assert(editor.acknowledge(snap.token));
+  assert(editor.history(false));assert(serialized()==='');
+});
+for(const source of ['Last **bold**','# Heading','- last item','> quote','```js\ncode\n```','$$x^2$$','---',
+  '| A | B |\n| --- | --- |\n| C | D |','<section>protected</section>','한글😀\r\n\r\n끝']) {
+  await check(`blank click after final ${JSON.stringify(source)} opens plain text and supports save/reimport/Undo`,async()=>{
+    fresh(source);const count=editor.session.doc.childCount;
+    assert(blankClick(document.body));assert(editor.session.doc.childCount===count+1);
+    assert(editor.session.state.selection.$from.parent.type.name==='paragraph');
+    assert(blankClick());assert(editor.session.doc.childCount===count+1);
+    type('Next');assert(editor.session.doc.lastChild.textContent==='Next');
+    assert(editor.session.doc.lastChild.firstChild.marks.length===0);
+    const snapshot=await editor.snapshot(),reopened=BloctBlocks.importMarkdown(snapshot.text).doc;
+    assert(snapshot.text.startsWith(source));assert(reopened.lastChild.type.name==='paragraph' && reopened.lastChild.textContent==='Next');
+    assert(editor.history(false));
+    if(editor.session.doc.childCount!==count)assert(editor.history(false));
+    assert(serialized()===source);assert(editor.history(true));
+  });
+}
+await check('blank click ignores read-only, frozen, composition, controls, modified and content clicks',()=>{
+  fresh('text');const before=editor.session.doc;
+  editor.setEditable(false);assert(!blankClick());editor.setEditable(true);
+  assert(!editor.freezeIfClean());assert(!blankClick());editor.unfreeze();
+  editor.view.input.composing=true;assert(!blankClick());editor.view.input.composing=false;
+  assert(!blankClick(editor.toolbar));assert(!blankClick(host.querySelector('p')));
+  for(const options of [{button:2},{detail:2},{shiftKey:true},{metaKey:true},{ctrlKey:true},{altKey:true},{clientY:0},{clientX:-10}])assert(!blankClick(editor.view.dom,options));
+  assert(editor.session.doc.eq(before) && !editor.session.changed);
+});
+await check('blank click listener is removed on destroy and does not affect a second editor',()=>{
+  fresh('first');const otherHost=document.createElement('div');document.body.append(otherHost);
+  const other=BloctBlocks.mountVisualEditor(otherHost,'second');
+  assert(blankClick(editor.view.dom));assert(other.session.doc.childCount===1);
+  other.destroy();otherHost.remove();
+  const dom=editor.view.dom;editor.destroy();
+  const event=new MouseEvent('mousedown',{button:0,bubbles:true,cancelable:true,clientY:500,clientX:100});
+  document.body.dispatchEvent(event);assert(!event.defaultPrevented);
+  host.remove();editor=null;
+});
 
 for(let level=1;level<=6;level++)await check(`H${level}: typed marker converts to editable heading and placeholder`,()=>{
   fresh();type('#'.repeat(level)+' ');

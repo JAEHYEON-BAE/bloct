@@ -45,7 +45,7 @@ struct BlockModelWebKit {
                 let bundle = try String(contentsOf: directory.appendingPathComponent("blocks.js"), encoding: .utf8)
                 let embedded = html.replacingOccurrences(of: #"src="blocks.js">"#,
                     with: ">" + bundle.replacingOccurrences(of: "</script", with: "<\\/script"))
-                webView.loadHTMLString(embedded, baseURL: directory)
+                webView.loadHTMLString(embedded, baseURL: nil)
             }
             wait("\(mode) page", until: { !webView.isLoading })
             let result = evaluate(webView, #"""

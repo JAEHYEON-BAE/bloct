@@ -1,3 +1,4 @@
+import {randomID} from './id.ts';
 import {Fragment, type Node as PMNode} from '@tiptap/pm/model';
 import {EditorState, TextSelection, type Transaction, type Plugin} from '@tiptap/pm/state';
 import {history, undo, redo, closeHistory} from '@tiptap/pm/history';
@@ -25,7 +26,7 @@ interface Entry {node: PMNode; pos: number; parent: PMNode; parentPos: number; i
 // Headless adapter over the real engine, not an independently editable block
 // store. A future EditorView must dispatch through the same transaction path.
 export class BlockSession {
-  readonly documentId = crypto.randomUUID();
+  readonly documentId = randomID();
   #generation = 0;
   #revision = 0;
   #imported: ImportedDocument;
@@ -186,12 +187,12 @@ export class BlockSession {
           tr = split!;
         } else if (parent.type === schema.nodes.doc) {
           if (node.type === schema.nodes.heading && command.offset === 0) {
-            tr.insert(pos, schema.nodes.paragraph.create({id: crypto.randomUUID(), before: node.attrs.before}));
+            tr.insert(pos, schema.nodes.paragraph.create({id: randomID(), before: node.attrs.before}));
             tr.setNodeMarkup(pos + 2, undefined, {...node.attrs, before: eol + eol});
             tr.setSelection(TextSelection.create(tr.doc, pos + 1));
           } else {
             tr.split(at, 1, [{type: schema.nodes.paragraph,
-              attrs: {id: crypto.randomUUID(), source: null, before: '\n\n'}}]);
+              attrs: {id: randomID(), source: null, before: '\n\n'}}]);
             tr.setSelection(TextSelection.create(tr.doc, at + 2));
           }
         } else return false;
@@ -265,7 +266,7 @@ function normalize(tr: Transaction, previous: PMNode, eol: string) {
     if (!('id' in node.attrs)) return;
     let attrs = node.attrs;
     if (!attrs.id || seen.has(attrs.id)) {
-      attrs = {...attrs, id: crypto.randomUUID(), source: null,
+      attrs = {...attrs, id: randomID(), source: null,
         ...('taskOffset' in attrs ? {taskOffset: null, checked: attrs.checked == null ? null : false} : {})};
       tr.setNodeMarkup(pos, undefined, attrs);
     }
@@ -295,7 +296,7 @@ function clone(node: PMNode): PMNode {
   const children: PMNode[] = [];
   node.forEach(child => children.push(clone(child)));
   const attrs = {...node.attrs};
-  if ('id' in attrs) Object.assign(attrs, {id: crypto.randomUUID(), source: null, before: '\n\n'});
+  if ('id' in attrs) Object.assign(attrs, {id: randomID(), source: null, before: '\n\n'});
   if ('taskOffset' in attrs) attrs.taskOffset = null;
   return node.type.create(attrs, children, node.marks);
 }

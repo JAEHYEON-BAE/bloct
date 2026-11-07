@@ -1,3 +1,4 @@
+import {randomID} from './id.ts';
 import {EditorView, Decoration, DecorationSet, type NodeView} from '@tiptap/pm/view';
 import {Plugin, Selection, TextSelection, NodeSelection, type Command, type EditorState, type Transaction} from '@tiptap/pm/state';
 import {InputRule, inputRules, undoInputRule} from '@tiptap/pm/inputrules';
@@ -235,8 +236,41 @@ export class VisualEditor {
         return true;
       },
     });
+    document.addEventListener('mousedown', this.blankAreaMouseDown, true);
     this.notify();
   }
+
+  private blankAreaMouseDown = (event: MouseEvent) => {
+    if (!this.view.editable || this.view.composing || event.defaultPrevented
+        || event.button !== 0 || event.detail > 1
+        || event.shiftKey || event.metaKey || event.ctrlKey || event.altKey) return;
+    const target = event.target;
+    const article = this.host.closest('article.markdown-body');
+    if (target !== this.view.dom && target !== this.host && target !== article
+        && target !== document.body && target !== document.documentElement) return;
+    if (!this.host.isConnected) return;
+    const lastDOM = this.view.dom.lastElementChild;
+    if (!lastDOM || event.clientY < lastDOM.getBoundingClientRect().bottom) return;
+    const rect = this.view.dom.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right) return;
+
+    // A single click opens one ordinary text line after any final block. Reuse
+    // a trailing empty paragraph so repeated clicks never accumulate blank lines.
+    const state = this.view.state, last = state.doc.lastChild!;
+    const tr = state.tr;
+    if (last.type === schema.nodes.paragraph && !last.content.size) {
+      tr.setSelection(TextSelection.create(tr.doc, tr.doc.content.size - 1));
+    } else {
+      const at = tr.doc.content.size;
+      tr.insert(at, schema.nodes.paragraph.create());
+      tr.setSelection(TextSelection.create(tr.doc, at + 1));
+    }
+    tr.setStoredMarks([]);
+    event.preventDefault();
+    event.stopPropagation();
+    this.view.dispatch(closeHistory(tr).scrollIntoView());
+    this.view.focus();
+  };
 
   private plugins(): Plugin[] {
     const historyCommand = (forward:boolean): Command => (state,dispatch) =>
@@ -599,7 +633,7 @@ export class VisualEditor {
     const deadline=Date.now()+1500;
     while(this.view.composing && Date.now()<deadline) await new Promise(r=>setTimeout(r,20));
     if(this.view.composing) throw new Error('Finish text composition before saving.');
-    const snapshot=this.session.snapshot(),token=crypto.randomUUID();this.#snapshots.set(token,snapshot);
+    const snapshot=this.session.snapshot(),token=randomID();this.#snapshots.set(token,snapshot);
     return {text:snapshot.markdown,token,revision:snapshot.revision};
   }
   async handoff() {
@@ -633,7 +667,7 @@ export class VisualEditor {
     const found=this.#matches[this.#matchIndex];this.view.domAtPos(found.from).node.parentElement?.scrollIntoView({block:'center'});
   }
   focus(){this.view.focus();}
-  destroy(){this.view.destroy();this.toolbar.remove();this.status.remove();}
+  destroy(){document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.toolbar.remove();this.status.remove();}
 }
 
 export function mountVisualEditor(host:HTMLElement,markdown:string,options:VisualOptions={}) {

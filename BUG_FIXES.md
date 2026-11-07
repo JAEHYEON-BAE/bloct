@@ -1,8 +1,8 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-11-07**. 문서·소스·기존 증거 정리이며 실행 검증은 추가하지 않았습니다. 마지막 표 검증은 2026-11-06입니다.
-- 현재: 총 37개 중 **21개 해당 범위 검증 완료**, **16번 보류**, **15개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
-- 다음 순서: **[F5의 다음 순서와 전환 관문](IMPLEMENTATION_PLAN.md#다음-순서와-기본값-전환-관문)**을 최우선으로 진행합니다. 기존 버그는 새 모델의 관련 검증에 연결하며, 기존 경로를 별도 수정할 때의 순서는 **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**입니다. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 38번입니다.
+- 최신화: **2026-11-07**. 새 문서 Aa 초기화·빈 영역 입력 수정 및 모델/WebKit/native/GUI 검증을 반영했습니다.
+- 현재: 총 39개 중 **23개 해당 범위 검증 완료**, **16번 보류**, **15개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
+- 다음 순서: **[F5의 다음 순서와 전환 관문](IMPLEMENTATION_PLAN.md#다음-순서와-기본값-전환-관문)**을 최우선으로 진행합니다. 기존 버그는 새 모델의 관련 검증에 연결하며, 기존 경로를 별도 수정할 때의 순서는 **4·17번 → 2·7·8·13번 → 3·5·9·10번 → 11·12·19번**입니다. 26번의 새 GUI 절차 검증은 다음 GUI 작업에서 수행합니다. 다음 새 버그 번호는 40번입니다.
 
 ## 항목별 상태
 
@@ -47,6 +47,21 @@
 | 35 | Aa 표의 빈 셀에 불필요한 Cell 안내 표시 | 수정·해당 범위 검증 완료(2026-11-06) | 셀 placeholder 제외, 자동/GUI 입력·저장 확인 |
 | 36 | Aa 표의 화살표 이동·위/아래 탈출 | 수정·해당 범위 검증 완료(2026-11-06) | 첫 행 ↑는 표 앞, 마지막 행 ↓는 표 뒤 영역 이동. 문서 시작/끝이면 새 문단 생성 |
 | 37 | Aa 표의 Enter 행 이동·Shift+Enter 행 삽입 | 수정·해당 범위 검증 완료(2026-11-06) | Enter는 아래 행 첫 셀, Shift+Enter는 새 행 첫 셀 이동. Undo·저장·재열기 확인 |
+| 38 | 새 문서 Aa 초기화 JavaScript 오류 | 수정·해당 범위 검증 완료(2026-11-07) | about:blank의 randomUUID 부재 재현, getRandomValues 기반 UUID fallback·첫 입력/저장 확인 |
+| 39 | Aa 빈 문서·문서 끝 빈 영역에서 입력 불가 | 수정·해당 범위 검증 완료(2026-11-07) | 하단 클릭 시 일반 문단 생성/재사용, Undo·재파싱·GUI 저장/재열기 확인 |
+
+<a id="bug-39"></a>
+## 39. Aa 빈 문서·문서 끝 빈 영역에서 입력 불가
+
+- **2026-11-07 / 수정·해당 범위 검증 완료.** Aa에서 마지막 블록 아래의 편집기/본문 하단 여백을 클릭해도 입력할 새 문단이 선택되지 않았습니다. 본문 폭 안의 마지막 블록 아래 기본 클릭은 최상위 일반 문단을 생성하며, 이미 빈 문단이 있으면 재사용합니다. 빈 문서는 첫 문단을 그대로 사용하므로 앞 빈 줄·클릭마다 빈 줄 누적이 없습니다. Read/freeze/조합·보조 클릭·서식 메뉴·본문 내부 클릭은 제외하고 해제 시 리스너를 제거합니다.
+- 검증: [브라우저 모델 18·시각 입력 200](Tests/results/2026-11-07/empty-aa-visual.log), 실패/SKIP 0. 빈 문서·문단/제목/목록/인용/코드/수식/구분선/표/보호 원문/CRLF·Unicode의 끝에서 클릭→즉시 일반 텍스트 입력→snapshot/재파싱→Undo/Redo를 검사했습니다. [모델 32·번들](Tests/results/2026-11-07/empty-aa-model.log)·[native 33](Tests/results/2026-11-07/empty-aa-native.log)·[WebKit/레이아웃 51](Tests/results/2026-11-07/empty-aa-webkit.log)·[빌드](Tests/results/2026-11-07/empty-aa-build.log) 통과. [GUI/디스크/종료](Tests/results/2026-11-07/empty-aa-gui.json): 새 문서 빈 영역 첫 입력·아래 여백 다음 줄·최초 저장·재열기 후 하단 추가 입력·다른 초안 독립성·미리보기 0·앱 종료 확인.
+- 한계: 실제 IME·macOS 14·단일 Save 패널로 새 문서 닫기 등은 F5 관문에 남습니다. 이번 새 문서 닫기에서 native Save 후 추가 Unsaved Changes 경고가 관찰됐으며 Save 선택 후 내용 보존·닫기를 확인했습니다. 원인·재현성은 미확정입니다. 빈 최상위 문단의 저장 후 identity 한계는 기존 계약을 유지합니다.
+
+<a id="bug-38"></a>
+## 38. 새 문서 Aa 초기화 JavaScript 오류
+
+- **2026-11-07 / 수정·해당 범위 검증 완료.** 파일 없는 새 문서→Aa에서 `TypeError: crypto.randomUUID is not a function`을 [실제 about:blank WKWebView에서 재현](Tests/results/2026-11-07/empty-aa-before.log)했습니다. secure-context 전용 API 대신 공통 `randomID()`를 사용하며, API가 없으면 `crypto.getRandomValues()`로 UUID v4를 생성합니다. 문서/블록/복제/정규화/저장 token의 모든 호출에 적용했습니다.
+- 검증: [WebKit 51](Tests/results/2026-11-07/empty-aa-webkit.log)의 파일 URL 없는 Aa 왕복 통과. [입력 검사](Tests/results/2026-11-07/empty-aa-visual.log)는 inline harness의 baseURL을 nil로 바꿔 파일 기반 실행과 함께 ID 생성·편집·snapshot/Undo 경로를 검사합니다. [실제 새 문서 GUI](Tests/results/2026-11-07/empty-aa-gui.json)에서도 오류 패널 없이 Aa 진입·첫 입력·최초 저장·재열기를 확인했습니다. 입력·저장 회귀와 남은 한계는 39번 및 F5 관문을 따릅니다.
 
 ## 37. Aa 표의 Enter 탈출과 Shift+Enter 행 삽입
 
