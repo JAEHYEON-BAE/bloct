@@ -233,7 +233,6 @@ struct ContentView: View {
     // Background polling can wait until menu/control tracking and modal panels end.
     // Explicit Reload / before-edit checks still read the current source directly.
     private let diskTimer = Timer.publish(every: 0.6, on: .main, in: .default).autoconnect()
-    @State private var isEditMode: Bool
     @State private var webViewStore = WebViewStore()
     @State private var visualEditing = false
     @State private var isCheckingVisualClose = false
@@ -249,7 +248,6 @@ struct ContentView: View {
         let text = document.wrappedValue.text
         _docState = StateObject(wrappedValue: DocumentState(document: document))
         _originalText = State(initialValue: text)
-        _isEditMode = State(initialValue: fileURL == nil)
     }
 
     private var hasUnsavedChanges: Bool {
@@ -257,18 +255,15 @@ struct ContentView: View {
     }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, isEditMode: isEditMode, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { isBlockEditorDirty = $0 }, onReload: { checkDisk(manual: true) }, onBeforeEdit: { allowed in
-            if isSaving { allowed(true) } // New edits stay outside the in-flight Save snapshot.
-            else { checkDisk(beforeEdit: allowed) }
-        }, reloadGeneration: reloadGeneration, visualEditing: visualEditing, savedMarkdown: originalText)
+        MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { if visualEditing { isBlockEditorDirty = $0 } }, onReload: { checkDisk(manual: true) }, reloadGeneration: reloadGeneration, visualEditing: visualEditing, savedMarkdown: originalText)
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
         .focusedValue(\.showTOC, $showTOC)
         .focusedValue(\.showSearch, $showSearch)
         .focusedValue(\.saveDocument, { saveDocument() })
-        .focusedValue(\.documentUndo, { replayEdit(redo: false) })
-        .focusedValue(\.documentRedo, { replayEdit(redo: true) })
+        .focusedValue(\.documentUndo, visualEditing ? { replayEdit(redo: false) } : nil)
+        .focusedValue(\.documentRedo, visualEditing ? { replayEdit(redo: true) } : nil)
         .focusedValue(\.closeDocument, {
             guard !isSaving, !isSwitchingEditor else { return }
             if visualEditing { closeProxy?.window?.performClose(nil) }
@@ -332,24 +327,14 @@ struct ContentView: View {
                 }
                 ToolbarItem(placement: .automatic) {
                     Toggle(isOn: Binding(
-                        get: { isEditMode },
-                        set: { newValue in
-                            isEditMode = newValue
-                            if newValue { checkDisk() }
-                            if !newValue && !visualEditing { isBlockEditorDirty = false }
-                        }
+                        get: { visualEditing },
+                        set: { if $0 != visualEditing { switchEditor() } }
                     )) {
-                        Label("Edit Mode", systemImage: "pencil")
+                        Label("Aa", systemImage: "textformat")
                     }
                     .toggleStyle(.button)
-                    .help(isEditMode ? "Switch to Read Mode" : "Switch to Edit Mode")
-                }
-                ToolbarItem(placement: .automatic) {
-                    Button { switchEditor() } label: {
-                        Label(visualEditing ? "Visual Editor" : "Markdown Editor", systemImage: "textformat")
-                    }
                     .disabled(isSaving || isSwitchingEditor)
-                    .help("Switch between visual and Markdown editing (Preview)")
+                    .help(visualEditing ? "Finish editing (Aa)" : "Edit document (Aa)")
                 }
                 ToolbarItem(placement: .automatic) {
                     Button {
@@ -396,6 +381,12 @@ struct ContentView: View {
         Task { @MainActor in
             while self.diskCheck.inProgress { try? await Task.sleep(for: .milliseconds(10)) }
             guard !self.isClosed else { self.isSwitchingEditor = false; return }
+            if !self.visualEditing {
+                let allowed = await withCheckedContinuation { continuation in
+                    self.checkDisk(beforeEdit: { continuation.resume(returning: $0) }, enteringEditor: true)
+                }
+                guard allowed, !self.isClosed else { self.isSwitchingEditor = false; return }
+            }
             let generation = self.reloadGeneration
             webView.callAsyncJavaScript("""
                 return await window._mvSwitchEditor(on, baseline);
@@ -407,6 +398,8 @@ struct ContentView: View {
                         webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
                         return
                     }
+                    if case .success(let value) = result, let payload = value as? [String: Any],
+                       payload["blocked"] as? Bool == true { return }
                     guard case .success(let value) = result, let payload = value as? [String: Any],
                           let text = payload["text"] as? String else {
                         webView.evaluateJavaScript("window._bloctVisual?.unfreeze(); window._mvDiskChecking = false;", completionHandler: nil)
@@ -418,7 +411,6 @@ struct ContentView: View {
                     self.docState.commit(text)
                     self.isBlockEditorDirty = !self.visualEditing && text != self.originalText
                     self.visualEditing.toggle()
-                    self.isEditMode = true
                 }
             }
         }
@@ -458,7 +450,7 @@ struct ContentView: View {
     private func discardAndClose() {
         let proxy = closeProxy
         webViewStore.webView?.evaluateJavaScript(
-            "window._mvCloseEditor && window._mvCloseEditor(false);"
+            "window._bloctVisual?.setEditable(false); true;"
         ) { _, _ in
             DispatchQueue.main.async {
                 self.document.writeProtection.discard()
@@ -480,8 +472,8 @@ struct ContentView: View {
     }
 
     private func commitEdit(_ newText: String) {
-        if visualEditing { docState.receiveVisualSnapshot(newText) }
-        else { docState.commit(newText) }
+        guard visualEditing else { return }
+        docState.receiveVisualSnapshot(newText)
     }
 
     // Take an explicit JS snapshot: native message delivery need not finish before
@@ -498,8 +490,7 @@ struct ContentView: View {
         isSaving = true
         webView.callAsyncJavaScript("""
             if (window._bloctVisual) return await window._bloctVisual.snapshot();
-            if (!window._mvCloseEditor || !window._mvRawLines) throw new Error('Editor not ready');
-            window._mvCloseEditor(true);
+            if (!window._mvRawLines) throw new Error('Document not ready');
             return {text: window._mvRawLines.join('\\n')};
             """, arguments: [:], in: nil, in: .page) { result in
             DispatchQueue.main.async {
@@ -512,7 +503,8 @@ struct ContentView: View {
                     return
                 }
                 let token = payload["token"] as? String
-                self.commitEdit(text)
+                if self.visualEditing { self.commitEdit(text) }
+                else { self.docState.commit(text) }
                 if let url = self.sourceURL {
                     let expected = self.originalText
                     Task { @MainActor in
@@ -576,12 +568,11 @@ struct ContentView: View {
         }
     }
 
-    // All entry points read the actual source. Inspect the live textarea in the
-    // same JS turn that freezes a clean page, so queued input/IME is not discarded.
-    private func checkDisk(manual: Bool = false, beforeEdit: ((Bool) -> Void)? = nil) {
+    // Read the actual source and freeze a clean Aa engine before accepting a reload.
+    private func checkDisk(manual: Bool = false, beforeEdit: ((Bool) -> Void)? = nil, enteringEditor: Bool = false) {
         guard !isClosed else { beforeEdit?(false); return }
         guard let url = sourceURL else { beforeEdit?(true); return }
-        guard !isSaving, !isSwitchingEditor, !diskCheck.inProgress else { beforeEdit?(false); return }
+        guard !isSaving, (!isSwitchingEditor || enteringEditor), !diskCheck.inProgress else { beforeEdit?(false); return }
         diskCheck.inProgress = true
         let generation = reloadGeneration
         Task { @MainActor in
@@ -591,7 +582,6 @@ struct ContentView: View {
                 frozenWebView?.evaluateJavaScript("""
                     window._mvDiskChecking = false;
                     window._bloctVisual?.unfreeze();
-                    var ta = document.getElementById('mv-block-editor'); if (ta) ta.readOnly = false;
                     """, completionHandler: nil)
             }
             do {
@@ -609,13 +599,8 @@ struct ContentView: View {
                         (() => {
                             if (window._bloctVisual) return window._bloctVisual.freezeIfClean();
                             if (!window._mvRawLines) return null;
-                            const dirty = !!(window._mvBlockDirty || window._mvComposing);
-                            if (!dirty) {
-                                window._mvDiskChecking = true;
-                                const ta = document.getElementById('mv-block-editor');
-                                if (ta) ta.readOnly = true;
-                            }
-                            return dirty;
+                            window._mvDiskChecking = true;
+                            return false;
                         })();
                         """) { result, error in
                             if let dirty = result as? Bool { continuation.resume(returning: dirty) }
@@ -633,7 +618,7 @@ struct ContentView: View {
                     } else { beforeEdit?(true) }
                 } else {
                     self.acceptDisk(latest, webView: webView)
-                    beforeEdit?(false) // The clicked block's old DOM ranges have been replaced.
+                    beforeEdit?(enteringEditor) // Aa can start on the newly accepted source.
                 }
             } catch {
                 beforeEdit?(false)
@@ -657,11 +642,10 @@ struct ContentView: View {
         let base64 = Data(text.utf8).base64EncodedString()
         (webView as? DocumentWebView)?.documentGeneration = reloadGeneration + 1
         webView.evaluateJavaScript("""
-            window._mvCloseEditor && window._mvCloseEditor(false);
             window._mvGeneration = \(reloadGeneration + 1);
             window._mvStale = true;
             window._mvRender && window._mvRender('\(base64)');
-            window._mvDiskChecking = false; var ta = document.getElementById('mv-block-editor'); if (ta) ta.readOnly = false;
+            window._mvDiskChecking = false;
             window._bloctVisual?.unfreeze();
             """, completionHandler: nil)
         originalText = text
@@ -722,17 +706,15 @@ struct ContentView: View {
     }
 
     private func replayEdit(redo: Bool) {
-        guard !isSwitchingEditor else { return }
-        // Let an active textarea keep its native character-level editing history.
+        guard visualEditing, !isSwitchingEditor else { return }
+        // Aa owns text history; earlier mode checkpoints remain in DocumentState.
         webViewStore.webView?.evaluateJavaScript("""
             (() => {
                 if (window._bloctVisual) {
                     if (window._bloctVisual.history(\(redo ? "true" : "false"))) return true;
                     return {text: window._bloctVisual.session.markdown()};
                 }
-                if (!document.getElementById('mv-block-editor')) return false;
-                document.execCommand('\(redo ? "redo" : "undo")');
-                return true;
+                return false;
             })();
             """) { handled, error in
                 guard error == nil, (handled as? Bool) != true else { return }

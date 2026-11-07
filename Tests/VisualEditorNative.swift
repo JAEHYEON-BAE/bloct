@@ -61,17 +61,20 @@ import WebKit
               wait { !switching.isVisual && switching.raw == visualDraft && switching.window.isDocumentEdited }
               && switching.disk == original && switching.model.document.text == original)
         check("mode switch retains native WebView, page URL and live JS document", switching.web === originalWeb && switching.web.url == originalPage && js(switching.web,"window.modePageMarker") as? Int == 42)
-        _ = js(switching.web, "window._mvStartBlockEdit(document.querySelector('.mv-block'), Infinity, true); true")
-        check("legacy draft is active before mode handoff", wait {
-            js(switching.web, "!!document.getElementById('mv-block-editor')") as? Bool == true
-        })
-        _ = js(switching.web, "let ta=document.getElementById('mv-block-editor'); ta.value += ' extra'; ta.dispatchEvent(new Event('input',{bubbles:true})); true")
-        let markdownDraft = switching.raw
+        _ = js(switching.web, "document.querySelector('.mv-block').click(); document.querySelector('.mv-task-checkbox').click(); true")
+        check("Aa off is read-only with no legacy edit API or textarea", switching.raw == visualDraft
+              && js(switching.web,"typeof window._mvSetEditMode === 'undefined' && typeof window._mvStartBlockEdit === 'undefined' && !document.querySelector('textarea,[contenteditable=true]') && Array.from(document.querySelectorAll('.mv-task-checkbox')).every(n=>n.disabled)") as? Bool == true)
+        _ = js(switching.web,"window.webkit.messageHandlers.commitEdit.postMessage({text:btoa('forged read edit'),generation:window._mvGeneration}); true")
+        spin(0.1)
+        check("reading rejects edit bridge commits", switching.actions.state.text == visualDraft)
+        switching.actions.undo()
+        check("Aa off cannot mutate the draft through native Undo", switching.raw == visualDraft)
         switching.switchEditor()
-        check("active unsaved Markdown text survives visual reentry and stays dirty",
-              wait { switching.isVisual && switching.raw == markdownDraft && switching.window.isDocumentEdited }
-              && markdownDraft != visualDraft && switching.disk == original)
-        check("visual reentry uses the same native WebView and page", switching.web === originalWeb && switching.web.url == originalPage && js(switching.web,"window.modePageMarker") as? Int == 42)
+        check("Aa reentry preserves the unsaved draft and stays dirty", wait { switching.isVisual && switching.raw == visualDraft && switching.window.isDocumentEdited } && switching.disk == original)
+        _ = js(switching.web, "let v=window._bloctVisual.view; v.dispatch(v.state.tr.insertText(' extra',v.state.doc.content.size-1)); true")
+        let markdownDraft = switching.raw
+        check("reentered Aa accepts further input", markdownDraft != visualDraft)
+        check("Aa reentry uses the same native WebView and page", switching.web === originalWeb && switching.web.url == originalPage && js(switching.web,"window.modePageMarker") as? Int == 42)
         switching.actions.undo()
         check("mode-boundary Undo returns to the previous draft with its dirty baseline",
               wait { switching.raw == visualDraft && switching.window.isDocumentEdited })
@@ -107,6 +110,25 @@ import WebKit
         legacyStart.actions.undo()
         check("first Aa Save keeps engine Undo and its saved baseline", wait { legacyStart.raw == legacySnapshot && !legacyStart.window.isDocumentEdited })
         legacyStart.teardown()
+
+        let readSave = try Session(root.appendingPathComponent("read-save.md"), original)
+        readSave.toggle();let readDraft = readSave.raw
+        readSave.switchEditor()
+        check("Aa off retains a dirty unsaved draft", wait { !readSave.isVisual && readSave.window.isDocumentEdited } && readSave.disk == original)
+        readSave.actions.save()
+        check("Save after Aa off writes the exact draft while remaining read-only", wait { readSave.disk == readDraft && !readSave.window.isDocumentEdited } && !readSave.isVisual)
+        readSave.switchEditor()
+        check("Aa reentry after read-mode Save uses the saved baseline", wait { readSave.isVisual && readSave.raw == readDraft && !readSave.window.isDocumentEdited })
+        readSave.teardown()
+
+        let preflightDir = root.appendingPathComponent("preflight")
+        try FileManager.default.createDirectory(at: preflightDir, withIntermediateDirectories: true)
+        let preflight = try Session(preflightDir.appendingPathComponent("legacy-start.md"), original, visual:false)
+        let preflightExternal = "# External before Aa\n\n- [ ] changed"
+        try preflightExternal.write(to: preflight.file, atomically:true, encoding:.utf8)
+        preflight.switchEditor()
+        check("entering Aa reads the current clean disk version before editing", wait { preflight.isVisual && preflight.raw == preflightExternal && !preflight.window.isDocumentEdited })
+        preflight.teardown()
 
         let warnings = VisualProbe.closeWarnings
         // Change the real engine while intentionally suppressing its native dirty

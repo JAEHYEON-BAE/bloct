@@ -76,7 +76,7 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
 
 @MainActor private func preview(_ markdown: String, _ fileURL: URL?, _ recorder: Recorder) -> AnyView {
     AnyView(MarkdownWebView(markdown: markdown, fileURL: fileURL, zoomLevel: 1, showTOC: false,
-                            isEditMode: false, webViewStore: WebViewStore(),
+                            webViewStore: WebViewStore(),
                             onTextCommit: { recorder.commits.append($0) }))
 }
 
@@ -296,8 +296,8 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
         let recorder = Recorder()
         func snapshot(_ text: String, _ source: URL?, generation: Int = 0, edit: Bool = false) -> AnyView {
             AnyView(MarkdownWebView(markdown: text, fileURL: source, zoomLevel: 1, showTOC: true,
-                isEditMode: edit, webViewStore: WebViewStore(), onTextCommit: { recorder.commits.append($0) },
-                reloadGeneration: generation))
+                webViewStore: WebViewStore(), onTextCommit: { recorder.commits.append($0) },
+                reloadGeneration: generation, visualEditing: edit))
         }
         let hosting = NSHostingView(rootView: snapshot("# FIRST\n\nold", file))
         hosting.frame = NSRect(x: 0, y: 0, width: 900, height: 700)
@@ -336,7 +336,7 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
         })
         Report.check("bootstrap \(kind): source and generation are current",
             coordinator.fileURL == latestFile && (js(web, "return window._mvGeneration;") as? Int) == 4)
-        Report.check("bootstrap \(kind): edit mode is current", (js(web, "return window._mvEditMode;") as? Bool) == true)
+        Report.check("bootstrap \(kind): latest Aa request is current", wait { (js(web, "return !!window._bloctVisual && !window._mvSetEditMode;") as? Bool) == true })
         Report.check("bootstrap \(kind): only one initial policy decision", gate.decisions == 1, "\(gate.decisions)")
         if latestFile != nil {
             let expectedWidth = kind == "moved" ? 13 : 7
@@ -455,14 +455,11 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
     let directory = root.appendingPathComponent("reload-guards")
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     let recorder = Recorder()
-    var allowEdit = false
-    var editChecks = 0
     var reloadRequests = 0
     let view = MarkdownWebView(markdown: "# Reload guards\n\nbody", fileURL: directory.appendingPathComponent("doc.md"),
-        zoomLevel: 1, showTOC: false, isEditMode: true, webViewStore: WebViewStore(),
+        zoomLevel: 1, showTOC: false, webViewStore: WebViewStore(),
         onTextCommit: { recorder.commits.append($0) },
-        onReload: { reloadRequests += 1 },
-        onBeforeEdit: { reply in editChecks += 1; reply(allowEdit) })
+        onReload: { reloadRequests += 1 })
     let hosting = NSHostingView(rootView: AnyView(view))
     hosting.frame = NSRect(x: 0, y: 0, width: 900, height: 700)
     hosting.layoutSubtreeIfNeeded()
@@ -470,22 +467,9 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
     guard let webView = findWebView(in: hosting), pageReady(webView) else {
         Report.check("reload: page loads", false); return
     }
-    _ = js(webView, "window._mvStartBlockEdit(document.querySelector('.mv-block'), 0); return true;")
-    spin(0.15)
-    Report.check("reload: denied disk preflight prevents block edit", editChecks == 1 &&
-        (js(webView, "return !document.getElementById('mv-block-editor');") as? Bool) == true)
-    allowEdit = true
-    _ = js(webView, "window._mvStartBlockEdit(document.querySelector('.mv-block'), 0); return true;")
-    Report.check("reload: accepted disk preflight opens block", wait {
-        (js(webView, "return !!document.getElementById('mv-block-editor');") as? Bool) == true
-    })
-    Report.check("reload: IME composition is explicitly tracked", (js(webView, """
-        const ta = document.getElementById('mv-block-editor');
-        ta.dispatchEvent(new CompositionEvent('compositionstart'));
-        const started = window._mvComposing;
-        ta.dispatchEvent(new CompositionEvent('compositionend'));
-        return started && !window._mvComposing;
-        """) as? Bool) == true)
+    Report.check("reload: reading has no legacy editing API", (js(webView,"return !window._mvSetEditMode && !window._mvStartBlockEdit && !document.querySelector('[contenteditable=true],textarea');") as? Bool) == true)
+    _ = js(webView,"await window._mvSwitchEditor(true,'# Reload guards\\n\\nbody'); return true;")
+    Report.check("reload: Aa owns the only editable surface", (js(webView,"return !!window._bloctVisual && document.querySelectorAll('[contenteditable=true]').length===1;") as? Bool) == true)
     _ = js(webView, "document.dispatchEvent(new KeyboardEvent('keydown',{key:'r',metaKey:true,bubbles:true,cancelable:true})); return true;")
     Report.check("reload: Cmd+R from the page invokes native reload once", wait { reloadRequests == 1 })
     (webView as? DocumentWebView)?.documentGeneration = 2

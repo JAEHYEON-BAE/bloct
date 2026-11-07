@@ -39,8 +39,7 @@ struct WebKitRegression {
         let app = NSApplication.shared
         app.setActivationPolicy(.prohibited)
         let view = MarkdownWebView(markdown: "# Initial\n\nText", fileURL: nil,
-                                   zoomLevel: 1, showTOC: false, isEditMode: false,
-                                   webViewStore: WebViewStore())
+                                   zoomLevel: 1, showTOC: false, webViewStore: WebViewStore())
         // All rendering assets are bundled; no CDN or test renderer is involved.
         let html = view.buildHTML()
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("bloct-webkit-\(UUID().uuidString)")
@@ -83,7 +82,7 @@ struct WebKitRegression {
         let baseline = js(webView, metrics) as! [[String:Any]]
         let visual = WKWebView(frame: webView.frame, configuration: WKWebViewConfiguration())
         visual.loadHTMLString(MarkdownWebView(markdown: fixture, fileURL: nil, zoomLevel: 1,
-            showTOC: false, isEditMode: true, webViewStore: WebViewStore(), visualEditing: true).buildHTML(), baseURL: directory)
+            showTOC: false, webViewStore: WebViewStore(), visualEditing: true).buildHTML(), baseURL: directory)
         wait("visual math page", until: { !visual.isLoading && js(visual,"return !!window._bloctVisual;") as? Bool == true })
         check(visual,"document.querySelectorAll('.katex-display').length === 2 && !document.querySelector('.katex-error')", "Aa mode retains the whole state-space matrix and following equation")
         let actual = js(visual, metrics) as! [[String:Any]]

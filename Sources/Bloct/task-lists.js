@@ -1,7 +1,7 @@
 // Source positions are UTF-16 offsets, like JS strings. Generated HTML never
-// grants editing authority: only nodes installed from these private records do.
+// grants editing authority. Validated markers get styled, disabled read-only inputs.
 window._mvTasks = (() => {
-    let nodes = new WeakMap(), pending = new Map(), snapshot = '', serial = 0, queued = [];
+    let pending = new Map();
 
     function source(text, start = 0) {
         return { text, positions: Array.from({ length: text.length }, (_, i) => start + i) };
@@ -106,12 +106,7 @@ window._mvTasks = (() => {
     }
 
     function begin(raw) {
-        snapshot = raw;
-        nodes = new WeakMap();
         pending = new Map();
-        queued = [];
-        window._mvPendingTask = null; // A replaced page cannot wait on an obsolete disk callback.
-        serial++;
     }
     function render(view, original, prefix) {
         const allowed = new Map();
@@ -133,7 +128,7 @@ window._mvTasks = (() => {
                 return marked.Renderer.prototype.checkbox.call(this, token);
             }
             const key = prefix + 'TASK' + pending.size + 'X';
-            pending.set(key, { position, checked: !!token.checked, serial });
+            pending.set(key, { position, checked: !!token.checked });
             return key;
         };
         return marked.parser(tokens, Object.assign({}, marked.defaults, { renderer }));
@@ -152,11 +147,11 @@ window._mvTasks = (() => {
                 tail.deleteData(0, key.length);
                 const input = document.createElement('input');
                 input.type = 'checkbox';
+                input.disabled = true;
                 input.checked = record.checked;
                 input.className = 'mv-task-checkbox';
                 const label = tail.textContent.trim();
                 input.setAttribute('aria-label', label || 'Task');
-                nodes.set(input, record);
                 tail.parentNode.insertBefore(input, tail);
                 pending.delete(key);
                 // A text node can contain several placeholders.
@@ -167,87 +162,6 @@ window._mvTasks = (() => {
         pending.clear();
     }
 
-    function toggle(input, checked = false) {
-        const record = nodes.get(input);
-        if (!record || !input.isConnected || record.serial !== serial || window._mvDiskChecking) return;
-        if (!checked && window._mvCheckBeforeEdit) {
-            if (window._mvPendingEdit) return;
-            if (window._mvPendingTask) { queued.push({ input, record }); return; }
-            queued = [{ input, record }];
-            window._mvPendingTask = true;
-            window.webkit.messageHandlers.beforeEdit.postMessage(true);
-            return;
-        }
-        let position = record.position;
-        const scroll = window.scrollY;
-        let shiftFrom = Infinity, shiftBy = 0;
-        const old = snapshot;
-        if (window._mvActiveEl) {
-            const lines = old.split('\n');
-            const startLine = +window._mvActiveEl.getAttribute('data-start');
-            const endLine = +window._mvActiveEl.getAttribute('data-end');
-            const start = lines.slice(0, startLine).join('\n').length + (startLine ? 1 : 0);
-            const end = lines.slice(0, endLine).join('\n').length + (endLine < lines.length ? 1 : 0);
-            if (position >= start && position < end) return;
-            const current = window._mvRawLines.join('\n');
-            const delta = current.length - old.length;
-            // Outside the active editor both source prefixes/suffixes must agree.
-            if (current.slice(0, start) !== old.slice(0, start) || current.slice(end + delta) !== old.slice(end)) return;
-            if (position >= end) position += delta;
-            shiftFrom = end; shiftBy = delta;
-            window._mvCloseEditor(true);
-        } else if (window._mvRawLines.join('\n') !== old) return;
-
-        const raw = window._mvRawLines.join('\n');
-        const nextInput = Array.from(document.querySelectorAll('.mv-task-checkbox')).find(node => {
-            const next = nodes.get(node);
-            return next && next.position === position && next.checked === record.checked;
-        });
-        if (!nextInput || raw.slice(position - 1, position + 2).match(/^\[[ xX]\]$/) === null) return;
-        const state = raw[position] !== ' ';
-        if (state !== record.checked) return;
-        const next = raw.slice(0, position) + (state ? ' ' : 'x') + raw.slice(position + 1);
-        window._mvRawLines = next.split('\n');
-        window.webkit.messageHandlers.commitEdit.postMessage({
-            text: btoa(unescape(encodeURIComponent(next))), generation: window._mvGeneration || 0
-        });
-        window._mvStale = true;
-        window._mvRender(btoa(unescape(encodeURIComponent(next))));
-        const focused = Array.from(document.querySelectorAll('.mv-task-checkbox')).find(node => nodes.get(node).position === position);
-        if (focused) focused.focus({ preventScroll: true });
-        window.scrollTo(0, scroll);
-        return { shiftFrom, shiftBy };
-    }
-
-    document.addEventListener('mousedown', event => {
-        if (nodes.has(event.target)) event.preventDefault(); // commit editor before blur can replace the target
-    }, true);
-    document.addEventListener('click', event => {
-        if (!nodes.has(event.target)) return;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        toggle(event.target);
-    }, true);
-    document.addEventListener('keydown', event => {
-        if (!nodes.has(event.target) || event.key !== ' ' || event.metaKey || event.ctrlKey || event.altKey) return;
-        event.preventDefault(); // suppress the browser's second synthetic click
-        event.stopImmediatePropagation();
-        if (!event.repeat) toggle(event.target);
-    }, true);
-
-    return { source, slice, replace, begin, render, install, resume(allowed) {
-        const targets = queued;
-        queued = [];
-        window._mvPendingTask = null;
-        if (!allowed || !targets.length) return;
-        const first = targets[0];
-        if (first.record.serial !== serial || !first.input.isConnected) return;
-        const shift = toggle(first.input, true);
-        if (!shift) return;
-        for (const target of targets.slice(1)) {
-            const position = target.record.position + (target.record.position >= shift.shiftFrom ? shift.shiftBy : 0);
-            const current = Array.from(document.querySelectorAll('.mv-task-checkbox')).find(node => nodes.get(node).position === position);
-            if (current) toggle(current, true);
-        }
-    } };
+    // Reading never grants edit authority. Aa owns all task mutations.
+    return { source, slice, replace, begin, render, install };
 })();

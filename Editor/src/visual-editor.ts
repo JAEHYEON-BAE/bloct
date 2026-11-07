@@ -175,6 +175,8 @@ export class VisualEditor {
   #matchIndex = -1;
   #options: VisualOptions;
   #snapshots = new Map<string, ReturnType<BlockSession['snapshot']>>();
+  #dialog: HTMLDialogElement | null = null;
+  get hasOpenDialog() { return !!this.#dialog?.open; }
 
   constructor(host: HTMLElement, markdown: string, options: VisualOptions = {}) {
     this.host = host;
@@ -620,7 +622,11 @@ export class VisualEditor {
       const cancel=document.createElement('button');cancel.textContent='Cancel';cancel.value='cancel';form.append(cancel);
       if(!input.readOnly){const save=document.createElement('button');save.textContent='Apply';save.value='apply';form.append(save);}
       dialog.append(form);document.body.append(dialog);
+      this.#dialog=dialog;
       dialog.addEventListener('close',()=>{
+        if(this.#dialog===dialog)this.#dialog=null;
+        if(this.view.isDestroyed)return;
+        this.status.textContent='';
         if(dialog.returnValue==='apply'&&!this.#frozen){
           const key=current.type.name.includes('image')?'src':'value';
           view.dispatch(closeHistory(view.state.tr.setNodeMarkup(pos,undefined,{...current.attrs,[key]:input.value})));
@@ -673,7 +679,7 @@ export class VisualEditor {
     return (forward?redo:undo)(this.session.state,tr=>this.view.dispatch(tr.setMeta('bloctHistory',true)));
   }
   freezeIfClean() {
-    const dirty=this.session.changed||this.view.composing;
+    const dirty=this.session.changed||this.view.composing||this.hasOpenDialog;
     if(!dirty){this.#frozen=true;this.view.setProps({editable:()=>false});}
     return dirty;
   }
@@ -716,7 +722,7 @@ export class VisualEditor {
     const found=this.#matches[this.#matchIndex];this.view.domAtPos(found.from).node.parentElement?.scrollIntoView({block:'center'});
   }
   focus(){this.view.focus();}
-  destroy(){document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.toolbar.remove();this.status.remove();}
+  destroy(){this.#dialog?.remove();this.#dialog=null;document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.toolbar.remove();this.status.remove();}
 }
 
 export function mountVisualEditor(host:HTMLElement,markdown:string,options:VisualOptions={}) {

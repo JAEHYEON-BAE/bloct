@@ -38,11 +38,11 @@ editing, semantic blocks and Markdown source preservation. Current behavior, des
 contracts, validation and remaining work are tracked in
 [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집);
 [BUG_FIXES.md](BUG_FIXES.md) records defects and their verification evidence.
-Development builds now include an opt-in **Visual Editor**. Use the **Aa** toolbar
-button to switch editors; unsaved changes stay in memory until you save. The viewed
+Development builds use **Aa** as the sole editing toggle. Aa off is read-only;
+Aa on edits the rendered document. There is no separate pencil/Edit mode or
+raw-block textarea editor. Unsaved changes stay in memory until you save. The viewed
 section and document alignment stay in place, with space added for the formatting row.
-The default remains
-the Markdown editor described below while IME and feature validation continues.
+IME and the remaining feature validation continue under F5.
 
 ### Visual Editor preview
 
@@ -54,7 +54,7 @@ three backticks (optionally a language) for code, and `---` for a divider.
 render a block equation. Enter/Shift-Enter may separate its lines before closing.
 `$...$` renders inline math. Empty text blocks show a muted placeholder for their type. Enter
 creates the next block; Shift-Enter inserts a hard break in text. The format menu
-also inserts images, equations and tables. Both editor modes share the same offline KaTeX renderer and fonts. Hover a formula
+also inserts images, equations and tables. Reading and editing share the same offline KaTeX renderer and fonts. Hover a formula
 for a subtle highlight, then click it to edit; Enter/Space also opens the dialog
 when the formula has keyboard focus.
 
@@ -74,8 +74,12 @@ advanced table/image controls and performance remain under validation; see F5.
 
 ## Features
 
-### Current Block Editing
-Click any block in the preview to edit it directly — no separate editor pane needed. The clicked block is replaced by a textarea pre-filled with the raw Markdown for that block. Press **Escape** or click elsewhere to commit the change and re-render.
+### Editing with Aa
+Enable **Aa** to edit text, formatting, tasks, tables, equations and images in one
+continuous document. Disable Aa to return to reading; your draft remains available
+for **⌘S** or later Aa reentry. Reading clicks and keystrokes cannot modify the
+document, and Undo/Redo are inactive until Aa is enabled again. Apply or cancel an
+open equation/image editor before leaving Aa.
 
 ### Markdown Rendering
 - Full [GitHub Flavored Markdown](https://github.github.com/gfm/) via [marked.js](https://marked.js.org/)
@@ -86,7 +90,8 @@ Click any block in the preview to edit it directly — no separate editor pane n
 
 ### Task Lists
 Toggle `- [ ]`, `- [x]`, or `- [X]` task checkboxes with a click or **Tab / Space**
-in Read or Edit mode. Square checkboxes use the same marker and text columns as
+while **Aa is enabled**. They keep the same shape but are disabled in reading.
+Square checkboxes use the same marker and text columns as
 ordinary lists, including nested items and wrapped lines, without an extra bullet.
 Each toggle is one Undo step. **⌘S** saves the state to the `.md` file; closing without
 saving discards the changes.
@@ -108,7 +113,7 @@ Pinch-to-zoom or use **⌘+** / **⌘−** to scale the preview.
 
 ### Reload and External Changes
 Press **⌘R** or right-click and choose **Reload** to read the current file from disk.
-Files also refresh automatically when changed externally, in both Read and Edit mode,
+Files also refresh automatically when changed externally, in both reading and Aa,
 when there are no local edits. Unsaved edits are preserved: choose **Keep Editing**,
 **Discard Edits and Reload**, or **Save a Copy…**. Saving checks for external changes
 before writing, so keeping a draft does not authorize overwriting a newer file.

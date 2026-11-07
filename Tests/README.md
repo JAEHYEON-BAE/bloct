@@ -13,8 +13,8 @@ sh Tests/run-block-model.sh
 
 The runner checks TypeScript, executes the headless ProseMirror/import tests, and
 builds `Editor/dist/blocks.js`, shared `math.js`/`math.css`, offline fonts and
-license notices for Safari 17/WKWebView. Native runners require these built assets. Xcode bundles these resources in the opt-in visual editor; the
-default remains the legacy Markdown editor. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
+license notices for Safari 17/WKWebView. Native runners require these built assets. Xcode bundles these resources for Aa, the sole editing mode.
+Aa off is read-only; the old Edit state and block textarea path are removed. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
 the existing #16 policy fixture and exact UTF-16 source offsets.
 `Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
 round trips, cursor/ID restoration, snapshot acknowledgements and fail-closed
@@ -51,15 +51,16 @@ sh Tests/run-visual-native.sh
 ```
 
 The visual native harness hosts the complete production ContentView with the
-experimental mode selected. Its 33 checks cover separate documents, dirty state
+Aa selected. Its 40 checks cover separate documents, dirty state
 without autosave, native/engine Undo/Redo and mode-boundary checkpoints, fixed Save snapshots and
 later changes, save failure/retry, clean external reload, Don't Save, Save-and-close
 and preview cleanup, including close before a queued dirty notification arrives.
-It also checks dirty mode roundtrips, active textarea handoff, carried saved baseline,
+It also checks dirty mode roundtrips, read-only mutation/bridge/Undo blocking, carried saved baseline,
 checkpoint Undo/Redo, exhausted Undo preserving Redo, and the same native WebView,
 page URL and JavaScript document across mode changes. Four checks start in the default
-Markdown mode and verify first-Aa Save, later input and Undo against its saved baseline.
-The harness waits for the
+reading state and verify first-Aa Save, later input and Undo against its saved baseline.
+It also checks Save after Aa off, clean reentry after that Save, and reading the
+latest clean disk version before enabling Aa. The harness waits for the
 real Save/switch busy flags before invoking the mode action, matching the toolbar.
 Temporary source copies expose actions, pause disk writes
 and capture errors/close warnings; NSDocument revert/close are controlled. First-save panels,
@@ -156,13 +157,12 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
   checks are controlled tests, not a reproduction of every runtime I/O failure.
 - Page suites in `Tests/js`, run inside a hosted page that includes the scripts
   injected on `didFinish`:
-  - `block-editing.js`: block editing, Swift re-render while editing, keyboard
-    navigation, dirty messages, math and offline fallback, search, style tokens,
-    copy as Markdown.
-  - `task-lists.js`: exact source-marker changes across duplicate/nested/quoted tasks,
-    preprocessing, raw HTML/code exclusion, keyboard events, delayed disk preflight,
-    editor blur/line shifts, stale DOM, rapid clicks, scroll preservation and
-    mixed-list marker visibility / nested and wrapped text alignment.
+  - `aa-editing.js`: ten source types, read-only clicks/typing, absence of old
+    edit APIs, one Aa engine, unsaved handoff/reentry, and unapplied property-dialog
+    drafts blocking exit until Apply/Cancel.
+  - `aa-task-lists.js`: styled disabled reading checkboxes, Aa-only mutations,
+    exact marker changes and Undo across duplicates/nesting/quotes/CRLF/empty tasks,
+    and inert author HTML inputs.
   - `sanitizer.js`: further attack patterns, legitimate Markdown/HTML that must
     survive sanitizing, KaTeX fonts and CSP violations.
 
@@ -196,15 +196,10 @@ An optional directory argument retains fixtures for manual GUI checks.
 sh Tests/run-task-lists.sh
 ```
 
-The F1 harness hosts complete production `ContentView` instances with separate
-`DocumentState` objects and temporary files. It checks real checkbox events reaching
-the native bridge, one Undo step per toggle (including queued disk preflight),
-Redo, no autosave, explicit Save, reopened rendering, in-flight snapshot isolation,
-save failure/retry, discard, save-and-close and preview cleanup. Temporary source
-copies expose production actions, pause writes and record presented errors. A
-controlled `NSDocument` supplies the window association and suppresses native
-revert UI; actual Save/Cancel/Don't Save buttons, keyboard navigation and permission
-error panels require the separate GUI checks linked in F1's implementation record.
+This command now delegates to the 40-check Aa native harness described above.
+The retired 17-check legacy task bridge/textarea harness is preserved in Git history
+and historical logs. It no longer represents the current Aa-only editing contract.
+Hosted task checks exercise the same read-only and Aa-only UI behavior separately.
 
 For CUA GUI sessions, treat Quit as the end of the app handle's lifetime. Do not
 chain `app.getAXState()` after quitting or reactivate that handle while the process

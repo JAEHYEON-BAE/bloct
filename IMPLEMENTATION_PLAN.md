@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-07**. 새 문서 Aa 초기화·빈 영역 입력·전환 전후 본문 모양 수정과 해당 범위 자동/GUI 검증을 반영했습니다.
+- 최신화: **2026-11-07**. Aa 단일 편집 통합·읽기 전용 전환과 해당 범위 자동/GUI 검증을 반영했습니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -11,14 +11,14 @@
 | F2 | 큰 문서 성능·중복 코드 정리 | 검토 대기. 측정 후 병목과 중복을 정리 |
 | F3 | 문서 타입·확대 단축키 | 검토 대기. UTType/문서 역할과 실제 키 입력 확인 |
 | F4 | 별도 정의 참조 링크 | 사용자 정책으로 보류. 정의 확인·편집 수단과 함께 재검토 |
-| F5 | Notion 방식 블록·연속 편집 | **최우선 / 구현 후 검증 대기.** Aa 실험 모드·표 입력·[새 문서 초기화/하단 빈 영역 입력](BUG_FIXES.md#bug-38)·[본문 모양 일치](BUG_FIXES.md#bug-40)까지 해당 범위 검증 완료. 실제 IME·기존 기능 대응·기본값 전환은 아래 관문 참조 |
+| F5 | Notion 방식 블록·연속 편집 | **최우선 / 구현 후 검증 대기.** [Aa 단일 편집/읽기 전환](BUG_FIXES.md#bug-41)과 표·입력·모양은 해당 범위 검증 완료. 실제 IME·기존 기능 대응·GUI 종료 한계는 아래 관문 참조 |
 
 기존 저장·Undo·보안·이미지·외부 갱신·배포의 상태는 버그 1·6·14·15·18·20~25번을 따릅니다. F5 구현만으로 기존 Markdown 경로의 미해결 버그를 완료 처리하지 않습니다.
 
 ## F1. 체크박스 토글 및 상태 저장
 
-- 읽기/편집 모드에서 GFM `- [ ]`·`- [x]`·`- [X]`를 클릭 또는 Tab/Space로 토글합니다. 18px 사각형을 목록 기호 칸에 표시하며 별도 bullet·포커스 테두리는 없습니다. 기존 경로의 `[]` 단축 입력·클릭 즉시 자동 저장은 범위 밖입니다.
-- [task-lists.js](Sources/Bloct/task-lists.js)의 파서 소유 UTF-16 위치와 비공개 WeakMap으로 대상을 검증합니다. 중복/중첩/인용/CRLF를 구분해 표식 한 글자만 바꾸고 코드·이스케이프·사용자 HTML/위조 속성은 제외합니다.
+- **Aa 켜짐에서만** GFM `- [ ]`·`- [x]`·`- [X]`를 클릭 또는 Tab/Space로 토글합니다. 읽기 상태는 동일 모양의 비활성 체크박스입니다. 18px 사각형을 목록 기호 칸에 표시하며 별도 bullet·포커스 테두리는 없습니다. 기존 경로의 `[]` 단축 입력·클릭 즉시 자동 저장은 범위 밖입니다.
+- Aa 엔진 트랜잭션·archive의 UTF-16 위치로 중복/중첩/인용/CRLF를 구분해 체크 표식 한 글자만 패치합니다. [task-lists.js](Sources/Bloct/task-lists.js)는 읽기 화면의 검증된 비활성 체크 표시만 담당하며 변경 브리지는 제거했습니다([41번](BUG_FIXES.md#bug-41)). 코드·이스케이프·작성자 HTML/위조 입력은 변경 권한이 없습니다.
 - 한 토글은 Undo 한 단계이며 명시적 Save 스냅샷을 사용합니다. 저장 중 추가 입력, 실패/Cancel의 초안·창 보존, Don't Save의 마지막 저장 상태 복원을 유지합니다.
 - **2026-10-26 검증:** [Hosted 317](Tests/results/2026-10-26/release-1.8.0-hosted.log)·[native 저장 17](Tests/results/2026-10-26/release-1.8.0-tasks.log) 통과, 실패/XFAIL/SKIP 0. [GUI](Tests/results/2026-10-26/f1-gui.json)·[최종 정렬 GUI](Tests/results/2026-10-26/checkbox-indent-gui.json)·[정렬 회귀 317](Tests/results/2026-10-26/checkbox-indent-hosted.log). 공개 배포 근거는 버그 22·23번에 둡니다.
 - 한계: 지연 쓰기·native revert는 통제된 자동 검사입니다. 실제 GUI 권한 오류/재저장은 확인했지만 macOS 14 기기·공개 Release GUI·큰 문서 성능은 미검증입니다. [종료 자동화 26번](BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore)은 별도 조사 중입니다.
@@ -36,9 +36,9 @@
 
 ### 현재 구현
 
-- **2026-11-05 선택형 연속 편집 연결, 2026-11-07 새 문서·입력·표시 보완까지 해당 범위 검증 완료.** 기본값은 기존 Markdown 편집이고 **Aa**로 Visual Editor를 선택합니다. 같은 WebView/페이지·공통 스타일·가시 위치를 유지하며 서식 행 높이만큼만 이동합니다. 미저장 초안을 양방향 인계하고 전환 자체는 저장하지 않습니다([32번](BUG_FIXES.md#32-aa-편집-후-버튼-비활성화로-모드-재진입-불가)·[34번](BUG_FIXES.md#bug-34)).
+- **2026-11-05 선택형 연속 편집 연결, 2026-11-07 새 문서·입력·표시 보완까지 해당 범위 검증 완료.** 기본은 읽기이고 **Aa만 편집 진입점**입니다. 연필 Edit 상태·옛 textarea 편집은 제거했으며, Aa를 끄면 초안을 보존한 읽기 상태로 돌아갑니다([41번](BUG_FIXES.md#bug-41)). 같은 WebView/페이지·공통 스타일·가시 위치를 유지하며 서식 행 높이만큼만 이동합니다. 미저장 초안을 양방향 인계하고 전환 자체는 저장하지 않습니다([32번](BUG_FIXES.md#32-aa-편집-후-버튼-비활성화로-모드-재진입-불가)·[34번](BUG_FIXES.md#bug-34)).
 - `@tiptap/pm`의 ProseMirror `EditorView` 하나로 문단·H1~H6·인용·일반/번호/할 일 목록·코드·구분선·수식·이미지·단순 GFM 표·인라인 mark를 편집합니다. 미지원 구문은 정제된 읽기 전용 미리보기와 표면 클릭으로 여는 `View source`로 보호합니다. 이미지도 기존 크기/정렬을 표시하고 표면 클릭으로 편집합니다. 체크박스·목록·표·공백/구분선의 전환 전후 모양 대응은 [40번](BUG_FIXES.md#bug-40)을 따릅니다.
-- 양 모드가 오프라인 KaTeX/CSS/폰트를 공유합니다. 수식은 hover 강조 후 클릭 또는 Enter/Space로 편집 창을 열며 읽기/저장 freeze에서는 비활성입니다. 2026-11-05 [수식 GUI](Tests/results/2026-11-05/f5-math-hover-gui.json)·사용자 hover 확인 완료. 수식 파싱·폰트 수정은 [27·28번](BUG_FIXES.md#bug-27), 입력/전환/표·빈 영역·모양 수정은 30~40번을 따릅니다.
+- 양 모드가 오프라인 KaTeX/CSS/폰트를 공유합니다. 수식은 hover 강조 후 클릭 또는 Enter/Space로 편집 창을 열며 읽기/저장 freeze에서는 비활성입니다. 2026-11-05 [수식 GUI](Tests/results/2026-11-05/f5-math-hover-gui.json)·사용자 hover 확인 완료. 수식 파싱·폰트 수정은 [27·28번](BUG_FIXES.md#bug-27), 입력/전환/표·빈 영역·모양·편집 통합은 30~41번을 따릅니다.
 
 | 책임 | 소스 |
 |---|---|
@@ -61,6 +61,7 @@
 
 | 입력·상태 | 현재 동작 |
 |---|---|
+| Aa 켜짐/꺼짐 | 켜짐에서만 본문/체크 변경·Undo/Redo 가능. 꺼짐은 읽기 전용이며 초안과 Save/재진입을 보존. 열린 속성 창은 Apply/Cancel 후 종료 |
 | 빈 문서·마지막 블록 아래 빈 영역 클릭 | 첫 빈 문단 재사용 또는 문서 끝 일반 문단 생성 후 즉시 입력. 반복 클릭은 빈 줄을 누적하지 않음([39번](BUG_FIXES.md#bug-39)) |
 | 빈 문단의 표식 + Space | `#`~`######`: 제목; `>`: 인용; `-`/`+`/`*`: 불릿; 숫자+`.`/`)`: 번호; `[]`/`[ ]`/`[x]`: 할 일; 백틱 3개/`~~~`+선택적 언어: 코드; `---`/`***`: 구분선 |
 | 문단·제목 Enter / Shift+Enter | 문단 Enter는 분할, Shift+Enter는 내부 hard break. 제목 Enter는 시작이면 앞 문단, 중간/끝이면 뒤 일반 문단; 제목 Shift+Enter도 Enter와 같음 |
@@ -80,11 +81,11 @@
 
 | 범위 | 마지막 기록된 결과 |
 |---|---|
-| 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-07 [TypeScript·모델 33·번들](Tests/results/2026-11-07/appearance-model.log) 통과 |
-| 실제 WebKit의 입력 시뮬레이션 | 2026-11-07 [브라우저 모델 18·시각 입력 200](Tests/results/2026-11-07/appearance-visual.log), 실패/SKIP 0. 합성 composition은 실제 IME 근거가 아님 |
-| native 저장·문서 수명 | 2026-11-07 [33 통과](Tests/results/2026-11-07/appearance-native.log). production ContentView·두 문서·history·지연 dirty/쓰기·실패/재시도·Reload/폐기/닫기. NSDocument/revert·지연 쓰기는 통제됨 |
-| 공통 WebKit·기존 경로 | 2026-11-07 [통합/레이아웃 51·모양/동작 864](Tests/results/2026-11-07/appearance-webkit.log). 2026-11-07 [Hosted 317](Tests/results/2026-11-07/appearance-hosted.log); 2026-11-05 [기존 체크 저장 17](Tests/results/2026-11-05/f5-layout-tasks.log), 실패/XFAIL/SKIP 0. 새 모드 전체 기능 검증으로 합산하지 않음 |
-| 실제 앱·빌드 | 2026-11-05 [최초 형식 입력/저장 GUI](Tests/results/2026-11-05/f5-visual-gui.json), 한글은 붙여넣기. 2026-11-06 표 [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/앱 종료](Tests/results/2026-11-06/table-down-exit-gui.json); 2026-11-07 [빌드·새 문서/하단 입력 GUI](Tests/results/2026-11-07/empty-aa-gui.json). [Aa 모양/체크/이미지/하단 입력 GUI](Tests/results/2026-11-07/appearance-gui.json). 모드·수식·입력·표의 세부 범위/한계는 버그 27~40번 |
+| 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-07 [TypeScript·모델 33·번들](Tests/results/2026-11-07/aa-only-model.log) 통과 |
+| 실제 WebKit의 입력 시뮬레이션 | 2026-11-07 [브라우저 모델 18·시각 입력 200](Tests/results/2026-11-07/aa-only-visual.log), 실패/SKIP 0. 합성 composition은 실제 IME 근거가 아님 |
+| native 저장·문서 수명 | 2026-11-07 [40 통과](Tests/results/2026-11-07/aa-only-native.log). production ContentView·두 문서·history·지연 dirty/쓰기·실패/재시도·Reload/폐기/닫기. NSDocument/revert·지연 쓰기는 통제됨 |
+| 공통 WebKit·기존 경로 | 2026-11-07 [통합/레이아웃 51·모양/동작 864](Tests/results/2026-11-07/aa-only-webkit.log). 2026-11-07 [Hosted 270](Tests/results/2026-11-07/aa-only-hosted.log)·[이미지 70](Tests/results/2026-11-07/aa-only-images.log). 옛 Edit 전용 검사는 Aa 계약 검사로 교체했으며 체크 native는 위 40개에 통합, 실패/XFAIL/SKIP 0. 새 모드 전체 기능 검증으로 합산하지 않음 |
+| 실제 앱·빌드 | 2026-11-05 [최초 형식 입력/저장 GUI](Tests/results/2026-11-05/f5-visual-gui.json), 한글은 붙여넣기. 2026-11-06 표 [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/앱 종료](Tests/results/2026-11-06/table-down-exit-gui.json); 2026-11-07 [빌드·새 문서/하단 입력 GUI](Tests/results/2026-11-07/empty-aa-gui.json). [Aa 모양/체크/이미지/하단 입력 GUI](Tests/results/2026-11-07/appearance-gui.json). [단일 Aa GUI/종료 미확인](Tests/results/2026-11-07/aa-only-gui.json). 모드·수식·입력·표의 세부 범위/한계는 버그 27~41번 |
 
 기존 수용 ID는 유지합니다: **B01~B04** 의미 분할·soft/hard break·독립 목록·중첩/중복 ID, **B05~B08** 코드/수식 보호·표/이미지 속성·미지원 원문, **B09~B12** Unicode/UTF-16/BOM/개행/gap·구조 명령 Undo·체크 위치/위조 거절·빈 파일/제목 왕복입니다. 새 importer 통과를 기본 렌더러의 버그 4·17·13 해결 근거로 사용하지 않습니다.
 
@@ -94,4 +95,4 @@
 2. **저장·외부 변경(S01·S02):** 새 문서 최초 Save 취소, 권한 실패/재시도, 충돌 선택 UI·사본 저장, 지연 응답 중 추가 입력, rename/삭제/원자적 교체, 다중 창 종료를 실제 패널로 검증합니다. 비동기 검사 후 조합/편집이 생기면 과거 clean 결과로 덮어쓰지 않습니다. [종료 cleanup 29번](BUG_FIXES.md#29-앱-메뉴-quit-후-고유-미리보기-파일-잔류)도 확인합니다.
 3. **기능 대응·보안(S03):** 부분 선택 Markdown/일반 텍스트/HTML 복사·붙여넣기, PDF 본문/UI 제외, 목차·검색(중복/수식 제목 포함), 상대 이미지/속성/캡션·문서 이동, 링크/원문 편집 UI, 표 행 삭제/열 편집을 확인합니다. 보호 원문·악성 HTML·위조 명령 회귀와 `documentId/generation/revision/requestId/schemaVersion` 전체 브리지 envelope 통합도 남아 있습니다.
 4. **사용성·성능:** 키보드 포커스/VoiceOver·dark/zoom, 대표 100KB/1MB/5MB·표/수식/이미지 혼합 문서의 입력/조합/열기/검색/직렬화 시간·메모리를 측정합니다. 지원 크기/지연 기준은 측정 후 정합니다. macOS 14 실제 기기·공개 Release GUI는 별도 검증입니다.
-5. **기본값 전환 판단:** 위 관문과 원문·빈 줄 경계·저장 보호에 미해결 데이터 손실이 없을 때만 판단합니다. 그전에는 기존 textarea 경로를 유지합니다. 슬래시 메뉴·핸들·임의 드래그/이동은 이후 범위이며 현재 구조 명령은 형제 이동·목록 indent/outdent에 제한됩니다. 공개 배포는 별도 요청 범위입니다.
+5. **수용·배포 판단:** 사용자 요청으로 2026-11-07 개발 버전은 Aa만 편집을 제공합니다. 위 관문과 원문·빈 줄 경계·저장 보호의 미검증 범위는 유지하며, 옛 textarea를 복구해 완료 근거를 대체하지 않습니다. 슬래시 메뉴·핸들·임의 드래그/이동은 이후 범위이며 현재 구조 명령은 형제 이동·목록 indent/outdent에 제한됩니다. 공개 배포는 별도 요청 범위입니다.

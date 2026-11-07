@@ -39,7 +39,7 @@ private func wait(_ timeout: Double = 15, until predicate: () -> Bool) -> Bool {
 
 @MainActor private func preview(_ markdown: String, _ fileURL: URL?, _ recorder: Recorder) -> AnyView {
     AnyView(MarkdownWebView(markdown: markdown, fileURL: fileURL, zoomLevel: 1, showTOC: false,
-                            isEditMode: false, webViewStore: WebViewStore(),
+                            webViewStore: WebViewStore(),
                             onTextCommit: { recorder.commits.append($0) }))
 }
 
@@ -185,15 +185,16 @@ struct RelativeImageRegression {
         check("copy uses the original Markdown image URL", copyOK == true)
 
         let edited = "# Edited\n\n![new image](vector.svg)"
-        _ = js(webView, """
-            window._mvSetEditMode(true);
-            window._mvStartBlockEdit(document.querySelector('#content .mv-block'), 0, false);
-            const editor = document.getElementById('mv-block-editor');
-            editor.value = '# Edited'; editor.dispatchEvent(new Event('input', {bubbles:true}));
-            window._mvCloseEditor(true); return true;
-            """)
-        check("editing a block preserves original image references in the Swift commit",
-              wait { recorder.commits.last?.contains("![custom](../pixel.png)") == true })
+        let imageDraft = js(webView, """
+            await window._mvSwitchEditor(true,window._mvRawLines.join('\\n'));
+            const editor=window._bloctVisual,v=editor.view;
+            v.dispatch(v.state.tr.insertText('Edited',1,1+v.state.doc.firstChild.textContent.length));
+            const snapshot=await editor.snapshot();
+            await window._mvSwitchEditor(false,window._mvRawLines.join('\\n'));
+            return snapshot.text;
+            """) as? String
+        check("Aa editing preserves original image references in its snapshot",
+              imageDraft?.contains("![custom](../pixel.png)") == true)
         hosting.rootView = preview(edited, document, recorder)
         hosting.layoutSubtreeIfNeeded()
         check("live replacement decodes a newly referenced image", wait {

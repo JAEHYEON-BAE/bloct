@@ -14,7 +14,7 @@ extension MarkdownWebView {
         let baseline = Data((savedMarkdown ?? markdown).utf8).base64EncodedString()
         return editorResource("editor-switch", "js") + """
         \nwindow._mvInstallEditorSwitch?.({
-            generation: \(reloadGeneration), visual: \(visualEditing ? "true" : "false"), editable: \(isEditMode ? "true" : "false"),
+            generation: \(reloadGeneration), visual: \(visualEditing ? "true" : "false"),
             baseline: new TextDecoder().decode(Uint8Array.from(atob('\(baseline)'), c => c.charCodeAt(0)))
         });
         """

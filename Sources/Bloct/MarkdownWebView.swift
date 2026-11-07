@@ -119,13 +119,11 @@ struct MarkdownWebView: NSViewRepresentable {
     let fileURL: URL?
     let zoomLevel: Double
     let showTOC: Bool
-    let isEditMode: Bool
     let webViewStore: WebViewStore
     var onCloseTOC: () -> Void = {}
     var onTextCommit: (String) -> Void = { _ in }
     var onEditorDirtyChanged: (Bool) -> Void = { _ in }
     var onReload: () -> Void = {}
-    var onBeforeEdit: ((@escaping (Bool) -> Void) -> Void)? = nil
     var reloadGeneration: Int = 0
     var visualEditing: Bool = false
     var savedMarkdown: String? = nil
@@ -231,7 +229,8 @@ struct MarkdownWebView: NSViewRepresentable {
         var lastMarkdown: String? = nil
         var showTOC: Bool = true
         var lastShowTOC: Bool = true
-        var lastEditMode: Bool = false
+        var lastVisualEditing: Bool = false
+        var savedMarkdown = ""
         var tempHTMLURL: URL?
         var onCloseTOC: () -> Void = {}
         var fileURL: URL?
@@ -252,7 +251,6 @@ struct MarkdownWebView: NSViewRepresentable {
         var imageOrigin = ""
         var onTextCommit: ((String) -> Void)?
         var onEditorDirtyChanged: ((Bool) -> Void)?
-        var onBeforeEdit: ((@escaping (Bool) -> Void) -> Void)?
         var onReload: (() -> Void)?
         var reloadGeneration = 0
 
@@ -286,13 +284,6 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
             case "reloadDocument":
                 onReload?()
-            case "beforeEdit":
-                let generation = reloadGeneration
-                onBeforeEdit? { [weak self, weak webView = message.webView] allowed in
-                    guard let self, !self.isDismantled, self.isPageLoaded,
-                          self.reloadGeneration == generation else { return }
-                    webView?.evaluateJavaScript("window._mvResumeEdit && window._mvResumeEdit(\(allowed ? "true" : "false"));", completionHandler: nil)
-                }
             case "openExternal":
                 if let urlString = message.body as? String, let url = URL(string: urlString),
                    ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
@@ -337,7 +328,6 @@ struct MarkdownWebView: NSViewRepresentable {
             webView.navigationDelegate = nil
             onTextCommit = nil
             onEditorDirtyChanged = nil
-            onBeforeEdit = nil
             onReload = nil
             onCloseTOC = {}
             (webView as? DocumentWebView)?.reloadDocument = nil
@@ -456,20 +446,14 @@ struct MarkdownWebView: NSViewRepresentable {
                     }, { passive: true });
                 })();
                 """, completionHandler: nil)
-            // Edit-mode changes made before the page finished loading were dropped; apply now.
-            if lastEditMode {
-                webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(true);", completionHandler: nil)
-            }
-            if pendingAutoFocus {
-                pendingAutoFocus = false
-                webView.evaluateJavaScript("""
-                    (function() {
-                        if (window._bloctVisual) { window._bloctVisual.focus(); return; }
-                        var el = document.querySelector('.mv-block') || document.getElementById('mv-append-zone');
-                        if (el && window._mvStartBlockEdit) window._mvStartBlockEdit(el, 0, false);
-                    })();
-                    """, completionHandler: nil)
-            }
+            // Apply the latest Aa request even if it changed during bootstrap.
+            webView.callAsyncJavaScript("""
+                await window._mvSwitchEditor(on, baseline);
+                if (focus) window._bloctVisual?.focus();
+                return true;
+                """, arguments: ["on":lastVisualEditing,"baseline":savedMarkdown,"focus":pendingAutoFocus], in:nil, in:.page,
+                completionHandler:nil)
+            pendingAutoFocus = false;
         }
 
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
@@ -497,7 +481,7 @@ struct MarkdownWebView: NSViewRepresentable {
         config.preferences.tabFocusesLinks = true // Include task controls in Tab navigation on macOS.
         config.setURLSchemeHandler(context.coordinator.localImages, forURLScheme: LocalImageLoader.scheme)
         let handler = WeakMessageHandler(context.coordinator)
-        for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty", "beforeEdit", "reloadDocument"] {
+        for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty", "reloadDocument"] {
             config.userContentController.add(handler, name: name)
         }
         let webView = DocumentWebView(frame: .zero, configuration: config)
@@ -531,20 +515,13 @@ struct MarkdownWebView: NSViewRepresentable {
         coordinator.imageOrigin = imageOrigin
         coordinator.onTextCommit = onTextCommit
         coordinator.onEditorDirtyChanged = onEditorDirtyChanged
-        coordinator.onBeforeEdit = onBeforeEdit
         coordinator.onReload = onReload
         (webView as? DocumentWebView)?.reloadDocument = fileURL == nil ? nil : onReload
         (webView as? DocumentWebView)?.documentGeneration = reloadGeneration
         let forcedReload = coordinator.reloadGeneration != reloadGeneration
         coordinator.reloadGeneration = reloadGeneration
-        if coordinator.lastEditMode != isEditMode {
-            coordinator.lastEditMode = isEditMode
-            // Before the page has loaded, didFinish applies lastEditMode instead.
-            if coordinator.isPageLoaded {
-                let flag = isEditMode ? "true" : "false"
-                webView.evaluateJavaScript("window._mvSetEditMode && window._mvSetEditMode(\(flag));", completionHandler: nil)
-            }
-        }
+        coordinator.lastVisualEditing = visualEditing
+        coordinator.savedMarkdown = savedMarkdown ?? markdown
         if coordinator.lastMarkdown != markdown || locationChanged || forcedReload {
             coordinator.lastMarkdown = markdown
             if coordinator.isPageLoaded {
@@ -563,7 +540,7 @@ struct MarkdownWebView: NSViewRepresentable {
                         coordinator.loadInitialPage(html, in: webView, previewURL: nil, baseURL: dir)
                     }
                 } else {
-                    coordinator.pendingAutoFocus = true
+                    coordinator.pendingAutoFocus = visualEditing
                     coordinator.loadInitialPage(html, in: webView, previewURL: nil, baseURL: nil)
                 }
             }
@@ -626,17 +603,6 @@ struct MarkdownWebView: NSViewRepresentable {
                 .mv-block { display: contents; }
                 .mv-block:has(> hr:only-child) { display: block; min-height: 2em; }
                 #mv-append-zone { height: 1.5em; }
-                #mv-block-editor {
-                    display: block; width: 100%; box-sizing: border-box;
-                    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
-                    font-size: 0.9em; line-height: 1.6; padding: 8px 12px; margin: 2px 0;
-                    border: 2px solid #0969da; border-radius: 6px;
-                    background: #f6f8fa; color: inherit;
-                    resize: none; outline: none; overflow: hidden; tab-size: 4;
-                }
-                @media (prefers-color-scheme: dark) {
-                    #mv-block-editor { background: #161b22; border-color: #388bfd; }
-                }
             </style>
             <style>\(visualEditorStyles().isEmpty ? Self.mathResource("css") : visualEditorStyles())</style>
             <script nonce="\(nonce)">\(visualEditorBundle())</script>
@@ -851,7 +817,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
 
                 // Rebuild #content from raw markdown without touching scroll position.
-                // Also makes _mvRawLines (the line model used by block editing) match the DOM.
+                // Keep the read snapshot in sync with the rendered DOM.
                 function _mvRenderRaw(raw) {
                     _mvTasks.begin(raw);
                     window._mvRawLines = raw.split('\\n');
@@ -891,8 +857,6 @@ struct MarkdownWebView: NSViewRepresentable {
                         return '<div class="mv-block" data-start="' + b.start + '" data-end="' + b.end + '">'
                             + _mvRenderOneBlock(blockText, sourceOffset) + '</div>';
                     }).join('');
-                    fullHtml += '<div id="mv-append-zone" data-start="'
-                        + window._mvRawLines.length + '" data-end="' + window._mvRawLines.length + '"></div>';
                     var content = document.getElementById('content');
                     content.innerHTML = fullHtml;
                     _mvTasks.install(content);
@@ -918,231 +882,19 @@ struct MarkdownWebView: NSViewRepresentable {
                     var raw = new TextDecoder().decode(bytes);
                     var current = window._mvRawLines ? window._mvRawLines.join('\\n') : null;
                     if (raw === current && !window._mvStale) return;  // already rendered locally
-                    if (window._mvActiveEl) {
-                        // Rebuilding #content would destroy the open editor. Keep it if it has
-                        // edits (_mvCloseEditor re-renders later); otherwise drop it, e.g. on undo.
-                        if (window._mvBlockDirty) { window._mvStale = true; return; }
-                        window._mvCloseEditor(false);
-                    }
                     _mvRenderRaw(raw);
                 };
 
                 // Initial render
                 window._mvRender('\(base64Markdown)');
 
-                // Count visible characters from blockEl start to caret position.
-                function _mvCharOffset(blockEl, caretNode, caretOffset) {
-                    var offset = 0;
-                    var walker = document.createTreeWalker(blockEl, NodeFilter.SHOW_TEXT, null);
-                    var node;
-                    while ((node = walker.nextNode())) {
-                        if (node === caretNode) { return offset + caretOffset; }
-                        offset += node.textContent.length;
-                    }
-                    return offset;
-                }
-
-                // First rendered block that covers or follows a raw line index.
-                function _mvBlockAtLine(line) {
-                    var blocks = document.querySelectorAll('#content .mv-block');
-                    for (var i = 0; i < blocks.length; i++) {
-                        if (+blocks[i].getAttribute('data-end') > line) return blocks[i];
-                    }
-                    return document.getElementById('mv-append-zone');
-                }
-
-                // Block editing state
+                // Reload belongs to the document in both reading and Aa.
                 document.addEventListener('keydown', function(e) {
                     if (e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'r') {
                         e.preventDefault();
                         window.webkit.messageHandlers.reloadDocument.postMessage(true);
                     }
                 }, true);
-                window._mvCheckBeforeEdit = \(onBeforeEdit == nil ? "false" : "true");
-                window._mvActiveEl = null;
-                window._mvActiveStartLine = -1;
-                window._mvActiveEndLine = -1;
-                window._mvBlockDirty = false;
-
-                // Close the inline block editor. commit=true posts the full text to Swift.
-                // focusNext / focusPrev then open the following / preceding block.
-                window._mvCloseEditor = function(commit, focusNext, focusPrev) {
-                    var ta = document.getElementById('mv-block-editor');
-                    var prevEl = window._mvActiveEl;
-                    var wasAppendZone = prevEl && prevEl.id === 'mv-append-zone';
-                    var wasDirty = window._mvBlockDirty;
-                    var savedStartLine = window._mvActiveStartLine;
-                    var savedEndLine = window._mvActiveEndLine;
-                    window._mvBlockDirty = false;
-                    window._mvComposing = false;
-                    if (ta) ta.remove();
-                    if (prevEl) prevEl.style.display = '';
-                    window._mvActiveEl = null;
-                    if (wasDirty) window.webkit.messageHandlers.editorDirty.postMessage(false);
-                    if (commit && prevEl) {
-                        // Text typed into the append zone needs a blank separator line so it
-                        // doesn't merge into the previous block.
-                        if (wasAppendZone && savedStartLine > 0
-                                && window._mvRawLines.length > savedStartLine
-                                && window._mvRawLines[savedStartLine - 1].trim() !== '') {
-                            window._mvRawLines.splice(savedStartLine, 0, '');
-                            savedEndLine += 1;
-                        }
-                        var text = window._mvRawLines.join('\\n');
-                        window.webkit.messageHandlers.commitEdit.postMessage({text:btoa(unescape(encodeURIComponent(text))), generation:window._mvGeneration || 0});
-                    }
-                    // Re-render immediately so every block's data-start/data-end matches
-                    // _mvRawLines again; Swift's echo _mvRender with the same text is a no-op.
-                    if ((commit && wasDirty) || window._mvStale) {
-                        _mvRenderRaw(window._mvRawLines.join('\\n'));
-                    }
-                    if (focusNext || focusPrev) {
-                        var blocks = document.querySelectorAll('#content .mv-block');
-                        var target = null;
-                        if (focusNext) {
-                            for (var i = 0; i < blocks.length; i++) {
-                                if (+blocks[i].getAttribute('data-start') >= savedEndLine) { target = blocks[i]; break; }
-                            }
-                            if (!target) target = document.getElementById('mv-append-zone');
-                        } else {
-                            for (var i = blocks.length - 1; i >= 0; i--) {
-                                if (+blocks[i].getAttribute('data-end') <= savedStartLine) { target = blocks[i]; break; }
-                            }
-                        }
-                        if (target) window._mvStartBlockEdit(target, Infinity, true);
-                    }
-                };
-
-                // Replace a .mv-block with an inline textarea for direct markdown editing.
-                window._mvResumeEdit = function(allowed) {
-                    if (window._mvPendingTask) { _mvTasks.resume(allowed); return; }
-                    var pending = window._mvPendingEdit;
-                    window._mvPendingEdit = null;
-                    if (allowed && pending && pending[0].isConnected) {
-                        window._mvStartBlockEdit(pending[0], pending[1], pending[2], true);
-                    }
-                };
-                window._mvStartBlockEdit = function(blockEl, charOffset, scrollTo, checked) {
-                    if (window._mvDiskChecking) return;
-                    if (!checked && window._mvCheckBeforeEdit) {
-                        window._mvPendingEdit = [blockEl, charOffset, scrollTo];
-                        window.webkit.messageHandlers.beforeEdit.postMessage(true);
-                        return;
-                    }
-                    if (window._mvActiveEl === blockEl) return;
-                    if (window._mvActiveEl) {
-                        // Closing the open editor may re-render #content and detach blockEl.
-                        // Remember its line, shifted by the lines the closed edit added or
-                        // removed, so the matching block can be found in the new DOM.
-                        var prevEnd = +window._mvActiveEl.getAttribute('data-end');
-                        var line = +blockEl.getAttribute('data-start');
-                        if (line >= prevEnd) line += window._mvActiveEndLine - prevEnd;
-                        var isAppendZone = blockEl.id === 'mv-append-zone';
-                        window._mvCloseEditor(true);
-                        if (!blockEl.isConnected) {
-                            blockEl = isAppendZone ? document.getElementById('mv-append-zone') : _mvBlockAtLine(line);
-                            if (!blockEl) return;
-                        }
-                    }
-
-                    var start = +blockEl.getAttribute('data-start');
-                    var end = +blockEl.getAttribute('data-end');
-                    window._mvActiveEl = blockEl;
-                    window._mvActiveStartLine = start;
-                    window._mvActiveEndLine = end;
-
-                    window._mvBlockDirty = false;
-                    var blockRaw = window._mvRawLines.slice(start, end).join('\\n');
-                    var ta = document.createElement('textarea');
-                    ta.id = 'mv-block-editor';
-                    ta.value = blockRaw;
-                    ta.spellcheck = true;
-
-                    var savedScroll = window.scrollY;
-                    blockEl.style.display = 'none';
-                    blockEl.parentNode.insertBefore(ta, blockEl.nextSibling);
-                    ta.style.height = ta.scrollHeight + 'px';
-                    if (scrollTo) {
-                        var targetY = ta.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.3;
-                        window.scrollTo({ top: targetY, behavior: 'smooth' });
-                    } else {
-                        window.scrollTo(0, savedScroll);
-                    }
-                    ta.focus();
-                    var pos = Math.min(charOffset || 0, ta.value.length);
-                    ta.setSelectionRange(pos, pos);
-
-                    ta.addEventListener('compositionstart', function() { window._mvComposing = true; });
-                    ta.addEventListener('compositionend', function() { window._mvComposing = false; });
-                    ta.addEventListener('input', function() {
-                        if (!window._mvBlockDirty) {
-                            window._mvBlockDirty = true;
-                            window.webkit.messageHandlers.editorDirty.postMessage(true);
-                        }
-                        var newLines = ta.value.split('\\n');
-                        window._mvRawLines = window._mvRawLines.slice(0, window._mvActiveStartLine)
-                            .concat(newLines)
-                            .concat(window._mvRawLines.slice(window._mvActiveEndLine));
-                        window._mvActiveEndLine = window._mvActiveStartLine + newLines.length;
-                        ta.style.height = 'auto';
-                        ta.style.height = ta.scrollHeight + 'px';
-                    });
-                    ta.addEventListener('keydown', function(e) {
-                        if (e.key === 'Escape') { e.preventDefault(); window._mvCloseEditor(true); }
-                        if (e.key === 'Enter' && e.metaKey && !e.shiftKey) {
-                            e.preventDefault();
-                            window._mvCloseEditor(true, true, false);
-                        }
-                        if (e.key === 'Enter' && e.metaKey && e.shiftKey) {
-                            e.preventDefault();
-                            window._mvCloseEditor(true, false, true);
-                        }
-                    });
-                    ta.addEventListener('blur', function() {
-                        // Defer so a click on another block fires _mvStartBlockEdit first,
-                        // letting it take ownership before this cleanup runs.
-                        setTimeout(function() {
-                            // A task's disk preflight is asynchronous. Keep its
-                            // source/DOM alive until it can commit and rebase.
-                            if (window._mvActiveEl === blockEl && !window._mvPendingTask) window._mvCloseEditor(true);
-                        }, 0);
-                    });
-                };
-
-                // Edit mode flag — toggled by Swift via _mvSetEditMode.
-                window._mvEditMode = false;
-                window._mvSetEditMode = function(on) {
-                    window._mvEditMode = on;
-                    document.getElementById('content').style.cursor = on ? 'text' : '';
-                    if (!on && window._mvActiveEl) window._mvCloseEditor(true);
-                };
-
-                // Click in the bottom padding area — forward to the append zone.
-                document.addEventListener('click', function(e) {
-                    if (!window._mvEditMode || window._bloctVisual) return;
-                    var az = document.getElementById('mv-append-zone');
-                    if (!az) return;
-                    var content = document.getElementById('content');
-                    if (!content) return;
-                    if (content.contains(e.target)) return;
-                    var contentBottom = content.getBoundingClientRect().bottom;
-                    if (e.clientY >= contentBottom) window._mvStartBlockEdit(az, 0);
-                });
-
-                // Click anywhere in the preview to start block editing.
-                document.getElementById('content').addEventListener('click', function(e) {
-                    if (!window._mvEditMode) return;
-                    if (e.target.closest('a')) return;
-                    if (e.target.id === 'mv-block-editor' || e.target.closest('#mv-block-editor')) return;
-                    var blockEl = e.target.closest('.mv-block, #mv-append-zone');
-                    if (!blockEl) return;
-                    var charOffset = 0;
-                    var caret = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
-                    if (caret && blockEl.contains(caret.startContainer)) {
-                        charOffset = _mvCharOffset(blockEl, caret.startContainer, caret.startOffset);
-                    }
-                    window._mvStartBlockEdit(blockEl, charOffset);
-                });
 
                 document.addEventListener('click', function(e) {
                     var a = e.target.closest('a[href^="#"]');

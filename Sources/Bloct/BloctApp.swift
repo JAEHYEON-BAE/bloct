@@ -89,10 +89,12 @@ struct UndoCommands: Commands {
                 documentUndo?()
             }
             .keyboardShortcut("z", modifiers: .command)
+            .disabled(documentUndo == nil)
             Button("Redo") {
                 documentRedo?()
             }
             .keyboardShortcut("z", modifiers: [.command, .shift])
+            .disabled(documentRedo == nil)
         }
     }
 }

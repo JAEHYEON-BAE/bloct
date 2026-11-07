@@ -11,7 +11,6 @@ const skip = (name, reason) => results.push({ name, pass: true, skip: true, deta
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const C = () => document.getElementById('content');
 const render = md => {
-  if (window._mvActiveEl) window._mvCloseEditor(false);
   window._mvStale = true;
   window._mvRender(b64(md));
 };
@@ -45,7 +44,7 @@ for (const [name, md] of Object.entries(attacks)) {
   // <input> itself is allowed (task lists); only its dangerous attributes must go.
   const leaked = /\son[a-z]+=|javascript:|\bautofocus\b|<style|<object|<embed|<iframe|srcset|formaction|data:text\/html|<button/i.exec(h);
   const structure = document.querySelectorAll('#content #content').length === 0
-                 && document.querySelectorAll('#mv-append-zone').length === 1
+                 && document.querySelectorAll('#mv-append-zone').length === 0
                  && C().querySelector('mark.mv-hl') === null;
   check('blocks ' + name, !leaked && structure && window.__pwn === 0,
         (leaked ? 'leaked ' + leaked[0] + ' in ' : '') + h.slice(0, 160) + ' pwn=' + window.__pwn);

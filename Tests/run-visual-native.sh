@@ -14,7 +14,7 @@ import sys
 out=Path(sys.argv[1])
 s=Path('Sources/Bloct/ContentView.swift').read_text()
 s=s.replace('@State private var visualEditing = false', '@State private var visualEditing = true')
-s=s.replace('_isEditMode = State(initialValue: fileURL == nil)', '_isEditMode = State(initialValue: fileURL == nil)\n        _visualEditing = State(initialValue: fileURL?.lastPathComponent != "legacy-start.md")')
+s=s.replace('_originalText = State(initialValue: text)', '_originalText = State(initialValue: text)\n        _visualEditing = State(initialValue: fileURL?.lastPathComponent != "legacy-start.md")')
 needle='var body: some View {\n        MarkdownWebView('
 assert s.count(needle)==1
 s=s.replace(needle,'''var body: some View {
