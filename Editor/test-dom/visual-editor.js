@@ -439,6 +439,29 @@ await check('keyboard Undo of quote and list input rules restores selection on t
     assert(editor.session.doc.lastChild.textContent==='Following');
   }
 });
+for(const prefix of ['> Previous','- Previous','1. Previous','## Previous','Previous','```\nPrevious\n```']) {
+  await check(`empty text Backspace after ${JSON.stringify(prefix)} selects the preceding block end without rewrapping`,()=>{
+    fresh(prefix);blankClick();
+    assert(editor.format('blockquote'));assert(key('Backspace'));
+    assert(editor.session.doc.lastChild.type.name==='paragraph' && !editor.session.doc.lastChild.content.size);
+    const previous=editor.session.doc.firstChild;
+    assert(key('Backspace'));assert(editor.session.doc.childCount===1);
+    assert(editor.session.doc.firstChild.eq(previous));
+    assert(editor.view.state.selection.$from.parent.textContent==='Previous');
+    assert(editor.view.state.selection.$from.parentOffset===8);
+    type('X');assert(editor.session.doc.firstChild.textContent==='PreviousX');serialized();
+    assert(editor.history(false));assert(editor.history(false));
+    assert(editor.session.doc.childCount===2 && !editor.session.doc.lastChild.content.size);
+  });
+}
+await check('empty first text Backspace is a no-op and protected previous nodes are selected without deletion',()=>{
+  fresh();const original=editor.session.doc;assert(key('Backspace'));assert(editor.session.doc.eq(original));
+  for(const source of ['---','<section>protected</section>']) {
+    fresh(source);blankClick();const previous=editor.session.doc.firstChild;
+    assert(key('Backspace'));assert(editor.session.doc.childCount===1 && editor.session.doc.firstChild.eq(previous));
+    assert(editor.view.state.selection.node===editor.session.doc.firstChild);serialized();
+  }
+});
 await check('save snapshot acknowledgement keeps later typing dirty and Undo available',async()=>{
   fresh();type('A');const snapshot=await editor.snapshot();type('B');
   assert(!editor.acknowledge(snapshot.token));assert(editor.session.changed);

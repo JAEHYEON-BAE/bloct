@@ -320,6 +320,17 @@ export class VisualEditor {
       if (empty && !$from.parentOffset && $from.parent.type===schema.nodes.heading) return setBlockType(schema.nodes.paragraph)(state,dispatch);
       if (empty && !$from.parentOffset && $from.depth>1 && $from.node(-1).type===schema.nodes.blockquote) return lift(state,dispatch);
       if (empty && !$from.parentOffset && $from.depth>1 && $from.node(-1).type===schema.nodes.list_item) return liftListItem(schema.nodes.list_item)(state,dispatch);
+      // joinBackward may wrap this empty paragraph into the preceding quote or
+      // list. Remove only the empty line and select the previous block's end.
+      if (empty && $from.depth===1 && $from.parent.type===schema.nodes.paragraph && !$from.parent.content.size) {
+        const at=$from.before();
+        if (at && dispatch) {
+          const tr=closeHistory(state.tr.delete(at,$from.after()));
+          tr.setSelection(Selection.near(tr.doc.resolve(at),-1)).setStoredMarks(null);
+          dispatch(tr.scrollIntoView());
+        }
+        return true;
+      }
       return baseKeymap.Backspace(state,dispatch,view);
     };
     return [inputRules({rules:rules()}), keymap({
