@@ -90,7 +90,9 @@ export const schema = new Schema({
   marks: {
     strong: {toDOM: () => ['strong', 0], parseDOM:[{tag:'strong'},{tag:'b'}]},
     em: {toDOM: () => ['em', 0], parseDOM:[{tag:'em'},{tag:'i'}]},
-    code: {code: true, excludes: '_', toDOM: () => ['code', 0], parseDOM:[{tag:'code'}]},
+    // Markdown permits code inside emphasis/links (for example **`address`**).
+    // Keep those marks together; typing rules separately protect literal code.
+    code: {code: true, toDOM: () => ['code', 0], parseDOM:[{tag:'code'}]},
     link: {
       attrs: {href: {}, title: {default: null}}, inclusive: false,
       // Navigation/URL validation must be added by the UI adapter before use.

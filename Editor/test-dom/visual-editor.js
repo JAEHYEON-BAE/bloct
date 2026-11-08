@@ -426,6 +426,33 @@ await check('bold, italic, inline code, inline math, link and image input rules'
     serialized();
   }
 });
+await check('formatted inline code mounts, retains marks through typing, snapshot and Undo',async()=>{
+  for(const source of ['**`address`**','*`address`*','[`address`](https://example.invalid)',
+    '**[*`address`*](https://example.invalid)**','| Bits |\n| --- |\n| `000001`**`00`** |']) {
+    fresh(source);let at=0,marks;
+    editor.session.doc.descendants((node,pos)=>{
+      if(!marks && node.isText && node.marks.some(m=>m.type.name==='code') && node.marks.length>1) {at=pos;marks=node.marks;}
+    });
+    assert(marks,source);assert(host.querySelector('strong code,em code,[data-link-source] code,code [data-link-source]'),host.innerHTML);
+    const $pos=editor.session.doc.resolve(at);
+    assert(editor.session.setSelection(editor.session.reference($pos.parent.attrs.id),$pos.parentOffset+1),source);
+    editor.view.updateState(editor.session.state);
+    type('X');const snapshot=await editor.snapshot();
+    assert(editor.session.doc.nodeAt(at).marks.map(m=>m.type.name).join(',')===marks.map(m=>m.type.name).join(','));
+    assert(BloctBlocks.importMarkdown(snapshot.text).doc.textContent.includes('X'));
+    assert(editor.history(false));assert(serialized()===source);
+  }
+});
+await check('Markdown typing stays literal inside an existing inline code mark',()=>{
+  for(const literal of ['**bold**','*italic*','`code`','$x$','[link](https://example.invalid)','![image](a.png)','> ','- ','# ']) {
+    fresh('`seed`');const p=editor.session.doc.firstChild;
+    editor.session.setSelection(editor.session.reference(p.attrs.id),2);editor.view.updateState(editor.session.state);
+    type(literal);assert(editor.session.doc.childCount===1 && editor.session.doc.firstChild.type.name==='paragraph');
+    assert(editor.session.doc.firstChild.textContent==='se'+literal+'ed');
+    assert(editor.session.doc.firstChild.childCount===1 && editor.session.doc.firstChild.firstChild.marks.map(m=>m.type.name).join(',')==='code');
+    serialized();
+  }
+});
 await check('closing inline code limits the code mark to the delimited text',()=>{
   fresh();type('`code`tail');
   const p=editor.session.doc.firstChild;

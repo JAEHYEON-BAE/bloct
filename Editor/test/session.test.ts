@@ -1,5 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import type {Node as PMNode} from '@tiptap/pm/model';
 import {BlockSession, type BlockCommand} from '../src/session.ts';
 import {importMarkdown} from '../src/importer.ts';
@@ -26,6 +27,28 @@ function oneCharacter(before: string, after: string) {
   assert.equal(positions.length, 1);
   assert.match(before.slice(positions[0] - 1, positions[0] + 2), /^\[[ xX]\]$/);
 }
+
+test('formatted inline code imports, edits, saves and undoes without dropping surrounding marks',()=>{
+  const fixture=readFileSync(new URL('../../Tests/fixtures/bug-44-code-marks.md',import.meta.url),'utf8');
+  for(const source of [fixture,'**`address`**','*`address`*','[`address`](https://example.invalid)',
+    '**[*`address`*](https://example.invalid)**']) {
+    const s=new BlockSession(source);
+    assert.equal(s.markdown(),source);
+    let target:PMNode|undefined,at=0;
+    s.doc.descendants((node,pos)=>{
+      if(!target && node.isText && node.marks.some(m=>m.type.name==='code')
+          && node.marks.some(m=>m.type.name!=='code')) {target=node;at=pos;}
+    });
+    assert.ok(target);
+    s.dispatch(s.state.tr.insertText('X',at+1,at+2));
+    const snapshot=s.snapshot();
+    assert.deepEqual(semantics(importMarkdown(snapshot.markdown).doc),semantics(s.doc));
+    assert.equal(s.doc.nodeAt(at)!.marks.map(m=>m.type.name).join(','),target.marks.map(m=>m.type.name).join(','));
+    assert.equal(s.markSaved(snapshot),true);assert.equal(s.changed,false);
+    assert.equal(s.undo(),true);assert.equal(s.markdown(),source);
+    assert.equal(s.redo(),true);assert.equal(s.markdown(),snapshot.markdown);
+  }
+});
 
 test('editing an image URL preserves caption Markdown, dimensions and unrelated source',()=>{
   const source='![image](old.png){width=64 align=center}\n*[Figure **caption**]*\n\nUnrelated **text**';

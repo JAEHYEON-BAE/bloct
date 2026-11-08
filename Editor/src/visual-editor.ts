@@ -100,7 +100,7 @@ function rules(): InputRule[] {
       const node = schema.nodes[kind].create({...p.attrs});
       tr.replaceWith($from.before(), $from.before() + p.nodeSize, [node, schema.nodes.paragraph.create()]);
       return tr.setSelection(TextSelection.create(tr.doc, $from.before() + node.nodeSize + 1));
-    });
+    },{inCodeMark:false});
   return [
     // WebKit's native DOM input can deliver a trailing Space as NBSP. Match it
     // only in marker syntax; preserve ordinary text and the exact Undo spelling.
@@ -115,15 +115,15 @@ function rules(): InputRule[] {
       const prefix = match[0].startsWith(' ') ? 1 : 0;
       return state.tr.insertText(match[1], start + prefix, end)
         .addMark(start + prefix, start + prefix + match[1].length, schema.marks.strong.create());
-    }),
+    },{inCodeMark:false}),
     new InputRule(/(?:^|\s)\*([^*]+)\*$/, (state, match, start, end) => {
       const prefix = match[0].startsWith(' ') ? 1 : 0;
       return state.tr.insertText(match[1], start + prefix, end)
         .addMark(start + prefix, start + prefix + match[1].length, schema.marks.em.create());
-    }),
+    },{inCodeMark:false}),
     new InputRule(/`([^`]+)`$/, (state, match, start, end) => state.tr.insertText(match[1], start, end)
       .addMark(start, start + match[1].length, schema.marks.code.create())
-      .removeStoredMark(schema.marks.code)),
+      .removeStoredMark(schema.marks.code),{inCodeMark:false}),
     new InputRule(/\$\$$/, (state,match,start,end) => {
       const tr=state.tr.insertText(match[0],start,end);
       const cursor=start+match[0].length,$cursor=tr.doc.resolve(cursor);
@@ -156,11 +156,11 @@ function rules(): InputRule[] {
         return tr.setSelection(TextSelection.create(tr.doc,$from.before()+image.nodeSize+1));
       }
       return state.tr.replaceWith(start,end,schema.nodes.inline_image.create(attrs));
-    }),
+    },{inCodeMark:false}),
     new InputRule(/\[([^\]]+)\]\(([^)\s]+)\)$/, (state,match,start,end) => {
       if(start>0 && state.doc.textBetween(start-1,start)==='!')return null;
       return state.tr.insertText(match[1],start,end).addMark(start,start+match[1].length,schema.marks.link.create({href:match[2]}));
-    }),
+    },{inCodeMark:false}),
   ];
 }
 
