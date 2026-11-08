@@ -25,5 +25,13 @@
     "Marker native keyboard acceptance passed; comprehensive Korean/Hanja/emoji composition remains F5 U03.",
     "Three owned preview files remain in this temporary directory after final run; existing bug 29 is not fixed by this task.",
     "New-marker.md contains an empty bullet (- ); empty-block Markdown persistence limitations remain as documented."
-  ]
+  ],
+  "terminationAudit": {
+    "date": "2026-11-08",
+    "processExitObserved": true,
+    "normalTerminationVerified": false,
+    "crashReportFound": true,
+    "evidence": "window-close-crashes.json",
+    "correction": "Earlier inventory-only exit confirmation did not detect SIGABRT during window closing. Feature interaction checks are separate from normal-close acceptance."
+  }
 }

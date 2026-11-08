@@ -1,8 +1,8 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-11-08**. 서식 안의 인라인 코드로 Aa 진입이 실패하는 문제를 수정하고 PS1 복사본으로 확인했습니다(44번).
-- 현재: 총 44개 중 **28개 해당 범위 검증 완료**, **3·5·9번 경로 제거**, **16번 보류**, **12개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
-- 다음 순서: **[F5의 다음 순서와 전환 관문](IMPLEMENTATION_PLAN.md#다음-순서와-기본값-전환-관문)**을 최우선으로 진행합니다. 읽기 렌더러/기존 기능의 조사 순서는 **4·17번 → 2·7·8·13번 → 10번 → 11·12·19번**입니다. 26번의 창 접근/종료 확인을 재검증합니다. 다음 새 버그 번호는 45번입니다.
+- 최신화: **2026-11-08**. 테스트 앱 창 종료의 실제 SIGABRT 3건을 확인했습니다(45번). 42~44번의 프로세스 종료 관찰을 정상 종료 검증으로 해석하지 않도록 정정했습니다.
+- 현재: 총 45개 중 **28개 해당 범위 검증 완료**, **3·5·9번 경로 제거**, **16번 보류**, **13개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
+- 다음 순서: **45번 창 종료 충돌 조사**를 먼저 진행하며, **[F5의 다음 순서와 전환 관문](IMPLEMENTATION_PLAN.md#다음-순서와-기본값-전환-관문)**을 최우선으로 진행합니다. 읽기 렌더러/기존 기능의 조사 순서는 **4·17번 → 2·7·8·13번 → 10번 → 11·12·19번**입니다. 26번의 창 접근/종료 확인을 재검증합니다. 다음 새 버그 번호는 46번입니다.
 
 ## 항목별 상태
 
@@ -54,7 +54,17 @@
 | 42 | 빈 Text의 Backspace가 앞 Quote로 다시 합쳐짐 | 수정·해당 범위 검증 완료(2026-11-08) | 빈 문단만 삭제 후 앞 블록 끝 선택·후속 입력/Undo/저장 GUI 확인 |
 | 43 | 실제 Space로 빈 Text의 인용·목록 표식 변환 실패 | 수정·해당 범위 검증 완료(2026-11-08) | WebKit NBSP를 블록 표식에서 인식, 실제 키 입력/저장·재로드 확인 |
 | 44 | 굵게·기울임·링크 안의 인라인 코드 문서에서 Aa JavaScript 오류 | 수정·해당 범위 검증 완료(2026-11-08) | 코드 mark의 전체 배제 해제·코드 내부 입력 규칙 차단, PS1 실제 편집/저장/Undo 확인 |
+| 45 | 창 닫기 중 windowDidOrderOffScreen: 예외로 앱 비정상 종료 | 조사 중(2026-11-08) | 실제 SIGABRT 3건. CloseProxy/창 delegate 전달·수명 조사, 정상 종료 수용 재개방 |
 
+
+<a id="bug-45"></a>
+## 45. 창 종료 중 windowDidOrderOffScreen: 예외와 SIGABRT
+
+- **2026-11-08 / 조사 중 — 충돌 3건 확인, 근본 수정 미검증.** 사용자 보고 “Bloct Input Fix quit unexpectedly”를 macOS 보고서로 확인했습니다. 22:34:36·22:36:16·22:51:34(KST), 모두 `com.personal.Bloct.InputFix20261108`의 주 스레드 `NSInvalidArgumentException` → `SIGABRT`이며 예외는 `-[(dynamic class) windowDidOrderOffScreen:]: unrecognized selector sent to instance`입니다. [충돌 보고서 발췌/원본 경로](Tests/results/2026-11-08/window-close-crashes.json).
+- 최소 관찰 흐름: Aa 창에서 테스트 후 창 닫기/폐기·종료. 2건은 `requestVisualClose()`의 `NSWindow.close()`(현재 ContentView.swift:434), 1건은 `discardAndClose()`의 창 닫기(:468)에서 창을 화면 밖으로 내리는 notification 전달 중 발생했습니다. 정확한 재현 빈도·일반 사용자 실행 조건은 미확정이며 26번의 과거 `procNotFound`와 별개인 실제 앱 충돌입니다.
+- 확인 사실/가설: receiver가 처리하지 못하는 selector를 받았습니다. `CloseProxy.responds(to:)`/`forwardingTarget(for:)`가 원래 weak delegate의 메서드까지 광고·전달하므로 종료 중 delegate/notification 수명·전달 경로를 우선 조사합니다. `(dynamic class)`의 실제 객체와 원인은 아직 계측으로 확정하지 않았습니다. 44번의 JavaScript `strong,code` 예외와는 다른 native 경로입니다.
+- 검증 정정: 42~44번의 Aa/키 입력/저장/Undo 근거는 유지하지만 앱 목록에서 사라졌다는 사실은 정상 종료 증거가 아니었습니다. 해당 GUI JSON에 충돌 감사 결과를 덧붙였습니다. 29번 미리보기 잔류도 이 충돌과 연관 가능한 가설이며, 단독 원인으로 확정하지 않습니다. 현재 테스트 앱의 정상 닫기/종료 수용은 재개방합니다.
+- 다음 조치: close notification receiver와 delegate 등록/해제를 계측하고 CloseProxy의 선택적 메서드 전달·수명을 검증합니다. 수정 시 clean/dirty·Save/Don't Save/Cancel·두 창 전환/닫기·Quit를 Computer Use와 실제 프로세스 종료 코드/새 crash report 부재로 확인합니다. 이번 원인 조사에서는 앱 코드·빌드·GUI 실행을 변경하지 않았습니다.
 
 <a id="bug-44"></a>
 ## 44. 서식 안의 인라인 코드 문서에서 Aa JavaScript 오류
@@ -62,21 +72,21 @@
 - **2026-11-08 / 수정·해당 범위 검증 완료.** `PS1_solution.md`의 `**` 안에 감싼 인라인 코드(예: 굵은 코드 주소)에서 재현했습니다. 최소 재현은 `` **`address`** ``를 열고 Aa. importer는 정상 Markdown의 `strong,code` mark를 함께 만들지만 스키마의 `code.excludes: '_'`가 이를 금지해 `doc.check()`에서 `RangeError: Invalid collection of marks for node text: strong,code`가 발생했습니다. 기울임/링크 조합도 같은 원인입니다.
 - 수정: 코드와 외부 서식 mark의 공존을 허용하고, 블록/굵게/기울임/코드/링크/이미지 타이핑 규칙은 기존 코드 mark 내부에서 실행하지 않도록 분리했습니다. 코드 구문 안 문자는 리터럴이며 무편집 원문과 굵게·기울임·링크를 유지합니다. [최소 회귀 fixture](Tests/fixtures/bug-44-code-marks.md)를 추가했습니다.
 - 검증: [TypeScript·모델 34·번들](Tests/results/2026-11-08/code-marks-model.log), [브라우저 모델 18·입력 256](Tests/results/2026-11-08/code-marks-visual.log), [앱 빌드](Tests/results/2026-11-08/code-marks-build.log) 통과. 문단/목록/표·복합 서식의 코드 가져오기/수정/저장/재파싱·Undo/Redo와 코드 내부 입력 규칙 비실행을 검사했습니다. [PS1 전체 모델](Tests/results/2026-11-08/code-marks-ps1.log): 105개 블록·굵은 코드 11개, 무편집 원문 동일 및 코드 수정 snapshot·재파싱·저장 승인·Undo/Redo 통과.
-- [Computer Use](Tests/results/2026-11-08/code-marks-gui.json): 이전 앱에서 Aa 예외 재현 → 같은 경로의 수정 앱에서 Aa 왕복·굵은 코드 끝 실제 `.` 입력·저장·Undo/저장·Reload·재진입·앱 종료 확인. [디스크 해시](Tests/results/2026-11-08/code-marks-gui-disk.json): 원본 무변경, Undo 후 복사본도 원본과 바이트 동일. GUI는 동일 내용 `.txt` 복사본이며 F3의 격리 앱 `.md` 선택 한계와 전체 IME 검증은 별도입니다. 종료 후 미리보기 1개 잔류는 29번에 남습니다.
+- [Computer Use](Tests/results/2026-11-08/code-marks-gui.json): 이전 앱에서 Aa 예외 재현 → 같은 경로의 수정 앱에서 Aa 왕복·굵은 코드 끝 실제 `.` 입력·저장·Undo/저장·Reload·재진입·앱 종료 확인. [디스크 해시](Tests/results/2026-11-08/code-marks-gui-disk.json): 원본 무변경, Undo 후 복사본도 원본과 바이트 동일. GUI는 동일 내용 `.txt` 복사본이며 F3의 격리 앱 `.md` 선택 한계와 전체 IME 검증은 별도입니다. 종료 후 미리보기 1개 잔류는 29번에 남습니다. **후속 감사에서 이 종료는 native 충돌로 확인됐으며 정상 종료 수용은 45번에서 재개방했습니다.**
 
 <a id="bug-43"></a>
 ## 43. 실제 Space 입력으로 빈 Text의 인용·목록이 활성화되지 않음
 
 - **2026-11-08 / 수정·해당 범위 검증 완료.** Computer Use에서 빈 Text에 `>`/`-` + Space를 누르면 Text가 유지되고 `> `/`- `가 남았습니다. WebKit native DOM 입력의 줄 끝 Space는 NBSP(U+00A0)로 전달될 수 있지만 블록 입력 정규식은 ASCII Space만 허용했습니다. 제목·인용·불릿·번호·할 일·코드·구분선 표식의 공백에만 NBSP를 허용합니다. 일반 본문/붙여넣기를 정규화하지 않으며 입력 규칙 취소는 실제 공백·같은 줄 커서를 복원합니다.
 - 검증: [수정 전 실패](Tests/results/2026-11-08/space-markers-before.log), [TypeScript·모델 33·번들](Tests/results/2026-11-08/space-markers-model.log), [브라우저 모델 18·입력 252](Tests/results/2026-11-08/space-markers-visual.log), [빌드](Tests/results/2026-11-08/space-markers-build.log) 통과. NBSP 16종 표식·순차 불릿→체크·Quote 해제/문단 분할/텍스트 삭제 후 변환·Undo/후속 입력·붙여넣기/코드/조합 중 비변환을 검사했습니다.
-- [Computer Use·디스크](Tests/results/2026-11-08/space-markers-gui.json): 수정 전 `>`/`-`의 native Space 실패 → 수정 후 두 표식과 `1.`/`#`/`[]`의 실제 키 변환, Quote→Text→Quote 재활성화·Backspace 취소·저장/재로드 확인. 새 빈 `about:blank` 문서에서도 `>`/`-` 변환 확인, 새 파일 저장과 두 문서 복귀·테스트 앱 종료 확인. 전체 IME 수용은 F5 U03이며 미리보기 잔류는 29번에 남습니다.
+- [Computer Use·디스크](Tests/results/2026-11-08/space-markers-gui.json): 수정 전 `>`/`-`의 native Space 실패 → 수정 후 두 표식과 `1.`/`#`/`[]`의 실제 키 변환, Quote→Text→Quote 재활성화·Backspace 취소·저장/재로드 확인. 새 빈 `about:blank` 문서에서도 `>`/`-` 변환 확인, 새 파일 저장과 두 문서 복귀·테스트 앱 종료 확인. 전체 IME 수용은 F5 U03이며 미리보기 잔류는 29번에 남습니다. **후속 충돌 보고서 감사로 정상 종료 검증은 45번에서 재개방했습니다.**
 
 <a id="bug-42"></a>
 ## 42. 빈 Text의 Backspace가 앞 Quote 안으로 다시 합쳐짐
 
 - **2026-11-08 / 수정·해당 범위 검증 완료.** 인용 내용 끝 Enter → 빈 Quote에서 Backspace → Text → 다시 Backspace에서 기본 `joinBackward`가 빈 문단을 앞 인용 안으로 감쌌습니다. 최상위 빈 일반 문단만 제거하고 앞 블록 끝을 선택합니다. 첫 문단은 유지하며 보호/원자 노드는 삭제하지 않고 선택합니다. 인용·목록 해제와 입력 규칙 취소 계약은 유지합니다.
 - 검증: [TypeScript·모델 33·번들](Tests/results/2026-11-08/empty-backspace-model.log), [브라우저 모델 18·입력 214](Tests/results/2026-11-08/empty-backspace-visual.log), [격리 앱 빌드](Tests/results/2026-11-08/empty-backspace-build.log) 통과. 앞 인용/불릿/번호/제목/일반/코드의 끝 위치·후속 입력·Undo와 첫 문단/보호 노드를 검사했습니다. [Computer Use](Tests/results/2026-11-08/empty-backspace-gui.json): Quote→Text→앞 내용 끝 입력·Undo·저장/재로드·두 문서 전환·앱 종료 확인, 디스크는 `> PreviousX\n\nFollowing`와 일치했습니다.
-- 한계: 전체 IME 수용은 F5 U03에 남습니다. 앱 종료는 확인했지만 고유 미리보기 2개가 잔류했습니다(29번).
+- 한계: 전체 IME 수용은 F5 U03에 남습니다. 프로세스 종료 관찰만 했으며 후속 감사에서 native 충돌을 확인했습니다(45번). 고유 미리보기 2개가 잔류했습니다(29번).
 
 
 <a id="bug-41"></a>
