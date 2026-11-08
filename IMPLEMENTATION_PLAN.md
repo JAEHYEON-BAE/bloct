@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-08**. 빈 Text의 Backspace 이동 수정과 해당 범위 자동/Computer Use 검증을 반영했습니다.
+- 최신화: **2026-11-08**. 빈 Text의 Backspace·실제 Space 표식 변환 수정과 해당 범위 자동/Computer Use 검증을 반영했습니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -11,7 +11,7 @@
 | F2 | 큰 문서 성능·중복 코드 정리 | 검토 대기. 측정 후 병목과 중복을 정리 |
 | F3 | 문서 타입·확대 단축키 | 검토 대기. UTType/문서 역할과 실제 키 입력 확인 |
 | F4 | 별도 정의 참조 링크 | 사용자 정책으로 보류. 정의 확인·편집 수단과 함께 재검토 |
-| F5 | Notion 방식 블록·연속 편집 | **최우선 / 구현 후 검증 대기.** [Aa 단일 편집/읽기 전환](BUG_FIXES.md#bug-41)·[빈 Text Backspace](BUG_FIXES.md#bug-42)와 표·입력·모양은 해당 범위 검증 완료. 실제 IME·기존 기능 대응·GUI 종료 한계는 아래 관문 참조 |
+| F5 | Notion 방식 블록·연속 편집 | **최우선 / 구현 후 검증 대기.** [Aa 단일 편집/읽기 전환](BUG_FIXES.md#bug-41)·[빈 Text Backspace](BUG_FIXES.md#bug-42)·[Space 표식](BUG_FIXES.md#bug-43)과 표·입력·모양은 해당 범위 검증 완료. 실제 IME·기존 기능 대응·GUI 종료 한계는 아래 관문 참조 |
 
 기존 저장·Undo·보안·이미지·외부 갱신·배포의 상태는 버그 1·6·14·15·18·20~25번을 따릅니다. F5 구현만으로 기존 Markdown 경로의 미해결 버그를 완료 처리하지 않습니다.
 
@@ -63,7 +63,7 @@
 |---|---|
 | Aa 켜짐/꺼짐 | 켜짐에서만 본문/체크 변경·Undo/Redo 가능. 꺼짐은 읽기 전용이며 초안과 Save/재진입을 보존. 열린 속성 창은 Apply/Cancel 후 종료 |
 | 빈 문서·마지막 블록 아래 빈 영역 클릭 | 첫 빈 문단 재사용 또는 문서 끝 일반 문단 생성 후 즉시 입력. 반복 클릭은 빈 줄을 누적하지 않음([39번](BUG_FIXES.md#bug-39)) |
-| 빈 문단의 표식 + Space | `#`~`######`: 제목; `>`: 인용; `-`/`+`/`*`: 불릿; 숫자+`.`/`)`: 번호; `[]`/`[ ]`/`[x]`: 할 일; 백틱 3개/`~~~`+선택적 언어: 코드; `---`/`***`: 구분선 |
+| 빈 문단의 표식 + Space(실제 WebKit NBSP 포함, [43번](BUG_FIXES.md#bug-43)) | `#`~`######`: 제목; `>`: 인용; `-`/`+`/`*`: 불릿; 숫자+`.`/`)`: 번호; `[]`/`[ ]`/`[x]`: 할 일; 백틱 3개/`~~~`+선택적 언어: 코드; `---`/`***`: 구분선 |
 | 문단·제목 Enter / Shift+Enter | 문단 Enter는 분할, Shift+Enter는 내부 hard break. 제목 Enter는 시작이면 앞 문단, 중간/끝이면 뒤 일반 문단; 제목 Shift+Enter도 Enter와 같음 |
 | 목록·코드 | Enter는 목록 항목 분할·새 체크는 unchecked, 빈 항목은 outdent/문단 전환. 자식 보호를 유지함. Tab/Shift+Tab은 목록 indent/outdent. 코드 시작 표식은 Enter로도 변환, 코드 내부 Enter는 개행, Mod+Enter로 탈출 |
 | Backspace·구조 삭제 | 제목/인용/목록 시작은 타입 해제/outdent를 우선하며 보호 노드·독립 경계를 임의 병합하지 않음. 빈 최상위 Text는 제거 후 앞 블록 끝으로 이동([42번](BUG_FIXES.md#bug-42)). 입력 규칙 취소는 원래 기호 뒤 커서 복원 |
@@ -81,11 +81,11 @@
 
 | 범위 | 마지막 기록된 결과 |
 |---|---|
-| 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-07 [TypeScript·모델 33·번들](Tests/results/2026-11-07/aa-only-model.log) 통과 |
-| 실제 WebKit의 입력 시뮬레이션 | 2026-11-07 [브라우저 모델 18·시각 입력 200](Tests/results/2026-11-07/aa-only-visual.log), 실패/SKIP 0. 합성 composition은 실제 IME 근거가 아님 |
+| 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-08 [TypeScript·모델 33·번들](Tests/results/2026-11-08/space-markers-model.log) 통과 |
+| 실제 WebKit의 입력 시뮬레이션 | 2026-11-08 [브라우저 모델 18·시각 입력 252](Tests/results/2026-11-08/space-markers-visual.log), 실패/SKIP 0. 합성 composition은 실제 IME 근거가 아님 |
 | native 저장·문서 수명 | 2026-11-07 [40 통과](Tests/results/2026-11-07/aa-only-native.log). production ContentView·두 문서·history·지연 dirty/쓰기·실패/재시도·Reload/폐기/닫기. NSDocument/revert·지연 쓰기는 통제됨 |
 | 공통 WebKit·기존 경로 | 2026-11-07 [통합/레이아웃 51·모양/동작 864](Tests/results/2026-11-07/aa-only-webkit.log). 2026-11-07 [Hosted 270](Tests/results/2026-11-07/aa-only-hosted.log)·[이미지 70](Tests/results/2026-11-07/aa-only-images.log). 옛 Edit 전용 검사는 Aa 계약 검사로 교체했으며 체크 native는 위 40개에 통합, 실패/XFAIL/SKIP 0. 새 모드 전체 기능 검증으로 합산하지 않음 |
-| 실제 앱·빌드 | 2026-11-05 [최초 형식 입력/저장 GUI](Tests/results/2026-11-05/f5-visual-gui.json), 한글은 붙여넣기. 2026-11-06 표 [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/앱 종료](Tests/results/2026-11-06/table-down-exit-gui.json); 2026-11-07 [빌드·새 문서/하단 입력 GUI](Tests/results/2026-11-07/empty-aa-gui.json). [Aa 모양/체크/이미지/하단 입력 GUI](Tests/results/2026-11-07/appearance-gui.json). [단일 Aa GUI/종료 미확인](Tests/results/2026-11-07/aa-only-gui.json). 모드·수식·입력·표의 세부 범위/한계는 버그 27~41번 |
+| 실제 앱·빌드 | 2026-11-05 [최초 형식 입력/저장 GUI](Tests/results/2026-11-05/f5-visual-gui.json), 한글은 붙여넣기. 2026-11-06 표 [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/앱 종료](Tests/results/2026-11-06/table-down-exit-gui.json); 2026-11-07 [빌드·새 문서/하단 입력 GUI](Tests/results/2026-11-07/empty-aa-gui.json). [Aa 모양/체크/이미지/하단 입력 GUI](Tests/results/2026-11-07/appearance-gui.json). [단일 Aa GUI/종료 미확인](Tests/results/2026-11-07/aa-only-gui.json). 2026-11-08 [Backspace GUI](Tests/results/2026-11-08/empty-backspace-gui.json)·[실제 Space 표식 GUI/저장·앱 종료](Tests/results/2026-11-08/space-markers-gui.json). 모드·수식·입력·표의 세부 범위/한계는 버그 27~43번 |
 
 기존 수용 ID는 유지합니다: **B01~B04** 의미 분할·soft/hard break·독립 목록·중첩/중복 ID, **B05~B08** 코드/수식 보호·표/이미지 속성·미지원 원문, **B09~B12** Unicode/UTF-16/BOM/개행/gap·구조 명령 Undo·체크 위치/위조 거절·빈 파일/제목 왕복입니다. 새 importer 통과를 기본 렌더러의 버그 4·17·13 해결 근거로 사용하지 않습니다.
 

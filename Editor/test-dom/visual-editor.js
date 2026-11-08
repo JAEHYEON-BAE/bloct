@@ -113,6 +113,44 @@ await check('quote Enter and empty quote exit preserve block structure',()=>{
   key('Enter');key('Enter');type('outside');serialized();
   assert(editor.session.doc.lastChild.type.name==='paragraph');
 });
+for(const [marker,kind] of [['>','blockquote'],['-','bullet_list'],['+','bullet_list'],['*','bullet_list'],
+  ['1.','ordered_list'],['3)','ordered_list'],['#','heading'],['######','heading'],
+  ['[]','bullet_list'],['[ ]','bullet_list'],['[\u00a0]','bullet_list'],['[x]','bullet_list'],
+  ['```js','code_block'],['~~~','code_block'],['---','horizontal_rule'],['***','horizontal_rule']]) {
+  await check(`WebKit NBSP after ${marker} converts and Undo keeps the caret before Following`,()=>{
+    fresh('replace\n\nFollowing');editor.view.dispatch(editor.view.state.tr.delete(1,8));
+    type(marker+'\u00a0');assert(editor.session.doc.firstChild.type.name===kind,JSON.stringify(editor.session.doc.toJSON()));
+    assert(key('Backspace'));assert(editor.session.doc.firstChild.textContent===marker+'\u00a0');
+    type('X');assert(editor.session.doc.firstChild.textContent===marker+'\u00a0X');
+    assert(editor.session.doc.lastChild.textContent==='Following');serialized();
+  });
+}
+await check('Space markers convert after exiting an empty quote and after splitting or clearing text',()=>{
+  for(const space of [' ','\u00a0'])for(const marker of ['>','-'])for(const origin of ['quote','split','clear']) {
+    fresh('Before');blankClick();
+    if(origin==='quote'){assert(editor.format('blockquote'));assert(key('Backspace'));}
+    if(origin==='split'){type('content');key('Enter');}
+    if(origin==='clear'){type('content');const {$from}=editor.view.state.selection;editor.view.dispatch(editor.view.state.tr.delete($from.start(),$from.end()));}
+    type(marker+space);assert(editor.session.doc.lastChild.type.name===(marker==='>'?'blockquote':'bullet_list'));
+    type('Next');assert(editor.session.doc.lastChild.textContent==='Next');serialized();
+  }
+});
+await check('NBSP bullet separator and checkbox spaces support sequential task conversion',()=>{
+  fresh();type('-\u00a0[\u00a0]\u00a0');
+  assert(editor.session.doc.firstChild.firstChild.attrs.checked===false);
+  type('Task');assert(serialized()==='- [ ] Task');
+  fresh();type('*\u00a0[x]\u00a0');
+  assert(editor.session.doc.firstChild.firstChild.attrs.checked===true);
+  type('Done');assert(serialized()==='* [x] Done');
+});
+await check('NBSP in pasted, non-marker, code and composing text does not trigger block rules',()=>{
+  fresh();type('body >\u00a0');assert(editor.session.doc.firstChild.type.name==='paragraph');
+  fresh('```\ncode\n```');type('>\u00a0');assert(editor.session.doc.firstChild.type.name==='code_block');
+  fresh();editor.view.input.composing=true;type('>\u00a0');editor.view.input.composing=false;
+  assert(editor.session.doc.firstChild.type.name==='paragraph');
+  fresh();editor.view.dispatch(editor.view.state.tr.insertText('>\u00a0').setMeta('uiEvent','paste'));
+  assert(editor.session.doc.firstChild.type.name==='paragraph');
+});
 await check('task split resets checked, blank item Enter exits the list',()=>{
   fresh();type('[x] Done');key('Enter');type('Next');
   assert(editor.session.doc.firstChild.child(1).attrs.checked===false);

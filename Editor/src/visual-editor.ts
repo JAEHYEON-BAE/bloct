@@ -102,13 +102,15 @@ function rules(): InputRule[] {
       return tr.setSelection(TextSelection.create(tr.doc, $from.before() + node.nodeSize + 1));
     });
   return [
-    blockRule(/^(#{1,6}) $/, 'heading', m => ({level:m[1].length})),
-    blockRule(/^> $/, 'blockquote'),
-    blockRule(/^(?:[-+*] )?\[([ xX]?)\] $/, 'task'),
-    blockRule(/^([-+*]) $/, 'bullet_list', m => ({marker:m[1]})),
-    blockRule(/^(\d{1,9})([.)]) $/, 'ordered_list', m => ({start:Number(m[1]),marker:m[2]})),
-    blockRule(/^(?:```|~~~)([\w+-]*) $/, 'code_block', m => ({language:m[1]})),
-    blockRule(/^(?:---|\*\*\*) $/, 'horizontal_rule'),
+    // WebKit's native DOM input can deliver a trailing Space as NBSP. Match it
+    // only in marker syntax; preserve ordinary text and the exact Undo spelling.
+    blockRule(/^(#{1,6})[ \u00a0]$/, 'heading', m => ({level:m[1].length})),
+    blockRule(/^>[ \u00a0]$/, 'blockquote'),
+    blockRule(/^(?:[-+*][ \u00a0])?\[([ \u00a0xX]?)\][ \u00a0]$/, 'task'),
+    blockRule(/^([-+*])[ \u00a0]$/, 'bullet_list', m => ({marker:m[1]})),
+    blockRule(/^(\d{1,9})([.)])[ \u00a0]$/, 'ordered_list', m => ({start:Number(m[1]),marker:m[2]})),
+    blockRule(/^(?:```|~~~)([\w+-]*)[ \u00a0]$/, 'code_block', m => ({language:m[1]})),
+    blockRule(/^(?:---|\*\*\*)[ \u00a0]$/, 'horizontal_rule'),
     new InputRule(/(?:^|\s)\*\*([^*]+)\*\*$/, (state, match, start, end) => {
       const prefix = match[0].startsWith(' ') ? 1 : 0;
       return state.tr.insertText(match[1], start + prefix, end)

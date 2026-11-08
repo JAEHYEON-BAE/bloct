@@ -36,7 +36,7 @@ rules, H1–H6/quote/list/task/code placeholders, all 16 menu formats, inline ma
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus attached matrix delimiters, display mode, formula-surface editing and Undo.
-The 200 visual checks simulate DOM events/engine text handlers, including formula
+The 252 visual checks simulate DOM events/engine text handlers, including formula
 click/keyboard activation, Read/freeze guards, drag suppression and pointer CSS, inline-code termination, input-rule Undo caret
 restoration and unsaved handoff/freeze/baseline restoration. Dollar tests cover
 empty/unclosed text, a completed block equation, Enter/Shift-Enter multiline drafts,
