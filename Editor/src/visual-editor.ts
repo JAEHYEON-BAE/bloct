@@ -3,7 +3,7 @@ import {EditorView, Decoration, DecorationSet, type NodeView} from '@tiptap/pm/v
 import {Plugin, Selection, TextSelection, NodeSelection, type Command, type EditorState, type Transaction} from '@tiptap/pm/state';
 import {InputRule, inputRules, undoInputRule} from '@tiptap/pm/inputrules';
 import {keymap} from '@tiptap/pm/keymap';
-import {baseKeymap, chainCommands, exitCode, lift, liftEmptyBlock, newlineInCode, setBlockType, splitBlock, toggleMark, wrapIn} from '@tiptap/pm/commands';
+import {baseKeymap, chainCommands, exitCode, joinTextblockBackward, joinTextblockForward, lift, liftEmptyBlock, newlineInCode, setBlockType, splitBlock, toggleMark, wrapIn} from '@tiptap/pm/commands';
 import {wrapInList, splitListItem, sinkListItem, liftListItem} from '@tiptap/pm/schema-list';
 import {undo, redo, closeHistory} from '@tiptap/pm/history';
 import {Fragment, Slice, type Node as PMNode} from '@tiptap/pm/model';
@@ -40,6 +40,37 @@ const undoTypingRule: Command = (state, dispatch) => {
     }));
   }
   return false;
+};
+
+// A plain Text block joins the preceding sentence, rather than becoming a new
+// paragraph/item inside its quote/list. Both keys remove the same boundary.
+const joinTextBoundary = (backward:boolean): Command => (state,dispatch) => {
+  const {$from,empty}=state.selection;
+  if(!empty)return false;
+  const containers=['blockquote','bullet_list','ordered_list','list_item'];
+  const textTypes=['paragraph','heading'];
+  let previous:PMNode|null;
+  if(backward) {
+    if($from.depth!==1 || $from.parent.type!==schema.nodes.paragraph || $from.parentOffset!==0)return false;
+    previous=state.doc.resolve($from.before()).nodeBefore;
+  } else {
+    if(!textTypes.includes($from.parent.type.name) || $from.parentOffset!==$from.parent.content.size)return false;
+    // The cursor must be at the end of the entire preceding container, including
+    // any nested list. Do not skip another item or a protected/isolating node.
+    for(let depth=1;depth<$from.depth;depth++) {
+      if(!containers.includes($from.node(depth).type.name)
+          || $from.index(depth)!==$from.node(depth).childCount-1)return false;
+    }
+    if(state.doc.resolve($from.after(1)).nodeAfter?.type!==schema.nodes.paragraph)return false;
+    previous=$from.node(1);
+  }
+  while(previous && !previous.isTextblock) {
+    if(!containers.includes(previous.type.name))return false;
+    previous=previous.lastChild;
+  }
+  if(!previous || !textTypes.includes(previous.type.name))return false;
+  return (backward ? joinTextblockBackward : joinTextblockForward)(state,dispatch && (tr=>
+    dispatch(closeHistory(tr).setStoredMarks(null).scrollIntoView())));
 };
 
 // Pending display math stays ordinary text until a nonempty pair is closed.
@@ -333,13 +364,19 @@ export class VisualEditor {
         }
         return true;
       }
+      if (joinTextBoundary(true)(state,dispatch)) return true;
       return baseKeymap.Backspace(state,dispatch,view);
+    };
+    const deleteForward: Command=(state,dispatch,view) => {
+      if(this.view?.composing)return false;
+      return joinTextBoundary(false)(state,dispatch) || baseKeymap.Delete(state,dispatch,view);
     };
     return [inputRules({rules:rules()}), keymap({
       'Mod-z':chainCommands(undoTypingRule,historyCommand(false)),
       'Shift-Mod-z':historyCommand(true), 'Mod-y':historyCommand(true),
       'Mod-b':toggleMark(schema.marks.strong), 'Mod-i':toggleMark(schema.marks.em),
       'Mod-e':toggleMark(schema.marks.code), Enter:enter, Backspace:backspace,
+      Delete:deleteForward, 'Ctrl-d':deleteForward,
       'Shift-Enter':(state,dispatch) => {
         if(this.view?.composing) return false;
         if(state.selection.$from.parent.type===schema.nodes.heading) return enter(state,dispatch);

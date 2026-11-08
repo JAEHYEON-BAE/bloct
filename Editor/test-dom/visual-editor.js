@@ -17,7 +17,7 @@ const type=text=>{
   }
 };
 const key=(value,options={})=>{
-  const event=new KeyboardEvent('keydown',{key:value,keyCode:{Enter:13,Backspace:8,Tab:9,z:90,b:66}[value]||0,bubbles:true,cancelable:true,...options});
+  const event=new KeyboardEvent('keydown',{key:value,keyCode:{Enter:13,Backspace:8,Delete:46,Tab:9,z:90,b:66}[value]||0,bubbles:true,cancelable:true,...options});
   let handled=false;editor.view.someProp('handleKeyDown',handler=>{handled=handler(editor.view,event);return handled;});return handled;
 };
 const serialized=()=>editor.session.markdown();
@@ -526,6 +526,55 @@ await check('empty first text Backspace is a no-op and protected previous nodes 
     assert(key('Backspace'));assert(editor.session.doc.childCount===1 && editor.session.doc.firstChild.eq(previous));
     assert(editor.view.state.selection.node===editor.session.doc.firstChild);serialized();
   }
+});
+for(const prefix of ['Previous','## Previous','> Previous','> First\n>\n> Previous',
+  '- First\n- Previous','3. First\n4. Previous','- [x] Previous',
+  '- Parent\n  1. First\n  2. Previous','> 3. First\n> 4. Previous']) {
+  for(const backwards of [true,false])await check(`${backwards?'Backspace':'Delete'} joins Text into the last sentence of ${JSON.stringify(prefix)}`,async()=>{
+    const source=prefix+'\n\n**Next** tail\n\nFollowing';fresh(source);
+    const previous=editor.session.doc.firstChild,right=editor.session.doc.child(1);
+    let lastText;
+    previous.descendants(node=>{if(['paragraph','heading'].includes(node.type.name))lastText=node;});
+    if(previous.isTextblock)lastText=previous;
+    const target=backwards?right:lastText,offset=backwards?0:target.content.size;
+    assert(editor.session.setSelection(editor.session.reference(target.attrs.id),offset));editor.view.updateState(editor.session.state);
+    const position=editor.view.state.selection.from;
+    assert(key(backwards?'Backspace':'Delete'));assert(editor.session.doc.childCount===2,JSON.stringify(editor.session.doc.toJSON()));
+    assert(editor.session.doc.firstChild.type===previous.type);
+    const cursor=editor.view.state.selection.$from;
+    assert(cursor.parent.textContent==='PreviousNext tail',cursor.parent.textContent);
+    assert(cursor.parentOffset===8);assert(cursor.parent.attrs.id===lastText.attrs.id);
+    assert(cursor.parent.child(1).marks.some(m=>m.type.name==='strong'));
+    assert(editor.session.doc.lastChild.textContent==='Following');
+    if(previous.type.name.endsWith('_list'))assert(editor.session.doc.firstChild.childCount===previous.childCount,'no extra item/number');
+    const snapshot=await editor.snapshot();assert(editor.acknowledge(snapshot.token));
+    assert(BloctBlocks.importMarkdown(snapshot.text).doc.textContent===editor.session.doc.textContent);
+    assert(editor.history(false));assert(serialized()===source);assert(editor.view.state.selection.from===position);
+    assert(editor.history(true));type('X');assert(editor.view.state.selection.$from.parent.textContent==='PreviousXNext tail');serialized();
+  });
+}
+await check('boundary merge preserves CRLF, Unicode and an empty right Text without adding a list item',()=>{
+  for(const backwards of [true,false]) {
+    fresh('2. 첫째\r\n3. 한글😀');blankClick();
+    const root=editor.session.doc.firstChild,last=root.lastChild.firstChild,p=editor.session.doc.lastChild;
+    const target=backwards?p:last;
+    assert(editor.session.setSelection(editor.session.reference(target.attrs.id),backwards?0:target.content.size));editor.view.updateState(editor.session.state);
+    assert(key(backwards?'Backspace':'Delete'));
+    assert(editor.session.doc.childCount===1 && editor.session.doc.firstChild.childCount===2);
+    assert(editor.view.state.selection.$from.parentOffset===4);type('X');
+    assert(serialized()==='2. 첫째\r\n3. 한글😀X');
+  }
+});
+await check('forward merge does not skip another list item or consume an isolating table',()=>{
+  fresh('1. First\n2. Previous\n\nNext');
+  const first=editor.session.doc.firstChild.firstChild.firstChild;
+  editor.session.setSelection(editor.session.reference(first.attrs.id),first.content.size);editor.view.updateState(editor.session.state);
+  key('Delete');assert(editor.session.doc.lastChild.textContent==='Next');
+  fresh('Before\n\n| A | B |\n| --- | --- |\n| C | D |');
+  const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);editor.view.updateState(editor.session.state);
+  key('Delete');assert(editor.session.doc.lastChild.type.name==='table');
+  assert(editor.session.doc.lastChild.textContent==='ABCD');
 });
 await check('save snapshot acknowledgement keeps later typing dirty and Undo available',async()=>{
   fresh();type('A');const snapshot=await editor.snapshot();type('B');

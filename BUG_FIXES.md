@@ -1,6 +1,6 @@
 # Bloct 오류·버그 및 수정 기록
 
-- 최신화: **2026-11-08**. 테스트 앱 창 종료의 실제 SIGABRT 3건을 확인했습니다(45번). 42~44번의 프로세스 종료 관찰을 정상 종료 검증으로 해석하지 않도록 정정했습니다.
+- 최신화: **2026-11-08**. Text 시작 Backspace·앞 문장 끝 Delete를 같은 줄 병합으로 확장했습니다(42번). 창 종료 native 충돌 45번은 별도 미해결입니다.
 - 현재: 총 45개 중 **28개 해당 범위 검증 완료**, **3·5·9번 경로 제거**, **16번 보류**, **13개 미해결·조사 중**. 구현 요약·새 기능 계획은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 기록 정책은 [AGENTS.md](AGENTS.md)를 따릅니다.
 - 다음 순서: **45번 창 종료 충돌 조사**를 먼저 진행하며, **[F5의 다음 순서와 전환 관문](IMPLEMENTATION_PLAN.md#다음-순서와-기본값-전환-관문)**을 최우선으로 진행합니다. 읽기 렌더러/기존 기능의 조사 순서는 **4·17번 → 2·7·8·13번 → 10번 → 11·12·19번**입니다. 26번의 창 접근/종료 확인을 재검증합니다. 다음 새 버그 번호는 46번입니다.
 
@@ -51,7 +51,7 @@
 | 39 | Aa 빈 문서·문서 끝 빈 영역에서 입력 불가 | 수정·해당 범위 검증 완료(2026-11-07) | 하단 클릭 시 일반 문단 생성/재사용, Undo·재파싱·GUI 저장/재열기 확인 |
 | 40 | Aa 전환 시 체크박스·다른 본문 요소 모양 변경 | 수정·해당 범위 검증 완료(2026-11-07) | 공통 체크 스타일·중첩 간격·표 정렬/줄무늬·이미지/보호 미리보기·공백/구분선 대응 |
 | 41 | Aa 해제 후 기존 Edit 상태가 남고 편집 진입이 이중화됨 | 수정·해당 범위 검증 완료(2026-11-07) | Aa 단일 상태/버튼. 꺼짐은 읽기 전용, 초안·저장·재진입 보존. GUI 종료는 26번 |
-| 42 | 빈 Text의 Backspace가 앞 Quote로 다시 합쳐짐 | 수정·해당 범위 검증 완료(2026-11-08) | 빈 문단만 삭제 후 앞 블록 끝 선택·후속 입력/Undo/저장 GUI 확인 |
+| 42 | Text 경계 Backspace/Delete가 인용·목록 새 블록으로 편입 | 수정·확장 범위 검증 완료(2026-11-08) | Text 내용을 앞 문장 끝에 병합, 번호 목록의 새 번호 부여 방지·실제 양방향 입력/저장 확인 |
 | 43 | 실제 Space로 빈 Text의 인용·목록 표식 변환 실패 | 수정·해당 범위 검증 완료(2026-11-08) | WebKit NBSP를 블록 표식에서 인식, 실제 키 입력/저장·재로드 확인 |
 | 44 | 굵게·기울임·링크 안의 인라인 코드 문서에서 Aa JavaScript 오류 | 수정·해당 범위 검증 완료(2026-11-08) | 코드 mark의 전체 배제 해제·코드 내부 입력 규칙 차단, PS1 실제 편집/저장/Undo 확인 |
 | 45 | 창 닫기 중 windowDidOrderOffScreen: 예외로 앱 비정상 종료 | 조사 중(2026-11-08) | 실제 SIGABRT 3건. CloseProxy/창 delegate 전달·수명 조사, 정상 종료 수용 재개방 |
@@ -82,12 +82,13 @@
 - [Computer Use·디스크](Tests/results/2026-11-08/space-markers-gui.json): 수정 전 `>`/`-`의 native Space 실패 → 수정 후 두 표식과 `1.`/`#`/`[]`의 실제 키 변환, Quote→Text→Quote 재활성화·Backspace 취소·저장/재로드 확인. 새 빈 `about:blank` 문서에서도 `>`/`-` 변환 확인, 새 파일 저장과 두 문서 복귀·테스트 앱 종료 확인. 전체 IME 수용은 F5 U03이며 미리보기 잔류는 29번에 남습니다. **후속 충돌 보고서 감사로 정상 종료 검증은 45번에서 재개방했습니다.**
 
 <a id="bug-42"></a>
-## 42. 빈 Text의 Backspace가 앞 Quote 안으로 다시 합쳐짐
+## 42. Text 경계 Backspace/Delete가 앞 인용·목록의 새 블록이 됨
 
-- **2026-11-08 / 수정·해당 범위 검증 완료.** 인용 내용 끝 Enter → 빈 Quote에서 Backspace → Text → 다시 Backspace에서 기본 `joinBackward`가 빈 문단을 앞 인용 안으로 감쌌습니다. 최상위 빈 일반 문단만 제거하고 앞 블록 끝을 선택합니다. 첫 문단은 유지하며 보호/원자 노드는 삭제하지 않고 선택합니다. 인용·목록 해제와 입력 규칙 취소 계약은 유지합니다.
-- 검증: [TypeScript·모델 33·번들](Tests/results/2026-11-08/empty-backspace-model.log), [브라우저 모델 18·입력 214](Tests/results/2026-11-08/empty-backspace-visual.log), [격리 앱 빌드](Tests/results/2026-11-08/empty-backspace-build.log) 통과. 앞 인용/불릿/번호/제목/일반/코드의 끝 위치·후속 입력·Undo와 첫 문단/보호 노드를 검사했습니다. [Computer Use](Tests/results/2026-11-08/empty-backspace-gui.json): Quote→Text→앞 내용 끝 입력·Undo·저장/재로드·두 문서 전환·앱 종료 확인, 디스크는 `> PreviousX\n\nFollowing`와 일치했습니다.
-- 한계: 전체 IME 수용은 F5 U03에 남습니다. 프로세스 종료 관찰만 했으며 후속 감사에서 native 충돌을 확인했습니다(45번). 고유 미리보기 2개가 잔류했습니다(29번).
-
+- **2026-11-08 / 수정·확장 범위 검증 완료.** Text 시작에서 Backspace 또는 앞 문장 끝에서 Delete 시 기본 구조 병합이 Text를 인용의 새 문단/목록의 새 항목으로 편입했습니다. 번호 목록 뒤에서는 Text에 다음 번호가 생겼습니다. 최소 재현: `3. First\n4. Before\n\nAfter`의 `After` 시작 Backspace / `Before` 끝 Delete. 기대 결과는 `4. BeforeAfter`이며 추가 번호·개행은 없어야 합니다.
+- 수정: 최상위 일반 Text와 앞 문단/제목·인용/불릿/번호/할 일·중첩 목록의 **마지막 문장** 사이를 두 키가 같은 명령으로 병합합니다. 앞 서식/ID·목록 항목 수·시작 번호와 양쪽 인라인 mark를 보존하고 커서는 붙인 경계에 둡니다. 중간 목록 항목을 건너뛰거나 표·보호/원자·코드 경계를 이 명령으로 합치지 않습니다. 빈 Text Backspace의 기존 삭제/앞 블록 선택과 입력 규칙 취소 계약은 유지합니다.
+- 현재 검증: [TypeScript·모델 34·번들](Tests/results/2026-11-08/text-boundary-model.log), [브라우저 모델 18·입력 296](Tests/results/2026-11-08/text-boundary-visual.log), [빌드](Tests/results/2026-11-08/text-boundary-build.log) 통과. 양방향 병합·앞 ID/서식·번호/항목 수·굵은 후속 텍스트·Unicode/CRLF·Undo/Redo·snapshot/재파싱·즉시 후속 입력을 검사했습니다.
+- [Computer Use·디스크](Tests/results/2026-11-08/text-boundary-gui.json): 격리 `Bloct Join Fix`의 인용/불릿/번호 임시 문서에서 실제 Backspace·Delete로 같은 줄 병합, 즉시 `.` 입력 위치·Undo·저장·재로드·창 전환을 확인했습니다. 번호는 3·4만 유지하고 저장 파일 3개가 기대 원문과 일치했습니다. 세 테스트 창 Aa off 후 Quit 및 새 충돌 보고서 부재는 이번 경로의 근거이며 45번의 Aa close 충돌 해결을 뜻하지 않습니다. 실제 IME는 F5 U03에 남습니다.
+- 최초 빈 Text 수정의 [모델/빌드](Tests/results/2026-11-08/empty-backspace-model.log)·[입력 214](Tests/results/2026-11-08/empty-backspace-visual.log)·[GUI](Tests/results/2026-11-08/empty-backspace-gui.json)는 당시 범위의 과거 근거입니다. 해당 실행의 native 종료 충돌은 45번 감사 결과를 따릅니다.
 
 <a id="bug-41"></a>
 ## 41. Aa 편집 통합과 기존 Edit 상태 제거
