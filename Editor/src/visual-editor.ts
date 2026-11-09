@@ -14,6 +14,8 @@ import {imageBlockMarkdown} from './serializer.ts';
 
 export interface VisualOptions {
   savedMarkdown?: string;
+  // The app enables one input line at EOF without changing the saved source.
+  trailingParagraph?: boolean;
   onChange?: (dirty: boolean) => void;
   imageURL?: (source: string) => string | null;
   // The native host supplies the same sanitized renderer used before Aa.
@@ -215,7 +217,7 @@ export class VisualEditor {
   constructor(host: HTMLElement, markdown: string, options: VisualOptions = {}) {
     this.host = host;
     this.#options = options;
-    this.session = new BlockSession(markdown, options.savedMarkdown);
+    this.session = new BlockSession(markdown, options.savedMarkdown, options.trailingParagraph);
     this.toolbar = document.createElement('div');
     this.toolbar.className = 'visual-toolbar';
     this.toolbar.setAttribute('role','toolbar'); this.toolbar.setAttribute('aria-label','Formatting');

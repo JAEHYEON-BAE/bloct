@@ -97,11 +97,12 @@ check('Read mode keeps image editing inactive',!document.querySelector('dialog')
 visual.setEditable(true);
 await Promise.all(Array.from(document.images,img=>img.decode().catch(()=>{})));
 const imageRoot=document.querySelector('.visual-image'),range=document.createRange();range.selectNodeContents(imageRoot);
-const bottom=range.getBoundingClientRect().bottom,box=visual.view.dom.getBoundingClientRect();
+const bottom=Math.max(range.getBoundingClientRect().bottom,visual.view.dom.lastElementChild.getBoundingClientRect().bottom),box=visual.view.dom.getBoundingClientRect();
+const countBeforeBlankClick=visual.session.doc.childCount;
 const click=new MouseEvent('mousedown',{button:0,detail:1,bubbles:true,cancelable:true,clientX:box.left+box.width/2,clientY:bottom+12});
 document.body.dispatchEvent(click);visual.view.dispatch(visual.view.state.tr.insertText('After image'));
 snapshot=await visual.snapshot();
-check('blank click after an image still creates a new editable paragraph',click.defaultPrevented&&BloctBlocks.importMarkdown(snapshot.text).doc.lastChild.textContent==='After image');
+check('blank click after an image reuses the opening Text line without adding another',click.defaultPrevented&&visual.session.doc.childCount===countBeforeBlankClick&&BloctBlocks.importMarkdown(snapshot.text).doc.lastChild.textContent==='After image');
 await window._mvSwitchEditor(false,source);
 
 const untrusted='<div id="forged" class="mv-task-checkbox" data-block-id="forged"><strong>Protected preview</strong><input type="checkbox" onclick="window.previewPwned=1"><img src="invalid.png" onerror="window.previewPwned=1"><script>window.previewPwned=1</script></div>';

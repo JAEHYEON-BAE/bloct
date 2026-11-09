@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-09**. 수식의 화살표 선택 강조·Enter 편집을 실사용 검증했습니다. [45번 창 종료 충돌](BUG_FIXES.md#bug-45)은 별도 미해결입니다.
+- 최신화: **2026-11-09**. 문서 끝 자동 Text 줄과 수식 화살표 선택·Enter 편집을 실사용 검증했습니다. [45번 창 종료 충돌](BUG_FIXES.md#bug-45)은 별도 미해결입니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -62,7 +62,7 @@
 | 입력·상태 | 현재 동작 |
 |---|---|
 | Aa 켜짐/꺼짐 | 켜짐에서만 본문/체크 변경·Undo/Redo 가능. 꺼짐은 읽기 전용이며 초안과 Save/재진입을 보존. 열린 속성 창은 Apply/Cancel 후 종료 |
-| 빈 문서·마지막 블록 아래 빈 영역 클릭 | 첫 빈 문단 재사용 또는 문서 끝 일반 문단 생성 후 즉시 입력. 반복 클릭은 빈 줄을 누적하지 않음([39번](BUG_FIXES.md#bug-39)) |
+| 문서 열기·Aa 진입·끝 빈 영역 클릭 | 문서 끝에 빈 일반 Text 줄 하나를 제공하고 기존 빈 줄은 재사용. 열기만으로 dirty/history/원문을 바꾸지 않으며 입력·타입 변경 후 일반 블록으로 저장. 반복 클릭은 줄을 누적하지 않음 |
 | 빈 문단의 표식 + Space(실제 WebKit NBSP 포함, [43번](BUG_FIXES.md#bug-43)) | `#`~`######`: 제목; `>`: 인용; `-`/`+`/`*`: 불릿; 숫자+`.`/`)`: 번호; `[]`/`[ ]`/`[x]`: 할 일; 백틱 3개/`~~~`+선택적 언어: 코드; `---`/`***`: 구분선 |
 | 문단·제목 Enter / Shift+Enter | 문단 Enter는 분할, Shift+Enter는 내부 hard break. 제목 Enter는 시작이면 앞 문단, 중간/끝이면 뒤 일반 문단; 제목 Shift+Enter도 Enter와 같음 |
 | 목록·코드 | Enter는 목록 항목 분할·새 체크는 unchecked, 빈 항목은 outdent/문단 전환. 자식 보호를 유지함. Tab/Shift+Tab은 목록 indent/outdent. 코드 시작 표식은 Enter로도 변환, 코드 내부 Enter는 개행, Mod+Enter로 탈출 |
@@ -81,6 +81,7 @@
 
 | 범위 | 마지막 기록된 결과 |
 |---|---|
+| 자동 마지막 Text 줄 | 2026-11-09 [모델 36·번들](Tests/results/2026-11-09/trailing-line-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/trailing-line-visual.log)·[native 40](Tests/results/2026-11-09/trailing-line-native.log)·[WebKit/레이아웃 51·모양 864](Tests/results/2026-11-09/trailing-line-webkit.log) 통과. [Computer Use](Tests/results/2026-11-09/trailing-line-gui.json): 목록 뒤 자동 Text 입력/저장/Undo, 기존 EOF 공백 재사용·두 창·읽기 전환·종료. [원문·종료 감사](Tests/results/2026-11-09/trailing-line-gui-disk.json). 실제 IME·45번은 별도 |
 | 수식 화살표 선택·Enter 편집 | 2026-11-09 [모델 34·번들](Tests/results/2026-11-09/math-keyboard-model.log)·[브라우저 모델 18·시각 입력 312](Tests/results/2026-11-09/math-keyboard-visual.log) 통과, 실패/SKIP 0. [Computer Use](Tests/results/2026-11-09/math-keyboard-gui.json)에서 블록 상·하/인라인 좌·우 진입·전체 회색 강조·Enter·Cancel/Apply·Save/Undo·재열기·읽기 차단·두 문서 전환 확인. [디스크/종료](Tests/results/2026-11-09/math-keyboard-gui-disk.json): 원문 복원·앱 종료·새 충돌/미리보기 잔류 없음. 실제 IME와 45번은 별도 |
 | 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-08 [TypeScript·모델 34·번들](Tests/results/2026-11-08/text-boundary-model.log) 통과 |
 | 실제 WebKit의 입력 시뮬레이션 | 2026-11-08 [브라우저 모델 18·시각 입력 296](Tests/results/2026-11-08/text-boundary-visual.log), 실패/SKIP 0. 합성 composition은 실제 IME 근거가 아님 |

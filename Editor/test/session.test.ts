@@ -307,3 +307,30 @@ test('a mode handoff imports an unsaved draft against the disk baseline', () => 
   s.setSavedBaseline(source);
   assert.equal(s.changed, false);
 });
+
+
+test('opening an editing document supplies one trailing Text line without dirtying or rewriting EOF',()=>{
+  for(const source of ['', '\n\n', 'End', 'End\n', 'End\n\n\n\n', '# Heading', '- item', '> Quote', '```js\ncode\n```', '$$x$$', '| A | B |\n| --- | --- |\n| C | D |', '<section>raw</section>', '\uFEFF# 한글😀\r\n\r\n']) {
+    const s=new BlockSession(source,source,true);
+    assert.equal(s.doc.lastChild!.type.name,'paragraph');assert.equal(s.doc.lastChild!.content.size,0);
+    assert.equal(s.doc.childCount,importMarkdown(source).doc.childCount+(source.trim()?1:0));
+    assert.equal(s.changed,false);assert.equal(s.dirty,false);assert.equal(s.revision,0);
+    assert.equal(s.markdown(),source);assert.equal(s.undo(),false);
+    const snapshot=s.snapshot();assert.equal(snapshot.markdown,source);assert.equal(s.markSaved(snapshot),true);
+    s.acceptExternal(source);assert.equal(s.changed,false);assert.equal(s.markdown(),source);
+    assert.equal(s.doc.lastChild!.type.name,'paragraph');assert.equal(s.doc.lastChild!.content.size,0);
+  }
+});
+test('the opening Text line reuses EOF gaps, saves typed content, and Undo restores exact original source',()=>{
+  for(const source of ['Before','Before\n\n\n\n','\uFEFF> Before\r\n\r\n']) {
+    const s=new BlockSession(source,source,true),before=s.doc;
+    s.dispatch(s.state.tr.insertText('After 한글😀',s.doc.content.size-1));
+    const output=s.markdown();assert.ok(output.includes('After 한글😀'));assert.equal(s.changed,true);
+    if(source.endsWith('\n\n\n\n'))assert.ok(output.startsWith(source));
+    assert.deepEqual(semantics(importMarkdown(output).doc),semantics(s.doc));
+    const snapshot=s.snapshot();assert.equal(s.markSaved(snapshot),true);assert.equal(s.changed,false);
+    assert.equal(s.undo(),true);assert.equal(s.markdown(),source);assert.ok(s.doc.eq(before));
+    assert.equal(s.redo(),true);assert.equal(s.markdown(),output);
+    s.acceptExternal(output);assert.equal(s.doc.lastChild!.content.size,0);assert.equal(s.markdown(),output);assert.equal(s.changed,false);
+  }
+});

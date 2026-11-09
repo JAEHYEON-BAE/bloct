@@ -2,10 +2,10 @@ const results=[];
 const check=async(name,body)=>{try{await body();results.push({name,pass:true});}catch(error){results.push({name,pass:false,detail:String(error)+'\n'+String(error.stack||'')});}};
 const assert=(value,message)=>{if(!value)throw new Error(message||'assertion failed');};
 let editor,host;
-const fresh=(markdown='')=>{
+const fresh=(markdown='',options={})=>{
   if(editor){editor.destroy();host.remove();}
   host=document.createElement('div');document.body.append(host);
-  editor=BloctBlocks.mountVisualEditor(host,markdown,{imageURL:source=>source.startsWith('data:image/')?source:null});
+  editor=BloctBlocks.mountVisualEditor(host,markdown,{imageURL:source=>source.startsWith('data:image/')?source:null,...options});
   editor.focus();return editor;
 };
 const type=text=>{
@@ -79,6 +79,21 @@ await check('blank click listener is removed on destroy and does not affect a se
   host.remove();editor=null;
 });
 
+for(const source of ['', 'End', 'End\n\n\n', '# Heading', '- item', '> Quote', '```js\ncode\n```', '$$x$$', '| A | B |\n| --- | --- |\n| C | D |', '<section>raw</section>']) {
+  await check(`opening trailing Text ${JSON.stringify(source)} stays clean and accepts input without duplicate blanks`,async()=>{
+    fresh(source,{trailingParagraph:true});
+    const initial=editor.session.doc,count=initial.childCount;
+    const last=initial.lastChild;assert(last.type.name==='paragraph' && !last.content.size);
+    assert(!editor.session.changed && serialized()===source);
+    assert(blankClick());assert(blankClick());assert(editor.session.doc.childCount===count);
+    type('Next');assert(editor.session.doc.lastChild.textContent==='Next');
+    const snapshot=await editor.snapshot();assert(snapshot.text.includes('Next'));
+    assert(editor.history(false));assert(serialized()===source && !editor.session.changed);
+    editor.reload(source);assert(editor.session.doc.childCount===count && !editor.session.changed);
+    const handoff=await editor.handoff();assert(handoff.text===source);
+    editor.restoreDraft(source,source);assert(editor.session.doc.childCount===count && !editor.session.changed);
+  });
+}
 for(let level=1;level<=6;level++)await check(`H${level}: typed marker converts to editable heading and placeholder`,()=>{
   fresh();type('#'.repeat(level)+' ');
   assert(editor.session.doc.firstChild.type.name==='heading');

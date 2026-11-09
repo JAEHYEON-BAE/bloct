@@ -61,6 +61,8 @@ h6 { font-size: 0.85em; color: var(--color-text-muted); }
 
 /* Paragraphs and spacing */
 p { margin-top: 0; margin-bottom: 1em; }
+.mv-trailing-line { min-height:1.6em; }
+@media print { .mv-trailing-line { display:none; } }
 
 /* Links */
 a { color: var(--color-link); text-decoration: none; }

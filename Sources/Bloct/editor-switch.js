@@ -8,6 +8,9 @@ window._mvInstallEditorSwitch = function(config) {
     const encode = value => btoa(unescape(encodeURIComponent(value)));
     window._mvGeneration = config.generation;
     let editor = null, visual = false, generation = window._mvGeneration;
+    const readingEndLine=document.createElement('p');
+    readingEndLine.className='mv-trailing-line';readingEndLine.setAttribute('aria-hidden','true');
+    const ensureReadingEndLine=()=>{if(readerHost.lastChild!==readingEndLine)readerHost.append(readingEndLine);};
     const imageURL = source => {
         if (/^data:image\/(?:png|jpeg|gif|webp);base64,/i.test(source)) return source;
         try { const url = new URL(source); if (['http:', 'https:'].includes(url.protocol)) return url.href; if(url.protocol!=='file:')return null; } catch (_) {}
@@ -37,7 +40,7 @@ window._mvInstallEditorSwitch = function(config) {
         generation=window._mvGeneration;
         readerHost.replaceWith(visualHost);visualHost.id='content';readerHost.removeAttribute('id');
         editor=BloctBlocks.mountVisualEditor(visualHost,raw,{
-            savedMarkdown:baseline,imageURL,renderPreview:source=>_mvRenderOneBlock(source,0),
+            savedMarkdown:baseline,trailingParagraph:true,imageURL,renderPreview:source=>_mvRenderOneBlock(source,0),
             onChange:dirty=>{if(visual)window.webkit?.messageHandlers.editorDirty?.postMessage({dirty,generation:window._mvGeneration});}
         });
         visual=true;window._bloctVisual=editor;editor.setEditable(true);editor.unfreeze();
@@ -68,13 +71,14 @@ window._mvInstallEditorSwitch = function(config) {
             document.body.classList.remove('visual-active');
             window._mvDiskChecking=false;
             window._mvStale=true;readerRender(encode(snapshot.text));
+            ensureReadingEndLine();
             restore(saved,-oldToolbar);
         }
         window._mvBuildTOC?.();
         return {text:visual?editor.session.markdown():window._mvRawLines.join('\n')};
     };
     window._mvRender = value => {
-        if(!visual){readerRender(value);return;}
+        if(!visual){readerRender(value);ensureReadingEndLine();return;}
         const text=decode(value);window._mvStale=false;
         if(generation!==window._mvGeneration){generation=window._mvGeneration;editor.reload(text);}
         else if(!editor.session.changed && text!==editor.session.markdown())editor.reload(text);
@@ -87,4 +91,5 @@ window._mvInstallEditorSwitch = function(config) {
         refresh:()=>{if(!visual)readerSearch.refresh();}
     };
     if(config.visual)mount(window._mvRawLines.join('\n'),config.baseline);
+    else ensureReadingEndLine();
 };

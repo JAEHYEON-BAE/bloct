@@ -1,0 +1,916 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-webkit-tests.291dbt/Regression.app: 1 (Operation not permitted)
+PASS: bundled sanitizer and initial renderer load under CSP
+PASS: state-space matrix and later equation render completely in Markdown mode
+PASS: Aa mode retains the whole state-space matrix and following equation
+PASS: identical original TeX and display/inline mode across Aa (11 equations)
+PASS: identical math font/size and glyph geometry across Aa (11 equations, <0.1px)
+PASS: Aa display preserves exact Markdown and clean state
+PASS: formula surfaces are accessible click targets without Edit controls
+PASS: literal internal-looking placeholders remain unchanged
+PASS: bundled math renders inline/display without external resources
+PASS: Markdown and offline inline/display math survive sanitizing
+PASS: sanitizer preserves math markup
+PASS: untrusted HTML loses executable attributes, dangerous URLs and editor impersonation
+PASS: user HTML cannot create editor blocks
+PASS: malicious HTML cannot send an edit through the native bridge
+PASS: custom image attributes are escaped and local image URLs survive
+PASS: relative local images survive sanitizing
+PASS: relative local image actually loads from the unique preview file
+PASS: CSP independently blocks event handlers and untrusted inline scripts
+PASS: remote page navigation is blocked
+PASS: authorized preview can still commit through the native bridge
+PASS: new-document inline HTML load works with navigation policy
+PASS: new-document inline page retains native bridge access
+Empty document Aa: ["ok": 1]
+PASS [layout 900, TOC false]: Aa reuses the JS document and exact source
+PASS [layout 900, TOC false]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 900, TOC false]: Aa moves the visible heading only by the formatting row height
+PASS [layout 900, TOC false]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 900, TOC false]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 900, TOC false]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 900, TOC false]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+PASS [layout 900, TOC true]: Aa reuses the JS document and exact source
+PASS [layout 900, TOC true]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 900, TOC true]: Aa moves the visible heading only by the formatting row height
+PASS [layout 900, TOC true]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 900, TOC true]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 900, TOC true]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 900, TOC true]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+PASS [layout 640, TOC false]: Aa reuses the JS document and exact source
+PASS [layout 640, TOC false]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 640, TOC false]: Aa moves the visible heading only by the formatting row height
+PASS [layout 640, TOC false]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 640, TOC false]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 640, TOC false]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 640, TOC false]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+PASS [layout 640, TOC true]: Aa reuses the JS document and exact source
+PASS [layout 640, TOC true]: Aa retains article width, horizontal alignment, fonts and block geometry
+PASS [layout 640, TOC true]: Aa moves the visible heading only by the formatting row height
+PASS [layout 640, TOC true]: sampled layouts stay at the viewed section without a top-of-document position
+PASS [layout 640, TOC true]: leaving Aa restores the heading position and original horizontal layout
+PASS [layout 640, TOC true]: roundtrip keeps source, document and one visible rendering root
+PASS [layout 640, TOC true]: repeated Aa roundtrips do not accumulate position drift or formatting rows
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: requested color scheme is active
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: code: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: table: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: image Undo restores exact original spelling
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark false, zoom 1.0, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: requested color scheme is active
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: code: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: table: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: image Undo restores exact original spelling
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark false, zoom 1.0, TOC true]: viewing protected source does not dirty or rewrite it
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: requested color scheme is active
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: code: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: table: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: image Undo restores exact original spelling
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark false, zoom 1.25, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: requested color scheme is active
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: code: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: table: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: image Undo restores exact original spelling
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark false, zoom 1.25, TOC true]: viewing protected source does not dirty or rewrite it
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: requested color scheme is active
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: code: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: table: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: image Undo restores exact original spelling
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark true, zoom 1.0, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: requested color scheme is active
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: code: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: table: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: image Undo restores exact original spelling
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark true, zoom 1.0, TOC true]: viewing protected source does not dirty or rewrite it
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: requested color scheme is active
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: code: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: table: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: image Undo restores exact original spelling
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark true, zoom 1.25, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: requested color scheme is active
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: code: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: table: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: image Undo restores exact original spelling
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 900, dark true, zoom 1.25, TOC true]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: requested color scheme is active
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: code: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: table: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: image Undo restores exact original spelling
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark false, zoom 1.0, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: requested color scheme is active
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: code: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: table: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: image Undo restores exact original spelling
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark false, zoom 1.0, TOC true]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: requested color scheme is active
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: code: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: table: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: image Undo restores exact original spelling
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark false, zoom 1.25, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: requested color scheme is active
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: code: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: table: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: image Undo restores exact original spelling
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark false, zoom 1.25, TOC true]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: requested color scheme is active
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: code: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: table: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: image Undo restores exact original spelling
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark true, zoom 1.0, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: requested color scheme is active
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: code: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: table: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: image Undo restores exact original spelling
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark true, zoom 1.0, TOC true]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: requested color scheme is active
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: headings: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: code: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: quote: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: table: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: rule: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image surface opens its editor without a layout button
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: image Undo restores exact original spelling
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: Read mode keeps image editing inactive
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark true, zoom 1.25, TOC false]: viewing protected source does not dirty or rewrite it
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: requested color scheme is active
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: checkboxes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: checkboxes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: checkboxes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: loose lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: loose lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: loose lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: nested lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: nested lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: nested lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: ordered lists: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: ordered lists: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: ordered lists: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: headings: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: headings: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: headings: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: inline styles: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: inline styles: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: inline styles: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: code: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: code: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: code: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: quote: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: quote: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: quote: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: table: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: table: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: table: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: rule: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: rule: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: rule: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: inline image: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: inline image: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: inline image: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image attributes: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image attributes: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image attributes: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image caption: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image caption: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image caption: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: protected HTML: same geometry, fonts, colors and decoration across Aa
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: protected HTML: preview keeps exact source and clean state
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: protected HTML: leaving Aa preserves source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image surface opens its editor without a layout button
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image editing saves URL, dimensions and caption syntax
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: image Undo restores exact original spelling
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: Read mode keeps image editing inactive
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: blank click after an image reuses the opening Text line without adding another
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: protected preview stays sanitized and author checkboxes stay inert
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: protected preview still exposes exact read-only source
+PASS [appearance 640, dark true, zoom 1.25, TOC true]: viewing protected source does not dirty or rewrite it

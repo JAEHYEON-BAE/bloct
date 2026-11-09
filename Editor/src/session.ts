@@ -37,17 +37,32 @@ export class BlockSession {
   #savedRevision = 0;
   #savedDoc: PMNode | null;
   #snapshotDocs = new WeakMap<object, PMNode>();
+  #openingParagraphId: string | null = null;
+  #openingTail = '';
+  #trailingParagraph: boolean;
 
-  constructor(markdown: string, savedMarkdown = markdown) {
+  constructor(markdown: string, savedMarkdown = markdown, trailingParagraph = false) {
+    this.#trailingParagraph = trailingParagraph;
     this.#imported = importMarkdown(markdown);
-    this.#state = this.createState(this.#imported.doc);
+    this.#state = this.createState(this.openingDoc());
     this.#saved = savedMarkdown;
     this.#savedDoc = savedMarkdown === markdown ? this.#state.doc : null;
+  }
+  private openingDoc() {
+    const doc=this.#imported.doc,last=doc.lastChild!;
+    this.#openingParagraphId=null;this.#openingTail='';
+    if(!this.#trailingParagraph || (last.type===schema.nodes.paragraph && !last.content.size))return doc;
+    this.#openingParagraphId=randomID();
+    this.#openingTail=doc.attrs.tail;
+    const eol=/\r\n|\r|\n/.exec(this.#imported.original)?.[0]??'\n';
+    const before=/\n[\t ]*\n/.test(this.#openingTail.replace(/\r\n|\r/g,'\n'))?this.#openingTail:eol+eol;
+    return doc.type.create({...doc.attrs,tail:''},doc.content.append(Fragment.from(
+      schema.nodes.paragraph.create({id:this.#openingParagraphId,before}))));
   }
   private createState(doc: PMNode) {return EditorState.create({schema, doc, plugins: [history()]});}
   get doc() {return this.#state.doc;}
   get state() {return this.#state;}
-  get changed() {return this.#savedDoc ? !this.doc.eq(this.#savedDoc) : this.dirty;}
+  get changed() {return this.#savedDoc ? !this.exportDoc(this.doc).eq(this.exportDoc(this.#savedDoc)) : this.dirty;}
   configure(plugins: Plugin[]) {
     this.#state = this.#state.reconfigure({plugins: [...this.#state.plugins, ...plugins]});
   }
@@ -68,7 +83,19 @@ export class BlockSession {
     try {return this.markdown() !== this.#saved;}
     catch {return true;} // An unexportable draft must never be treated as clean.
   }
-  markdown() {return serialize(this.#imported, this.doc);}
+  private exportDoc(doc:PMNode) {
+    const last=doc.lastChild!;
+    // The opening line is UI until it contains content or changes type. Keep
+    // untouched EOF whitespace exact, including on Save and mode handoff.
+    if(this.#openingParagraphId && last.attrs.id===this.#openingParagraphId
+        && last.type===schema.nodes.paragraph && !last.content.size) {
+      const content=doc.content.cut(0,doc.content.size-last.nodeSize);
+      doc=doc.type.create({...doc.attrs,tail:this.#openingTail+doc.attrs.tail},
+        content.size?content:Fragment.from(schema.nodes.paragraph.create()));
+    }
+    return doc;
+  }
+  markdown() {return serialize(this.#imported,this.exportDoc(this.doc));}
   snapshot() {
     const snapshot = Object.freeze({documentId: this.documentId, generation: this.#generation,
       revision: this.#revision, markdown: this.markdown()});
@@ -94,7 +121,7 @@ export class BlockSession {
   }
   acceptExternal(markdown: string) {
     this.#imported = importMarkdown(markdown);
-    this.#state = this.createState(this.#imported.doc);
+    this.#state = this.createState(this.openingDoc());
     this.#saved = markdown;
     this.#savedDoc = this.#state.doc;
     this.#generation++;

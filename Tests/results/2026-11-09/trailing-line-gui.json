@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-09",
+  "app": "/private/tmp/bloct-background-textlines-20261109/BloctTextLines.app",
+  "method": "Computer Use native keys/clicks, AX trees and screenshots; separate disk audit",
+  "checks": [
+    "source.txt ended in a bullet list with no final newline. Opening Aa showed exactly one empty Text line beneath the list, and the title stayed clean.",
+    "Cmd+S before typing was allowed without introducing a document edit. Cmd+Down moved into the existing final Text line; native period input was ordinary Text, not a new bullet. Save wrote the escaped literal period after a blank boundary; Undo and Save restored original bytes.",
+    "already-blank.txt contained three original trailing newlines. Opening Aa showed one Text line, no duplicate placeholder, no Edited title. Save preserved the exact original bytes and newline count.",
+    "Closed the second document in Aa off and returned to the first, then switched it off and Quit. Global inventory and independent audit confirmed the dedicated test process absent and no owned previews."
+  ],
+  "diskEvidence": "trailing-line-gui-disk.json",
+  "limits": [
+    "Full physical IME is separate.",
+    "Quit used Aa off and does not resolve existing native close crash #45.",
+    "The generic headless editor remains opt-in; the production native mount always enables the trailing input line."
+  ]
+}
