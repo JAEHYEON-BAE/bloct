@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-09",
+  "app": "/private/tmp/bloct-background-textlines-20261109/BloctTextLines.app",
+  "method": "Computer Use app-targeted native clicks, Cmd+Down/period/Undo/Save and screenshot/AX inspection",
+  "checks": [
+    "guides.txt contained empty H2, quote, bullet list, ordered list, task list and code. Aa screenshot showed only Header 2 and Code guide text; no Text, Quote, List item or To-do guide, including the automatic last paragraph.",
+    "Quote border, bullet/number markers and checkbox remained visible, and the window stayed clean after Save.",
+    "Cmd+Down and native period entered ordinary Text on the empty last line; Undo/Save restored the original source.",
+    "Aa off and Quit; inventory and independent process/crash/file audit confirmed exit, exact fixture bytes and no preview residue."
+  ],
+  "diskEvidence": "plain-guides-gui-disk.json",
+  "limits": [
+    "Actual comprehensive IME remains separate.",
+    "Quit used Aa off; existing #45 is unchanged."
+  ]
+}

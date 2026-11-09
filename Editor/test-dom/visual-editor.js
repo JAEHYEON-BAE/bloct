@@ -105,17 +105,19 @@ for(let level=1;level<=6;level++)await check(`H${level}: typed marker converts t
   assert(serialized()==='#'.repeat(level)+' Title');
 });
 for(const [prefix,kind,selector] of [
-  ['> ','blockquote','blockquote [data-placeholder="Quote"]'],
-  ['- ','bullet_list','ul [data-placeholder="List item"]'],
-  ['+ ','bullet_list','ul [data-placeholder="List item"]'],
-  ['3. ','ordered_list','ol [data-placeholder="List item"]'],
-  ['[] ','bullet_list','li.task-item [data-placeholder="To-do"]'],
-  ['[x] ','bullet_list','li.task-item [data-placeholder="To-do"]'],
+  ['> ','blockquote','blockquote p'],
+  ['- ','bullet_list','ul p'],
+  ['+ ','bullet_list','ul p'],
+  ['3. ','ordered_list','ol p'],
+  ['[] ','bullet_list','li.task-item p'],
+  ['[x] ','bullet_list','li.task-item p'],
   ['```js ','code_block','pre[data-placeholder="Code"]'],
   ['~~~ ','code_block','pre[data-placeholder="Code"]'],
 ])await check(`${JSON.stringify(prefix)}: block conversion, placeholder and round-trip`,()=>{
   fresh();type(prefix);assert(editor.session.doc.firstChild.type.name===kind,serialized());
-  assert(host.querySelector(selector),host.innerHTML);type('content');serialized();
+  assert(host.querySelector(selector),host.innerHTML);
+  if(kind!=='code_block')assert(!host.querySelector('[data-placeholder]'),'ordinary blocks must have no guide text');
+  type('content');serialized();
 });
 await check('heading Enter creates paragraph; Shift-Enter stays within text block',()=>{
   fresh();type('## Title');assert(key('Enter'));type('Body');
@@ -191,7 +193,7 @@ for(const kind of ['paragraph','heading_1','heading_2','heading_3','heading_4','
     serialized();
   });
 }
-await check('empty table cells stay blank while ordinary text placeholders remain',()=>{
+await check('empty table cells and ordinary text stay blank without guide text',()=>{
   fresh('| A |  |\n| --- | --- |\n|  | B |');
   assert(host.querySelectorAll('td').length===4);
   assert(!host.querySelector('td[data-placeholder],td.is-empty'));
@@ -199,7 +201,7 @@ await check('empty table cells stay blank while ordinary text placeholders remai
   assert(!serialized().includes('Cell'));
   fresh();assert(editor.format('table'));
   assert(!host.querySelector('td[data-placeholder],td.is-empty'));
-  assert(host.querySelector('p[data-placeholder="Text"]'),'paragraph placeholder preserved');
+  assert(host.querySelector('p') && !host.querySelector('p[data-placeholder]'),'ordinary paragraph remains unlabelled');
   type('typed');assert(host.querySelector('td').textContent==='typed');serialized();
 });
 await check('table vertical arrows keep the column and leave the source and dirty state unchanged',()=>{

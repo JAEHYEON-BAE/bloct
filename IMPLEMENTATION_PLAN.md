@@ -71,7 +71,7 @@
 | 표의 화살표 | 셀 안 글자/표시 줄 이동 후 인접 행·열로 이동. 첫 행 ↑/마지막 행 ↓는 표 앞/뒤 영역, 영역이 없으면 최상위 블록 앞/뒤 새 문단. 좌우는 행을 넘지 않음 |
 | 표의 Enter·Tab | Enter는 아래 행 첫 셀, 마지막 행이면 표 아래 새 문단. Tab/Shift+Tab은 같은 표의 다음/이전 셀, 마지막 Tab은 표 아래 새 문단 |
 | 표의 Shift+Enter | 머리글·중간·끝 어느 행에서도 바로 아래 빈 행 삽입 후 **새 행 첫 열 시작**으로 이동 |
-| 안내·조합·붙여넣기 | 빈 타입별 회색 안내는 장식이며 표 셀은 비움. 조합 중 타입 변환/강제 blur/DOM 교체를 피함. 가져오기·일반 붙여넣기는 타이핑 규칙을 실행하지 않음 |
+| 안내·조합·붙여넣기 | 빈 제목·코드만 안내 문구를 표시하며 Text·Quote·불릿/번호/할 일 목록·표 셀은 비움. 안내는 장식임. 조합 중 타입 변환/강제 blur/DOM 교체를 피함. 가져오기·일반 붙여넣기는 타이핑 규칙을 실행하지 않음 |
 
 `>`는 Notion 토글이 아닌 Markdown 인용입니다. 미완성 구문은 텍스트로 보존하고 안내·검색 강조·핸들은 원문/history에 넣지 않습니다. 완성된 inline code 뒤 입력은 일반 서식으로 복귀합니다. 실제 복사/PDF에서 장식 제외까지의 수용 검증은 아래 관문에 남아 있습니다.
 
@@ -81,6 +81,7 @@
 
 | 범위 | 마지막 기록된 결과 |
 |---|---|
+| 기본 블록 안내 제거 | 2026-11-09 [모델 36·번들](Tests/results/2026-11-09/plain-guides-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/plain-guides-visual.log) 통과. [Computer Use](Tests/results/2026-11-09/plain-guides-gui.json)에서 Text/Quote/목록 안내 제거·제목/코드 안내 유지·기호/체크 보존·즉시 입력/Undo/Save·종료 확인. [원문·종료 감사](Tests/results/2026-11-09/plain-guides-gui-disk.json) |
 | 자동 마지막 Text 줄 | 2026-11-09 [모델 36·번들](Tests/results/2026-11-09/trailing-line-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/trailing-line-visual.log)·[native 40](Tests/results/2026-11-09/trailing-line-native.log)·[WebKit/레이아웃 51·모양 864](Tests/results/2026-11-09/trailing-line-webkit.log) 통과. [Computer Use](Tests/results/2026-11-09/trailing-line-gui.json): 목록 뒤 자동 Text 입력/저장/Undo, 기존 EOF 공백 재사용·두 창·읽기 전환·종료. [원문·종료 감사](Tests/results/2026-11-09/trailing-line-gui-disk.json). 실제 IME·45번은 별도 |
 | 수식 화살표 선택·Enter 편집 | 2026-11-09 [모델 34·번들](Tests/results/2026-11-09/math-keyboard-model.log)·[브라우저 모델 18·시각 입력 312](Tests/results/2026-11-09/math-keyboard-visual.log) 통과, 실패/SKIP 0. [Computer Use](Tests/results/2026-11-09/math-keyboard-gui.json)에서 블록 상·하/인라인 좌·우 진입·전체 회색 강조·Enter·Cancel/Apply·Save/Undo·재열기·읽기 차단·두 문서 전환 확인. [디스크/종료](Tests/results/2026-11-09/math-keyboard-gui-disk.json): 원문 복원·앱 종료·새 충돌/미리보기 잔류 없음. 실제 IME와 45번은 별도 |
 | 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-08 [TypeScript·모델 34·번들](Tests/results/2026-11-08/text-boundary-model.log) 통과 |
