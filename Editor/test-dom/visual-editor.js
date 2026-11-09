@@ -64,7 +64,7 @@ await check('blank click ignores read-only, frozen, composition, controls, modif
   editor.setEditable(false);assert(!blankClick());editor.setEditable(true);
   assert(!editor.freezeIfClean());assert(!blankClick());editor.unfreeze();
   editor.view.input.composing=true;assert(!blankClick());editor.view.input.composing=false;
-  assert(!blankClick(editor.toolbar));assert(!blankClick(host.querySelector('p')));
+  assert(!blankClick(document.createElement('button')));assert(!blankClick(host.querySelector('p')));
   for(const options of [{button:2},{detail:2},{shiftKey:true},{metaKey:true},{ctrlKey:true},{altKey:true},{clientY:0},{clientX:-10}])assert(!blankClick(editor.view.dom,options));
   assert(editor.session.doc.eq(before) && !editor.session.changed);
 });
@@ -98,7 +98,7 @@ for(let level=1;level<=6;level++)await check(`H${level}: typed marker converts t
   fresh();type('#'.repeat(level)+' ');
   assert(editor.session.doc.firstChild.type.name==='heading');
   assert(editor.session.doc.firstChild.attrs.level===level);
-  assert(editor.toolbar.querySelector('select').value===`heading_${level}`);
+  assert(!host.previousElementSibling?.classList.contains('visual-toolbar'));
   assert(host.querySelector(`h${level}[data-placeholder="Header ${level}"]`));
   assert(!document.querySelector('textarea'),'no raw Markdown textarea in normal editing');
   type('Title');assert(host.querySelector(`h${level}`).textContent==='Title');

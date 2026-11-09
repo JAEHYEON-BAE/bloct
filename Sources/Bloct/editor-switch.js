@@ -27,13 +27,12 @@ window._mvInstallEditorSwitch = function(config) {
         return el.tagName+':'+el.textContent.replace(/\s+/g,' ').trim();
     }
     function anchor() {
-        const list=blocks(),el=list.find(el=>{const r=el.getBoundingClientRect();return r.height>0 && r.bottom>toolbarHeight() && r.top<innerHeight;});
+        const list=blocks(),el=list.find(el=>{const r=el.getBoundingClientRect();return r.height>0 && r.bottom>0 && r.top<innerHeight;});
         return {x:scrollX,y:scrollY,key:el&&key(el),ordinal:el?list.filter(n=>key(n)===key(el)).indexOf(el):0,top:el?.getBoundingClientRect().top};
     }
-    function toolbarHeight() {return visual ? editor.toolbar.getBoundingClientRect().height : 0;}
-    function restore(saved,delta) {
+    function restore(saved) {
         const el=blocks().filter(el=>key(el)===saved.key)[saved.ordinal];
-        const y=el ? scrollY+el.getBoundingClientRect().top-saved.top-delta : saved.y;
+        const y=el ? scrollY+el.getBoundingClientRect().top-saved.top : saved.y;
         window.scrollTo({left:saved.x,top:y,behavior:'instant'});
     }
     function mount(raw,baseline) {
@@ -58,11 +57,11 @@ window._mvInstallEditorSwitch = function(config) {
         const deadline=Date.now()+1500;
         while((visual && editor.view.composing) && Date.now()<deadline)await new Promise(r=>setTimeout(r,20));
         if(visual && editor.view.composing)throw new Error('Finish text composition before switching editors.');
-        const saved=anchor(),oldToolbar=toolbarHeight();
+        const saved=anchor();
         if(on) {
             const raw=window._mvRawLines.join('\n');
             mount(raw,baseline);
-            restore(saved,toolbarHeight()-oldToolbar);
+            restore(saved);
             editor.focus();
         } else {
             const snapshot=await editor.handoff();
@@ -72,7 +71,7 @@ window._mvInstallEditorSwitch = function(config) {
             window._mvDiskChecking=false;
             window._mvStale=true;readerRender(encode(snapshot.text));
             ensureReadingEndLine();
-            restore(saved,-oldToolbar);
+            restore(saved);
         }
         window._mvBuildTOC?.();
         return {text:visual?editor.session.markdown():window._mvRawLines.join('\n')};

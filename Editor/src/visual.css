@@ -1,7 +1,5 @@
 /* Document geometry and colors come from the shared Markdown stylesheet. */
 :root { color-scheme:light dark; --bg:var(--color-bg); --fg:var(--color-text); --muted:var(--color-text-muted); --border:var(--color-border); }
-.visual-toolbar { display:flex; flex-wrap:wrap; gap:6px; padding:8px 0; position:sticky; top:0; z-index:3; background:var(--bg); margin:0; }
-.visual-toolbar[hidden] { display:none; }
 button,select { font:inherit; font-size:13px; padding:5px 9px; border:1px solid var(--border); border-radius:5px; color:var(--fg); background:var(--bg); }
 button { cursor:pointer; }
 .ProseMirror { outline:none; min-height:50vh; white-space:pre-line; overflow-wrap:break-word; }
@@ -40,4 +38,4 @@ span.visual-atom { display:inline-flex; vertical-align:middle; gap:4px; padding:
 .visual-math.ProseMirror-selectednode *::selection { background:transparent; }
 dialog { border:1px solid var(--border); border-radius:10px; padding:22px; width:min(600px,90vw); background:var(--bg); color:var(--fg); }
 dialog label { display:block; } dialog textarea { display:block; width:100%; min-height:140px; margin:12px 0; font:14px/1.6 ui-monospace,monospace; }
-@media print { .visual-toolbar,.visual-status,.visual-atom button,.visual-math button,dialog,#toc { display:none!important; }  .ProseMirror .is-empty::before { content:none; } .visual-match { background:transparent; } }
+@media print { .visual-status,.visual-atom button,.visual-math button,dialog,#toc { display:none!important; }  .ProseMirror .is-empty::before { content:none; } .visual-match { background:transparent; } }

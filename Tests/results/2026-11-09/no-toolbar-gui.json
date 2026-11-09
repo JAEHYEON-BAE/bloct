@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-09",
+  "app": "/private/tmp/bloct-background-focus-20261109/BloctFocus.app",
+  "method": "Computer Use app-targeted native input and screenshots",
+  "checks": [
+    "Reading and Aa screenshots of focus.txt showed identical heading/text/quote/list/equation positions. No Text/Block format/Bold/Italic/Inline code row was present in Aa.",
+    "Native period typed after middle produced Alpha middle. Omega and Save persisted the escaped period in Markdown. Undo and Save restored every fixture byte.",
+    "Aa off and Quit; dedicated app absent, no preview residue or matching crash reports."
+  ],
+  "diskEvidence": "no-toolbar-gui-disk.json",
+  "limits": [
+    "The Aa button is still the activation path in this first independent step; click/Escape is the next implementation.",
+    "Exit used Aa off; existing #45 and full IME acceptance remain separate."
+  ]
+}

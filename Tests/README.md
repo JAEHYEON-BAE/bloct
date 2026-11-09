@@ -32,7 +32,7 @@ sh Tests/run-block-model-webkit.sh
 This requires permission to launch WebKit processes outside a restrictive sandbox.
 Without options it checks engine/serializer execution (18 checks). Add `--visual`
 to mount the actual EditorView in both file and inline WKWebViews and test typing
-rules, H1–H6/code placeholders and unlabelled empty Text/quote/list/task blocks, all 16 menu formats, inline marks,
+rules, H1–H6/code placeholders and unlabelled empty Text/quote/list/task blocks, all 16 engine formats (with no visible formatting toolbar), inline marks,
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus opt-in trailing Text lines with exact EOF/source preservation, typing/Undo/reload/handoff, attached matrix delimiters, display mode, formula-surface editing and Undo.

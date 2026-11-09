@@ -201,7 +201,6 @@ export class VisualEditor {
   readonly session: BlockSession;
   readonly view: EditorView;
   readonly host: HTMLElement;
-  readonly toolbar: HTMLElement;
   readonly status: HTMLElement;
   #editable = true;
   #frozen = false;
@@ -218,23 +217,8 @@ export class VisualEditor {
     this.host = host;
     this.#options = options;
     this.session = new BlockSession(markdown, options.savedMarkdown, options.trailingParagraph);
-    this.toolbar = document.createElement('div');
-    this.toolbar.className = 'visual-toolbar';
-    this.toolbar.setAttribute('role','toolbar'); this.toolbar.setAttribute('aria-label','Formatting');
-    const select = document.createElement('select'); select.setAttribute('aria-label','Block format');
-    for (const [value,label] of formats) {
-      const option = document.createElement('option'); option.value = value; option.textContent = label; select.append(option);
-    }
-    select.addEventListener('change', () => {this.format(select.value); this.updateFormat();});
-    this.toolbar.append(select);
-    for (const [label,mark] of [['Bold','strong'],['Italic','em'],['Inline code','code']]) {
-      const button = document.createElement('button'); button.type='button'; button.textContent=label;
-      button.addEventListener('mousedown', e => e.preventDefault());
-      button.addEventListener('click', () => this.run(toggleMark(schema.marks[mark])));
-      this.toolbar.append(button);
-    }
     this.status = document.createElement('div'); this.status.className='visual-status'; this.status.setAttribute('role','status');
-    host.before(this.toolbar); host.after(this.status);
+    host.after(this.status);
     this.session.configure(this.plugins());
     this.view = new EditorView(host, {
       state:this.session.state,
@@ -402,21 +386,9 @@ export class VisualEditor {
     this.notify();
   }
   private notify() {
-    this.updateFormat();
     this.#options.onChange?.(this.session.changed);
     // This optional hook belongs to the macOS host, not the editable DOM.
     (window as any)._mvBuildTOC?.();
-  }
-  private updateFormat() {
-    const {$from}=this.session.state.selection;
-    let kind=$from.parent.type.name;
-    if(kind==='heading')kind=`heading_${$from.parent.attrs.level}`;
-    for(let depth=$from.depth-1;depth>0;depth--) {
-      const node=$from.node(depth);
-      if(node.type===schema.nodes.list_item && node.attrs.checked!=null){kind='task_list';break;}
-      if(node.type===schema.nodes.bullet_list||node.type===schema.nodes.ordered_list||node.type===schema.nodes.blockquote){kind=node.type.name;break;}
-    }
-    (this.toolbar.querySelector('select') as HTMLSelectElement).value=kind;
   }
   private run(command:Command) {
     if(!this.#editable || this.#frozen) return false;
@@ -732,7 +704,6 @@ export class VisualEditor {
   }
   setEditable(value:boolean) {
     this.#editable=value;this.view.setProps({editable:()=>this.#editable&&!this.#frozen});
-    this.toolbar.hidden=!value;
     for(const surface of this.view.dom.querySelectorAll<HTMLElement>('[data-visual-surface]')) {
       const enabled=value || surface.dataset.visualSurface==='raw_source';
       surface.tabIndex=enabled?0:-1;surface.setAttribute('aria-disabled',String(!enabled));
@@ -786,7 +757,7 @@ export class VisualEditor {
     const found=this.#matches[this.#matchIndex];this.view.domAtPos(found.from).node.parentElement?.scrollIntoView({block:'center'});
   }
   focus(){this.view.focus();}
-  destroy(){this.#dialog?.remove();this.#dialog=null;document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.toolbar.remove();this.status.remove();}
+  destroy(){this.#dialog?.remove();this.#dialog=null;document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.status.remove();}
 }
 
 export function mountVisualEditor(host:HTMLElement,markdown:string,options:VisualOptions={}) {
