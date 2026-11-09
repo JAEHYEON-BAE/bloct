@@ -209,6 +209,7 @@ export class VisualEditor {
   #options: VisualOptions;
   #snapshots = new Map<string, ReturnType<BlockSession['snapshot']>>();
   #dialog: HTMLDialogElement | null = null;
+  #mathEditors = new WeakMap<Node, () => void>();
   get hasOpenDialog() { return !!this.#dialog?.open; }
 
   constructor(host: HTMLElement, markdown: string, options: VisualOptions = {}) {
@@ -238,6 +239,7 @@ export class VisualEditor {
       attributes: {role:'textbox','aria-label':'Document','aria-multiline':'true'},
       editable: () => this.#editable && !this.#frozen,
       dispatchTransaction: tr => this.dispatch(tr),
+      handleKeyDown: (_view,event) => (event.key==='Enter'||event.key===' ') && this.activateSelectedMath(event),
       nodeViews: {
         list_item:(node,view,getPos) => this.taskView(node,view,getPos),
         equation:(node,view,getPos) => this.atomView(node,view,getPos),
@@ -619,6 +621,17 @@ export class VisualEditor {
     return {dom,contentDOM,update:current=>{if(current.type!==schema.nodes.list_item)return false;paint(current);return true;},
       stopEvent:event=>event.target===checkbox};
   }
+  private activateSelectedMath(event:KeyboardEvent) {
+    if(event.shiftKey||event.metaKey||event.ctrlKey||event.altKey||event.isComposing||this.view.composing)return false;
+    const {selection}=this.view.state;
+    if(!(selection instanceof NodeSelection) ||
+      (selection.node.type!==schema.nodes.equation && selection.node.type!==schema.nodes.inline_math))return false;
+    // Arrow navigation keeps DOM focus in EditorView. Activate only the
+    // engine-selected node's own editor, as a surface click would do.
+    const dom=this.view.nodeDOM(selection.from);
+    if(dom && !event.repeat)this.#mathEditors.get(dom)?.();
+    return true;
+  }
   private atomView(node:PMNode,view:EditorView,getPos:()=>number|undefined):NodeView {
     const isMath=node.type===schema.nodes.equation||node.type===schema.nodes.inline_math;
     const dom:HTMLElement=document.createElement(node.isInline?'span':'div');dom.className=isMath?'visual-math':'visual-atom';dom.contentEditable='false';
@@ -661,6 +674,7 @@ export class VisualEditor {
       }
     };
     const openEditor=()=>{
+      if(this.#dialog?.open || view.composing)return;
       const pos=getPos();if(pos==null)return;
       const current=view.state.doc.nodeAt(pos)!;
       if(this.#frozen)return;
@@ -684,6 +698,7 @@ export class VisualEditor {
         dialog.remove();view.focus();
       });dialog.showModal();input.focus();
     };
+    if(isMath)this.#mathEditors.set(dom,openEditor);
     if(isMath || node.type!==schema.nodes.raw_source || this.#options.renderPreview) {
       dom.dataset.visualSurface=node.type.name;
       dom.setAttribute('role','button');dom.setAttribute('aria-label',isMath?'Edit equation':node.type===schema.nodes.raw_source?'View source':'Edit image');

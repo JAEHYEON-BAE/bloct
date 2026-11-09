@@ -1,0 +1,16 @@
+{
+  "appProcessAbsent": true,
+  "matchingProcesses": [],
+  "newAppCrashReports": [],
+  "previewFilesRemaining": [],
+  "fixtureOriginalSHA256": "91b166f1c50f86dd36d6ca8fe1cb58ddc5aada9da91b68ac4b969916a1552b9a",
+  "fixtureFinalSHA256": "91b166f1c50f86dd36d6ca8fe1cb58ddc5aada9da91b68ac4b969916a1552b9a",
+  "fixtureRestoredByteForByte": true,
+  "emptyFileAfterSaveAndReopen": "$x$",
+  "resourcesMatchLatestBundle": {
+    "blocks.js": "f3cd322b8143a47e65d86bc0e1232856f441e634187d059e3e5b63cd11c0dcac",
+    "visual.css": "bb4eb754abfcccd16f07ea279f4f6bc38f37d79c5cc2758833c466c02c591aa1"
+  },
+  "exitCodeAvailable": false,
+  "bug45Resolved": false
+}

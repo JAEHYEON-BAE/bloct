@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-09",
+  "app": "/private/tmp/bloct-background-math-20261109/BloctMathKeyboard.app",
+  "bundleID": "com.personal.Bloct.MathKeyboard20261109",
+  "method": "Computer Use via cua_repl; app-targeted AX cursor placement, actual Up/Down/Left/Right/Return keystrokes, native clicks, screenshot inspection and separate disk/process checks",
+  "checks": [
+    "AboveBlock end + Down selected the complete display equation; after suppressing WebKit native selection painting the whole block was gray with no blue text-selection overlay or outline.",
+    "BelowBlock start + Up selected the same equation; screenshot showed the pointer on BelowBlock, outside the gray math region, confirming keyboard selection rather than pointer hover.",
+    "Enter on the selected display equation opened the same Equation popup as a surface click, containing x^2 + y^2 = z^2. Cancel restored selection and editor focus.",
+    "Down after Cancel left the formula; immediate native period typing appeared before BelowBlock. Undo restored the original paragraph.",
+    "Enter from the upward-selected formula, native + and 0 input, Apply and Cmd+S saved z^2+0. A separate disk copy confirms the changed formula and unchanged surrounding text.",
+    "Cmd+Z and Cmd+S restored math-navigation.txt byte-for-byte, verified by SHA256.",
+    "BeforeInline end + Right selected the inline equation a+b with gray highlighting; Enter opened its popup. Cancel did not alter source.",
+    "Right exited the selected inline formula to its right; Left selected it again, and Enter reopened the a+b popup.",
+    "Aa off: clicking the displayed equation and pressing Return did not open an editor or change the document.",
+    "Opened empty.txt as a second document. Native dollar/x/dollar keystrokes created an inline equation; the active Korean layout mapped x to ㅌ. Left + Enter opened the popup with exactly that value. AX setValue changed the popup to x, then Apply/Save persisted $x$. This is not comprehensive IME validation.",
+    "Switched empty.txt to Aa off and closed it, returning to math-navigation.txt. Reopened empty.txt from disk, enabled Aa, moved to document start and pressed Right to select the formula; Return opened a popup containing x.",
+    "Temporary cursor-placement attempts that split a paragraph were immediately undone and were not retained in saved fixtures. The right-side inline test used actual Right/Left from a known selected formula rather than AX offsets through KaTeX hidden text.",
+    "Finished in Aa off, saved and Quit. Global inventory and an independent process check confirmed the dedicated app absent, with no new crash reports for its bundle ID and no owned preview files."
+  ],
+  "diskEvidence": "math-keyboard-gui-disk.json",
+  "savedChangedFormula": "math-keyboard-saved.txt",
+  "limits": [
+    "Actual keyboard/screenshot checks use temporary .txt files containing Markdown, not user documents or the installed Bloct app.",
+    "Comprehensive physical IME composition, accessibility/VoiceOver and PDF are outside this change.",
+    "Read/freeze/composition/modifier guards and repeated-key popup suppression are also checked by the WebKit DOM suite; synthetic checks are not physical IME evidence.",
+    "Quit used Aa off. Existing native Aa close crash #45 is unchanged; process absence and no new report do not establish its resolution. A process exit code was unavailable."
+  ]
+}

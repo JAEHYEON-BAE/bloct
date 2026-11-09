@@ -775,6 +775,73 @@ await check('math surfaces support keyboard activation and stay inactive in Read
   assert(getComputedStyle(math).cursor!=='pointer');
   editor.setEditable(true);assert(math.tabIndex===0);
 });
+// Dispatch through EditorView's DOM handler so ProseMirror's native arrow
+// capture (not only our keymap) participates in selecting atomic formulas.
+const mathArrow=(direction)=>editor.view.dom.dispatchEvent(new KeyboardEvent('keydown',{
+  key:direction,keyCode:{ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[direction],bubbles:true,cancelable:true,
+}));
+for(const [source,fromEnd,direction,leave] of [
+  ['Before\n\n$$x^2$$\n\nAfter',false,'ArrowDown','ArrowRight'],
+  ['Before\n\n$$x^2$$\n\nAfter',true,'ArrowUp','ArrowUp'],
+  ['Before\n\n$$x^2$$\n\nAfter',false,'ArrowRight','ArrowLeft'],
+  ['Before\n\n$$x^2$$\n\nAfter',true,'ArrowLeft','ArrowRight'],
+  ['Before $x^2$ After',false,'ArrowRight','ArrowLeft'],
+  ['Before $x^2$ After',true,'ArrowLeft','ArrowRight'],
+])await check(`formula arrow selection ${direction} from ${fromEnd?'after':'before'} ${source.includes('\n')?'block':'inline'} highlights, opens and cancels without editing`,async()=>{
+  fresh(source);
+  const block=fromEnd?editor.session.doc.lastChild:editor.session.doc.firstChild;
+  const inline=source.startsWith('Before $');
+  const offset=inline?(fromEnd?8:7):(fromEnd?0:block.content.size);
+  assert(editor.session.setSelection(editor.session.reference(block.attrs.id),offset));
+  editor.view.updateState(editor.session.state);editor.focus();
+  mathArrow(direction);
+  const selection=editor.view.state.selection;
+  assert(selection.node?.type.name===(inline?'inline_math':'equation'),'arrow must select formula');
+  const math=host.querySelector('.visual-math');
+  assert(math.classList.contains('ProseMirror-selectednode'),'selection CSS class');
+  const css=getComputedStyle(math);
+  assert(css.backgroundColor!=='rgba(0, 0, 0, 0)' && css.backgroundColor!=='transparent','selected formula must have hover background');
+  assert(css.outlineStyle==='none','selected formula uses the hover appearance');
+  assert(getComputedStyle(math,'::selection').backgroundColor==='rgba(0, 0, 0, 0)','native selection must not cover the hover background');
+  assert(key('Enter'));const dialog=document.querySelector('dialog[open]');assert(dialog,'Enter must open formula editor');
+  assert(dialog.querySelector('textarea').value==='x^2');
+  assert(!key('Enter',{repeat:true}) || document.querySelectorAll('dialog').length===1);
+  dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,0));
+  assert(!document.querySelector('dialog') && editor.view.hasFocus(),'cancel removes dialog and restores editor focus');
+  assert(serialized()===source && !editor.session.changed,'cancel must preserve source');
+  mathArrow(leave);assert(!math.classList.contains('ProseMirror-selectednode'),'leaving math must clear selection '+JSON.stringify(editor.view.state.selection.toJSON()));
+});
+await check('arrow-selected formula Apply preserves surrounding text, supports Save/reimport and Undo',async()=>{
+  const source='Before\n\n$$x^2$$\n\nAfter';fresh(source);
+  const first=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(first.attrs.id),first.content.size);
+  editor.view.updateState(editor.session.state);editor.focus();mathArrow('ArrowDown');
+  assert(key('Enter'));const dialog=document.querySelector('dialog[open]');assert(dialog);
+  dialog.querySelector('textarea').value='x^3';dialog.close('apply');
+  await new Promise(resolve=>setTimeout(resolve,0));
+  const snapshot=await editor.snapshot();assert(BloctBlocks.importMarkdown(snapshot.text).doc.child(1).attrs.value==='x^3');
+  assert(snapshot.text.startsWith('Before\n\n') && snapshot.text.endsWith('\n\nAfter'));
+  assert(editor.acknowledge(snapshot.token));assert(editor.history(false));assert(serialized()===source);
+  assert(editor.history(true));assert(editor.session.doc.child(1).attrs.value==='x^3');
+});
+await check('engine-selected formula ignores activation while read-only, frozen, composing or modified',()=>{
+  fresh('Before\n\n$$x$$\n\nAfter');
+  const first=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(first.attrs.id),first.content.size);
+  editor.view.updateState(editor.session.state);editor.focus();mathArrow('ArrowDown');
+  assert(editor.view.state.selection.node?.type.name==='equation');
+  const original=serialized();
+  editor.setEditable(false);key('Enter');assert(!document.querySelector('dialog'));
+  editor.setEditable(true);assert(!editor.freezeIfClean());key('Enter');assert(!document.querySelector('dialog'));editor.unfreeze();
+  editor.view.input.composing=true;
+  assert(!editor.view.props.handleKeyDown(editor.view,new KeyboardEvent('keydown',{key:'Enter',isComposing:true})));
+  editor.view.input.composing=false;assert(!document.querySelector('dialog'));
+  for(const modifier of ['shiftKey','metaKey','ctrlKey','altKey']) {
+    const event=new KeyboardEvent('keydown',{key:'Enter',[modifier]:true});
+    assert(!editor.view.props.handleKeyDown(editor.view,event));assert(!document.querySelector('dialog'));
+  }
+  assert(serialized()===original && !editor.session.changed,'guards preserve source');
+});
 await check('dragging across a formula and a frozen editor never open the math dialog',()=>{
   fresh('$x$');const math=host.querySelector('.visual-math');
   math.dispatchEvent(new MouseEvent('mousedown',{clientX:10,clientY:10,bubbles:true}));

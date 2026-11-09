@@ -29,11 +29,15 @@ span.visual-atom { display:inline-flex; vertical-align:middle; gap:4px; padding:
 .visual-math-display { display:block; }
 .ProseMirror[contenteditable="true"] .visual-math { cursor:pointer; border-radius:4px; }
 .ProseMirror[contenteditable="true"] .visual-math:hover,
+.ProseMirror[contenteditable="true"] .visual-math.ProseMirror-selectednode,
 .ProseMirror[contenteditable="true"] .visual-math:focus-visible { background:color-mix(in srgb,var(--muted) 14%,var(--bg)); }
 .ProseMirror[contenteditable="true"] .visual-math:focus-visible { outline:2px solid #388bfd; outline-offset:2px; }
 .visual-status { color:var(--muted); font-size:13px; }
 .visual-match { background:#ffe676; color:#202124; }
 .ProseMirror-selectednode { outline:2px solid #388bfd; }
+.ProseMirror[contenteditable="true"] .visual-math.ProseMirror-selectednode { outline:none; }
+.visual-math.ProseMirror-selectednode::selection,
+.visual-math.ProseMirror-selectednode *::selection { background:transparent; }
 dialog { border:1px solid var(--border); border-radius:10px; padding:22px; width:min(600px,90vw); background:var(--bg); color:var(--fg); }
 dialog label { display:block; } dialog textarea { display:block; width:100%; min-height:140px; margin:12px 0; font:14px/1.6 ui-monospace,monospace; }
 @media print { .visual-toolbar,.visual-status,.visual-atom button,.visual-math button,dialog,#toc { display:none!important; }  .ProseMirror .is-empty::before { content:none; } .visual-match { background:transparent; } }

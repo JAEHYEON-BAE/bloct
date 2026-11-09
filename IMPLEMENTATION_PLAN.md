@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-08**. [42번 Text 경계 Backspace/Delete](BUG_FIXES.md#bug-42)의 같은 줄 병합·번호 목록 보존을 확장 검증했습니다. [45번 창 종료 충돌](BUG_FIXES.md#bug-45)은 별도 미해결입니다.
+- 최신화: **2026-11-09**. 수식의 화살표 선택 강조·Enter 편집을 실사용 검증했습니다. [45번 창 종료 충돌](BUG_FIXES.md#bug-45)은 별도 미해결입니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -38,7 +38,7 @@
 
 - **2026-11-05 선택형 연속 편집 연결, 2026-11-07 새 문서·입력·표시 보완까지 해당 범위 검증 완료.** 기본은 읽기이고 **Aa만 편집 진입점**입니다. 연필 Edit 상태·옛 textarea 편집은 제거했으며, Aa를 끄면 초안을 보존한 읽기 상태로 돌아갑니다([41번](BUG_FIXES.md#bug-41)). 같은 WebView/페이지·공통 스타일·가시 위치를 유지하며 서식 행 높이만큼만 이동합니다. 미저장 초안을 양방향 인계하고 전환 자체는 저장하지 않습니다([32번](BUG_FIXES.md#32-aa-편집-후-버튼-비활성화로-모드-재진입-불가)·[34번](BUG_FIXES.md#bug-34)).
 - `@tiptap/pm`의 ProseMirror `EditorView` 하나로 문단·H1~H6·인용·일반/번호/할 일 목록·코드·구분선·수식·이미지·단순 GFM 표·인라인 mark를 편집합니다. 미지원 구문은 정제된 읽기 전용 미리보기와 표면 클릭으로 여는 `View source`로 보호합니다. 이미지도 기존 크기/정렬을 표시하고 표면 클릭으로 편집합니다. 체크박스·목록·표·공백/구분선의 전환 전후 모양 대응은 [40번](BUG_FIXES.md#bug-40)을 따릅니다.
-- 양 모드가 오프라인 KaTeX/CSS/폰트를 공유합니다. 수식은 hover 강조 후 클릭 또는 Enter/Space로 편집 창을 열며 읽기/저장 freeze에서는 비활성입니다. 2026-11-05 [수식 GUI](Tests/results/2026-11-05/f5-math-hover-gui.json)·사용자 hover 확인 완료. 수식 파싱·폰트 수정은 [27·28번](BUG_FIXES.md#bug-27), 입력/전환/표·빈 영역·모양·편집 통합은 30~44번을 따릅니다.
+- 양 모드가 오프라인 KaTeX/CSS/폰트를 공유합니다. 수식은 hover 또는 화살표 선택 시 영역 전체를 회색으로 강조하고, 클릭 또는 Enter/Space로 같은 편집 창을 엽니다. 수식 선택의 파란 텍스트 선택·테두리는 숨기며 읽기/저장 freeze·조합 중에는 편집 창을 열지 않습니다. 2026-11-05 [수식 GUI](Tests/results/2026-11-05/f5-math-hover-gui.json)·사용자 hover 확인 완료. 수식 파싱·폰트 수정은 [27·28번](BUG_FIXES.md#bug-27), 입력/전환/표·빈 영역·모양·편집 통합은 30~44번을 따릅니다.
 
 | 책임 | 소스 |
 |---|---|
@@ -81,6 +81,7 @@
 
 | 범위 | 마지막 기록된 결과 |
 |---|---|
+| 수식 화살표 선택·Enter 편집 | 2026-11-09 [모델 34·번들](Tests/results/2026-11-09/math-keyboard-model.log)·[브라우저 모델 18·시각 입력 312](Tests/results/2026-11-09/math-keyboard-visual.log) 통과, 실패/SKIP 0. [Computer Use](Tests/results/2026-11-09/math-keyboard-gui.json)에서 블록 상·하/인라인 좌·우 진입·전체 회색 강조·Enter·Cancel/Apply·Save/Undo·재열기·읽기 차단·두 문서 전환 확인. [디스크/종료](Tests/results/2026-11-09/math-keyboard-gui-disk.json): 원문 복원·앱 종료·새 충돌/미리보기 잔류 없음. 실제 IME와 45번은 별도 |
 | 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-08 [TypeScript·모델 34·번들](Tests/results/2026-11-08/text-boundary-model.log) 통과 |
 | 실제 WebKit의 입력 시뮬레이션 | 2026-11-08 [브라우저 모델 18·시각 입력 296](Tests/results/2026-11-08/text-boundary-visual.log), 실패/SKIP 0. 합성 composition은 실제 IME 근거가 아님 |
 | native 저장·문서 수명 | 2026-11-07 [40 통과](Tests/results/2026-11-07/aa-only-native.log). production ContentView·두 문서·history·지연 dirty/쓰기·실패/재시도·Reload/폐기/닫기. NSDocument/revert·지연 쓰기는 통제됨 |
