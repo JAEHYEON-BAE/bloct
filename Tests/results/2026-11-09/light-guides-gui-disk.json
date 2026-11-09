@@ -1,0 +1,20 @@
+{
+  "fixturesByteIdentical": true,
+  "fixtureHashes": {
+    "source.txt": "95e305035e0d74fd7701ab86a4a455dc473979c8868dc92be9a922f61426505c",
+    "already-blank.txt": "335d30b39f0c311e58dac49d40bb9843db8be23213f0d7345fefbefc6f66bd1f",
+    "empty.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "guides.txt": "a584ab693daef78e609dedacb50aa34df85d5aba1f2ae66882219b2f67dbab55"
+  },
+  "runningTestProcesses": [],
+  "newTestAppCrashes": [],
+  "previewFilesRemaining": [],
+  "resourcesMatchCurrentSource": {
+    "blocks.js": "76d0904f06f601755386366d4d83da963790b6af480a973b126c2ab998d7ed55",
+    "visual.css": "499e4cb2705839430b5f55114b989ca9b18e289749c2ee79b72ea917c622a8fe",
+    "editor-switch.js": "d4c6d378d09ac98656ef201b53c9e8d8691e248d1bddebf1f5e5308f4cf8cfbc",
+    "style.css": "96618152f1e16a07695b807cb068848a75bf9827075fb796f24932db94fed108"
+  },
+  "bug45Resolved": false,
+  "exitCodeAvailable": false
+}

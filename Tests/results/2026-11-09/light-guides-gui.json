@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-09",
+  "app": "/private/tmp/bloct-background-textlines-20261109/BloctTextLines.app",
+  "method": "Computer Use app-targeted clicks, native period/Undo/Save and AX/screenshot comparison against the preceding step",
+  "checks": [
+    "Reopened the same guides.txt fixture in Aa. Header 2 and Code guide text were visibly lighter than in the prior step; ordinary Text/Quote/list guides remained absent.",
+    "Native period typed into the empty H2 replaced its guide with a normal dark heading glyph. Code guide remained light, confirming that the CSS targets only placeholder decoration.",
+    "Undo restored the light Header 2 guide; Save preserved original Markdown exactly. Aa off and Quit were confirmed in inventory and independent audit."
+  ],
+  "diskEvidence": "light-guides-gui-disk.json",
+  "limits": [
+    "GUI screenshots cover the active light theme. The automated WebKit appearance suite also covers light/dark, 900/640 widths, zoom 100/125% and TOC states.",
+    "Full physical IME and existing native close bug #45 are separate."
+  ]
+}
