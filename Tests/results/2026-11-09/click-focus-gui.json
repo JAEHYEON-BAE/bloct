@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-09",
+  "app": "/private/tmp/bloct-background-focus-20261109/BloctClickFocus.app",
+  "method": "Computer Use app-targeted native mouse/keyboard input and screenshots; independent disk/process audit",
+  "checks": [
+    "Reading and editing have no Aa button or formatting row. Click inside middle placed the native caret at the clicked position; the next period produced Alpha mid.dle Omega without moving the document.",
+    "Escape removed the caret, preserved the in-memory draft and did not write focus.txt. A subsequent period while reading did not change the draft. Command-S in reading saved the exact escaped Markdown in click-focus-saved.txt.",
+    "Re-click, Command-Z and Command-S restored the original fixture bytes: input history survived Escape/read/reentry.",
+    "One click on the read-only equation surface entered editing and opened one x^2 dialog. First Escape cancelled the dialog and retained editing; second Escape returned to reading.",
+    "Command-N opened an empty about:blank document. Clicking its Text line allowed immediate period input; Escape retained the draft. Reentry/Undo/Escape restored empty content, and the new document was saved as empty new-click.md through the native Save sheet.",
+    "Opened long.txt in a second window, paged down to sections 9-16, clicked text in Section 12 and then pressed Escape. Screenshots retained the same viewport and text positions with only the caret appearing/disappearing.",
+    "Closed the long-document window, returned to focus.txt and quit the isolated test app. Global app inventory and independent process audit confirmed exit; no new matching crash or owned preview remained."
+  ],
+  "savedEvidence": "click-focus-saved.txt",
+  "diskEvidence": "click-focus-gui-disk.json",
+  "limits": [
+    "Physical Korean IME composition was not exercised; automated composition checks cover guards only.",
+    "Exit used Escape/read-only first. Existing window-close crash #45 remains unresolved; no exit code was available from Computer Use.",
+    "The installed /Applications/Bloct.app was not replaced."
+  ]
+}

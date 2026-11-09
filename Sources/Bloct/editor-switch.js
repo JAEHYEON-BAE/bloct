@@ -7,7 +7,11 @@ window._mvInstallEditorSwitch = function(config) {
     const decode = value => new TextDecoder().decode(Uint8Array.from(atob(value), c => c.charCodeAt(0)));
     const encode = value => btoa(unescape(encodeURIComponent(value)));
     window._mvGeneration = config.generation;
+    const automatic=config.automatic===true;
     let editor = null, visual = false, generation = window._mvGeneration;
+    let pendingPoint=null,pointerStart=null;
+    window._mvIsEditing=()=>visual;
+    const requestMode=editing=>window.webkit?.messageHandlers.editorModeRequest?.postMessage({editing,generation:window._mvGeneration});
     const readingEndLine=document.createElement('p');
     readingEndLine.className='mv-trailing-line';readingEndLine.setAttribute('aria-hidden','true');
     const ensureReadingEndLine=()=>{if(readerHost.lastChild!==readingEndLine)readerHost.append(readingEndLine);};
@@ -35,20 +39,20 @@ window._mvInstallEditorSwitch = function(config) {
         const y=el ? scrollY+el.getBoundingClientRect().top-saved.top : saved.y;
         window.scrollTo({left:saved.x,top:y,behavior:'instant'});
     }
-    function mount(raw,baseline) {
+    function mount(raw,baseline,editing=true) {
         generation=window._mvGeneration;
         readerHost.replaceWith(visualHost);visualHost.id='content';readerHost.removeAttribute('id');
         editor=BloctBlocks.mountVisualEditor(visualHost,raw,{
             savedMarkdown:baseline,trailingParagraph:true,imageURL,renderPreview:source=>_mvRenderOneBlock(source,0),
             onChange:dirty=>{if(visual)window.webkit?.messageHandlers.editorDirty?.postMessage({dirty,generation:window._mvGeneration});}
         });
-        visual=true;window._bloctVisual=editor;editor.setEditable(true);editor.unfreeze();
-        document.body.classList.add('visual-active');
-        window._mvDiskChecking=true;
-        window.webkit?.messageHandlers.editorDirty?.postMessage({dirty:editor.session.changed,generation:window._mvGeneration});
+        visual=editing;window._bloctVisual=editor;editor.setEditable(editing);editor.unfreeze();
+        document.body.classList.toggle('visual-active',editing);
+        window._mvDiskChecking=editing;
+        if(editing)window.webkit?.messageHandlers.editorDirty?.postMessage({dirty:editor.session.changed,generation:window._mvGeneration});
     }
     window._mvSwitchEditor = async function(on,baseline) {
-        if(on===visual)return {text:visual?editor.session.markdown():window._mvRawLines.join('\n')};
+        if(on===visual)return {text:editor?editor.session.markdown():window._mvRawLines.join('\n')};
         if(!on && editor.hasOpenDialog) {
             editor.status.textContent='Apply or cancel the open editor before finishing editing.';
             return {blocked:true};
@@ -60,35 +64,65 @@ window._mvInstallEditorSwitch = function(config) {
         const saved=anchor();
         if(on) {
             const raw=window._mvRawLines.join('\n');
-            mount(raw,baseline);
+            if(automatic){
+                editor.session.setSavedBaseline(baseline);editor.unfreeze();editor.setEditable(true);visual=true;
+                document.body.classList.add('visual-active');window._mvDiskChecking=true;
+            }else mount(raw,baseline);
             restore(saved);
-            editor.focus();
+            if(automatic && pendingPoint){const point=pendingPoint;pendingPoint=null;editor.focusAtCoords(point.x,point.y);}
+            else editor.focus();
         } else {
             const snapshot=await editor.handoff();
-            editor.destroy();editor=null;window._bloctVisual=null;visual=false;
-            visualHost.replaceWith(readerHost);readerHost.id='content';visualHost.removeAttribute('id');visualHost.replaceChildren();
-            document.body.classList.remove('visual-active');
-            window._mvDiskChecking=false;
-            window._mvStale=true;readerRender(encode(snapshot.text));
-            ensureReadingEndLine();
+            visual=false;document.body.classList.remove('visual-active');window._mvDiskChecking=false;
+            if(automatic){
+                editor.setEditable(false);editor.unfreeze();
+                window._mvRawLines=snapshot.text.split('\n');window._mvStale=false;
+                window.getSelection()?.removeAllRanges();editor.view.dom.blur();
+            }else{
+                editor.destroy();editor=null;window._bloctVisual=null;
+                visualHost.replaceWith(readerHost);readerHost.id='content';visualHost.removeAttribute('id');visualHost.replaceChildren();
+                window._mvStale=true;readerRender(encode(snapshot.text));ensureReadingEndLine();
+            }
             restore(saved);
         }
         window._mvBuildTOC?.();
         return {text:visual?editor.session.markdown():window._mvRawLines.join('\n')};
     };
     window._mvRender = value => {
-        if(!visual){readerRender(value);ensureReadingEndLine();return;}
+        if(!visual&&!automatic){readerRender(value);ensureReadingEndLine();return;}
         const text=decode(value);window._mvStale=false;
         if(generation!==window._mvGeneration){generation=window._mvGeneration;editor.reload(text);}
         else if(!editor.session.changed && text!==editor.session.markdown())editor.reload(text);
+        if(automatic&&!visual)window._mvRawLines=editor.session.markdown().split('\n');
         visualHost.querySelectorAll('img[data-source],img[data-mv-image-source]').forEach(img=>{const url=imageURL(img.dataset.source||img.dataset.mvImageSource);if(url && img.src!==url)img.src=url;});
     };
     window._mvSearch = {
-        highlight:term=>visual?editor.search(term):readerSearch.highlight(term),
-        clear:()=>visual?editor.search(''):readerSearch.clear(),
-        navigate:forward=>visual?editor.navigate(forward):readerSearch.navigate(forward),
-        refresh:()=>{if(!visual)readerSearch.refresh();}
+        highlight:term=>(automatic||visual)?editor.search(term):readerSearch.highlight(term),
+        clear:()=>(automatic||visual)?editor.search(''):readerSearch.clear(),
+        navigate:forward=>(automatic||visual)?editor.navigate(forward):readerSearch.navigate(forward),
+        refresh:()=>{if(!visual&&!automatic)readerSearch.refresh();}
     };
-    if(config.visual)mount(window._mvRawLines.join('\n'),config.baseline);
+    if(automatic){
+        mount(window._mvRawLines.join('\n'),config.baseline,!!config.visual);
+        document.addEventListener('mousedown',event=>{pointerStart={x:event.clientX,y:event.clientY};},true);
+        document.addEventListener('click',event=>{
+            if(visual || event.defaultPrevented || event.button!==0 || event.detail>1
+                || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey)return;
+            const target=event.target;
+            if(!(target instanceof Element) || target.closest('a,button,input,textarea,select,dialog,#toc'))return;
+            const article=visualHost.closest('article.markdown-body');
+            if(!visualHost.contains(target) && target!==article && target!==document.body)return;
+            const rect=visualHost.getBoundingClientRect();
+            if(event.clientX<rect.left || event.clientX>rect.right || event.clientY<rect.top)return;
+            if(pointerStart && (Math.abs(event.clientX-pointerStart.x)>4 || Math.abs(event.clientY-pointerStart.y)>4))return;
+            pendingPoint={x:event.clientX,y:event.clientY};requestMode(true);
+        },true);
+        document.addEventListener('keydown',event=>{
+            if(!visual || event.key!=='Escape' || event.isComposing || editor.view.composing
+                || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey
+                || editor.hasOpenDialog || event.target?.closest?.('dialog,input,textarea,select,#toc'))return;
+            event.preventDefault();event.stopPropagation();requestMode(false);
+        },true);
+    }else if(config.visual)mount(window._mvRawLines.join('\n'),config.baseline);
     else ensureReadingEndLine();
 };

@@ -38,10 +38,10 @@ editing, semantic blocks and Markdown source preservation. Current behavior, des
 contracts, validation and remaining work are tracked in
 [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집);
 [BUG_FIXES.md](BUG_FIXES.md) records defects and their verification evidence.
-Development builds use **Aa** as the sole editing toggle. Aa off is read-only;
-Aa on edits the rendered document. There is no separate pencil/Edit mode or
-raw-block textarea editor. Unsaved changes stay in memory until you save. The viewed
-section and document alignment stay in place, with space added for the formatting row.
+Click the document to edit at that position; press **Esc** to return to reading.
+There is no Aa button or formatting toolbar. The same document view, alignment,
+scroll position and Undo history remain in place. Unsaved changes stay in memory
+until you save.
 IME and the remaining feature validation continue under F5.
 
 ### Visual Editor preview
@@ -52,9 +52,11 @@ block, type a marker and Space: `#` through `######` for headings, `>` for a quo
 three backticks (optionally a language) for code, and `---` for a divider.
 `$$` followed by Space stays as text; close a nonempty `$$...$$` expression to
 render a block equation. Enter/Shift-Enter may separate its lines before closing.
-`$...$` renders inline math. Empty text blocks show a muted placeholder for their type. Enter
-creates the next block; Shift-Enter inserts a hard break in text. The format menu
-also inserts images, equations and tables. Reading and editing share the same offline KaTeX renderer and fonts. Hover a formula
+`$...$` renders inline math. Empty headings and code blocks show a muted placeholder;
+ordinary text, quotes and lists stay blank. Every document ends with an available
+empty Text line, reusing an existing one without changing the file until edited. Enter
+creates the next block; Shift-Enter inserts a hard break in text.
+Reading and editing share the same offline KaTeX renderer and fonts. Hover a formula
 for a subtle highlight, then click it to edit; Enter/Space also opens the dialog
 when the formula has keyboard focus.
 
@@ -66,7 +68,7 @@ text paragraph below the current table. Tab moves to the next cell. Shift-Enter 
 row, including in the middle of a table, and moves the cursor to the first column of the new row.
 
 Changes render while typing; **⌘S** writes a fixed Markdown snapshot. Undo/Redo
-uses the editor history, with one text checkpoint per editor-mode boundary. Closing
+uses the same editor history across click/Esc transitions. Closing
 a backtick-delimited inline code span returns subsequent typing to plain text.
 Unsupported source stays in a protected node with a
 read-only source viewer. Actual Korean IME, first-save panels, rich clipboard/PDF,
@@ -74,23 +76,23 @@ advanced table/image controls and performance remain under validation; see F5.
 
 ## Features
 
-### Editing with Aa
-Enable **Aa** to edit text, formatting, tasks, tables, equations and images in one
-continuous document. Disable Aa to return to reading; your draft remains available
-for **⌘S** or later Aa reentry. Reading clicks and keystrokes cannot modify the
-document, and Undo/Redo are inactive until Aa is enabled again. Apply or cancel an
-open equation/image editor before leaving Aa.
+### Editing
+Click text to place the caret and edit the continuous document. **Esc** hides the
+caret and returns to reading, preserving the draft for **⌘S** or another click.
+Typing and Undo/Redo change the document only while editing. Formatting shortcuts
+remain available. In an equation/image popup, Esc cancels the popup first; press
+Esc again to leave document editing. Esc during IME composition is left to the IME.
 
 ### Markdown Rendering
-- Full [GitHub Flavored Markdown](https://github.github.com/gfm/) via [marked.js](https://marked.js.org/)
+- [GitHub Flavored Markdown](https://github.github.com/gfm/) parsed into semantic editor blocks; protected source previews use [marked.js](https://marked.js.org/)
 - Fenced code blocks with language labels
 - Tables, blockquotes, and horizontal rules
 - Math expressions via [KaTeX](https://katex.org/) — inline `$...$` and display `$$...$$`
 - Local images resolved relative to the opened file
 
 ### Task Lists
-Toggle `- [ ]`, `- [x]`, or `- [X]` task checkboxes with a click or **Tab / Space**
-while **Aa is enabled**. They keep the same shape but are disabled in reading.
+Click a `- [ ]`, `- [x]`, or `- [X]` checkbox to start editing and toggle it once.
+While editing, **Tab / Space** also operates task controls. Reading keeps the same shape.
 Square checkboxes use the same marker and text columns as
 ordinary lists, including nested items and wrapped lines, without an extra bullet.
 Each toggle is one Undo step. **⌘S** saves the state to the `.md` file; closing without
@@ -113,7 +115,7 @@ Pinch-to-zoom or use **⌘+** / **⌘−** to scale the preview.
 
 ### Reload and External Changes
 Press **⌘R** or right-click and choose **Reload** to read the current file from disk.
-Files also refresh automatically when changed externally, in both reading and Aa,
+Files also refresh automatically when changed externally, in both reading and editing,
 when there are no local edits. Unsaved edits are preserved: choose **Keep Editing**,
 **Discard Edits and Reload**, or **Save a Copy…**. Saving checks for external changes
 before writing, so keeping a draft does not authorize overwriting a newer file.

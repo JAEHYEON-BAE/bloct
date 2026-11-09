@@ -255,7 +255,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { if visualEditing { isBlockEditorDirty = $0 } }, onReload: { checkDisk(manual: true) }, reloadGeneration: reloadGeneration, visualEditing: visualEditing, savedMarkdown: originalText)
+        MarkdownWebView(markdown: docState.text, fileURL: sourceURL, zoomLevel: zoomLevel, showTOC: showTOC, webViewStore: webViewStore, onCloseTOC: { showTOC = false }, onTextCommit: { commitEdit($0) }, onEditorDirtyChanged: { if visualEditing { isBlockEditorDirty = $0 } }, onReload: { checkDisk(manual: true) }, reloadGeneration: reloadGeneration, visualEditing: visualEditing, savedMarkdown: originalText, automaticEditing: true, onEditingRequested: { switchEditor(to: $0) })
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .focusedValue(\.zoomLevel, $zoomLevel)
         .focusedValue(\.exportPDF, exportAsPDF)
@@ -326,17 +326,6 @@ struct ContentView: View {
                     .help("Toggle Table of Contents (⇧⌘T)")
                 }
                 ToolbarItem(placement: .automatic) {
-                    Toggle(isOn: Binding(
-                        get: { visualEditing },
-                        set: { if $0 != visualEditing { switchEditor() } }
-                    )) {
-                        Label("Aa", systemImage: "textformat")
-                    }
-                    .toggleStyle(.button)
-                    .disabled(isSaving || isSwitchingEditor)
-                    .help(visualEditing ? "Finish editing (Aa)" : "Edit document (Aa)")
-                }
-                ToolbarItem(placement: .automatic) {
                     Button {
                         showSearch.toggle()
                     } label: {
@@ -374,8 +363,10 @@ struct ContentView: View {
             }
     }
 
-    private func switchEditor() {
+    private func switchEditor(to requested: Bool? = nil) {
+        let target = requested ?? !visualEditing
         guard !isSaving, !isSwitchingEditor,
+              target != visualEditing,
               let webView = webViewStore.webView else { return }
         isSwitchingEditor = true
         Task { @MainActor in
@@ -390,7 +381,7 @@ struct ContentView: View {
             let generation = self.reloadGeneration
             webView.callAsyncJavaScript("""
                 return await window._mvSwitchEditor(on, baseline);
-                """, arguments: ["on": !visualEditing, "baseline": originalText], in: nil, in: .page) { result in
+                """, arguments: ["on": target, "baseline": originalText], in: nil, in: .page) { result in
                 DispatchQueue.main.async {
                     self.isSwitchingEditor = false
                     guard !self.isClosed, self.reloadGeneration == generation,
@@ -409,8 +400,8 @@ struct ContentView: View {
                     // A mode boundary is one native Undo checkpoint. It never writes
                     // the file model or changes the last successful Save baseline.
                     self.docState.commit(text)
-                    self.isBlockEditorDirty = !self.visualEditing && text != self.originalText
-                    self.visualEditing.toggle()
+                    self.isBlockEditorDirty = target && text != self.originalText
+                    self.visualEditing = target
                 }
             }
         }

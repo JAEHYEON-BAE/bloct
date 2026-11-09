@@ -256,5 +256,17 @@ struct WebKitRegression {
         }
         precondition(appearanceFailures == 0, "Editor appearance failures: \(appearanceFailures)")
 
+        let focusView = WKWebView(frame: NSRect(x: 0,y: 0,width: 900,height: 850),configuration:WKWebViewConfiguration())
+        focusView.loadHTMLString(MarkdownWebView(markdown: "Alpha middle Omega",fileURL:nil,zoomLevel:1,showTOC:false,webViewStore:WebViewStore(),automaticEditing:true).buildHTML(),baseURL:directory)
+        wait("click focus page",until:{!focusView.isLoading && js(focusView,"return !!window._mvIsEditing && !!window._bloctVisual;") as? Bool == true})
+        let focusSuite = try String(contentsOfFile:"Tests/ClickFocus.js",encoding:.utf8)
+        let focusOutput = js(focusView,focusSuite) as! String
+        let focusData = try JSONSerialization.jsonObject(with:Data(focusOutput.utf8)) as! [String:Any]
+        let focusResults = focusData["results"] as! [[String:Any]]
+        for result in focusResults {print("\(result["pass"] as? Bool == true ? "PASS" : "FAIL") [click focus]: \(result["name"]!) \(result["detail"] ?? "")")}
+        precondition(focusResults.allSatisfy{$0["pass"] as? Bool == true},"Click focus checks failed")
+        focusView.stopLoading()
+
+
     }
 }

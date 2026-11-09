@@ -1,0 +1,20 @@
+{
+  "newDocumentSavedEmpty": true,
+  "fixturesByteIdentical": true,
+  "fixtureHashes": {
+    "focus.txt": "1baf88c519f2509becf54cb38bc14cdb99e09cfd194c6085217387d0cb12d508",
+    "empty.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "long.txt": "d9b4b8e19b535038bc7ebaf442a5c66104273fe88c407dcc6b8be6adec82346e"
+  },
+  "runningTestProcesses": [],
+  "newTestAppCrashes": [],
+  "previewFilesRemaining": [],
+  "resourcesMatchCurrentSource": {
+    "blocks.js": "da24e65f75cd02fa69811769bdab1585d48c774d7ecf48c0ed88ad8295aad7d4",
+    "visual.css": "8445c9d3676c68174a40ded5832b2c27bdf983889364731a222dc9dc652a25c7",
+    "editor-switch.js": "abdbf296bff348267c4e6ddaaafa3834e76495f10a20cc0310033c68d7076b70",
+    "style.css": "96618152f1e16a07695b807cb068848a75bf9827075fb796f24932db94fed108"
+  },
+  "bug45Resolved": false,
+  "exitCodeAvailable": false
+}

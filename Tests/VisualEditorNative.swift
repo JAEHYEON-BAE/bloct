@@ -61,7 +61,7 @@ import WebKit
               wait { !switching.isVisual && switching.raw == visualDraft && switching.window.isDocumentEdited }
               && switching.disk == original && switching.model.document.text == original)
         check("mode switch retains native WebView, page URL and live JS document", switching.web === originalWeb && switching.web.url == originalPage && js(switching.web,"window.modePageMarker") as? Int == 42)
-        _ = js(switching.web, "document.querySelector('.mv-block').click(); document.querySelector('.mv-task-checkbox').click(); true")
+        _ = js(switching.web, "document.querySelector('.mv-task-checkbox').click(); true")
         check("Aa off is read-only with no legacy edit API or textarea", switching.raw == visualDraft
               && js(switching.web,"typeof window._mvSetEditMode === 'undefined' && typeof window._mvStartBlockEdit === 'undefined' && !document.querySelector('textarea,[contenteditable=true]') && Array.from(document.querySelectorAll('.mv-task-checkbox')).every(n=>n.disabled)") as? Bool == true)
         _ = js(switching.web,"window.webkit.messageHandlers.commitEdit.postMessage({text:btoa('forged read edit'),generation:window._mvGeneration}); true")
@@ -96,8 +96,11 @@ import WebKit
         switching.teardown()
 
         let legacyStart = try Session(root.appendingPathComponent("legacy-start.md"), original, visual: false)
+        _ = js(legacyStart.web, "window.keptView=window._bloctVisual.view; let p=document.querySelector('.ProseMirror h1'),r=p.getBoundingClientRect(); p.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:r.left+20,clientY:r.top+10})); true")
+        check("document click enters editing through the native bridge in the same EditorView", wait { legacyStart.isVisual } && js(legacyStart.web,"window.keptView===window._bloctVisual.view") as? Bool == true)
+        _ = js(legacyStart.web,"window._bloctVisual.view.dom.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})); true")
+        check("Escape leaves editing through the native bridge without replacing the view", wait { !legacyStart.isVisual } && js(legacyStart.web,"window.keptView===window._bloctVisual.view && !window._bloctVisual.view.editable") as? Bool == true)
         legacyStart.switchEditor()
-        check("default Markdown startup enters Aa without a new JS generation", wait { legacyStart.isVisual })
         legacyStart.toggle()
         let legacySnapshot = legacyStart.raw
         VisualProbe.holdSaves = true
@@ -249,11 +252,11 @@ import WebKit
         window.contentView = hosting
         hosting.layoutSubtreeIfNeeded()
         guard let found = findWeb(hosting) else { fatalError("No production WebView") }
-        precondition(wait { (js(found, "typeof window._mvBuildTOC === 'function' && !!window._bloctVisual === \(visual ? "true" : "false")") as? Bool) == true })
+        precondition(wait { (js(found, "typeof window._mvBuildTOC === 'function' && window._mvIsEditing() === \(visual ? "true" : "false")") as? Bool) == true })
         precondition(wait { VisualProbe.actions[file] != nil && window.delegate is CloseProxy })
     }
     var actions: VisualProbe.Actions { VisualProbe.actions[file]! }
-    var isVisual: Bool { js(web, "!!window._bloctVisual") as? Bool == true }
+    var isVisual: Bool { js(web, "window._mvIsEditing()") as? Bool == true }
     var raw: String { js(web, "window._bloctVisual ? window._bloctVisual.session.markdown() : window._mvRawLines?.join('\\n')") as? String ?? "<missing>" }
     var disk: String { (try? String(contentsOf: file, encoding: .utf8)) ?? "<missing>" }
     func switchEditor() {

@@ -7,6 +7,7 @@ button { cursor:pointer; }
 .ProseMirror p,.ProseMirror h1,.ProseMirror h2,.ProseMirror h3,.ProseMirror h4,.ProseMirror h5,.ProseMirror h6,.ProseMirror td { white-space:normal; }
 .ProseMirror .is-empty::before { content:attr(data-placeholder); color:color-mix(in srgb,var(--muted) 65%,transparent); float:left; height:0; pointer-events:none; }
 .ProseMirror li > div { display:contents; }
+.ProseMirror[contenteditable="false"] .mv-task-checkbox { pointer-events:none; }
 .ProseMirror li > div > p { margin:0; }
 .ProseMirror li > div > ul,.ProseMirror li > div > ol { margin-top:0.25em; margin-bottom:0; }
 .ProseMirror [data-link-source] { color:var(--color-link); }

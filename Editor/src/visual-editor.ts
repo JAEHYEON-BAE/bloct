@@ -210,7 +210,7 @@ export class VisualEditor {
   #options: VisualOptions;
   #snapshots = new Map<string, ReturnType<BlockSession['snapshot']>>();
   #dialog: HTMLDialogElement | null = null;
-  #mathEditors = new WeakMap<Node, () => void>();
+  #surfaceEditors = new WeakMap<Node, () => void>();
   get hasOpenDialog() { return !!this.#dialog?.open; }
 
   constructor(host: HTMLElement, markdown: string, options: VisualOptions = {}) {
@@ -380,7 +380,7 @@ export class VisualEditor {
     }),keymap(baseKeymap),new Plugin({props:{decorations:state => this.decorations(state)}})];
   }
   private dispatch(tr: Transaction) {
-    if(this.#frozen && tr.docChanged) return;
+    if((this.#frozen || !this.#editable) && tr.docChanged) return;
     this.session.dispatch(tr);
     this.view.updateState(this.session.state);
     this.notify();
@@ -580,14 +580,16 @@ export class VisualEditor {
       checkbox.hidden=current.attrs.checked==null; checkbox.checked=!!current.attrs.checked;
       checkbox.classList.toggle('mv-task-checkbox',current.attrs.checked!=null);
       dom.classList.toggle('task-item',current.attrs.checked!=null);
+      checkbox.disabled=!view.editable;
     };
     checkbox.addEventListener('mousedown',e=>e.preventDefault());
-    checkbox.addEventListener('change',()=>{
+    const toggle=()=>{
       const pos=getPos(); if(pos==null)return;
       const current=view.state.doc.nodeAt(pos)!;
-      if(this.#frozen){paint(current);return;}
+      if(!view.editable){paint(current);return;}
       view.dispatch(closeHistory(view.state.tr.setNodeMarkup(pos,undefined,{...current.attrs,checked:!current.attrs.checked})));
-    });
+    };
+    checkbox.addEventListener('change',toggle);this.#surfaceEditors.set(checkbox,toggle);
     dom.append(checkbox,contentDOM);paint(node);
     return {dom,contentDOM,update:current=>{if(current.type!==schema.nodes.list_item)return false;paint(current);return true;},
       stopEvent:event=>event.target===checkbox};
@@ -600,7 +602,7 @@ export class VisualEditor {
     // Arrow navigation keeps DOM focus in EditorView. Activate only the
     // engine-selected node's own editor, as a surface click would do.
     const dom=this.view.nodeDOM(selection.from);
-    if(dom && !event.repeat)this.#mathEditors.get(dom)?.();
+    if(dom && !event.repeat)this.#surfaceEditors.get(dom)?.();
     return true;
   }
   private atomView(node:PMNode,view:EditorView,getPos:()=>number|undefined):NodeView {
@@ -669,7 +671,7 @@ export class VisualEditor {
         dialog.remove();view.focus();
       });dialog.showModal();input.focus();
     };
-    if(isMath)this.#mathEditors.set(dom,openEditor);
+    this.#surfaceEditors.set(dom,openEditor);
     if(isMath || node.type!==schema.nodes.raw_source || this.#options.renderPreview) {
       dom.dataset.visualSurface=node.type.name;
       dom.setAttribute('role','button');dom.setAttribute('aria-label',isMath?'Edit equation':node.type===schema.nodes.raw_source?'View source':'Edit image');
@@ -708,17 +710,21 @@ export class VisualEditor {
       const enabled=value || surface.dataset.visualSurface==='raw_source';
       surface.tabIndex=enabled?0:-1;surface.setAttribute('aria-disabled',String(!enabled));
     }
+    this.updateTaskAvailability();
+  }
+  private updateTaskAvailability() {
+    for(const checkbox of this.view.dom.querySelectorAll<HTMLInputElement>('li.task-item > input.mv-task-checkbox'))checkbox.disabled=!this.view.editable;
   }
   history(forward:boolean) {
-    if(this.#frozen)return false;
+    if(this.#frozen || !this.#editable)return false;
     return (forward?redo:undo)(this.session.state,tr=>this.view.dispatch(tr.setMeta('bloctHistory',true)));
   }
   freezeIfClean() {
     const dirty=this.session.changed||this.view.composing||this.hasOpenDialog;
-    if(!dirty){this.#frozen=true;this.view.setProps({editable:()=>false});}
+    if(!dirty){this.#frozen=true;this.view.setProps({editable:()=>false});this.updateTaskAvailability();}
     return dirty;
   }
-  unfreeze() {this.#frozen=false;this.view.setProps({editable:()=>this.#editable});}
+  unfreeze() {this.#frozen=false;this.view.setProps({editable:()=>this.#editable});this.updateTaskAvailability();}
   async snapshot() {
     const deadline=Date.now()+1500;
     while(this.view.composing && Date.now()<deadline) await new Promise(r=>setTimeout(r,20));
@@ -757,6 +763,16 @@ export class VisualEditor {
     const found=this.#matches[this.#matchIndex];this.view.domAtPos(found.from).node.parentElement?.scrollIntoView({block:'center'});
   }
   focus(){this.view.focus();}
+  focusAtCoords(left:number,top:number) {
+    if(!this.view.editable || this.view.composing)return;
+    const target=document.elementFromPoint(left,top)?.closest('[data-visual-surface],input.mv-task-checkbox');
+    const point=this.view.posAtCoords({left,top});
+    const pos=point?.pos??this.view.state.doc.content.size;
+    const selection=Selection.near(this.view.state.doc.resolve(pos),pos===this.view.state.doc.content.size?-1:1);
+    this.view.dispatch(this.view.state.tr.setSelection(selection).setStoredMarks(null));
+    this.view.focus();
+    if(target && this.view.dom.contains(target))this.#surfaceEditors.get(target)?.();
+  }
   destroy(){this.#dialog?.remove();this.#dialog=null;document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.status.remove();}
 }
 

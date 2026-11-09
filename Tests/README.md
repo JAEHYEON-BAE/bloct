@@ -13,8 +13,11 @@ sh Tests/run-block-model.sh
 
 The runner checks TypeScript, executes the headless ProseMirror/import tests, and
 builds `Editor/dist/blocks.js`, shared `math.js`/`math.css`, offline fonts and
-license notices for Safari 17/WKWebView. Native runners require these built assets. Xcode bundles these resources for Aa, the sole editing mode.
-Aa off is read-only; the old Edit state and block textarea path are removed. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
+license notices for Safari 17/WKWebView. Native runners require these built assets.
+Production uses `automaticEditing: true`: one EditorView starts read-only, a body
+click activates editing at its coordinates, and Esc returns to reading. There is
+no Aa button or formatting toolbar. The default component configuration retains
+manual switching for compatibility harnesses. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
 the existing #16 policy fixture and exact UTF-16 source offsets.
 `Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
 round trips, cursor/ID restoration, snapshot acknowledgements and fail-closed
@@ -50,18 +53,19 @@ sh Tests/run-block-model-webkit.sh --visual
 sh Tests/run-visual-native.sh
 ```
 
-The visual native harness hosts the complete production ContentView with the
-Aa selected. Its 40 checks cover separate documents, dirty state
-without autosave, native/engine Undo/Redo and mode-boundary checkpoints, fixed Save snapshots and
+The visual native harness hosts the complete production ContentView.
+Its 41 checks cover separate documents, dirty state
+without autosave, native/engine Undo/Redo and native checkpoints, fixed Save snapshots and
 later changes, save failure/retry, clean external reload, Don't Save, Save-and-close
 and preview cleanup, including close before a queued dirty notification arrives.
 It also checks dirty mode roundtrips, read-only mutation/bridge/Undo blocking, carried saved baseline,
 checkpoint Undo/Redo, exhausted Undo preserving Redo, and the same native WebView,
-page URL and JavaScript document across mode changes. Four checks start in the default
-reading state and verify first-Aa Save, later input and Undo against its saved baseline.
-It also checks Save after Aa off, clean reentry after that Save, and reading the
-latest clean disk version before enabling Aa. The harness waits for the
-real Save/switch busy flags before invoking the mode action, matching the toolbar.
+page URL and JavaScript document across focus changes. Default-reading checks
+exercise click/Esc requests through the real native bridge and verify the same
+EditorView, first Save, later input and Undo against its saved baseline.
+It also checks Save after Esc, clean reentry after that Save, and reading the
+latest clean disk version before editing. The harness waits for the
+real Save/switch busy flags before invoking an action.
 Temporary source copies expose actions, pause disk writes
 and capture errors/close warnings; NSDocument revert/close are controlled. First-save panels,
 conflict buttons, permission dialogs, real clipboard/IME, PDF, accessibility and
@@ -69,8 +73,8 @@ performance require separate validation. CUA evidence and current limitations ar
 linked in F5. All harnesses leave the installed app untouched.
 
 `sh Tests/run-webkit.sh` also runs [EditorSwitchLayout.js](EditorSwitchLayout.js):
-51 renderer/security/math/new-document/layout checks at 900/640px with TOC on/off.
-It compares common block geometry and fonts, visible heading offset by toolbar height,
+54 renderer/security/math/new-document/layout checks at 900/640px with TOC on/off.
+It compares common block geometry and fonts, unchanged visible heading position without a toolbar,
 source/page identity and repeated roundtrip drift. Intermediate coordinates use a
 16ms timer because offscreen WebKit suspends rAF; this is not painted-frame video. The same runner also executes
 [EditorAppearance.js](EditorAppearance.js): 864 appearance/interaction checks across
@@ -82,6 +86,14 @@ word Range edges allow 1px (width 1.25px) for WebKit collapsed-space rounding.
 Image editing/Undo/snapshots, blank clicks after images and inert author inputs are
 also exercised. Set `BLOCT_APPEARANCE_SNAPSHOTS=/absolute/path/prefix` to save
 optional before/after paragraph PNG crops; these are not a pixel-identity assertion.
+
+The same runner loads [ClickFocus.js](ClickFocus.js) with automatic editing enabled:
+38 checks cover exact clicked text positions in paragraphs/headings/quotes/lists/tables,
+immediate input, persistent EditorView/history/draft, read-only mutation guards,
+scrolled and empty documents, end padding, modifier/composition guards, one-click
+equation dialogs and task toggles, and toolbar absence. This suite simulates the
+native mode acknowledgement; the native harness above covers the actual bridge,
+and the Computer Use evidence linked in F5 covers physical input and screenshots.
 
 
 ## Current app regression checks
@@ -155,8 +167,8 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
   Real navigation identities are used to inject stale/duplicate completion and failure
   callbacks, retry a failed bootstrap, and close while loading. These callback-order
   checks are controlled tests, not a reproduction of every runtime I/O failure.
-- Page suites in `Tests/js`, run inside a hosted page that includes the scripts
-  injected on `didFinish`:
+- Compatibility page suites in `Tests/js`, run with manual mode switching inside
+  a hosted page that includes the scripts injected on `didFinish`:
   - `aa-editing.js`: ten source types, read-only clicks/typing, absence of old
     edit APIs, one Aa engine, unsaved handoff/reentry, and unapplied property-dialog
     drafts blocking exit until Apply/Cancel.
@@ -196,10 +208,10 @@ An optional directory argument retains fixtures for manual GUI checks.
 sh Tests/run-task-lists.sh
 ```
 
-This command now delegates to the 40-check Aa native harness described above.
+This command now delegates to the 41-check visual native harness described above.
 The retired 17-check legacy task bridge/textarea harness is preserved in Git history
-and historical logs. It no longer represents the current Aa-only editing contract.
-Hosted task checks exercise the same read-only and Aa-only UI behavior separately.
+and historical logs. It no longer represents the current click/Esc editing contract.
+Hosted task checks exercise read-only and editing permissions in the compatibility path.
 
 For CUA GUI sessions, treat Quit as the end of the app handle's lifetime. Do not
 chain `app.getAXState()` after quitting or reactivate that handle while the process

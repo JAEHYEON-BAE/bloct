@@ -127,6 +127,8 @@ struct MarkdownWebView: NSViewRepresentable {
     var reloadGeneration: Int = 0
     var visualEditing: Bool = false
     var savedMarkdown: String? = nil
+    var automaticEditing: Bool = false
+    var onEditingRequested: (Bool) -> Void = { _ in }
 
     private static let markedJS: String = {
         guard let url = Bundle.main.url(forResource: "marked.min", withExtension: "js"),
@@ -252,6 +254,7 @@ struct MarkdownWebView: NSViewRepresentable {
         var onTextCommit: ((String) -> Void)?
         var onEditorDirtyChanged: ((Bool) -> Void)?
         var onReload: (() -> Void)?
+        var onEditingRequested: ((Bool) -> Void)?
         var reloadGeneration = 0
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -284,6 +287,11 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
             case "reloadDocument":
                 onReload?()
+            case "editorModeRequest":
+                guard let payload = message.body as? [String: Any],
+                      payload["generation"] as? Int == (message.webView as? DocumentWebView)?.documentGeneration,
+                      let editing = payload["editing"] as? Bool else { return }
+                onEditingRequested?(editing)
             case "openExternal":
                 if let urlString = message.body as? String, let url = URL(string: urlString),
                    ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
@@ -481,7 +489,7 @@ struct MarkdownWebView: NSViewRepresentable {
         config.preferences.tabFocusesLinks = true // Include task controls in Tab navigation on macOS.
         config.setURLSchemeHandler(context.coordinator.localImages, forURLScheme: LocalImageLoader.scheme)
         let handler = WeakMessageHandler(context.coordinator)
-        for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty", "reloadDocument"] {
+        for name in ["openExternal", "closeTOC", "scrollPosition", "commitEdit", "editorDirty", "reloadDocument", "editorModeRequest"] {
             config.userContentController.add(handler, name: name)
         }
         let webView = DocumentWebView(frame: .zero, configuration: config)
@@ -515,6 +523,7 @@ struct MarkdownWebView: NSViewRepresentable {
         coordinator.imageOrigin = imageOrigin
         coordinator.onTextCommit = onTextCommit
         coordinator.onEditorDirtyChanged = onEditorDirtyChanged
+        coordinator.onEditingRequested = onEditingRequested
         coordinator.onReload = onReload
         (webView as? DocumentWebView)?.reloadDocument = fileURL == nil ? nil : onReload
         (webView as? DocumentWebView)?.documentGeneration = reloadGeneration
