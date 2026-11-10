@@ -1,4 +1,4 @@
-// Reading and Aa editing share one page and article. Detached roots cannot
+// Reading and block editing share one page and article. Detached roots cannot
 // receive clicks or contribute duplicate headings, search results or IDs.
 window._mvInstallEditorSwitch = function(config) {
     const readerHost = document.getElementById('content');

@@ -16,7 +16,7 @@ builds `Editor/dist/blocks.js`, shared `math.js`/`math.css`, offline fonts and
 license notices for Safari 17/WKWebView. Native runners require these built assets.
 Production uses `automaticEditing: true`: one EditorView starts read-only, a body
 click activates editing at its coordinates, and Esc returns to reading. There is
-no Aa button or formatting toolbar. The default component configuration retains
+no editing toggle button or formatting toolbar. The default component configuration retains
 manual switching for compatibility harnesses. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
 the existing #16 policy fixture and exact UTF-16 source offsets.
 `Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
@@ -182,9 +182,9 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
 - Compatibility page suites in `Tests/js`, run with manual mode switching inside
   a hosted page that includes the scripts injected on `didFinish`:
   - `aa-editing.js`: ten source types, read-only clicks/typing, absence of old
-    edit APIs, one Aa engine, unsaved handoff/reentry, and unapplied property-dialog
+    edit APIs, one block editor engine, unsaved handoff/reentry, and unapplied property-dialog
     drafts blocking exit until Apply/Cancel.
-  - `aa-task-lists.js`: styled disabled reading checkboxes, Aa-only mutations,
+  - `aa-task-lists.js`: styled disabled reading checkboxes, mutations only while editing,
     exact marker changes and Undo across duplicates/nesting/quotes/CRLF/empty tasks,
     and inert author HTML inputs.
   - `sanitizer.js`: further attack patterns, legitimate Markdown/HTML that must

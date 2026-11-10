@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-10**. 현재 소스 버전은 **2.0.0**입니다. 서식 바·Aa 버튼 제거와 본문 클릭/Esc 편집은 2026-11-09 실사용 검증했으며, [45번 창 종료 충돌](BUG_FIXES.md#bug-45)의 해당 경로는 2026-11-10 격리 앱에서 수정·검증했습니다.
+- 최신화: **2026-11-10**. 현재 소스 버전은 **2.0.0**입니다. 상단 편집 UI 제거와 본문 클릭/Esc 편집은 2026-11-09 실사용 검증했으며, [45번 창 종료 충돌](BUG_FIXES.md#bug-45)의 해당 경로는 2026-11-10 격리 앱에서 수정·검증했습니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -9,7 +9,7 @@
 |---|---|---|
 | F1 | 체크박스 토글·상태 저장 | 2026-10-26 해당 범위 검증·v1.8.0 공개 ZIP/Homebrew 확인 완료. 자동 저장은 미구현 |
 | F2 | 큰 문서 성능·중복 코드 정리 | 검토 대기. 측정 후 병목과 중복을 정리 |
-| F3 | 문서 타입·확대 단축키 | 검토 대기. UTType/문서 역할과 실제 키 입력 확인 |
+| F3 | 문서 타입·확대 단축키 | 2026-11-10 검증 완료(설정·기존 자동 검사). 실제 단축키 GUI는 미검증 |
 | F4 | 별도 정의 참조 링크 | 사용자 정책으로 보류. 정의 확인·편집 수단과 함께 재검토 |
 | F5 | Notion 방식 블록·연속 편집 | **최우선 / 구현 후 검증 대기.** [본문 클릭/Esc 편집](Tests/results/2026-11-09/click-focus-gui.json)·[Text 경계 병합](Tests/results/2026-11-08/text-boundary-gui.json)·[Space 표식](Tests/results/2026-11-08/space-markers-gui.json)·[서식 안의 코드](Tests/results/2026-11-08/code-marks-gui.json)와 표·입력·모양은 해당 범위 검증 완료. [45번 종료 수정·검증 완료](BUG_FIXES.md#bug-45). 실제 IME·기존 기능 대응·26·29번 반복 종료는 아래 관문 참조 |
 
@@ -23,10 +23,14 @@
 - **2026-10-26 검증:** [Hosted 317](Tests/results/2026-10-26/release-1.8.0-hosted.log)·[native 저장 17](Tests/results/2026-10-26/release-1.8.0-tasks.log) 통과, 실패/XFAIL/SKIP 0. [GUI](Tests/results/2026-10-26/f1-gui.json)·[최종 정렬 GUI](Tests/results/2026-10-26/checkbox-indent-gui.json)·[정렬 회귀 317](Tests/results/2026-10-26/checkbox-indent-hosted.log). 공개 배포 근거는 [v1.8.0 ZIP/cask 검증](Tests/results/2026-10-26/release-1.8.0-published.json)에 둡니다.
 - 한계: 지연 쓰기·native revert는 통제된 자동 검사입니다. 실제 GUI 권한 오류/재저장은 확인했지만 macOS 14 기기·공개 Release GUI·큰 문서 성능은 미검증입니다. [종료 자동화 26번](BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore)은 별도 조사 중입니다.
 
-## F2·F3. 검토 대기
+## F2. 큰 문서 성능·중복 코드 정리 — 검토 대기
 
 - **F2:** 입력의 줄 배열 복사·전체 파싱/DOM/목차 갱신·검색 순회 비용을 먼저 측정합니다. 효과를 확인한 뒤 캐시·디바운스·버퍼 분리를 결정합니다. Undo 후 저장 상태 복귀는 내용 비교로 판단하고 버전 카운터만으로 대체하지 않습니다.
-- **F3:** `CFBundleTypeRole`의 Viewer/Editor, UTType의 `public.text`/`public.plain-text`, 실제 ⌘= 확대를 확인합니다. 격리 GUI 앱의 `.md` 선택 제한은 아직 원인 미확정이며 최근 표 검증은 Markdown 내용의 `.txt`를 사용했습니다([35번](Tests/results/2026-11-06/table-down-exit-gui.json)).
+
+## F3. 문서 타입·확대 단축키 — 검증 완료
+
+- **2026-11-10 설정·기존 자동 검사 범위 검증 완료.** `project.yml`·`Info.plist`의 문서 역할은 `Editor`이며 Markdown UTType은 `public.text`를 상속하고 문서 열기는 `public.plain-text`도 허용합니다. 확대는 `⌘+`, 축소는 `⌘-`, 원래 크기는 `⌘0`으로 등록돼 있습니다. 기존 [빌드](Tests/results/2026-11-10/release-2.0.1-build.log)·[native](Tests/results/2026-11-10/release-2.0.1-native.log)·[visual-native 41개](Tests/results/2026-11-10/release-2.0.1-visual-native.log) 통과 기록은 당시 버전명 그대로 보존합니다.
+- **남은 한계:** 실제 ⌘= 입력과 문서 선택 GUI는 미검증입니다. 격리 GUI 앱의 `.md` 선택 제한은 원인 미확정이며 과거 표 검증은 Markdown 내용의 `.txt`를 사용했습니다([35번](Tests/results/2026-11-06/table-down-exit-gui.json)).
 
 ## F4. 별도 정의 참조 링크 — 보류
 
@@ -36,7 +40,7 @@
 
 ### 현재 구현
 
-- **2026-11-09 본문 클릭/Esc 편집 검증 완료.** 기본은 읽기이며 본문 클릭 시 외부 파일 확인을 거쳐 클릭한 위치에 커서를 둡니다. Esc는 초안을 보존한 읽기로 돌아갑니다. Aa 버튼·상단 서식 바 없이 같은 WebView/페이지/EditorView를 유지하므로 본문 모양·스크롤·history가 이어집니다. 전환 자체는 저장하지 않습니다([실사용](Tests/results/2026-11-09/click-focus-gui.json)).
+- **2026-11-09 본문 클릭/Esc 편집 검증 완료.** 기본은 읽기이며 본문 클릭 시 외부 파일 확인을 거쳐 클릭한 위치에 커서를 둡니다. Esc는 초안을 보존한 읽기로 돌아갑니다. 상단 편집 UI 없이 같은 WebView/페이지/EditorView를 유지하므로 본문 모양·스크롤·history가 이어집니다. 전환 자체는 저장하지 않습니다([실사용](Tests/results/2026-11-09/click-focus-gui.json)).
 - `@tiptap/pm`의 ProseMirror `EditorView` 하나로 문단·H1~H6·인용·일반/번호/할 일 목록·코드·구분선·수식·이미지·단순 GFM 표·인라인 mark를 편집합니다. 미지원 구문은 정제된 읽기 전용 미리보기와 표면 클릭으로 여는 `View source`로 보호합니다. 이미지도 기존 크기/정렬을 표시하고 표면 클릭으로 편집합니다. 체크박스·목록·표·공백/구분선의 전환 전후 모양 대응은 [40번](Tests/results/2026-11-07/appearance-gui.json)을 따릅니다.
 - 양 모드가 오프라인 KaTeX/CSS/폰트를 공유합니다. 수식은 hover 또는 화살표 선택 시 영역 전체를 회색으로 강조하고, 클릭 또는 Enter/Space로 같은 편집 창을 엽니다. 수식 선택의 파란 텍스트 선택·테두리는 숨기며 읽기/저장 freeze·조합 중에는 편집 창을 열지 않습니다. 2026-11-05 [수식 GUI](Tests/results/2026-11-05/f5-math-hover-gui.json)·사용자 hover 확인 완료. 수식 파싱·폰트 수정은 [27·28번](Tests/results/2026-11-05/bug27-28-gui.json), 입력/전환/표·빈 영역·모양·편집 통합(완료 버그 30~44번)의 근거는 아래 검증 표에 둡니다.
 
@@ -83,15 +87,15 @@
 |---|---|
 | v2.0.0 배포 | 2026-11-10 [Release 빌드·SDK/CPU](Tests/results/2026-11-10/release-2.0.0-local.json)·[회귀 검사](Tests/results/2026-11-10/release-2.0.0-checks.json)·[공개 ZIP/Homebrew](Tests/results/2026-11-10/release-2.0.0-published.json) 검증 완료. SDK 27·최소 macOS 14·Universal, 공개 ZIP/GitHub digest/cask SHA256와 리소스 11개 일치. 실제 IME·공개 Release GUI는 미검증. 이후 소스의 종료 수정은 [45번](BUG_FIXES.md#bug-45) 참조 |
 | 창 종료 | 2026-11-10 delegate 알림 해제·뷰 분리 정리 수정, 회귀 9·native 41·격리 앱 Save/폐기/Cancel·두 창 Quit 검증 완료. 상세·한계는 [45번](BUG_FIXES.md#bug-45) |
-| 편집 UI | 2026-11-09 서식 바·Aa 버튼 제거와 본문 클릭/Esc 편집. [모델 36·번들](Tests/results/2026-11-09/click-focus-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/click-focus-visual.log)·[native 41](Tests/results/2026-11-09/click-focus-native.log)·[WebKit/레이아웃 54·모양 864·클릭 38](Tests/results/2026-11-09/click-focus-webkit.log)·[앱 빌드](Tests/results/2026-11-09/click-focus-build.log) 통과. [Computer Use](Tests/results/2026-11-09/click-focus-gui.json): 클릭 위치의 즉시 입력·Esc 읽기 차단·초안/Undo/Save·수식 팝업·새 문서·긴 문서 위치 불변·두 창·종료 확인. [원문·종료 감사](Tests/results/2026-11-09/click-focus-gui-disk.json). [서식 바 제거 단독 검증](Tests/results/2026-11-09/no-toolbar-gui.json). 당시 실제 IME·45번은 미검증 |
+| 편집 UI | 2026-11-09 상단 편집 UI 제거와 본문 클릭/Esc 편집. [모델 36·번들](Tests/results/2026-11-09/click-focus-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/click-focus-visual.log)·[native 41](Tests/results/2026-11-09/click-focus-native.log)·[WebKit/레이아웃 54·모양 864·클릭 38](Tests/results/2026-11-09/click-focus-webkit.log)·[앱 빌드](Tests/results/2026-11-09/click-focus-build.log) 통과. [Computer Use](Tests/results/2026-11-09/click-focus-gui.json): 클릭 위치의 즉시 입력·Esc 읽기 차단·초안/Undo/Save·수식 팝업·새 문서·긴 문서 위치 불변·두 창·종료 확인. [원문·종료 감사](Tests/results/2026-11-09/click-focus-gui-disk.json). [서식 바 제거 단독 검증](Tests/results/2026-11-09/no-toolbar-gui.json). 당시 실제 IME·45번은 미검증 |
 | 빈 블록 안내 표시 | 2026-11-09 Text/Quote/목록 안내 제거·제목/코드 안내 색 보완. [기본 블록 실사용](Tests/results/2026-11-09/plain-guides-gui.json)·[색상 실사용](Tests/results/2026-11-09/light-guides-gui.json)에서 표시·즉시 입력/Undo/Save·원문 보존 확인. [번들](Tests/results/2026-11-09/light-guides-build.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/light-guides-visual.log)·[WebKit/레이아웃 50·모양 864](Tests/results/2026-11-09/light-guides-webkit.log) 통과. [원문·종료 감사](Tests/results/2026-11-09/light-guides-gui-disk.json) |
 | 자동 마지막 Text 줄 | 2026-11-09 [모델 36·번들](Tests/results/2026-11-09/trailing-line-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/trailing-line-visual.log)·[native 40](Tests/results/2026-11-09/trailing-line-native.log)·[WebKit/레이아웃 50·모양 864](Tests/results/2026-11-09/trailing-line-webkit.log) 통과. [Computer Use](Tests/results/2026-11-09/trailing-line-gui.json): 목록 뒤 자동 Text 입력/저장/Undo, 기존 EOF 공백 재사용·두 창·읽기 전환·종료. [원문·종료 감사](Tests/results/2026-11-09/trailing-line-gui-disk.json). 당시 실제 IME·45번은 미검증 |
 | 수식 화살표 선택·Enter 편집 | 2026-11-09 [모델 34·번들](Tests/results/2026-11-09/math-keyboard-model.log)·[브라우저 모델 18·시각 입력 312](Tests/results/2026-11-09/math-keyboard-visual.log) 통과, 실패/SKIP 0. [Computer Use](Tests/results/2026-11-09/math-keyboard-gui.json)에서 블록 상·하/인라인 좌·우 진입·전체 회색 강조·Enter·Cancel/Apply·Save/Undo·재열기·읽기 차단·두 문서 전환 확인. [디스크/종료](Tests/results/2026-11-09/math-keyboard-gui-disk.json): 원문 복원·앱 종료·새 충돌/미리보기 잔류 없음. 당시 실제 IME·45번은 미검증 |
 | 기반 모델·원문·명령 | 2026-11-03 `658e107`·`aa9075d` [B01~B12 기반 26](Tests/results/2026-11-03/f5-block-model.log). 2026-11-08 [TypeScript·모델 34·번들](Tests/results/2026-11-08/text-boundary-model.log) 통과 |
 | 실제 WebKit의 입력 시뮬레이션 | 2026-11-08 [브라우저 모델 18·시각 입력 296](Tests/results/2026-11-08/text-boundary-visual.log), 실패/SKIP 0. 합성 composition은 실제 IME 근거가 아님 |
 | native 저장·문서 수명 | 2026-11-07 [40 통과](Tests/results/2026-11-07/aa-only-native.log). production ContentView·두 문서·history·지연 dirty/쓰기·실패/재시도·Reload/폐기/닫기. NSDocument/revert·지연 쓰기는 통제됨 |
-| 공통 WebKit·기존 경로 | 2026-11-07 [통합/레이아웃 51·모양/동작 864](Tests/results/2026-11-07/aa-only-webkit.log). 2026-11-07 [Hosted 270](Tests/results/2026-11-07/aa-only-hosted.log)·[이미지 70](Tests/results/2026-11-07/aa-only-images.log). 옛 Edit 전용 검사는 Aa 계약 검사로 교체했으며 체크 native는 위 40개에 통합, 실패/XFAIL/SKIP 0. 새 모드 전체 기능 검증으로 합산하지 않음 |
-| 실제 앱·빌드 | 2026-11-05 [최초 형식 입력/저장 GUI](Tests/results/2026-11-05/f5-visual-gui.json), 한글은 붙여넣기. 2026-11-06 표 [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/앱 종료](Tests/results/2026-11-06/table-down-exit-gui.json); 2026-11-07 [빌드·새 문서/하단 입력 GUI](Tests/results/2026-11-07/empty-aa-gui.json). [Aa 모양/체크/이미지/하단 입력 GUI](Tests/results/2026-11-07/appearance-gui.json). [단일 Aa GUI/종료 미확인](Tests/results/2026-11-07/aa-only-gui.json). 2026-11-08 [Backspace GUI](Tests/results/2026-11-08/empty-backspace-gui.json)·[실제 Space 표식 GUI/저장·앱 종료](Tests/results/2026-11-08/space-markers-gui.json). [PS1 서식 코드 Aa·실제 편집·저장/Undo GUI](Tests/results/2026-11-08/code-marks-gui.json). [Text 양방향 병합/번호 보존 GUI](Tests/results/2026-11-08/text-boundary-gui.json). 2026-11-08 과거 종료 검증은 [충돌 감사](Tests/results/2026-11-08/window-close-crashes.json)로 재개방(45번). 완료된 모드·수식·입력·표의 세부 근거는 위 로그·GUI 기록, 미해결 종료 문제는 버그 26·29번, 이후 완료된 종료 수정은 [45번](BUG_FIXES.md#bug-45) |
+| 공통 WebKit·기존 경로 | 2026-11-07 [통합/레이아웃 51·모양/동작 864](Tests/results/2026-11-07/aa-only-webkit.log). 2026-11-07 [Hosted 270](Tests/results/2026-11-07/aa-only-hosted.log)·[이미지 70](Tests/results/2026-11-07/aa-only-images.log). 옛 Edit 전용 검사는 블록 편집 계약 검사로 교체했으며 체크 native는 위 40개에 통합, 실패/XFAIL/SKIP 0. 새 모드 전체 기능 검증으로 합산하지 않음 |
+| 실제 앱·빌드 | 2026-11-05 [최초 형식 입력/저장 GUI](Tests/results/2026-11-05/f5-visual-gui.json), 한글은 붙여넣기. 2026-11-06 표 [빌드](Tests/results/2026-11-06/table-down-exit-build.log)·[GUI/디스크/앱 종료](Tests/results/2026-11-06/table-down-exit-gui.json); 2026-11-07 [빌드·새 문서/하단 입력 GUI](Tests/results/2026-11-07/empty-aa-gui.json). [편집 모양/체크/이미지/하단 입력 GUI](Tests/results/2026-11-07/appearance-gui.json). [단일 편집기 GUI/종료 미확인](Tests/results/2026-11-07/aa-only-gui.json). 2026-11-08 [Backspace GUI](Tests/results/2026-11-08/empty-backspace-gui.json)·[실제 Space 표식 GUI/저장·앱 종료](Tests/results/2026-11-08/space-markers-gui.json). [PS1 서식 코드·실제 편집·저장/Undo GUI](Tests/results/2026-11-08/code-marks-gui.json). [Text 양방향 병합/번호 보존 GUI](Tests/results/2026-11-08/text-boundary-gui.json). 2026-11-08 과거 종료 검증은 [충돌 감사](Tests/results/2026-11-08/window-close-crashes.json)로 재개방(45번). 완료된 모드·수식·입력·표의 세부 근거는 위 로그·GUI 기록, 미해결 종료 문제는 버그 26·29번, 이후 완료된 종료 수정은 [45번](BUG_FIXES.md#bug-45) |
 
 기존 수용 ID는 유지합니다: **B01~B04** 의미 분할·soft/hard break·독립 목록·중첩/중복 ID, **B05~B08** 코드/수식 보호·표/이미지 속성·미지원 원문, **B09~B12** Unicode/UTF-16/BOM/개행/gap·구조 명령 Undo·체크 위치/위조 거절·빈 파일/제목 왕복입니다. 새 importer 통과를 기본 렌더러의 버그 4·17·13 해결 근거로 사용하지 않습니다.
 
@@ -103,4 +107,4 @@
 2. **저장·외부 변경(S01·S02):** 새 문서 최초 Save 취소, 권한 실패/재시도, 충돌 선택 UI·사본 저장, 지연 응답 중 추가 입력, rename/삭제/원자적 교체, 다중 창 종료를 실제 패널로 검증합니다. 비동기 검사 후 조합/편집이 생기면 과거 clean 결과로 덮어쓰지 않습니다. [종료 cleanup 29번](BUG_FIXES.md#29-앱-메뉴-quit-후-고유-미리보기-파일-잔류)도 확인합니다.
 3. **기능 대응·보안(S03):** 부분 선택 Markdown/일반 텍스트/HTML 복사·붙여넣기, PDF 본문/UI 제외, 목차·검색(중복/수식 제목 포함), 상대 이미지/속성/캡션·문서 이동, 링크/원문 편집 UI, 표 행 삭제/열 편집을 확인합니다. 보호 원문·악성 HTML·위조 명령 회귀와 `documentId/generation/revision/requestId/schemaVersion` 전체 브리지 envelope 통합도 남아 있습니다.
 4. **사용성·성능:** 키보드 포커스/VoiceOver·dark/zoom, 대표 100KB/1MB/5MB·표/수식/이미지 혼합 문서의 입력/조합/열기/검색/직렬화 시간·메모리를 측정합니다. 지원 크기/지연 기준은 측정 후 정합니다. macOS 14 실제 기기·공개 Release GUI는 별도 검증입니다.
-5. **수용·배포 판단:** 사용자 요청으로 2026-11-09 개발 버전은 Aa 버튼 없이 본문 클릭/Esc로 편집 포커스를 전환합니다. 위 관문과 원문·빈 줄 경계·저장 보호의 미검증 범위는 유지하며, 옛 textarea를 복구해 완료 근거를 대체하지 않습니다. 슬래시 메뉴·핸들·임의 드래그/이동은 이후 범위이며 현재 구조 명령은 형제 이동·목록 indent/outdent에 제한됩니다. 공개 배포는 별도 요청 범위입니다.
+5. **수용·배포 판단:** 사용자 요청으로 2026-11-09 개발 버전은 본문 클릭/Esc로 편집 포커스를 전환합니다. 위 관문과 원문·빈 줄 경계·저장 보호의 미검증 범위는 유지하며, 옛 textarea를 복구해 완료 근거를 대체하지 않습니다. 슬래시 메뉴·핸들·임의 드래그/이동은 이후 범위이며 현재 구조 명령은 형제 이동·목록 indent/outdent에 제한됩니다. 공개 배포는 별도 요청 범위입니다.

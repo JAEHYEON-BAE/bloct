@@ -2,7 +2,7 @@
 
 A native macOS Markdown editor with continuous block editing and a rendered reading view.
 
-Current source version: **2.0.1**. Public release status is available on [GitHub Releases](https://github.com/JAEHYEON-BAE/bloct/releases).
+Current source version: **2.0.0**. Public release status is available on [GitHub Releases](https://github.com/JAEHYEON-BAE/bloct/releases).
 
 <p>
   <img src="Bloct_1.png" alt="Bloct editing a Markdown math block with rendered equations" width="49%">
@@ -41,7 +41,7 @@ contracts, validation and remaining work are tracked in
 [F5](IMPLEMENTATION_PLAN.md#f5-notion-방식의-블록-관리와-연속-편집);
 [BUG_FIXES.md](BUG_FIXES.md) records defects and their verification evidence.
 Click the document to edit at that position; press **Esc** to return to reading.
-There is no Aa button or formatting toolbar. The same document view, alignment,
+There is no editing toggle button or formatting toolbar. The same document view, alignment,
 scroll position and Undo history remain in place. Unsaved changes stay in memory
 until you save.
 IME and the remaining feature validation continue under F5.
