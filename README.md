@@ -1,8 +1,8 @@
 # Bloct
 
-A native macOS app for viewing and editing Markdown files with a clean, live preview.
+A native macOS Markdown editor with continuous block editing and a rendered reading view.
 
-Current source version: **2.0.0**. Public release status is available on [GitHub Releases](https://github.com/JAEHYEON-BAE/bloct/releases).
+Current source version: **2.0.1**. Public release status is available on [GitHub Releases](https://github.com/JAEHYEON-BAE/bloct/releases).
 
 <p>
   <img src="Bloct_1.png" alt="Bloct editing a Markdown math block with rendered equations" width="49%">
@@ -46,7 +46,7 @@ scroll position and Undo history remain in place. Unsaved changes stay in memory
 until you save.
 IME and the remaining feature validation continue under F5.
 
-### Visual Editor preview
+### Continuous block editing
 
 Edit the rendered document directly in one continuous surface. On an empty text
 block, type a marker and Space: `#` through `######` for headings, `>` for a quote,
@@ -104,10 +104,14 @@ saving discards the changes.
 Toggle the TOC panel with the **⇧⌘T** shortcut or the toolbar button. The panel slides in from the left and updates live as you edit headings.
 
 ### Find in Document
-Press **⌘F** to open the search bar. Matches are highlighted in the preview; navigate between them with **↑ / ↓** or **Return / Shift-Return**.
+Press **⌘F** to open the search bar. Matches are highlighted in the document.
+Use **Return** or the next button to advance, and the previous button to go back.
+Shift-Return and arrow-key navigation remain unimplemented; see bug 19.
 
 ### Export to PDF
-Use **File → Export as PDF** (or the toolbar button) to save the rendered document as a PDF with standard page margins.
+Use **File → Export as PDF** to export the rendered document. PDF pagination,
+visual drafts and exclusion of interface elements still need acceptance testing;
+see bug 11 in [BUG_FIXES.md](BUG_FIXES.md).
 
 ### Zoom
 Pinch-to-zoom or use **⌘+** / **⌘−** to scale the preview.
@@ -134,6 +138,11 @@ Fully adapts to macOS Light and Dark appearance.
 - Drag a `.md` file onto the app icon
 - Use **File → Open** from within the app
 
+Bloct declares the `Editor` document role for Markdown and plain text.
+`LSHandlerRank: Alternate` retains its existing association priority; document
+role and handler priority are separate settings. Choose your preferred default
+app in Finder's **Get Info → Open with**.
+
 ## Building a release
 
 Builds require Node.js 22.18+ and the locked editor dependencies. Xcode's pre-build
@@ -152,7 +161,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer sh scripts/build-releas
 
 The shared local/CI script builds a Universal app for Intel and Apple Silicon while
 keeping the minimum runtime at macOS 14.0. It rejects a different Xcode/SDK and
-verifies each binary slice before publishing. GitHub Actions uses the `xcode-27`
+verifies the Editor document role and each binary slice before publishing. GitHub Actions uses the `xcode-27`
 runner; pushing a new `v*.*.*` tag starts the release workflow.
 
 After a bug fix or feature implementation, a request to commit and push includes

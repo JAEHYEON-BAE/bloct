@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reject releases with the wrong SDK, deployment target or CPU slices.
+"""Reject releases with the wrong document role, SDK, target or CPU slices.
 
 Accept either Bloct.app or its published ZIP; ZIP verification needs no extraction.
 """
@@ -41,6 +41,12 @@ def verify(path):
         with zipfile.ZipFile(path) as archive:
             info = plistlib.loads(archive.read("Bloct.app/Contents/Info.plist"))
             binary = archive.read("Bloct.app/Contents/MacOS/" + info["CFBundleExecutable"])
+    document_types = info.get("CFBundleDocumentTypes", [])
+    for content_type in ("net.daringfireball.markdown", "public.plain-text"):
+        handlers = [item for item in document_types
+                    if content_type in item.get("LSItemContentTypes", [])]
+        require(handlers and all(item.get("CFBundleTypeRole") == "Editor" for item in handlers),
+                f"{content_type} must declare the Editor document role")
     minimum = tuple(map(int, info["LSMinimumSystemVersion"].split(".")))
     require((minimum + (0, 0))[:3] == (14, 0, 0), "Info.plist must require macOS 14.0")
     architectures = {0x01000007: "x86_64", 0x0100000C: "arm64"}
@@ -67,7 +73,7 @@ def verify(path):
         results.append(build)
     require(sorted(item["architecture"] for item in results) == ["arm64", "x86_64"],
             "Release must include exactly arm64 and x86_64")
-    print(json.dumps({"artifact": str(path), "slices": results}, indent=2))
+    print(json.dumps({"artifact": str(path), "document_role": "Editor", "slices": results}, indent=2))
 
 
 if __name__ == "__main__":

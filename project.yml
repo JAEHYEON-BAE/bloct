@@ -39,14 +39,14 @@ targets:
       properties:
         CFBundleName: Bloct
         CFBundleDisplayName: Bloct
-        CFBundleShortVersionString: "2.0.0"
-        CFBundleVersion: "2.0.0"
+        CFBundleShortVersionString: "2.0.1"
+        CFBundleVersion: "2.0.1"
         CFBundleDocumentTypes:
           - CFBundleTypeExtensions:
               - md
               - markdown
             CFBundleTypeName: Markdown Document
-            CFBundleTypeRole: Viewer
+            CFBundleTypeRole: Editor
             LSHandlerRank: Alternate
             LSItemContentTypes:
               - net.daringfireball.markdown

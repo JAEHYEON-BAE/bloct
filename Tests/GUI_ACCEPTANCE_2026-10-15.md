@@ -1,6 +1,6 @@
 # 구현 완료 항목 수용 테스트 — 2026-10-15
 
-> **후속 수정 완료:** 이 문서는 수정 전 GUI 관찰의 역사적 기록입니다. 발견한 Undo·폐기 문제는 후속 작업에서 수정·재검증했습니다. 현재 버그 상태와 최신 재현 결과는 [BUG_FIXES.md](../BUG_FIXES.md)의 “2026-10-15 Undo·폐기 수정 및 최신 검증”을, 최근 구현과 향후 계획은 [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md)를 기준으로 합니다. 아래 수정 전 실패 기록은 회귀 근거로 보존합니다.
+> **후속 수정 완료:** 이 문서는 수정 전 GUI 관찰의 역사적 기록입니다. 발견한 Undo·폐기 문제는 후속 작업에서 수정·재검증했습니다. 현재 미해결 버그는 [BUG_FIXES.md](../BUG_FIXES.md)를, 1·6번의 수정 후 검증은 [native 결과](results/2026-10-15/fix-native.log)·[GUI 디스크 결과](results/2026-10-15/fix-gui-disk.log)를, 최근 구현과 향후 계획은 [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md)를 기준으로 합니다. 아래 수정 전 실패 기록은 회귀 근거로 보존합니다.
 
 ## 결론
 
