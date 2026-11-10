@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-09**. 서식 바·Aa 버튼 제거와 본문 클릭/Esc 편집을 실사용 검증했습니다. [45번 창 종료 충돌](BUG_FIXES.md#bug-45)은 별도 미해결입니다.
+- 최신화: **2026-11-10**. 현재 소스 버전은 **2.0.0**입니다. 서식 바·Aa 버튼 제거와 본문 클릭/Esc 편집은 2026-11-09 실사용 검증했으며, [45번 창 종료 충돌](BUG_FIXES.md#bug-45)은 별도 미해결입니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -81,6 +81,7 @@
 
 | 범위 | 마지막 기록된 결과 |
 |---|---|
+| v2.0.0 배포 | 2026-11-10 [Release 빌드·SDK/CPU](Tests/results/2026-11-10/release-2.0.0-local.json)·[회귀 검사](Tests/results/2026-11-10/release-2.0.0-checks.json) 통과. 공개 ZIP·Homebrew 검증 대기. 실제 IME·창 종료 45번·공개 Release GUI는 별도 미검증 |
 | 편집 UI | 2026-11-09 서식 바·Aa 버튼 제거와 본문 클릭/Esc 편집. [모델 36·번들](Tests/results/2026-11-09/click-focus-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/click-focus-visual.log)·[native 41](Tests/results/2026-11-09/click-focus-native.log)·[WebKit/레이아웃 54·모양 864·클릭 38](Tests/results/2026-11-09/click-focus-webkit.log)·[앱 빌드](Tests/results/2026-11-09/click-focus-build.log) 통과. [Computer Use](Tests/results/2026-11-09/click-focus-gui.json): 클릭 위치의 즉시 입력·Esc 읽기 차단·초안/Undo/Save·수식 팝업·새 문서·긴 문서 위치 불변·두 창·종료 확인. [원문·종료 감사](Tests/results/2026-11-09/click-focus-gui-disk.json). [서식 바 제거 단독 검증](Tests/results/2026-11-09/no-toolbar-gui.json). 실제 IME·45번은 별도 |
 | 빈 블록 안내 표시 | 2026-11-09 Text/Quote/목록 안내 제거·제목/코드 안내 색 보완. [기본 블록 실사용](Tests/results/2026-11-09/plain-guides-gui.json)·[색상 실사용](Tests/results/2026-11-09/light-guides-gui.json)에서 표시·즉시 입력/Undo/Save·원문 보존 확인. [번들](Tests/results/2026-11-09/light-guides-build.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/light-guides-visual.log)·[WebKit/레이아웃 50·모양 864](Tests/results/2026-11-09/light-guides-webkit.log) 통과. [원문·종료 감사](Tests/results/2026-11-09/light-guides-gui-disk.json) |
 | 자동 마지막 Text 줄 | 2026-11-09 [모델 36·번들](Tests/results/2026-11-09/trailing-line-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/trailing-line-visual.log)·[native 40](Tests/results/2026-11-09/trailing-line-native.log)·[WebKit/레이아웃 50·모양 864](Tests/results/2026-11-09/trailing-line-webkit.log) 통과. [Computer Use](Tests/results/2026-11-09/trailing-line-gui.json): 목록 뒤 자동 Text 입력/저장/Undo, 기존 EOF 공백 재사용·두 창·읽기 전환·종료. [원문·종료 감사](Tests/results/2026-11-09/trailing-line-gui-disk.json). 실제 IME·45번은 별도 |
