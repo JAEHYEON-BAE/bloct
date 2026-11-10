@@ -157,10 +157,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         interceptUnsavedWindowsForQuit() ? .terminateCancel : .terminateNow
     }
-
-    func applicationWillTerminate(_ notification: Notification) {
-        MarkdownWebView.removeAllPreviewFiles()
-    }
 }
 
 @main

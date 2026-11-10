@@ -129,6 +129,18 @@ controlled reproduction complements the real Save/Don't Save/Cancel and multi-wi
 Quit evidence linked from [BUG_FIXES.md #45](../BUG_FIXES.md#bug-45).
 
 ```sh
+sh Tests/run-preview-termination.sh
+```
+
+The #29 harness launches three real AppKit subprocesses without an
+applicationWillTerminate cleanup delegate. It checks one/multiple live previews,
+Quit cancellation followed by successful Quit, synchronous ownership-based cleanup
+before process exit, and preservation of existing legacy and other-session files.
+The production preview owner observes the process termination notification directly;
+no view teardown or delegate forwarding is required. Real-app evidence is linked in
+[BUG_FIXES.md #29](../BUG_FIXES.md#29-앱-메뉴-quit-후-고유-미리보기-파일-잔류).
+
+```sh
 sh Tests/run-webkit.sh
 ```
 

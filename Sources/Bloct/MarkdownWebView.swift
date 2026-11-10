@@ -168,10 +168,6 @@ struct MarkdownWebView: NSViewRepresentable {
         Coordinator()
     }
 
-    @MainActor static func removeAllPreviewFiles() {
-        PreviewFiles.removeAll()
-    }
-
     private static let tocScript = """
         (function() {
             if (!window._mvBuildTOC) {
