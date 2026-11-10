@@ -152,43 +152,22 @@ private final class DiskCheckState {
 
 // MARK: - Window close interception
 
-class CloseProxy: NSObject, NSWindowDelegate {
-    weak var window: NSWindow?
-    weak var next: NSWindowDelegate?
-    var bypass = false
-    var hasUnsavedChanges: () -> Bool = { false }
-    var onIntercept: () -> Void = {}
-
-    func windowShouldClose(_ sender: NSWindow) -> Bool {
-        if bypass { bypass = false; return true }
-        if hasUnsavedChanges() { onIntercept(); return false }
-        return next?.windowShouldClose?(sender) ?? true
-    }
-
-    func windowWillClose(_ notification: Notification) {
-        next?.windowWillClose?(notification)
-    }
-
-    override func responds(to sel: Selector!) -> Bool {
-        super.responds(to: sel) || (next?.responds(to: sel) ?? false)
-    }
-    override func forwardingTarget(for sel: Selector!) -> Any? {
-        next?.responds(to: sel) == true ? next : super.forwardingTarget(for: sel)
-    }
-}
-
 private class CloseHandlerView: NSView {
     var proxy: CloseProxy?
     var onReady: ((CloseProxy) -> Void)?
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        if let proxy, proxy.window !== window {
+            proxy.detach()
+            self.proxy = nil
+        }
         guard let win = window, proxy == nil else { return }
         let p = CloseProxy()
         p.window = win
         proxy = p
         DispatchQueue.main.async { [weak self, weak win] in
-            guard let self, let win else { return }
+            guard let self, let win, self.window === win, self.proxy === p else { return }
             p.next = win.delegate
             win.delegate = p
             self.onReady?(p)
@@ -202,6 +181,12 @@ private struct WindowCloseHandler: NSViewRepresentable {
     var onReady: (CloseProxy) -> Void
 
     func makeNSView(context: Context) -> CloseHandlerView { CloseHandlerView() }
+
+    static func dismantleNSView(_ view: CloseHandlerView, coordinator: ()) {
+        view.proxy?.detach()
+        view.proxy = nil
+        view.onReady = nil
+    }
 
     func updateNSView(_ v: CloseHandlerView, context: Context) {
         if v.proxy == nil { v.onReady = onReady }

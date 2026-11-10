@@ -117,6 +117,18 @@ It does not drive Save panels, permission dialogs, or multi-window quit flows.
 Build the app after `xcodegen generate` to check SwiftUI integration as well.
 
 ```sh
+sh Tests/run-window-close.sh
+```
+
+The #45 harness checks nine AppKit close-proxy cases: original delegate veto,
+unsaved interception, one-shot bypass, live notification forwarding, one willClose
+callback, notification removal before a dynamic delegate stops advertising a
+selector, and restoration/preservation of delegates on view removal. The old proxy
+aborts when a cached window notification outlives its forwarding capability. This
+controlled reproduction complements the real Save/Don't Save/Cancel and multi-window
+Quit evidence linked from [BUG_FIXES.md #45](../BUG_FIXES.md#bug-45).
+
+```sh
 sh Tests/run-webkit.sh
 ```
 
