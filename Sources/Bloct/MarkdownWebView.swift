@@ -877,7 +877,6 @@ struct MarkdownWebView: NSViewRepresentable {
                             .replace(/-+/g, '-');
                     });
                     if (window._mvBuildTOC) window._mvBuildTOC();
-                    if (window._mvSearch) window._mvSearch.refresh();
                 }
 
                 // Called by Swift with the base64-encoded document on initial load and
@@ -924,129 +923,6 @@ struct MarkdownWebView: NSViewRepresentable {
                     if (toc && !toc.contains(e.target) && toc.style.transform !== 'translateX(-220px)') {
                         window.webkit.messageHandlers.closeTOC.postMessage(null);
                     }
-                });
-                window._mvSearch = (function() {
-                    var marks = [], idx = 0, term = '';
-                    function removeMarks() {
-                        document.querySelectorAll('mark.mv-hl').forEach(function(m) {
-                            var p = m.parentNode;
-                            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
-                        });
-                        marks = []; idx = 0;
-                    }
-                    function highlight(text, keepScroll) {
-                        removeMarks();
-                        term = text || '';
-                        if (!term) return;
-                        var lo = term.toLowerCase();
-                        var root = document.getElementById('content') || document.body;
-                        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-                        var nodes = [], n;
-                        while ((n = walker.nextNode())) nodes.push(n);
-                        var ranges = [];
-                        nodes.forEach(function(node) {
-                            var t = node.textContent, lt = t.toLowerCase(), i = 0;
-                            while ((i = lt.indexOf(lo, i)) !== -1) { ranges.push({node: node, start: i, end: i + lo.length}); i++; }
-                        });
-                        for (var r = ranges.length - 1; r >= 0; r--) {
-                            try {
-                                var rng = document.createRange();
-                                rng.setStart(ranges[r].node, ranges[r].start);
-                                rng.setEnd(ranges[r].node, ranges[r].end);
-                                var m = document.createElement('mark');
-                                m.className = 'mv-hl';
-                                m.style.cssText = 'background:#FFD700;color:#000;border-radius:2px;padding:0 1px;';
-                                rng.surroundContents(m);
-                                marks.unshift(m);
-                            } catch(e) {}
-                        }
-                        idx = 0;
-                        if (marks.length) {
-                            marks[0].style.background = '#FF8C00';
-                            if (!keepScroll) marks[0].scrollIntoView({behavior:'smooth',block:'center'});
-                        }
-                    }
-                    // Re-apply the current search after #content is re-rendered.
-                    function refresh() { if (term) highlight(term, true); }
-                    function clear() { term = ''; removeMarks(); }
-                    function navigate(fwd) {
-                        if (!marks.length) return;
-                        marks[idx].style.background = '#FFD700';
-                        idx = (idx + (fwd ? 1 : marks.length - 1)) % marks.length;
-                        marks[idx].style.background = '#FF8C00';
-                        marks[idx].scrollIntoView({behavior:'smooth',block:'center'});
-                    }
-                    return {highlight: highlight, navigate: navigate, clear: clear, refresh: refresh};
-                })();
-
-                // Copy selection as markdown
-                function _mvHtmlToMd(node) {
-                    if (node.nodeType === 3) return node.textContent;
-                    if (node.nodeType !== 1) return '';
-                    var tag = node.tagName.toLowerCase();
-                    // KaTeX math: restore original LaTeX from MathML annotation
-                    if (tag === 'span') {
-                        if (node.classList.contains('katex-display')) {
-                            var ann = node.querySelector('annotation[encoding="application/x-tex"]');
-                            if (ann) return '$$' + ann.textContent.trim() + '$$\\n\\n';
-                        }
-                        if (node.classList.contains('katex')) {
-                            var ann = node.querySelector('annotation[encoding="application/x-tex"]');
-                            if (ann) return '$' + ann.textContent.trim() + '$';
-                        }
-                    }
-                    var ch = Array.from(node.childNodes).map(_mvHtmlToMd).join('');
-                    switch(tag) {
-                        case 'h1': return '# ' + ch.trim() + '\\n\\n';
-                        case 'h2': return '## ' + ch.trim() + '\\n\\n';
-                        case 'h3': return '### ' + ch.trim() + '\\n\\n';
-                        case 'h4': return '#### ' + ch.trim() + '\\n\\n';
-                        case 'h5': return '##### ' + ch.trim() + '\\n\\n';
-                        case 'h6': return '###### ' + ch.trim() + '\\n\\n';
-                        case 'strong': case 'b': return '**' + ch + '**';
-                        case 'em': case 'i': return '*' + ch + '*';
-                        case 'code':
-                            if (node.parentElement && node.parentElement.tagName.toLowerCase() === 'pre') return ch;
-                            return '`' + ch + '`';
-                        case 'pre': {
-                            var c = node.querySelector('code');
-                            var lang = c ? ((c.className.match(/language-(\\S+)/) || [])[1] || '') : '';
-                            return '```' + lang + '\\n' + (c ? c.textContent : ch) + '\\n```\\n\\n';
-                        }
-                        case 'a': return '[' + ch + '](' + (node.getAttribute('href') || '') + ')';
-                        case 'img': return '![' + (node.getAttribute('alt') || '') + '](' + (node.getAttribute('data-mv-image-source') || node.getAttribute('src') || '') + ')';
-                        case 'p': return ch.trim() + '\\n\\n';
-                        case 'br': return '\\n';
-                        case 'hr': return '---\\n\\n';
-                        case 'blockquote': return ch.split('\\n').map(function(l){return '> '+l;}).join('\\n') + '\\n\\n';
-                        case 'ul': return Array.from(node.children).map(function(li){return '- '+_mvHtmlToMd(li).trim();}).join('\\n') + '\\n\\n';
-                        case 'ol': return Array.from(node.children).map(function(li,i){return (i+1)+'. '+_mvHtmlToMd(li).trim();}).join('\\n') + '\\n\\n';
-                        case 'table': {
-                            var rows = Array.from(node.querySelectorAll('tr'));
-                            if (!rows.length) return ch;
-                            var mdRows = rows.map(function(row){
-                                var cells = Array.from(row.querySelectorAll('th,td')).map(function(cell){return _mvHtmlToMd(cell).trim();});
-                                return '| ' + cells.join(' | ') + ' |';
-                            });
-                            var colCount = Array.from(rows[0].querySelectorAll('th,td')).length;
-                            var sep = '| ' + Array(colCount).fill('---').join(' | ') + ' |';
-                            mdRows.splice(1, 0, sep);
-                            return mdRows.join('\\n') + '\\n\\n';
-                        }
-                        case 'del': case 's': return '~~' + ch + '~~';
-                        default: return ch;
-                    }
-                }
-                document.addEventListener('copy', function(e) {
-                    if (window._bloctVisual) return;
-                    var sel = window.getSelection();
-                    if (!sel || sel.isCollapsed) return;
-                    var frag = sel.getRangeAt(0).cloneContents();
-                    var wrap = document.createElement('div');
-                    wrap.appendChild(frag);
-                    var md = _mvHtmlToMd(wrap).replace(/\\n{3,}/g, '\\n\\n').trim();
-                    e.clipboardData.setData('text/plain', md);
-                    e.preventDefault();
                 });
                 \(visualEditorBootstrap())
             </script>

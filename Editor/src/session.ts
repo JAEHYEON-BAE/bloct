@@ -24,7 +24,10 @@ export type BlockCommand =
 interface Entry {node: PMNode; pos: number; parent: PMNode; parentPos: number; index: number}
 
 // Headless adapter over the real engine, not an independently editable block
-// store. A future EditorView must dispatch through the same transaction path.
+// store. The EditorView dispatches through the same transaction path. The
+// reference/execute command API has no UI caller yet: it is the checked entry
+// point for the planned block handles and menus (IMPLEMENTATION_PLAN.md, F5
+// contract 4) and is exercised by the model tests.
 export class BlockSession {
   readonly documentId = randomID();
   #generation = 0;

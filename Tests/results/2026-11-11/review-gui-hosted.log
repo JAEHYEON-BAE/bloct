@@ -1,0 +1,272 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-hosted-tests.FYeRQ0/HostedRegression.app: 1 (Operation not permitted)
+PASS: ASCII folder: page loads
+PASS: ASCII folder: editor commits reach Swift
+PASS: ASCII folder: relative image loads
+PASS: ASCII folder: one unique preview file is written
+PASS: ASCII folder: preview file is removed on close
+PASS: ASCII folder: existing .mv_preview.html is untouched
+PASS: Korean folder with spaces: page loads
+PASS: Korean folder with spaces: editor commits reach Swift
+PASS: Korean folder with spaces: relative image loads
+PASS: Korean folder with spaces: one unique preview file is written
+PASS: Korean folder with spaces: preview file is removed on close
+PASS: Korean folder with spaces: existing .mv_preview.html is untouched
+PASS: folder with # % and tilde: page loads
+PASS: folder with # % and tilde: editor commits reach Swift
+PASS: folder with # % and tilde: relative image loads
+PASS: folder with # % and tilde: one unique preview file is written
+PASS: folder with # % and tilde: preview file is removed on close
+PASS: folder with # % and tilde: existing .mv_preview.html is untouched
+PASS: NFD-normalized Korean folder: page loads
+PASS: NFD-normalized Korean folder: editor commits reach Swift
+PASS: NFD-normalized Korean folder: relative image loads
+PASS: NFD-normalized Korean folder: one unique preview file is written
+PASS: NFD-normalized Korean folder: preview file is removed on close
+PASS: NFD-normalized Korean folder: existing .mv_preview.html is untouched
+PASS: read-only folder: page loads
+PASS: read-only folder: editor commits reach Swift
+PASS: read-only folder: relative image loads
+PASS: read-only folder: no preview file is written
+PASS: read-only folder: preview file is removed on close
+PASS: read-only folder: existing .mv_preview.html is untouched
+PASS: folder opened through a symlink: page loads
+PASS: folder opened through a symlink: editor commits reach Swift
+PASS: folder opened through a symlink: relative image loads
+PASS: folder opened through a symlink: one unique preview file is written
+PASS: folder opened through a symlink: preview file is removed on close
+PASS: folder opened through a symlink: existing .mv_preview.html is untouched
+PASS: new document: page loads
+PASS: new document: editor commits reach Swift
+PASS: navigation: clicking a relative .md link keeps the editor page
+PASS: navigation: clicking a #fragment link keeps the editor page
+PASS: navigation: script navigation to a local file keeps the editor page
+PASS: navigation: script navigation to about:blank keeps the editor page
+PASS: navigation: location.reload() keeps the editor page
+PASS: navigation: history.pushState then back keeps the editor page
+PASS: navigation: bridge still works afterwards
+PASS: double load in the same run loop (file): page shows the latest text
+PASS: double load in the same run loop (file): bridge works
+PASS: double load in the same run loop (file): every preview file is removed on close
+PASS: double load in the same run loop (new document): page shows the latest text
+PASS: double load in the same run loop (new document): bridge works
+PASS: double load 150 ms later (file): page shows the latest text
+PASS: double load 150 ms later (file): bridge works
+PASS: double load 150 ms later (file): every preview file is removed on close
+PASS: double load 150 ms later (new document): page shows the latest text
+PASS: double load 150 ms later (new document): bridge works
+PASS: bootstrap file: rapid updates retain one native navigation
+PASS: bootstrap file: real navigation finishes
+PASS: bootstrap file: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap file: latest text and TOC render
+PASS: bootstrap file: source and generation are current
+PASS: bootstrap file: latest Aa request is current
+PASS: bootstrap file: only one initial policy decision
+PASS: bootstrap file: relative image uses latest location
+PASS: bootstrap file: old document generation cannot commit
+PASS: bootstrap file: latest generation can commit
+PASS: bootstrap file: duplicate completion and late failure are ignored
+PASS: bootstrap file: script/reload/history navigation remains blocked
+PASS: bootstrap file: closed view ignores late callbacks
+PASS: bootstrap file: preview files removed
+PASS: bootstrap new: rapid updates retain one native navigation
+PASS: bootstrap new: real navigation finishes
+PASS: bootstrap new: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap new: latest text and TOC render
+PASS: bootstrap new: source and generation are current
+PASS: bootstrap new: latest Aa request is current
+PASS: bootstrap new: only one initial policy decision
+PASS: bootstrap new: old document generation cannot commit
+PASS: bootstrap new: latest generation can commit
+PASS: bootstrap new: duplicate completion and late failure are ignored
+PASS: bootstrap new: script/reload/history navigation remains blocked
+PASS: bootstrap new: closed view ignores late callbacks
+PASS: bootstrap new: preview files removed
+PASS: bootstrap readonly: rapid updates retain one native navigation
+PASS: bootstrap readonly: real navigation finishes
+PASS: bootstrap readonly: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap readonly: latest text and TOC render
+PASS: bootstrap readonly: source and generation are current
+PASS: bootstrap readonly: latest Aa request is current
+PASS: bootstrap readonly: only one initial policy decision
+PASS: bootstrap readonly: relative image uses latest location
+PASS: bootstrap readonly: old document generation cannot commit
+PASS: bootstrap readonly: latest generation can commit
+PASS: bootstrap readonly: duplicate completion and late failure are ignored
+PASS: bootstrap readonly: script/reload/history navigation remains blocked
+PASS: bootstrap readonly: closed view ignores late callbacks
+PASS: bootstrap readonly: preview files removed
+PASS: bootstrap moved: rapid updates retain one native navigation
+PASS: bootstrap moved: real navigation finishes
+PASS: bootstrap moved: unrelated finish/failure cannot complete or reset the load
+PASS: bootstrap moved: latest text and TOC render
+PASS: bootstrap moved: source and generation are current
+PASS: bootstrap moved: latest Aa request is current
+PASS: bootstrap moved: only one initial policy decision
+PASS: bootstrap moved: relative image uses latest location
+PASS: bootstrap moved: old document generation cannot commit
+PASS: bootstrap moved: latest generation can commit
+PASS: bootstrap moved: duplicate completion and late failure are ignored
+PASS: bootstrap moved: script/reload/history navigation remains blocked
+PASS: bootstrap moved: closed view ignores late callbacks
+PASS: bootstrap moved: preview files removed
+PASS: close loading true: callbacks and new loads are rejected
+PASS: close loading true: preview removed
+PASS: close loading false: callbacks and new loads are rejected
+PASS: close loading false: preview removed
+PASS: retry true: failure callback releases bootstrap
+PASS: retry true: failed preview removed
+PASS: retry true: new navigation identity
+PASS: retry true: old callbacks cannot change replacement state
+PASS: retry true: latest content and bridge recover
+PASS: retry true: preview cleanup
+PASS: retry false: failure callback releases bootstrap
+PASS: retry false: new navigation identity
+PASS: retry false: old callbacks cannot change replacement state
+PASS: retry false: latest content and bridge recover
+PASS: retry false: preview cleanup
+PASS: reload: reading has no legacy editing API
+PASS: reload: Aa owns the only editable surface
+PASS: reload: Cmd+R from the page invokes native reload once
+PASS: reload: obsolete page generation cannot restore stale draft
+PASS: reload: current generation can commit
+PASS: aa-editing: "": reading has no old mode or textarea
+PASS: aa-editing: "": reading clicks preserve exact source
+PASS: aa-editing: "": Aa enables one editor in the same page
+PASS: aa-editing: "": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "": clicking after Aa off cannot resume editing
+PASS: aa-editing: "": reentry keeps dirty draft and baseline
+PASS: aa-editing: "Plain 한글😀": reading has no old mode or textarea
+PASS: aa-editing: "Plain 한글😀": reading clicks preserve exact source
+PASS: aa-editing: "Plain 한글😀": Aa enables one editor in the same page
+PASS: aa-editing: "Plain 한글😀": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "Plain 한글😀": clicking after Aa off cannot resume editing
+PASS: aa-editing: "Plain 한글😀": reentry keeps dirty draft and baseline
+PASS: aa-editing: "# Heading": reading has no old mode or textarea
+PASS: aa-editing: "# Heading": reading clicks preserve exact source
+PASS: aa-editing: "# Heading": Aa enables one editor in the same page
+PASS: aa-editing: "# Heading": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "# Heading": clicking after Aa off cannot resume editing
+PASS: aa-editing: "# Heading": reentry keeps dirty draft and baseline
+PASS: aa-editing: "- item\n- next": reading has no old mode or textarea
+PASS: aa-editing: "- item\n- next": reading clicks preserve exact source
+PASS: aa-editing: "- item\n- next": Aa enables one editor in the same page
+PASS: aa-editing: "- item\n- next": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "- item\n- next": clicking after Aa off cannot resume editing
+PASS: aa-editing: "- item\n- next": reentry keeps dirty draft and baseline
+PASS: aa-editing: "- [ ] task": reading has no old mode or textarea
+PASS: aa-editing: "- [ ] task": reading clicks preserve exact source
+PASS: aa-editing: "- [ ] task": Aa enables one editor in the same page
+PASS: aa-editing: "- [ ] task": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "- [ ] task": clicking after Aa off cannot resume editing
+PASS: aa-editing: "- [ ] task": reentry keeps dirty draft and baseline
+PASS: aa-editing: "> quote": reading has no old mode or textarea
+PASS: aa-editing: "> quote": reading clicks preserve exact source
+PASS: aa-editing: "> quote": Aa enables one editor in the same page
+PASS: aa-editing: "> quote": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "> quote": clicking after Aa off cannot resume editing
+PASS: aa-editing: "> quote": reentry keeps dirty draft and baseline
+PASS: aa-editing: "```js\ncode\n```": reading has no old mode or textarea
+PASS: aa-editing: "```js\ncode\n```": reading clicks preserve exact source
+PASS: aa-editing: "```js\ncode\n```": Aa enables one editor in the same page
+PASS: aa-editing: "```js\ncode\n```": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "```js\ncode\n```": clicking after Aa off cannot resume editing
+PASS: aa-editing: "```js\ncode\n```": reentry keeps dirty draft and baseline
+PASS: aa-editing: "---": reading has no old mode or textarea
+PASS: aa-editing: "---": reading clicks preserve exact source
+PASS: aa-editing: "---": Aa enables one editor in the same page
+PASS: aa-editing: "---": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "---": clicking after Aa off cannot resume editing
+PASS: aa-editing: "---": reentry keeps dirty draft and baseline
+PASS: aa-editing: "| A | B |\n| --- | --- |\n| C | D |": reading has no old mode or textarea
+PASS: aa-editing: "| A | B |\n| --- | --- |\n| C | D |": reading clicks preserve exact source
+PASS: aa-editing: "| A | B |\n| --- | --- |\n| C | D |": Aa enables one editor in the same page
+PASS: aa-editing: "| A | B |\n| --- | --- |\n| C | D |": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "| A | B |\n| --- | --- |\n| C | D |": clicking after Aa off cannot resume editing
+PASS: aa-editing: "| A | B |\n| --- | --- |\n| C | D |": reentry keeps dirty draft and baseline
+PASS: aa-editing: "<div>protected</div>": reading has no old mode or textarea
+PASS: aa-editing: "<div>protected</div>": reading clicks preserve exact source
+PASS: aa-editing: "<div>protected</div>": Aa enables one editor in the same page
+PASS: aa-editing: "<div>protected</div>": Aa off preserves the unsaved draft and removes editing
+PASS: aa-editing: "<div>protected</div>": clicking after Aa off cannot resume editing
+PASS: aa-editing: "<div>protected</div>": reentry keeps dirty draft and baseline
+PASS: aa-editing: open property editor prevents mode exit without losing unapplied text
+PASS: aa-editing: finishing property editing allows a fully read-only exit
+PASS: aa-task-lists: nested: reading preserves styled disabled checkboxes
+PASS: aa-task-lists: nested: checkbox click and Space in reading cannot edit
+PASS: aa-task-lists: nested: Aa owns enabled task controls
+PASS: aa-task-lists: nested: task 0 changes exactly its marker
+PASS: aa-task-lists: nested: task 0 Undo restores exact source
+PASS: aa-task-lists: nested: task 1 changes exactly its marker
+PASS: aa-task-lists: nested: task 1 Undo restores exact source
+PASS: aa-task-lists: nested: task 2 changes exactly its marker
+PASS: aa-task-lists: nested: task 2 Undo restores exact source
+PASS: aa-task-lists: nested: Aa off disables controls again
+PASS: aa-task-lists: quoted ordered: reading preserves styled disabled checkboxes
+PASS: aa-task-lists: quoted ordered: checkbox click and Space in reading cannot edit
+PASS: aa-task-lists: quoted ordered: Aa owns enabled task controls
+PASS: aa-task-lists: quoted ordered: task 0 changes exactly its marker
+PASS: aa-task-lists: quoted ordered: task 0 Undo restores exact source
+PASS: aa-task-lists: quoted ordered: task 1 changes exactly its marker
+PASS: aa-task-lists: quoted ordered: task 1 Undo restores exact source
+PASS: aa-task-lists: quoted ordered: task 2 changes exactly its marker
+PASS: aa-task-lists: quoted ordered: task 2 Undo restores exact source
+PASS: aa-task-lists: quoted ordered: Aa off disables controls again
+PASS: aa-task-lists: separate groups: reading preserves styled disabled checkboxes
+PASS: aa-task-lists: separate groups: checkbox click and Space in reading cannot edit
+PASS: aa-task-lists: separate groups: Aa owns enabled task controls
+PASS: aa-task-lists: separate groups: task 0 changes exactly its marker
+PASS: aa-task-lists: separate groups: task 0 Undo restores exact source
+PASS: aa-task-lists: separate groups: task 1 changes exactly its marker
+PASS: aa-task-lists: separate groups: task 1 Undo restores exact source
+PASS: aa-task-lists: separate groups: task 2 changes exactly its marker
+PASS: aa-task-lists: separate groups: task 2 Undo restores exact source
+PASS: aa-task-lists: separate groups: Aa off disables controls again
+PASS: aa-task-lists: CRLF: reading preserves styled disabled checkboxes
+PASS: aa-task-lists: CRLF: checkbox click and Space in reading cannot edit
+PASS: aa-task-lists: CRLF: Aa owns enabled task controls
+PASS: aa-task-lists: CRLF: task 0 changes exactly its marker
+PASS: aa-task-lists: CRLF: task 0 Undo restores exact source
+PASS: aa-task-lists: CRLF: task 1 changes exactly its marker
+PASS: aa-task-lists: CRLF: task 1 Undo restores exact source
+PASS: aa-task-lists: CRLF: Aa off disables controls again
+PASS: aa-task-lists: empty: reading preserves styled disabled checkboxes
+PASS: aa-task-lists: empty: checkbox click and Space in reading cannot edit
+PASS: aa-task-lists: empty: Aa owns enabled task controls
+PASS: aa-task-lists: empty: task 0 changes exactly its marker
+PASS: aa-task-lists: empty: task 0 Undo restores exact source
+PASS: aa-task-lists: empty: task 1 changes exactly its marker
+PASS: aa-task-lists: empty: task 1 Undo restores exact source
+PASS: aa-task-lists: empty: Aa off disables controls again
+PASS: aa-task-lists: author HTML checkboxes remain inert inside Aa previews
+PASS: sanitizer: blocks mixed-case javascript: href
+PASS: sanitizer: blocks entity-encoded javascript: href
+PASS: sanitizer: blocks whitespace-prefixed javascript: href
+PASS: sanitizer: blocks markdown link to javascript:
+PASS: sanitizer: blocks svg xlink:href javascript:
+PASS: sanitizer: blocks mXSS math/mglyph/style
+PASS: sanitizer: blocks mXSS noscript attribute
+PASS: sanitizer: blocks details ontoggle
+PASS: sanitizer: blocks input autofocus onfocus
+PASS: sanitizer: blocks object and embed
+PASS: sanitizer: blocks data:text/html link
+PASS: sanitizer: blocks svg animate href
+PASS: sanitizer: blocks style element
+PASS: sanitizer: blocks img srcset
+PASS: sanitizer: blocks button formaction
+PASS: sanitizer: blocks spoofed #content and #mv-append-zone
+PASS: sanitizer: blocks spoofed search highlight class
+PASS: sanitizer: keeps task-list checkboxes
+PASS: sanitizer: keeps details/summary
+PASS: sanitizer: keeps sub/sup/kbd/u/br
+PASS: sanitizer: keeps README-style align and width
+PASS: sanitizer: keeps inline style attribute
+PASS: sanitizer: keeps table column alignment
+PASS: sanitizer: keeps code language class
+PASS: sanitizer: keeps figure-caption class
+PASS: sanitizer: assigns heading id after sanitizing
+PASS: sanitizer: keeps anchor, mailto, relative and https links
+PASS: sanitizer: keeps KaTeX MathML annotation and HTML
+PASS: sanitizer: KaTeX web fonts load under CSP
+PASS: sanitizer: no CSP violations while rendering legitimate content
+
+269 passed, 0 failed, 0 known failures, 0 unexpected passes, 0 skipped

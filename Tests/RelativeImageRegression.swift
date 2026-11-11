@@ -172,17 +172,6 @@ struct RelativeImageRegression {
         print("EXTENDED decoded widths: \(String(describing: widths))")
         check("JPEG/SVG, encoded/raw Korean # % paths, custom syntax, symlink and absolute file image decode",
               widths == [96, 96, 32, 96, 96, 96, 96])
-        let copyOK = js(webView, """
-            const image = document.querySelector('#content img[alt="custom"]');
-            const selection = getSelection(), range = document.createRange();
-            range.selectNode(image); selection.removeAllRanges(); selection.addRange(range);
-            let copied = '';
-            const event = new Event('copy', {bubbles: true, cancelable: true});
-            Object.defineProperty(event, 'clipboardData', {value: {setData: (_, text) => {copied = text;}}});
-            document.dispatchEvent(event); selection.removeAllRanges();
-            return copied.includes('![custom](../pixel.png)') && !copied.includes('bloct-image:');
-            """) as? Bool
-        check("copy uses the original Markdown image URL", copyOK == true)
 
         let edited = "# Edited\n\n![new image](vector.svg)"
         let imageDraft = js(webView, """

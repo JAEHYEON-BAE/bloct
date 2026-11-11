@@ -2,7 +2,7 @@
 // receive clicks or contribute duplicate headings, search results or IDs.
 window._mvInstallEditorSwitch = function(config) {
     const readerHost = document.getElementById('content');
-    const readerRender = window._mvRender, readerSearch = window._mvSearch;
+    const readerRender = window._mvRender;
     const visualHost = document.createElement('div');
     const decode = value => new TextDecoder().decode(Uint8Array.from(atob(value), c => c.charCodeAt(0)));
     const encode = value => btoa(unescape(encodeURIComponent(value)));
@@ -96,11 +96,12 @@ window._mvInstallEditorSwitch = function(config) {
         if(automatic&&!visual)window._mvRawLines=editor.session.markdown().split('\n');
         visualHost.querySelectorAll('img[data-source],img[data-mv-image-source]').forEach(img=>{const url=imageURL(img.dataset.source||img.dataset.mvImageSource);if(url && img.src!==url)img.src=url;});
     };
+    // Search belongs to the block editor in both reading and editing. The
+    // compatibility reader used by manual-mode tests has no search.
     window._mvSearch = {
-        highlight:term=>(automatic||visual)?editor.search(term):readerSearch.highlight(term),
-        clear:()=>(automatic||visual)?editor.search(''):readerSearch.clear(),
-        navigate:forward=>(automatic||visual)?editor.navigate(forward):readerSearch.navigate(forward),
-        refresh:()=>{if(!visual&&!automatic)readerSearch.refresh();}
+        highlight:term=>editor?.search(term),
+        clear:()=>editor?.search(''),
+        navigate:forward=>editor?.navigate(forward)
     };
     if(automatic){
         mount(window._mvRawLines.join('\n'),config.baseline,!!config.visual);

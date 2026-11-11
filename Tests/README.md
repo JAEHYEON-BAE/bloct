@@ -21,7 +21,13 @@ manual switching for compatibility harnesses. `Editor/test/importer.test.ts` cov
 the existing #16 policy fixture and exact UTF-16 source offsets.
 `Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
 round trips, cursor/ID restoration, snapshot acknowledgements and fail-closed
-unsupported transformations. These results do not cover native Save, real IME,
+unsupported transformations. `Editor/test/serializer.test.ts` pins the written
+form of edited blocks: escaping only where a character would start syntax,
+nested and overlapping formatting, link and autolink forms, URL-like text and
+nested emphasis import. `Editor/test/serializer-fuzz.test.ts` saves seeded
+random inline drafts (3 seeds × 700 rounds) and compares what reads back. It leaves out line breaks in
+headings/table cells and link addresses starting with `<`, which Markdown cannot
+hold. These results do not cover native Save, real IME,
 clipboard or GUI acceptance. Current evidence is linked from F5 in
 [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md).
 
@@ -39,11 +45,13 @@ rules, H1–H6/code placeholders and unlabelled empty Text/quote/list/task block
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus opt-in trailing Text lines with exact EOF/source preservation, typing/Undo/reload/handoff, attached matrix delimiters, display mode, formula-surface editing and Undo.
-The 332 visual checks simulate DOM events/engine text handlers, including formula
+The 338 visual checks simulate DOM events/engine text handlers, including formula
 click/keyboard activation, arrow-selected inline/block math with hover-style highlighting and Enter dialogs, native-selection paint suppression, Read/freeze guards, drag suppression and pointer CSS, formatted inline-code import/edit/Undo and literal typing guards, inline-code termination, input-rule Undo caret
 restoration, same-line Text boundary joining in both directions across quotes/lists, and unsaved handoff/freeze/baseline restoration. Dollar tests cover
 empty/unclosed text, a completed block equation, Enter/Shift-Enter multiline drafts,
 block boundaries, code marks, incomplete snapshot reimport and conversion Undo.
+Three checks per boot path type URL/address/entity text, bold ending in a space
+(Mod-b) and an edit to a formatted paragraph, and compare the saved Markdown exactly.
 They do not verify native physical-pointer hover or continuous dwell. Synthetic composition
 is a guard test, not real Korean IME acceptance. It uses temporary files and does
 not open or replace the installed Bloct app.
@@ -217,9 +225,9 @@ now run as ordinary passing checks.
 
 Implementation summaries and feature plans are maintained in
 [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md).
-Archived logs retain their original `CODE_REVIEW #N` labels and former document
-name; these refer to the same numbered items in `BUG_FIXES.md`. Raw logs are
-preserved without rewriting historical output.
+Older raw logs keep their original `CODE_REVIEW #N` labels and former document
+name; these refer to the same numbered items in `BUG_FIXES.md`. See
+[Result retention](#result-retention) for where they are kept.
 
 ```sh
 sh Tests/run-relative-images.sh
@@ -228,7 +236,7 @@ sh Tests/run-relative-images.sh
 The focused #24 regression loads 54 PNG images across parent paths, Korean/spaced
 folders and a read-only document folder, with three fresh views per case. It also
 checks JPEG/SVG, encoded filenames, image editing and reopening, document resource
-isolation, copy preserving the original image URL, rejected non-image resources,
+isolation, rejected non-image resources,
 and loader invalidation. It uses actual image decoding, with no XFAIL or SKIP.
 An optional directory argument retains fixtures for manual GUI checks.
 
@@ -276,3 +284,14 @@ Its four cases cover concurrent observation during Quit, a lost Quit response,
 independent fresh sessions and rejection of ambiguous app names. See
 [bug 26](../BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore) for
 the actual three-process GUI/Finder evidence and historical CUA limitations.
+
+### Result retention
+
+`Tests/results/` keeps only the two most recent date folders. When a new date
+folder is added, delete the oldest one and change document links into it to a
+GitHub permalink at the last release tag that contains the file, as described in
+[AGENTS.md](../AGENTS.md). Folders up to 2026-11-09 are available at tag `v2.0.1`:
+`https://github.com/JAEHYEON-BAE/bloct/tree/v2.0.1/Tests/results`.
+
+Result folders hold run output and the one-off probes that produced it. Reusable
+tools belong directly under `Tests/`. Raw logs are not rewritten.

@@ -4,8 +4,8 @@
 
 Exact dependency versions and npm archive integrity values are recorded in
 `Editor/package-lock.json`. The model uses `@tiptap/pm` (ProseMirror, MIT),
-`mdast-util-from-markdown`, `mdast-util-gfm`, `mdast-util-math`, and their micromark
-extensions (MIT). TypeScript (Apache-2.0), esbuild (MIT) and Node type definitions
+`mdast-util-from-markdown`, `mdast-util-to-markdown`, `mdast-util-gfm`,
+`mdast-util-math`, and their micromark extensions (MIT). TypeScript (Apache-2.0), esbuild (MIT) and Node type definitions
 (MIT) are development tools. Installed dependency packages retain their license
 files. `Editor/build-resources.mjs` collects production dependency license texts
 into `editor-licenses.txt`, bundled with `blocks.js`, `visual.css`, `math.js` and

@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-11",
+  "checks": {
+    "formattingExact": true,
+    "typingExact": true,
+    "copyPasteExact": true,
+    "containersExactCRLF": true,
+    "newDocumentExact": true,
+    "deletedEvidencePresentInRemoteVerifiedTag": true
+  },
+  "deletedFiles": 316,
+  "tag": "v2.0.1",
+  "tagObject": "328b9495d3705a53bbdb4d79dc0ff045b7a2cf8e",
+  "tagCommit": "c7139bdaef98daec8be766bc257853b1675e1113",
+  "missingInTag": [],
+  "documentationLinks": {
+    "relativeFileLinks": 323,
+    "remoteTagLinks": 66,
+    "githubRelativeLinksExcludedFromLocalFileCheck": [
+      "../../releases"
+    ],
+    "broken": [],
+    "resultDateFolders": [
+      "2026-11-10",
+      "2026-11-11"
+    ]
+  }
+}

@@ -879,5 +879,22 @@ await check('unsaved handoff freezes the serialized draft and restore keeps the 
   const saved=await editor.snapshot();assert(editor.acknowledge(saved.token));
   assert(!editor.session.changed);
 });
+await check('typed URL, address and entity text saves as written and reopens with the same text',async()=>{
+  const text='visit https://example.com or user@example.com, R&D &amp; v1.0 (beta) - a+b!';
+  fresh();type(text);
+  const snapshot=await editor.snapshot();
+  assert(snapshot.text==='visit https://example.com or user@example.com, R&D \\&amp; v1.0 (beta) - a+b!',snapshot.text);
+  assert(BloctBlocks.importMarkdown(snapshot.text).doc.firstChild.textContent===text);
+});
+await check('Mod-b bold that ends with a space saves as plain Markdown without character references',()=>{
+  fresh();type('a ');assert(key('b',{metaKey:true}));type('word ');assert(key('b',{metaKey:true}));type('b');
+  assert(serialized()==='a **word** b',serialized());
+});
+await check('editing a formatted paragraph keeps its punctuation, spacing, nesting and link form',()=>{
+  const source='e.g. v1.0 (beta) **bold *both* `code`** and [docs](https://example.com/a_b) - see <https://example.com>';
+  fresh(source);const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);editor.view.updateState(editor.session.state);
+  type('!');assert(serialized()===source+'!',serialized());
+});
 if(editor){editor.destroy();host.remove();}
 return JSON.stringify({results});

@@ -1,5 +1,0 @@
-Timestamp               Ty Process[PID:TID]
-2026-11-08 23:04:27.193 Df launchd[1:5463c] [pid/24988 [Bloct]:] failed activation: name = com.personal.Bloct.JoinFix20261108.apple-extension-service, flags = 0x0, requestor = com.apple.appki[25010], error = 1: Operation not permitted
-2026-11-08 23:08:27.416 Df launchd[1:56804] [gui/501 [100020]:] service inactive: application.com.personal.Bloct.JoinFix20261108.51220767.51220770
-2026-11-08 23:08:27.435 Df launchd[1:56804] [system:] removing child: pid/24988
-2026-11-08 23:08:27.443 Df launchd[1:56804] [gui/501 [100020]:] removing service: application.com.personal.Bloct.JoinFix20261108.51220767.51220770

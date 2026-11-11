@@ -22,13 +22,6 @@ export interface VisualOptions {
   renderPreview?: (markdown: string) => string;
 }
 
-export const formats = [
-  ['paragraph','Text'], ...[1,2,3,4,5,6].map(n => [`heading_${n}`, `Header ${n}`]),
-  ['blockquote','Quote'], ['bullet_list','Bulleted list'], ['ordered_list','Numbered list'],
-  ['task_list','To-do list'], ['code_block','Code'], ['horizontal_rule','Divider'],
-  ['equation','Equation'], ['image_block','Image'], ['table','Table'],
-];
-
 // Inverting a structural rule can map the selection into the following block.
 // The input-rules record retains the source insertion position before wrapping.
 const undoTypingRule: Command = (state, dispatch) => {
@@ -395,6 +388,8 @@ export class VisualEditor {
     const handled=command(this.session.state,tr => this.view.dispatch(tr),this.view);
     this.view.focus(); return handled;
   }
+  // Block conversion entry point. No UI calls it since the formatting bar was
+  // removed; the DOM tests drive it and the planned slash menu will use it.
   format(kind:string) {
     this.status.textContent='';
     if (!this.#editable || this.#frozen) return false;

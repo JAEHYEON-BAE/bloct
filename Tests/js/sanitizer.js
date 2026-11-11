@@ -68,7 +68,7 @@ render('| a | b |\n|:-:|--:|\n| 1 | 2 |');
 const th = C().querySelector('th');
 check('keeps table column alignment', th && (th.getAttribute('align') === 'center' || /center/.test(th.getAttribute('style') || '')), th && th.outerHTML);
 render('```python\nprint(1)\n```');
-check('keeps code language class (used by copy as Markdown)', !!C().querySelector('code.language-python'), C().innerHTML.slice(0, 200));
+check('keeps code language class', !!C().querySelector('code.language-python'), C().innerHTML.slice(0, 200));
 render('*[Figure 1. caption]*');
 check('keeps figure-caption class', !!C().querySelector('.figure-caption'), C().innerHTML);
 render('# 제목 하나\n\n[이동](#제목-하나) [메일](mailto:a@b.c) [상대](other.md) [웹](https://example.com)');
@@ -82,16 +82,6 @@ if (hasKatex) {
   check('keeps KaTeX MathML annotation and HTML', C().querySelectorAll('.katex annotation').length === 2 && C().querySelectorAll('.katex-html').length === 2, C().innerHTML.slice(0, 200));
 } else {
   check('keeps KaTeX MathML annotation and HTML', false, 'Bundled KaTeX missing');
-}
-{
-  const sel = window.getSelection(); const r = document.createRange();
-  r.selectNodeContents(C()); sel.removeAllRanges(); sel.addRange(r);
-  let copied = '';
-  const ev = new Event('copy', { bubbles: true, cancelable: true });
-  ev.clipboardData = { setData: (t, v) => { copied = v; } };
-  document.dispatchEvent(ev);
-  check('copy as Markdown restores TeX source', copied.includes('\\frac{a}{b}') && copied.includes('\\sum_{i=1}^n i'), copied);
-  sel.removeAllRanges();
 }
 
 // ---- 3. CSP permits what the renderer needs

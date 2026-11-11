@@ -65,6 +65,8 @@ export function importMarkdown(original: string): ImportedDocument {
   const raw = (n: {position?: RootContent['position']}, base: number) =>
     n.position ? original.slice(base + n.position.start.offset!, base + n.position.end.offset!) : '';
 
+  // Markdown nests emphasis in emphasis (`*a *b* c*`); a mark set holds each
+  // type once, so marks are added as a set, never appended.
   function inline(nodes: PhrasingContent[], base: number, marks: readonly Mark[] = []): PMNode[] {
     return nodes.flatMap(n => {
       switch (n.type) {
@@ -75,11 +77,11 @@ export function importMarkdown(original: string): ImportedDocument {
             ...(part ? [schema.text(part, marks)] : []),
           ]);
         }
-        case 'strong': return inline(n.children, base, [...marks, schema.marks.strong.create()]);
-        case 'emphasis': return inline(n.children, base, [...marks, schema.marks.em.create()]);
-        case 'inlineCode': return n.value ? [schema.text(n.value, [...marks, schema.marks.code.create()])] : [];
+        case 'strong': return inline(n.children, base, schema.marks.strong.create().addToSet(marks));
+        case 'emphasis': return inline(n.children, base, schema.marks.em.create().addToSet(marks));
+        case 'inlineCode': return n.value ? [schema.text(n.value, schema.marks.code.create().addToSet(marks))] : [];
         case 'break': return [schema.nodes.hard_break.create(null, null, marks)];
-        case 'link': return inline(n.children, base, [...marks, schema.marks.link.create({href: n.url, title: n.title})]);
+        case 'link': return inline(n.children, base, schema.marks.link.create({href: n.url, title: n.title}).addToSet(marks));
         case 'image': return [schema.nodes.inline_image.create({src: n.url, alt: n.alt ?? '', title: n.title}, null, marks)];
         case 'inlineMath': {
           // Currency/space-delimited fragments stay literal. Bloct's strike
@@ -167,11 +169,4 @@ export function importMarkdown(original: string): ImportedDocument {
   const blocks = new Map<string, PMNode>();
   doc.descendants(node => {if (node.attrs.id) blocks.set(node.attrs.id, node);});
   return {doc, original, blocks};
-}
-
-// Until the command/serializer layer is installed, modified trees must fail
-// closed rather than silently returning the initial source.
-export function exportUnchanged(imported: ImportedDocument, doc = imported.doc): string {
-  if (!doc.eq(imported.doc)) throw new Error('Changed document requires the source-preserving serializer');
-  return imported.original;
 }

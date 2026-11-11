@@ -2,7 +2,8 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import type {Node as PMNode} from '@tiptap/pm/model';
-import {importMarkdown, exportUnchanged, type ImportedDocument} from '../src/importer.ts';
+import {importMarkdown, type ImportedDocument} from '../src/importer.ts';
+import {serialize} from '../src/serializer.ts';
 
 function nodes(input: ImportedDocument | PMNode, type: string) {
   const found: PMNode[] = [];
@@ -13,8 +14,8 @@ function nodes(input: ImportedDocument | PMNode, type: string) {
 function roundtrip(raw: string) {
   const imported = importMarkdown(raw);
   imported.doc.check();
-  assert.equal(exportUnchanged(imported), raw);
-  assert.deepEqual(importMarkdown(exportUnchanged(imported)).doc.toJSON().type, 'doc');
+  assert.equal(serialize(imported, imported.doc), raw);
+  assert.deepEqual(importMarkdown(serialize(imported, imported.doc)).doc.toJSON().type, 'doc');
   for (const [id, node] of imported.blocks) {
     assert.match(id, /^[\da-f-]{36}$/);
     if (node.attrs.source) {
@@ -141,7 +142,7 @@ test('B12: empty input, whitespace gaps, trailing newlines and empty headings', 
   assert.equal(roundtrip('A\n\n\nB\n\n').doc.child(1).attrs.before, '\n\n\n');
 });
 
-test('changed trees cannot be exported as the unchanged initial source', () => {
+test('a changed tree is serialized instead of returning the initial source', () => {
   const imported = importMarkdown('A');
-  assert.throws(() => exportUnchanged(imported, importMarkdown('B').doc), /serializer/);
+  assert.equal(serialize(imported, importMarkdown('B').doc), 'B');
 });
