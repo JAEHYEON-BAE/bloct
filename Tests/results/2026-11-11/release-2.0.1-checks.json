@@ -106,7 +106,10 @@
     "bug26-gui.json"
   ],
   "limits": [
-    "Real IME, macOS 14 hardware and remaining F5 acceptance gates are not implied by these regressions.",
-    "Public release ZIP, Homebrew synchronization and installed app replacement are pending."
+    "Real IME, macOS 14 hardware and remaining F5 acceptance gates are not implied by these regressions."
+  ],
+  "deliveryEvidence": [
+    "release-2.0.1-published.json",
+    "release-2.0.1-installed.json"
   ]
 }

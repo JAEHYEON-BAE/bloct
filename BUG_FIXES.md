@@ -23,7 +23,7 @@
 - **검증 완료 / 2026-11-11.** 읽기 상태의 Esc와 수식 팝업의 기본 Esc 취소가 WebKit에서 미처리 키로 전달되어 AppKit의 `noResponderFor:keyDown:` 경고음 경로에 도달했습니다. 최소 재현은 문서를 열고 Esc 반복, 또는 수식 클릭 → Esc입니다. 편집 종료 자체의 Esc와 구분했습니다. [읽기 재현](Tests/results/2026-11-11/bug46-before-runtime.log)·[팝업 키 코드 53/호출 스택](Tests/results/2026-11-11/bug46-fixed-keys.log). 경고음 동작은 [Apple 이벤트 처리 문서](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/EventArchitecture/EventArchitecture.html)를 따릅니다.
 - **수정:** 읽기에서도 Esc 기본 동작을 막되 모드 전환을 추가 요청하지 않습니다. 공통 수식/이미지/보호 원문 팝업은 Esc를 명시적으로 소비하고 Cancel로 닫습니다. 다음 Esc의 읽기 복귀, 초안·Undo·Save·viewport 보존과 조합/수정자 키 보호는 유지합니다.
 - **검증:** [실제 앱·디스크·종료 감사](Tests/results/2026-11-11/bug46-gui.json)에서 Computer Use로 읽기 반복, 팝업 초안 폐기, 편집 종료, 검색창 닫기, Undo/저장/재열기, 두 문서 전환·닫기와 빈 문서를 확인했습니다. [최종 실제 Esc 19회](Tests/results/2026-11-11/bug46-final-keys.log)의 미처리 `keyDown` 0회, 종료 코드 0·미리보기 잔류 0·fixture 원문 복원. [모델/빌드 36개](Tests/results/2026-11-11/bug46-model.log)·[WebKit 963개](Tests/results/2026-11-11/bug46-webkit.log)·[시각 입력 332개/브라우저 모델 18개](Tests/results/2026-11-11/bug46-visual.log)·[native 41개](Tests/results/2026-11-11/bug46-native.log) 통과, 실패/SKIP 0.
-- **한계:** 오디오 녹음 대신 원래 AppKit 동작을 유지하는 [계측](Tests/results/2026-11-11/bug46-event-probe.m)으로 재현된 경고음 경로의 차단을 확인했습니다. 실제 IME 조합·macOS 14 기기·설치본 교체·공개 Release는 별도입니다.
+- **한계:** 오디오 녹음 대신 원래 AppKit 동작을 유지하는 [계측](Tests/results/2026-11-11/bug46-event-probe.m)으로 재현된 경고음 경로의 차단을 확인했습니다. 2026-11-11 [공개 2.0.1 설치본](Tests/results/2026-11-11/release-2.0.1-installed.json)에서도 편집/읽기 Esc·수식 팝업 취소·Save/Undo를 확인했습니다. 실제 IME 조합·macOS 14 기기는 별도입니다.
 
 ## 종료·파일 정리
 

@@ -1,0 +1,75 @@
+{
+  "source": "/Applications/Bloct.app",
+  "backup": "build/InstalledBackups/20261111-release-2.0.1/Bloct.app",
+  "byteAndModeMatch": true,
+  "entries": {
+    "Contents/Info.plist": {
+      "mode": 420,
+      "sha256": "3c29776430b7400bd71c27b41da5ab6c7eb9aaac9273104dcb9307b560f432c8"
+    },
+    "Contents/MacOS/Bloct": {
+      "mode": 493,
+      "sha256": "7989dabdab93f0978ad44f63685569aec8978e9b898881827c324d64ec03585e"
+    },
+    "Contents/PkgInfo": {
+      "mode": 420,
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0"
+    },
+    "Contents/Resources/AppIcon.icns": {
+      "mode": 420,
+      "sha256": "7fed0c5341f9023212606427e3797368ff1b14939dacb328313b0c383478c58f"
+    },
+    "Contents/Resources/Assets.car": {
+      "mode": 420,
+      "sha256": "e06986622c6d80cd8bb7052bcf00746d25013e720f24402008e4c5001cd1cb72"
+    },
+    "Contents/Resources/DOMPurify-LICENSE.txt": {
+      "mode": 420,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "Contents/Resources/blocks.js": {
+      "mode": 420,
+      "sha256": "da24e65f75cd02fa69811769bdab1585d48c774d7ecf48c0ed88ad8295aad7d4"
+    },
+    "Contents/Resources/editor-licenses.txt": {
+      "mode": 420,
+      "sha256": "c68c2a915ad0e7b111ec30e2fb14189ecf2fc631f07e4119b14a4fbfd4f4a5ce"
+    },
+    "Contents/Resources/editor-switch.js": {
+      "mode": 420,
+      "sha256": "abdbf296bff348267c4e6ddaaafa3834e76495f10a20cc0310033c68d7076b70"
+    },
+    "Contents/Resources/marked.min.js": {
+      "mode": 420,
+      "sha256": "3e7e7d7feb3e5d58cb6c804f68ab5c24cc7e5eb6270fd6e5cbb9124739217d0c"
+    },
+    "Contents/Resources/math.css": {
+      "mode": 420,
+      "sha256": "8f3acc279cc96d65314ab697903b9412f8936c6d0b043d9b9dfdd37f3163775c"
+    },
+    "Contents/Resources/math.js": {
+      "mode": 420,
+      "sha256": "4130e6d9125a43eb3151e0fdddeb930fb4ed8680a80815f235a4fd44a0dc29a7"
+    },
+    "Contents/Resources/purify.min.js": {
+      "mode": 420,
+      "sha256": "cd37898f9782adf54820c413191b5691803f0f137c799d6edcfd38523b4c2c31"
+    },
+    "Contents/Resources/style.css": {
+      "mode": 420,
+      "sha256": "96618152f1e16a07695b807cb068848a75bf9827075fb796f24932db94fed108"
+    },
+    "Contents/Resources/task-lists.js": {
+      "mode": 420,
+      "sha256": "f789b586a4e5df85768e564b75aa60a9e9eb896d48353278587abda06036b256"
+    },
+    "Contents/Resources/visual.css": {
+      "mode": 420,
+      "sha256": "8445c9d3676c68174a40ded5832b2c27bdf983889364731a222dc9dc652a25c7"
+    },
+    "Contents/_CodeSignature/CodeResources": {
+      "mode": 420,
+      "sha256": "bf24305dcbf752fcae1be179a359505024424af8af219ede6d505b77ec0af6ad"
+    }
+  }
+}
