@@ -241,9 +241,38 @@ The retired 17-check legacy task bridge/textarea harness is preserved in Git his
 and historical logs. It no longer represents the current click/Esc editing contract.
 Hosted task checks exercise read-only and editing permissions in the compatibility path.
 
-For CUA GUI sessions, treat Quit as the end of the app handle's lifetime. Do not
-chain `app.getAXState()` after quitting or reactivate that handle while the process
-is exiting. Use the native app menu for Quit and check global inventory; confirm the actual
-process exit when inventory is ambiguous. Obtain a fresh explicit-path handle only
-when another run is needed. See [bug 26](../BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore)
-for observed LaunchServices `-600` reopen errors and the remaining GUI verification.
+### GUI session lifetime
+
+Use [gui-session.mjs](gui-session.mjs) for CUA app sessions. Paste its factory
+without `export` into `cua_repl`, then bind the isolated app by absolute path:
+
+```javascript
+var session = await createGUIAppSession(cua, '/private/tmp/example/Bloct Test.app');
+var app = session.app;
+// Inspect the native Quit menu and its current index before the final action.
+await session.finish('click', quitMenuIndex);
+```
+
+`finish` retires all references to the wrapped app **before** sending the terminal
+action. Later observations and input throw locally, including during a pending
+or failed Quit response, so they cannot reactivate a dying process. Confirm actual
+PID exit separately before making a new session; app inventory can be stale.
+Do not retain or reuse raw CUA handles. Pass the current `app` explicitly into
+observation helpers so closures from an earlier run cannot capture retired sessions.
+
+For dirty documents, ordinary Quit can show Save/Don't Save/Cancel without
+terminating. Keep using ordinary session actions until the final confirmation
+that closes the last document and completes Quit; send that action with `finish`.
+If an attempted final action leaves the app alive, inspect its PID before binding
+a fresh session instead of reviving the retired handle.
+
+Closing the last document can leave a live macOS app with no windows.
+`noWindowsAvailable` alone does not imply termination or a deadlock. Verify the
+PID and use a known app action such as New Document or Quit; do not repeatedly
+capture nonexistent windows or force-relaunch the process.
+
+Run the session regression with `node --test Tests/gui-session.test.mjs`.
+Its four cases cover concurrent observation during Quit, a lost Quit response,
+independent fresh sessions and rejection of ambiguous app names. See
+[bug 26](../BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore) for
+the actual three-process GUI/Finder evidence and historical CUA limitations.

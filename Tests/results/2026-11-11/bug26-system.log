@@ -1,0 +1,6 @@
+2026-11-11 14:49:38.745 Df CoreServicesUIAgent[638:800a5] [com.apple.processmanager:front-35286506] LAUNCH: 0x0-0x31a31a com.personal.Bloct.Bug26Lifecycle starting stopped process.
+2026-11-11 14:51:13.605 Df runningboardd[411:7e5ab] [com.apple.runningboard:ttl] [app<application.com.personal.Bloct.Bug26Lifecycle.51747307.51747310(501)>:24063] termination reported by launchd (0, 0, 0)
+2026-11-11 14:51:32.827 Df CoreServicesUIAgent[638:81135] [com.apple.processmanager:front-35286506] LAUNCH: 0x0-0x327327 com.personal.Bloct.Bug26Lifecycle starting stopped process.
+2026-11-11 14:53:11.199 Df runningboardd[411:8259c] [com.apple.runningboard:ttl] [app<application.com.personal.Bloct.Bug26Lifecycle.51747307.51747310(501)>:25891] termination reported by launchd (0, 0, 0)
+2026-11-11 14:53:47.719 Df CoreServicesUIAgent[638:82b9a] [com.apple.processmanager:front-35286506] LAUNCH: 0x0-0x335335 com.personal.Bloct.Bug26Lifecycle starting stopped process.
+2026-11-11 14:54:52.833 Df runningboardd[411:836de] [com.apple.runningboard:ttl] [app<application.com.personal.Bloct.Bug26Lifecycle.51747307.51747310(501)>:28051] termination reported by launchd (0, 0, 0)
