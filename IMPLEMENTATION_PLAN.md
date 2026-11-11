@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-11**. 현재 소스 버전은 **2.0.0**입니다. 상단 편집 UI 제거와 본문 클릭/Esc 편집은 2026-11-09 실사용 검증했으며, [45번 창 종료 충돌](BUG_FIXES.md#bug-45)의 해당 경로는 2026-11-10 격리 앱에서 수정·검증했습니다.
+- 최신화: **2026-11-11**. 현재 소스 버전은 **2.0.1**입니다. 상단 편집 UI 제거와 본문 클릭/Esc 편집은 2026-11-09 실사용 검증했으며, [45번 창 종료 충돌](BUG_FIXES.md#bug-45)의 해당 경로는 2026-11-10 격리 앱에서 수정·검증했습니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -21,7 +21,7 @@
 - 엔진 트랜잭션·archive의 UTF-16 위치로 중복/중첩/인용/CRLF를 구분해 체크 표식 한 글자만 패치합니다. 같은 엔진이 읽기 상태의 비활성 체크 표시도 담당합니다. [task-lists.js](Sources/Bloct/task-lists.js)는 호환 렌더러의 비활성 표시만 담당하며 변경 브리지는 없습니다. 코드·이스케이프·작성자 HTML/위조 입력은 변경 권한이 없습니다.
 - 한 토글은 Undo 한 단계이며 명시적 Save 스냅샷을 사용합니다. 저장 중 추가 입력, 실패/Cancel의 초안·창 보존, Don't Save의 마지막 저장 상태 복원을 유지합니다.
 - **2026-10-26 검증:** [Hosted 317](Tests/results/2026-10-26/release-1.8.0-hosted.log)·[native 저장 17](Tests/results/2026-10-26/release-1.8.0-tasks.log) 통과, 실패/XFAIL/SKIP 0. [GUI](Tests/results/2026-10-26/f1-gui.json)·[최종 정렬 GUI](Tests/results/2026-10-26/checkbox-indent-gui.json)·[정렬 회귀 317](Tests/results/2026-10-26/checkbox-indent-hosted.log). 공개 배포 근거는 [v1.8.0 ZIP/cask 검증](Tests/results/2026-10-26/release-1.8.0-published.json)에 둡니다.
-- 한계: 지연 쓰기·native revert는 통제된 자동 검사입니다. 실제 GUI 권한 오류/재저장은 확인했지만 macOS 14 기기·공개 Release GUI·큰 문서 성능은 미검증입니다. [종료 자동화 26번](BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore)은 별도 조사 중입니다.
+- 한계: 지연 쓰기·native revert는 통제된 자동 검사입니다. 실제 GUI 권한 오류/재저장은 확인했지만 macOS 14 기기·공개 Release GUI·큰 문서 성능은 미검증입니다. [종료 자동화 26번](BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore)의 확인된 자동화 경합 방지는 2026-11-11 검증 완료이며 과거 지속 CUA 타임아웃의 원인은 미확정입니다.
 
 ## F2. 큰 문서 성능·중복 코드 정리 — 검토 대기
 
@@ -85,7 +85,7 @@
 
 | 범위 | 마지막 기록된 결과 |
 |---|---|
-| v2.0.0 배포 | 2026-11-10 [Release 빌드·SDK/CPU](Tests/results/2026-11-10/release-2.0.0-local.json)·[회귀 검사](Tests/results/2026-11-10/release-2.0.0-checks.json)·[공개 ZIP/Homebrew](Tests/results/2026-11-10/release-2.0.0-published.json) 검증 완료. SDK 27·최소 macOS 14·Universal, 공개 ZIP/GitHub digest/cask SHA256와 리소스 11개 일치. 실제 IME·공개 Release GUI는 미검증. 이후 소스의 종료 수정은 [29번](BUG_FIXES.md#29-앱-메뉴-quit-후-고유-미리보기-파일-잔류)·[45번](BUG_FIXES.md#bug-45) 참조 |
+| v2.0.1 배포 | **2026-11-11 로컬 검증 완료 / 공개·설치 검증 대기.** [Universal 빌드·SDK/최소 OS](Tests/results/2026-11-11/release-2.0.1-local.json)·[회귀 검사](Tests/results/2026-11-11/release-2.0.1-checks.json) 통과. 26·29·45·46번의 해당 수정/검증 포함. 태그·Release·공개 ZIP/Homebrew·설치본 교체는 결과 확인 후 갱신 |
 | 창 종료 | 2026-11-10 delegate 알림 해제·뷰 분리 정리와 소유자 직접 종료 cleanup 수정·검증 완료. 창 닫기는 [45번](BUG_FIXES.md#bug-45), 정상 Quit 3회·파일 보존은 [29번](BUG_FIXES.md#29-앱-메뉴-quit-후-고유-미리보기-파일-잔류)에 근거·한계 기록 |
 | 편집 UI | 2026-11-09 상단 편집 UI 제거와 본문 클릭/Esc 편집. [모델 36·번들](Tests/results/2026-11-09/click-focus-model.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/click-focus-visual.log)·[native 41](Tests/results/2026-11-09/click-focus-native.log)·[WebKit/레이아웃 54·모양 864·클릭 38](Tests/results/2026-11-09/click-focus-webkit.log)·[앱 빌드](Tests/results/2026-11-09/click-focus-build.log) 통과. [Computer Use](Tests/results/2026-11-09/click-focus-gui.json): 클릭 위치의 즉시 입력·Esc 읽기 차단·초안/Undo/Save·수식 팝업·새 문서·긴 문서 위치 불변·두 창·종료 확인. [원문·종료 감사](Tests/results/2026-11-09/click-focus-gui-disk.json). [서식 바 제거 단독 검증](Tests/results/2026-11-09/no-toolbar-gui.json). 당시 실제 IME·45번은 미검증 |
 | 빈 블록 안내 표시 | 2026-11-09 Text/Quote/목록 안내 제거·제목/코드 안내 색 보완. [기본 블록 실사용](Tests/results/2026-11-09/plain-guides-gui.json)·[색상 실사용](Tests/results/2026-11-09/light-guides-gui.json)에서 표시·즉시 입력/Undo/Save·원문 보존 확인. [번들](Tests/results/2026-11-09/light-guides-build.log)·[브라우저 모델 18·시각 입력 332](Tests/results/2026-11-09/light-guides-visual.log)·[WebKit/레이아웃 50·모양 864](Tests/results/2026-11-09/light-guides-webkit.log) 통과. [원문·종료 감사](Tests/results/2026-11-09/light-guides-gui-disk.json) |
