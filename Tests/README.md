@@ -88,10 +88,14 @@ also exercised. Set `BLOCT_APPEARANCE_SNAPSHOTS=/absolute/path/prefix` to save
 optional before/after paragraph PNG crops; these are not a pixel-identity assertion.
 
 The same runner loads [ClickFocus.js](ClickFocus.js) with automatic editing enabled:
-38 checks cover exact clicked text positions in paragraphs/headings/quotes/lists/tables,
+45 checks cover exact clicked text positions in paragraphs/headings/quotes/lists/tables,
 immediate input, persistent EditorView/history/draft, read-only mutation guards,
 scrolled and empty documents, end padding, modifier/composition guards, one-click
-equation dialogs and task toggles, and toolbar absence. This suite simulates the
+equation dialogs and task toggles, and toolbar absence. Reading Escape is consumed
+without additional mode requests; popup Escape explicitly cancels its draft while
+preserving document editing. Composition and modified Escape keep their default
+handling. These DOM checks do not detect native warning sounds; the actual-key
+AppKit path audit is linked from [bug 46](../BUG_FIXES.md#bug-46). This suite simulates the
 native mode acknowledgement; the native harness above covers the actual bridge,
 and the Computer Use evidence linked in F5 covers physical input and screenshots.
 

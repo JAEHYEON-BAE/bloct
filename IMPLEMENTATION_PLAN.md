@@ -1,6 +1,6 @@
 # Bloct 구현 현황 및 계획
 
-- 최신화: **2026-11-10**. 현재 소스 버전은 **2.0.0**입니다. 상단 편집 UI 제거와 본문 클릭/Esc 편집은 2026-11-09 실사용 검증했으며, [45번 창 종료 충돌](BUG_FIXES.md#bug-45)의 해당 경로는 2026-11-10 격리 앱에서 수정·검증했습니다.
+- 최신화: **2026-11-11**. 현재 소스 버전은 **2.0.0**입니다. 상단 편집 UI 제거와 본문 클릭/Esc 편집은 2026-11-09 실사용 검증했으며, [45번 창 종료 충돌](BUG_FIXES.md#bug-45)의 해당 경로는 2026-11-10 격리 앱에서 수정·검증했습니다.
 - 기능의 현재 상태·설계 계약·다음 순서는 이 문서, 버그의 재현·검증·한계는 [BUG_FIXES.md](BUG_FIXES.md)에서 관리합니다. 기록 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 ## 기능 상태
@@ -11,7 +11,7 @@
 | F2 | 큰 문서 성능·중복 코드 정리 | 검토 대기. 측정 후 병목과 중복을 정리 |
 | F3 | 문서 타입·확대 단축키 | 2026-11-10 검증 완료(설정·기존 자동 검사). 실제 단축키 GUI는 미검증 |
 | F4 | 별도 정의 참조 링크 | 사용자 정책으로 보류. 정의 확인·편집 수단과 함께 재검토 |
-| F5 | Notion 방식 블록·연속 편집 | **최우선 / 구현 후 검증 대기.** [본문 클릭/Esc 편집](Tests/results/2026-11-09/click-focus-gui.json)·[Text 경계 병합](Tests/results/2026-11-08/text-boundary-gui.json)·[Space 표식](Tests/results/2026-11-08/space-markers-gui.json)·[서식 안의 코드](Tests/results/2026-11-08/code-marks-gui.json)와 표·입력·모양은 해당 범위 검증 완료. [45번 종료 수정·검증 완료](BUG_FIXES.md#bug-45). 실제 IME·기존 기능 대응·26번 Finder 경합은 아래 관문 참조 |
+| F5 | Notion 방식 블록·연속 편집 | **최우선 / 구현 후 검증 대기.** [본문 클릭/Esc 편집](Tests/results/2026-11-09/click-focus-gui.json)·[Text 경계 병합](Tests/results/2026-11-08/text-boundary-gui.json)·[Space 표식](Tests/results/2026-11-08/space-markers-gui.json)·[서식 안의 코드](Tests/results/2026-11-08/code-marks-gui.json)와 표·입력·모양은 해당 범위 검증 완료. [45번 종료](BUG_FIXES.md#bug-45)·[46번 읽기/팝업 Esc 경고음](BUG_FIXES.md#bug-46) 수정·검증 완료. 실제 IME·기존 기능 대응·26번 Finder 경합은 아래 관문 참조 |
 
 기존 저장·Undo·보안·이미지·외부 갱신·배포의 완료 기록(버그 1·6·14·15·18·20~25번)은 Git 이력과 `Tests/results/`에서 확인합니다. F5 구현만으로 기존 Markdown 경로의 미해결 버그를 완료 처리하지 않습니다.
 

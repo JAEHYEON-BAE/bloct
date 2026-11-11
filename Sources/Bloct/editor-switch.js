@@ -118,10 +118,13 @@ window._mvInstallEditorSwitch = function(config) {
             pendingPoint={x:event.clientX,y:event.clientY};requestMode(true);
         },true);
         document.addEventListener('keydown',event=>{
-            if(!visual || event.key!=='Escape' || event.isComposing || editor.view.composing
+            if(event.key!=='Escape' || event.isComposing || editor.view.composing
                 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey
                 || editor.hasOpenDialog || event.target?.closest?.('dialog,input,textarea,select,#toc'))return;
-            event.preventDefault();event.stopPropagation();requestMode(false);
+            // A reading WebView still receives Escape after the editor blurs.
+            // Consume it too, or WebKit forwards the unhandled key to AppKit's beep.
+            event.preventDefault();event.stopPropagation();
+            if(visual)requestMode(false);
         },true);
     }else if(config.visual)mount(window._mvRawLines.join('\n'),config.baseline);
     else ensureReadingEndLine();

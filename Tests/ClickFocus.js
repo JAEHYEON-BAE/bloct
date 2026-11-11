@@ -34,6 +34,10 @@ for(const [source,selector,text] of [
   check(selector+': immediate input lands at the clicked character',view.state.selection.$from.parent.textContent==='Alpha Xmiddle Omega');
   escape();await settle();
   check(selector+': Escape is read-only without dropping the draft or view',!window._mvIsEditing()&&!view.editable&&window._bloctVisual.view===view&&editor.session.markdown()===draft&&window._mvRawLines.join('\n')===draft);
+  const requestCount=requests.length;
+  const consumed=[escape(document.body),escape(document.body),escape(view.dom)];
+  await settle();
+  check(selector+': repeated reading Escape is consumed without another mode request or mutation',consumed.every(value=>!value)&&requests.length===requestCount&&!window._mvIsEditing()&&editor.session.markdown()===draft);
   const read=view.state.doc;view.dispatch(view.state.tr.insertText('blocked'));
   check(selector+': reading rejects mutation',editor.session.doc.eq(read)&&!editor.history(false));
 }
@@ -61,15 +65,19 @@ for(const [source,selector,text] of [
   check('modified and secondary clicks do not request editing',requests.length===0&&!window._mvIsEditing());
   click(p,r.left+5,r.top+5);await settle();editor.view.input.composing=true;escape();editor.view.input.composing=false;await settle();
   check('composition Escape does not leave editing',window._mvIsEditing());
+  escape();await settle();
+  check('reading composition and modified Escape retain their default handling',escape(document.body,{isComposing:true})&&escape(document.body,{metaKey:true})&&escape(document.body,{shiftKey:true})&&!window._mvIsEditing());
 }
 {
   const editor=await fresh('$$x^2$$'),math=editor.view.dom.querySelector('.visual-math'),r=math.getBoundingClientRect();
   click(math,r.left+r.width/2,r.top+r.height/2);await settle();
   check('one formula click enters editing and opens one equation dialog',window._mvIsEditing()&&document.querySelectorAll('dialog[open]').length===1,JSON.stringify({requests,editing:window._mvIsEditing(),hit:document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.outerHTML.slice(0,250),top:r.top}));
   if(document.querySelector('dialog')){
-    escape(document.querySelector('dialog textarea'));await settle();
-    check('Escape in an equation popup does not exit document editing',window._mvIsEditing());
-    document.querySelector('dialog')?.close('cancel');await pause();
+    const source=editor.session.markdown(),input=document.querySelector('dialog textarea');
+    input.value='discard this draft';
+    check('popup composition Escape keeps its default handling',escape(input,{isComposing:true})&&editor.hasOpenDialog);
+    const consumed=!escape(input);await settle();
+    check('Escape in an equation popup is consumed and cancels only the dialog',consumed&&!editor.hasOpenDialog&&!document.querySelector('dialog')&&window._mvIsEditing()&&editor.session.markdown()===source);
   }
   escape();await settle();
   check('Escape after the popup returns to read-only',!window._mvIsEditing()&&!editor.view.editable);

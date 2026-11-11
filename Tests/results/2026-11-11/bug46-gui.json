@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-11",
+  "app": "/private/tmp/bloct-escape-probe/fixed/Bloct.app",
+  "bundleID": "com.personal.Bloct.EscapeFixed",
+  "build": {
+    "native": "xcrun swiftc -swift-version 6 -parse-as-library -module-cache-path /private/tmp/bloct-regression-module-cache Sources/Bloct/*.swift -o <isolated app>/Contents/MacOS/Bloct",
+    "resources": "model runner built Editor/dist; final editor-switch.js and blocks.js copied into the isolated bundle and verified byte-for-byte",
+    "sha256": {
+      "editor-switch.js": "19d47b724d6d131f7f6d46ee45504b6a8cae41ab0ea4b3703c917d3959d5fbf0",
+      "blocks.js": "89e7e93828c509bd1fd38fac7a7d8e720a1754b312e8bbaea907aea28592e2ec"
+    },
+    "note": "Initial sandboxed Xcode build was blocked by SwiftUI macros; elevated SDK cache stalled. Direct swiftc build succeeded. No production Swift source changed."
+  },
+  "gui": "Computer Use through explicit isolated app paths; native Open/Save/Window/Quit controls, real key input and screenshot inspection",
+  "before": {
+    "readingEscapeUnhandled": 2,
+    "log": "bug46-before-runtime.log",
+    "probe": "bug46-before-probe.m",
+    "popupEscapeUnhandled": 1,
+    "popupStack": "bug46-fixed-keys.log",
+    "note": "The intermediate reading-only fix still allowed the default HTML dialog Escape cancellation to bubble through WebKit doneWithKeyEvent / _web_superKeyDown / NSWindow keyDown / noResponderFor:keyDown."
+  },
+  "final": {
+    "escapeKeyDown": 19,
+    "unhandledKeyDown": 0,
+    "log": "bug46-final-keys.log",
+    "probe": "bug46-event-probe.m",
+    "checks": [
+      "initial and repeated reading Escape",
+      "equation dialog draft typing then Escape discards the draft and keeps document editing",
+      "next Escape returns to reading",
+      "paragraph typing, Escape, repeated Escape, Command-S",
+      "Find typing and Escape closes the native search field",
+      "reentry and Undo restore the saved original; Command-S persists it",
+      "second document opened, reading Escape, Window menu switch to first document",
+      "close and reopen the saved first document",
+      "empty about:blank document reading Escape, click editing, Escape, repeated Escape and clean close",
+      "native menu Quit; process exit 0"
+    ],
+    "processExitCode": 0,
+    "previewFilesRemaining": [],
+    "fixturesRestoredByteForByte": [
+      "escape.md",
+      "second.md"
+    ]
+  },
+  "auto": {
+    "model": 36,
+    "webkit": 963,
+    "visual": 332,
+    "browserModel": 18,
+    "native": 41,
+    "failures": 0,
+    "skips": 0
+  },
+  "limits": [
+    "No audio loopback recording: suppression verified by observing the previously reproduced AppKit noResponderFor:keyDown warning-sound path, with behavior left intact by the probe.",
+    "Real IME composition, macOS 14 hardware, installed app replacement and public release were not part of this run."
+  ]
+}

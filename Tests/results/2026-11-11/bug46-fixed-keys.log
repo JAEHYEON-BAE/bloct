@@ -1,0 +1,52 @@
+ESC_PROBE installed
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=47 flags=0
+2026-11-11 14:37:49.366 Bloct[12216:498443] TSM AdjustCapsLockLEDForKeyTransitionHandling - _ISSetPhysicalKeyboardCapsLockLED Inhibit
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=1 flags=1048576
+ESC_PROBE keyDown code=1 flags=1048576
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE unhandled keyDown lastCode=53 flags=0 receiver=SwiftUI.AppDelegate
+0   event-probe.dylib                   0x00000001028e886c probeNoResponder + 180
+1   AppKit                              0x00000001931375a0 forwardMethod + 204
+2   AppKit                              0x00000001931375c0 forwardMethod + 236
+3   AppKit                              0x00000001931375c0 forwardMethod + 236
+4   AppKit                              0x00000001931375c0 forwardMethod + 236
+5   AppKit                              0x0000000193220e94 -[NSWindow keyDown:] + 240
+6   AppKit                              0x00000001931375c0 forwardMethod + 236
+7   AppKit                              0x00000001931375c0 forwardMethod + 236
+8   SwiftUI                             0x00000001a394745c $s7SwiftUI13NSHostingViewC7keyDown4withySo7NSEventC_tF + 400
+9   SwiftUI                             0x00000001a3947790 $s7SwiftUI13NSHostingViewC7keyDown4withySo7NSEventC_tFTo + 56
+10  AppKit                              0x00000001931375c0 forwardMethod + 236
+11  AppKit                              0x00000001931375c0 forwardMethod + 236
+12  WebKit                              0x00000001ade41e34 -[WKWebView(WKInternalMac) _web_superKeyDown:] + 44
+13  WebKit                              0x00000001ae164dd4 _ZN6WebKit11WebViewImpl7keyDownEP7NSEvent + 212
+14  AppKit                              0x00000001930c9b94 -[NSWindow(NSEventRouting) _reallySendEvent:isDelayedEvent:] + 304
+15  AppKit                              0x00000001930c98ec -[NSWindow(NSEventRouting) sendEvent:] + 424
+16  AppKit                              0x00000001937389c4 -[NSApplication(NSEventRouting) sendEvent:] + 736
+17  WebKit                              0x00000001ae1602b4 _ZN6WebKit11WebViewImpl16doneWithKeyEventEP7NSEventb + 168
+18  WebKit                              0x00000001ad67c22c _ZN6WebKit14PageClientImpl16doneWithKeyEventERKNS_22NativeWebKeyboardEventEb + 84
+19  WebKit                              0x00000001ae31ad88 _ZN6WebKit12WebPageProxy15didReceiveEventEPN3IPC10ConnectionENS_12WebEventTypeEbONSt3__18optionalIN7WebCore24RemoteUserInputEventDataEEE + 1284
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=3 flags=1048576
+ESC_PROBE keyDown code=3 flags=1048576
+ESC_PROBE keyDown code=11 flags=524288
+ESC_PROBE keyDown code=0 flags=524288
+ESC_PROBE keyDown code=1 flags=524288
+ESC_PROBE keyDown code=14 flags=524288
+ESC_PROBE keyDown code=37 flags=524288
+ESC_PROBE keyDown code=34 flags=524288
+ESC_PROBE keyDown code=45 flags=524288
+ESC_PROBE keyDown code=14 flags=524288
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=6 flags=1048576
+ESC_PROBE keyDown code=53 flags=0
+ESC_PROBE keyDown code=1 flags=1048576
+ESC_PROBE keyDown code=1 flags=1048576
+ESC_PROBE keyDown code=12 flags=1048576
+ESC_PROBE keyDown code=12 flags=1048576

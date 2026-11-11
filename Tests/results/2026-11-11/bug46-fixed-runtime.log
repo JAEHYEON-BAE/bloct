@@ -1,0 +1,30 @@
+ESC_PROBE installed
+ESC_PROBE noResponderFor:mouseDown: receiver=NSKVONotifying_NSOpenPanel
+ESC_PROBE noResponderFor:flagsChanged: receiver=NSKVONotifying_NSOpenPanel
+2026-11-11 14:35:50.658 Bloct[8757:489871] TSM AdjustCapsLockLEDForKeyTransitionHandling - _ISSetPhysicalKeyboardCapsLockLED Inhibit
+ESC_PROBE noResponderFor:keyDown: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:flagsChanged: receiver=SwiftUI.AppDelegate
+ESC_PROBE noResponderFor:keyUp: receiver=SwiftUI.AppDelegate

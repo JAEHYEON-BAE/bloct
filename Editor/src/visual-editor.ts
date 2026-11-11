@@ -660,6 +660,13 @@ export class VisualEditor {
       if(!input.readOnly){const save=document.createElement('button');save.textContent='Apply';save.value='apply';form.append(save);}
       dialog.append(form);document.body.append(dialog);
       this.#dialog=dialog;
+      // WebKit can close a dialog with its default Escape action and still
+      // report the key as unhandled to AppKit. Handle cancellation explicitly.
+      dialog.addEventListener('keydown',event=>{
+        if(event.key!=='Escape' || event.isComposing || view.composing
+          || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey)return;
+        event.preventDefault();event.stopPropagation();dialog.close('cancel');
+      });
       dialog.addEventListener('close',()=>{
         if(this.#dialog===dialog)this.#dialog=null;
         if(this.view.isDestroyed)return;
