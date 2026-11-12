@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-12",
+  "change": "Document page markup and scripts moved out of MarkdownWebView.swift into bundled resources (page.html, reader.js, page-host.js, page-start.js) filled by PageTemplate.swift; values passed as a JSON config block and callAsyncJavaScript arguments",
+  "app": "build/Build/Products/Debug/Bloct.app (xcodegen generate; xcodebuild Debug, no warnings), bundle com.personal.Bloct; Resources contain page.html, reader.js, page-host.js, page-start.js",
+  "gui": "Computer Use: real clicks/keys on a 98-line document with 9 headings, inline/display math, task lists, a table and a raw <script> block",
+  "checks": [
+    "reading render: headings, KaTeX inline/display, checkboxes, table, link; raw <script> removed by the sanitizer (no alert)",
+    "TOC button: TOC built from headings, opened with animation; clicking 'Section 7' scrolled to it; closing kept Section 7 at the same viewport position (page-host.js _mvSetTOC anchor)",
+    "click to edit paragraph 8, typed ' Split ok', toggled task 8, Save: disk diff = those two lines only",
+    "Esc to reading, search 'Split' highlighted the match",
+    "scroll position stored (scrollPos default 1574); close window (preview file removed), reopen: page restored to Section 7/8 with TOC hidden (page-host.js install at didFinish)",
+    "new Untitled document (inline loadHTMLString page): click, type, Edited title; close -> keep-document panel Delete -> Unsaved Changes Don't Save; app exited with the last window; no preview files left"
+  ],
+  "notes": "Typing right after Cmd-N goes nowhere until the body is clicked: new documents start in reading mode (ContentView visualEditing=false), unchanged by this change",
+  "automated": {
+    "webkit": "963 PASS",
+    "hosted": "269 passed",
+    "visualNative": "41 passed",
+    "relativeImages": "69 passed",
+    "native": "8 PASS",
+    "windowClose": "9 PASS",
+    "previewTermination": "10 PASS",
+    "failures": 0
+  },
+  "limits": "Debug build; window-edge drag resize anchor not exercised by hand (code moved verbatim); real IME and macOS 14 not tested"
+}

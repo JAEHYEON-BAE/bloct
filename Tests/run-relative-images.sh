@@ -18,7 +18,7 @@ png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 
 PY
 app_dir="$output_dir/RelativeImageRegression.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
+cp Sources/Bloct/page.html Sources/Bloct/reader.js Sources/Bloct/page-host.js Sources/Bloct/page-start.js Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
 cp Editor/dist/math.js Editor/dist/math.css Editor/dist/blocks.js Editor/dist/visual.css "$app_dir/Resources/"
 sed '/^@main$/d' Sources/Bloct/BloctApp.swift > "$output_dir/BloctApp.swift"
 set --

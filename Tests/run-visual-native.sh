@@ -5,7 +5,7 @@ output_dir=$(mktemp -d "${TMPDIR:-/tmp}/bloct-visual-native.XXXXXX")
 trap 'rm -rf "$output_dir"' EXIT
 app_dir="$output_dir/VisualEditorNative.app/Contents"
 mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
+cp Sources/Bloct/page.html Sources/Bloct/reader.js Sources/Bloct/page-host.js Sources/Bloct/page-start.js Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
 cp Editor/dist/math.js Editor/dist/math.css "$app_dir/Resources/"
 cp Editor/dist/blocks.js Editor/dist/visual.css Editor/dist/editor-licenses.txt "$app_dir/Resources/"
 python3 - "$output_dir" <<'PY'

@@ -2,7 +2,7 @@
 
 ## 진행 체크리스트
 
-최신화: 2026-11-11. 번호는 아래 본문 절 번호입니다. 절의 내용이 **전부** 끝나고 [CLAUDE.md](CLAUDE.md)의 완료 기준(코드 변경은 실제 앱 확인 포함)을 채웠을 때만 체크합니다. 상세 기록은 [BUG_FIXES.md](BUG_FIXES.md)와 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)에 둡니다.
+최신화: 2026-11-12. 번호는 아래 본문 절 번호입니다. 절의 내용이 **전부** 끝나고 [CLAUDE.md](CLAUDE.md)의 완료 기준(코드 변경은 실제 앱 확인 포함)을 채웠을 때만 체크합니다. 상세 기록은 [BUG_FIXES.md](BUG_FIXES.md)와 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)에 둡니다.
 
 **2. 저장 실패·데이터 손실 위험**
 
@@ -32,7 +32,7 @@
 - [ ] 4.3 0.6초 전체 파일 폴링 — 미착수
 - [ ] 4.4 `ContentView` 상태 기계 — 미착수
 - [ ] 4.5 입력마다 도는 전체 순회 — 미착수
-- [ ] 4.6 Swift 문자열 속 JS — 미착수 (이번에 124줄 감소)
+- [ ] 4.6 Swift 문자열 속 JS — **일부(2026-11-12).** `MarkdownWebView.swift`의 HTML 뼈대·읽기 렌더러·목차/스크롤/리사이즈/목차 토글을 `page.html`·`reader.js`·`page-host.js`·`page-start.js` 리소스로 분리하고 `PageTemplate.swift`가 nonce·JSON 설정만 채움. 값 전달은 JSON 설정과 `callAsyncJavaScript(arguments:)`로 통일(실제 앱·자동 회귀 통과, [기록](Tests/results/2026-11-12/page-resources-gui.json)). 남은 것: TypeScript 이전·번들, `ContentView.swift`의 문자열 보간 호출
 - [ ] 4.7 종료 처리 관례 — 미착수
 - [ ] 4.8 그 밖의 관행 위반 — 미착수
 
