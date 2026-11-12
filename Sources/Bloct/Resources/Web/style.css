@@ -89,6 +89,8 @@ pre {
 }
 
 pre code {
+  /* WebKit can paint a multi-line inline box's full height as the caret. */
+  display: block;
   background: none;
   border: none;
   border-radius: 0;

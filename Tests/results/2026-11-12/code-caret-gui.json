@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-12",
+  "change": "Block-level pre > code line box for a contained, per-line WebKit caret",
+  "beforeApp": "Bloct Heading Enter (623a55b)",
+  "afterApp": "/private/tmp/bloct-caret-build/Build/Products/Debug/Bloct Code Caret.app",
+  "bundleID": "com.personal.Bloct.CodeCaret",
+  "method": "Computer Use app-targeted clicks, native keys and screenshots on temporary empty and two-line code blocks",
+  "checks": [
+    "Before: inspected empty code and a two-line code at its line end; the inline code box produced a visibly longer caret than after the layout change. The browser internal caret algorithm was not instrumented.",
+    "After: click second line and Cmd-Right: caret fits the current line inside the code box.",
+    "Return to a final empty line, then type last: caret remains inside the expanded block.",
+    "Undo text; click empty code, type x: caret and content stay in the first code box.",
+    "Undo text/newline; append 180 x characters to second line: code scrolls horizontally, with the caret at the visible right edge inside the box.",
+    "Undo long text and Save: Markdown is byte-identical to original.md. Close/reopen, click code end: short contained caret and unchanged content persist.",
+    "Both before/after test apps quit using session.finish; separate PID checks found no process and no preview residue."
+  ],
+  "source": "# Code caret\n\n```\n\n```\n\n```swift\nlet value = 1\nsecond line\n```\n\nTail\n",
+  "sourceUnchanged": true,
+  "automated": {
+    "visualDOM": 382,
+    "browserModel": 18,
+    "webkit": 963,
+    "failures": 0,
+    "xfail": 0,
+    "skip": 0,
+    "isolatedDebugBuild": "passed"
+  },
+  "limits": [
+    "GUI light appearance at default zoom, ASCII; actual IME, macOS 14 and installed/public Release not tested",
+    "DOM range bounds and line boxes are regression checks, not measurements of the native painted caret; actual caret acceptance comes from Computer Use screenshots",
+    "Appearance suite checks light/dark, 100/125 percent zoom and reading/editing geometry automatically"
+  ]
+}

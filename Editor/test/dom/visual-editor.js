@@ -1054,5 +1054,23 @@ await check('dialog keyboard and beforeinput Undo/Redo share local history; Appl
   assert(editor.history(false) && serialized()===source,'next Undo reverts prior body typing');
   editor.history(true);editor.history(true);assert(serialized()===applied);
 });
+await check('code caret line boxes stay inside the block for empty, multiline and overflowing code',()=>{
+  for(const text of ['', 'first\nsecond', 'first\nsecond\n', 'x'.repeat(180)+'\nlast']) {
+    const source='```\n'+text+'\n```';fresh(source);
+    const pre=host.querySelector('pre'),code=pre.querySelector('code'),style=getComputedStyle(code);
+    assert(style.display==='block','code owns line boxes rather than one multiline inline box');
+    assert(code.getBoundingClientRect().height>=parseFloat(style.lineHeight)-0.1,'empty code retains one line');
+    for(const offset of [0,text.lastIndexOf('\n')+1,text.length]) {
+      editor.session.setSelection(editor.session.reference(editor.session.doc.firstChild.attrs.id),offset);
+      editor.view.updateState(editor.session.state);editor.focus();
+      const selection=window.getSelection(),rect=selection.getRangeAt(0).getBoundingClientRect(),frame=pre.getBoundingClientRect();
+      if(rect.height)assert(rect.top>=frame.top && rect.bottom<=frame.bottom && rect.height<=parseFloat(style.lineHeight)+1,'DOM caret line fits in code block');
+    }
+    assert(key('Enter'));type('next');assert(editor.session.doc.firstChild.textContent.endsWith('\nnext'));
+    assert(serialized().includes('\nnext\n```'));
+    for(let attempts=0;serialized()!==source && attempts<2;attempts++)assert(editor.history(false));
+    assert(serialized()===source,'code input/Undo preserves source');
+  }
+});
 if(editor){editor.destroy();host.remove();}
 return JSON.stringify({results});
