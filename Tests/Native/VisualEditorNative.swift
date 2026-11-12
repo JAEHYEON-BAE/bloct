@@ -48,6 +48,39 @@ import WebKit
             print("\(ok ? "PASS" : "FAIL"): \(name)")
         }
         let original = "# Visual\n\n- [ ] first\n- [X] second\n"
+        let mathSource = "Before $x^2$ after\n"
+        let math = try Session(root.appendingPathComponent("math-history.md"), mathSource)
+        math.actions.state.commit(mathSource + "checkpoint")
+        math.actions.state.undoManager.undo()
+        _ = js(math.web, "let v=window._bloctVisual.view; v.dispatch(v.state.tr.insertText('body ',1)); document.querySelector('.visual-math').click(); true")
+        let mathBody = math.raw
+        math.actions.undo(); math.actions.redo(); spin(0.1)
+        check("empty dialog history consumes native commands before engine and checkpoint fallback",
+              math.raw == mathBody && math.actions.state.undoManager.canRedo
+              && js(math.web,"document.querySelector('dialog textarea').value") as? String == "x^2")
+        _ = js(math.web, "let i=document.querySelector('dialog textarea'); i.setSelectionRange(0,3); i.dispatchEvent(new InputEvent('beforeinput',{inputType:'insertFromPaste',bubbles:true})); i.setRangeText('y^3',0,3,'end'); i.dispatchEvent(new InputEvent('input',{inputType:'insertFromPaste',bubbles:true})); true")
+        math.actions.undo()
+        check("native Undo restores only the dialog draft and selection", wait {
+            js(math.web,"(() => { const i=document.querySelector('dialog textarea'); return i.value==='x^2' && i.selectionStart===0 && i.selectionEnd===3; })()") as? Bool == true
+        } && math.raw == mathBody)
+        math.actions.redo()
+        check("native Redo restores only the dialog draft", wait {
+            js(math.web,"document.querySelector('dialog textarea').value") as? String == "y^3"
+        } && math.raw == mathBody)
+        _ = js(math.web,"document.querySelector('dialog').close('apply'); true")
+        check("Apply publishes the formula change to the document", wait { math.raw.contains("$y^3$") })
+        math.actions.undo()
+        check("one native Undo after Apply restores the original formula with body typing intact", wait { math.raw == mathBody })
+        math.actions.redo()
+        check("native Redo after Apply restores the entire formula change", wait { math.raw.contains("$y^3$") })
+        _ = js(math.web,"document.querySelector('.visual-math').click(); true")
+        math.actions.undo();math.actions.redo();spin(0.1)
+        check("reopened dialog has no prior draft history", math.raw.contains("$y^3$")
+              && js(math.web,"document.querySelector('dialog textarea').value") as? String == "y^3")
+        _ = js(math.web,"document.querySelector('dialog').close('cancel'); true")
+        spin(0.1);math.actions.undo()
+        check("Cancel preserves document history for subsequent native Undo", wait { math.raw == mathBody })
+        math.teardown()
         let first = try Session(root.appendingPathComponent("first.md"), original)
         let second = try Session(root.appendingPathComponent("second.md"), original)
         let delayed = try Session(root.appendingPathComponent("delayed.md"), original)

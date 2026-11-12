@@ -65,7 +65,7 @@ rules, H1–H6/code placeholders and unlabelled empty Text/quote/list/task block
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus opt-in trailing Text lines with exact EOF/source preservation, typing/Undo/reload/handoff, attached matrix delimiters, display mode, formula-surface editing and Undo.
-The 350 visual checks simulate DOM events/engine text handlers, including formula
+The 356 visual checks simulate DOM events/engine text handlers, including formula
 click/keyboard activation, arrow-selected inline/block math with hover-style highlighting and Enter dialogs, native-selection paint suppression, Read/freeze guards, drag suppression and pointer CSS, formatted inline-code import/edit/Undo and literal typing guards, inline-code termination, bold/italic ending at the closing marker, plain typing right after an inline code span, Mod-e code typing, input-rule Undo caret
 restoration, same-line Text boundary joining in both directions across quotes/lists, and unsaved handoff/freeze/baseline restoration. Dollar tests cover
 empty/unclosed text, a completed block equation, Enter/Shift-Enter multiline drafts,
@@ -82,7 +82,7 @@ sh Tests/run-visual-native.sh
 ```
 
 The visual native harness hosts the complete production ContentView.
-Its 41 checks cover separate documents, dirty state
+Its 49 checks cover separate documents, dirty state
 without autosave, native/engine Undo/Redo and native checkpoints, fixed Save snapshots and
 later changes, save failure/retry, clean external reload, Don't Save, Save-and-close
 and preview cleanup, including close before a queued dirty notification arrives.
@@ -94,6 +94,8 @@ EditorView, first Save, later input and Undo against its saved baseline.
 It also checks Save after Esc, clean reentry after that Save, and reading the
 latest clean disk version before editing. The harness waits for the
 real Save/switch busy flags before invoking an action.
+Dialog checks cover local Undo/Redo, exhausted history blocking document checkpoints,
+draft selection restoration, Apply as one document step, Cancel and fresh history on reopen.
 Temporary source copies expose actions, pause disk writes
 and capture errors/close warnings; NSDocument revert/close are controlled. First-save panels,
 conflict buttons, permission dialogs, real clipboard/IME, PDF, accessibility and
@@ -268,7 +270,7 @@ An optional directory argument retains fixtures for manual GUI checks.
 sh Tests/run-task-lists.sh
 ```
 
-This command now delegates to the 41-check visual native harness described above.
+This command now delegates to the 49-check visual native harness described above.
 The retired 17-check legacy task bridge/textarea harness is preserved in Git history
 and historical logs. It no longer represents the current click/Esc editing contract.
 Hosted task checks exercise read-only and editing permissions in the compatibility path.

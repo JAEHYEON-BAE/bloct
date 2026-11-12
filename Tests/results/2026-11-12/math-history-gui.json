@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-12",
+  "change": "Equation dialog owns its draft Undo/Redo; Apply remains one document history step",
+  "app": "/private/tmp/bloct-math-history-build/Build/Products/Debug/Bloct Math History.app",
+  "bundleID": "com.personal.Bloct.MathHistory",
+  "method": "Computer Use app-targeted clicks, physical key commands and Edit menu; temporary Markdown files, disk reads after Save",
+  "checks": [
+    "Created body edit: Tail -> T bodyeditail, then opened inline x^2. Empty Cmd-Z / Cmd-Shift-Z left the draft unchanged.",
+    "Selected all and typed y^3. Cmd-Z restored x^2 and selected it; repeated exhausted Undo stayed in the dialog. Cmd-Shift-Z restored y^3.",
+    "Edit > Undo restored x^2; Edit > Redo restored y^3.",
+    "Cancel then Save retained x^2 and the body edit on disk. Subsequent document Cmd-Z restored Tail; Cmd-Shift-Z restored T bodyeditail.",
+    "Reopened inline dialog: Undo/Redo did not restore the discarded draft. Added a newline and + z; local Undo removed only + z and Redo restored it.",
+    "Replaced the draft with q^4 and Apply + Save. One document Undo + Save restored x^2 with T bodyeditail intact; document Redo restored q^4.",
+    "Opened a different block equation a = b: empty Undo/Redo did not affect the inline equation. Typed c = d / e = f, local Undo/Redo, Apply + Save.",
+    "Esc, close, Open panel to reopen first.md: rendered inline q^4 and block c = d / e = f; dialog displayed the exact multiline TeX. Fresh local history was empty.",
+    "Opened second.md while first.md remained open. Edited z^2 -> w^5, Undo restored z^2, Redo restored w^5. Esc/Cancel + Save kept second.md byte-identical.",
+    "Closed second.md: first.md still displayed q^4, multiline block math and T bodyeditail. App menu Quit sent via session.finish; PID 76149 exited, no preview files remained."
+  ],
+  "disk": {
+    "first": "# Local history\n\nBefore $q^4$ after.\n\n$$c = d\ne = f$$\n\nT bodyeditail\n",
+    "second": "# Second\n\nOther $z^2$ document.\n",
+    "firstMatchesExpected": true,
+    "secondUnchanged": true
+  },
+  "exit": {
+    "pid": 76149,
+    "exited": true,
+    "remainingPreviews": []
+  },
+  "automated": {
+    "visualDOM": 356,
+    "browserModel": 18,
+    "nativeContentView": 49,
+    "failed": 0,
+    "skipped": 0,
+    "xfailed": 0,
+    "typecheck": "passed",
+    "isolatedDebugBuild": "passed"
+  },
+  "limits": [
+    "ASCII physical input; synthetic composition grouping and guard checks do not prove actual IME operation",
+    "Installed app, public Release and macOS 14 were not tested",
+    "Existing title-bar Edited issue after canceled dialog input remains bug 50; no attempt to repair native change-count bookkeeping"
+  ]
+}

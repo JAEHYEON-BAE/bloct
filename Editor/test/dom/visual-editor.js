@@ -973,5 +973,56 @@ await check('the equation dialog has a fixed-size field without a focus ring',as
   dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,50));
   assert(!document.querySelector('dialog') && editor.session.doc.firstChild.attrs.value==='x^2','dialog closed without changing TeX');
 });
+const fieldEdit=(input,text,type='insertFromPaste')=>{
+  input.dispatchEvent(new InputEvent('beforeinput',{inputType:type,bubbles:true,cancelable:true}));
+  input.setRangeText(text,input.selectionStart,input.selectionEnd,'end');
+  input.dispatchEvent(new InputEvent('input',{inputType:type,bubbles:true}));
+};
+for(const source of ['Before $x^2$ after','$$x^2$$\n\nTail']) {
+  await check('dialog Undo/Redo is local, bounded and reset on reopen: '+source,async()=>{
+    fresh(source);editor.view.dispatch(editor.view.state.tr.insertText('body ',editor.session.doc.content.size-1));const body=serialized();
+    host.querySelector('.visual-math').click();let dialog=document.querySelector('dialog[open]'),input=dialog.querySelector('textarea');
+    assert(editor.history(false) && editor.history(true) && serialized()===body,'empty local history consumes host commands');
+    input.setSelectionRange(0,3);fieldEdit(input,'y^3');
+    input.setSelectionRange(3,3);fieldEdit(input,'\n+ z');
+    assert(editor.history(false) && input.value==='y^3');
+    assert(input.selectionStart===3 && input.selectionEnd===3,'restore caret');
+    assert(editor.history(false) && input.value==='x^2');
+    assert(input.selectionStart===0 && input.selectionEnd===3,'restore replaced selection');
+    for(let i=0;i<4;i++)assert(editor.history(false));
+    assert(serialized()===body && input.value==='x^2','exhausted Undo cannot change document');
+    assert(editor.history(true) && editor.history(true) && input.value==='y^3\n+ z');
+    for(let i=0;i<4;i++)editor.history(true);
+    assert(serialized()===body && input.value==='y^3\n+ z');
+    editor.history(false);fieldEdit(input,' + q');
+    const branch=input.value;editor.history(true);assert(input.value===branch,'new input clears local Redo');
+    dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,0));
+    assert(serialized()===body);host.querySelector('.visual-math').click();
+    dialog=document.querySelector('dialog[open]');input=dialog.querySelector('textarea');
+    editor.history(false);editor.history(true);assert(input.value==='x^2' && serialized()===body,'reopen has fresh history');
+    dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,0));
+    assert(editor.history(false) && serialized()===source,'body history preserved after Cancel');
+  });
+}
+await check('dialog keyboard and beforeinput Undo/Redo share local history; Apply is one document step',async()=>{
+  const source='Before $x^2$ after';fresh(source);type('body ');const body=serialized();
+  host.querySelector('.visual-math').click();const dialog=document.querySelector('dialog'),input=dialog.querySelector('textarea');
+  input.setSelectionRange(3,3);fieldEdit(input,' + y');fieldEdit(input,' + z');
+  const shortcut=(key,extra={})=>{const event=new KeyboardEvent('keydown',{key,metaKey:true,bubbles:true,cancelable:true,...extra});input.dispatchEvent(event);assert(event.defaultPrevented);};
+  shortcut('z');assert(input.value==='x^2 + y');
+  shortcut('z',{shiftKey:true});assert(input.value==='x^2 + y + z');
+  input.dispatchEvent(new InputEvent('beforeinput',{inputType:'historyUndo',bubbles:true,cancelable:true}));assert(input.value==='x^2 + y');
+  shortcut('y',{metaKey:false,ctrlKey:true});assert(input.value==='x^2 + y + z');
+  // Synthetic composition checks only the guard and grouping, not real IME.
+  input.dispatchEvent(new CompositionEvent('compositionstart'));
+  fieldEdit(input,'a','insertCompositionText');editor.history(false);assert(input.value.endsWith('a'));
+  fieldEdit(input,'b','insertCompositionText');input.dispatchEvent(new CompositionEvent('compositionend'));
+  editor.history(false);assert(input.value==='x^2 + y + z');
+  dialog.close('apply');await new Promise(resolve=>setTimeout(resolve,0));
+  const applied=serialized();assert(applied.includes('$x^2 + y + z$'));
+  assert(editor.history(false) && serialized()===body,'one Undo reverts all applied TeX changes');
+  assert(editor.history(false) && serialized()===source,'next Undo reverts prior body typing');
+  editor.history(true);editor.history(true);assert(serialized()===applied);
+});
 if(editor){editor.destroy();host.remove();}
 return JSON.stringify({results});

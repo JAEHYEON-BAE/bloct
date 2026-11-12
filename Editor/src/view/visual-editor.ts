@@ -14,6 +14,7 @@ import {imageBlockMarkdown} from '../model/serializer.ts';
 import {rules, codeBoundary} from './input-rules.ts';
 import {undoTypingRule, joinTextBoundary, afterRoot} from './keymap.ts';
 import {inTable, arrowCell, nextCell, insertTableRow} from './table.ts';
+import {inputHistory} from './input-history.ts';
 
 export interface VisualOptions {
   savedMarkdown?: string;
@@ -38,6 +39,7 @@ export class VisualEditor {
   #options: VisualOptions;
   #snapshots = new Map<string, ReturnType<BlockSession['snapshot']>>();
   #dialog: HTMLDialogElement | null = null;
+  #dialogHistory: ((forward: boolean) => void) | null = null;
   #surfaceEditors = new WeakMap<Node, () => void>();
   get hasOpenDialog() { return !!this.#dialog?.open; }
 
@@ -382,15 +384,22 @@ export class VisualEditor {
       if(!input.readOnly){const save=document.createElement('button');save.textContent='Apply';save.value='apply';form.append(save);}
       dialog.append(form);document.body.append(dialog);
       this.#dialog=dialog;
+      this.#dialogHistory=inputHistory(input);
       // WebKit can close a dialog with its default Escape action and still
       // report the key as unhandled to AppKit. Handle cancellation explicitly.
       dialog.addEventListener('keydown',event=>{
+        if ((event.metaKey || event.ctrlKey) && !event.altKey
+          && (event.key.toLowerCase()==='z' || (event.key.toLowerCase()==='y' && !event.shiftKey))) {
+          event.preventDefault();event.stopPropagation();
+          if (!event.isComposing && !view.composing) this.history(event.shiftKey || event.key.toLowerCase()==='y');
+          return;
+        }
         if(event.key!=='Escape' || event.isComposing || view.composing
           || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey)return;
         event.preventDefault();event.stopPropagation();dialog.close('cancel');
       });
       dialog.addEventListener('close',()=>{
-        if(this.#dialog===dialog)this.#dialog=null;
+        if(this.#dialog===dialog){this.#dialog=null;this.#dialogHistory=null;}
         if(this.view.isDestroyed)return;
         this.status.textContent='';
         if(dialog.returnValue==='apply'&&!this.#frozen){
@@ -445,6 +454,7 @@ export class VisualEditor {
     for(const checkbox of this.view.dom.querySelectorAll<HTMLInputElement>('li.task-item > input.mv-task-checkbox'))checkbox.disabled=!this.view.editable;
   }
   history(forward:boolean) {
+    if(this.hasOpenDialog){this.#dialogHistory?.(forward);return true;}
     if(this.#frozen || !this.#editable)return false;
     return (forward?redo:undo)(this.session.state,tr=>this.view.dispatch(tr.setMeta('bloctHistory',true)));
   }
@@ -502,7 +512,7 @@ export class VisualEditor {
     this.view.focus();
     if(target && this.view.dom.contains(target))this.#surfaceEditors.get(target)?.();
   }
-  destroy(){this.#dialog?.remove();this.#dialog=null;document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.status.remove();}
+  destroy(){this.#dialog?.remove();this.#dialog=null;this.#dialogHistory=null;document.removeEventListener('mousedown',this.blankAreaMouseDown,true);this.view.destroy();this.status.remove();}
 }
 
 export function mountVisualEditor(host:HTMLElement,markdown:string,options:VisualOptions={}) {
