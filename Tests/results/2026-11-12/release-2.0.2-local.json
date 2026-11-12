@@ -1,0 +1,38 @@
+{
+  "artifact": "build/Release/Bloct.app",
+  "document_role": "Editor",
+  "slices": [
+    {
+      "architecture": "x86_64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    },
+    {
+      "architecture": "arm64",
+      "minimum_macos": [
+        14,
+        0,
+        0
+      ],
+      "sdk": [
+        27,
+        0,
+        0
+      ]
+    }
+  ],
+  "version": "2.0.2",
+  "sourceValidation": {
+    "testedCommit": "aa6cc87",
+    "sourceChangesSinceGUI": "Info.plist version strings only",
+    "guiEvidence": "../2026-11-11/review-gui.json"
+  }
+}

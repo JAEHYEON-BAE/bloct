@@ -290,7 +290,7 @@ the actual three-process GUI/Finder evidence and historical CUA limitations.
 `Tests/results/` keeps only the two most recent date folders. When a new date
 folder is added, delete the oldest one and change document links into it to a
 GitHub permalink at the last release tag that contains the file, as described in
-[AGENTS.md](../AGENTS.md). Folders up to 2026-11-09 are available at tag `v2.0.1`:
+[AGENTS.md](../AGENTS.md). Folders up to 2026-11-10 are available at tag `v2.0.1`:
 `https://github.com/JAEHYEON-BAE/bloct/tree/v2.0.1/Tests/results`.
 
 Result folders hold run output and the one-off probes that produced it. Reusable

@@ -1,6 +1,6 @@
 # Bloct 알려진 버그와 권장 수정 순서
 
-- 정리: **2026-11-11**. 미해결·조사 중 10개와 보류 1개, 최근 검증 완료 26·29·45·46·47·48번을 유지합니다. 이전 완료·제거된 경로의 기록은 Git 이력에 있고, 2026-11-09까지의 원시 증거는 `v2.0.1` 태그의 `Tests/results/`에 있습니다(저장소에는 최근 두 날짜 폴더만 유지).
+- 정리: **2026-11-11**. 미해결·조사 중 10개와 보류 1개, 최근 검증 완료 26·29·45·46·47·48번을 유지합니다. 이전 완료·제거된 경로의 기록은 Git 이력에 있고, 2026-11-10까지의 원시 증거는 `v2.0.1` 태그의 `Tests/results/`에 있습니다(저장소에는 최근 두 날짜 폴더만 유지).
 - 기존 번호를 유지하며 다음 새 번호는 **49번**입니다. 검증 날짜·범위는 항목별 근거를 따르며 자동 검사와 실제 앱 검증을 구분합니다.
 - 기능 계약·남은 수용 검증은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 검사 방법은 [Tests/README.md](Tests/README.md)를 따릅니다. 블록 편집 검사의 통과를 읽기 렌더러 버그의 해결 근거로 사용하지 않습니다.
 
@@ -50,15 +50,15 @@
 ### 45. 창 닫기 중 native 예외·비정상 종료
 
 - **검증 완료 / 2026-11-10.** `CloseProxy`가 원래 delegate의 `windowWillClose`를 전달한 뒤에도 AppKit의 알림 수신자로 남아, 종료 중 원래 delegate가 더 이상 광고하지 않는 selector로 알림이 오면 예외가 발생할 수 있었습니다. 종료 시 프록시의 delegate 등록을 먼저 해제하고 원래 delegate에 한 번 전달하도록 수정했습니다. 뷰의 창 이동·해제 시에는 기존 delegate를 복원하며 지연 설치도 취소합니다.
-- **회귀 근거:** [수정 전](Tests/results/2026-11-10/bug45-before.log)·[종료 코드 -6](Tests/results/2026-11-10/bug45-before-exit.json): 동적 delegate가 종료 중 `windowDidResize:` 광고를 중단하면 같은 미인식 selector 메커니즘으로 SIGABRT. [수정 후 9개](Tests/results/2026-11-10/bug45-window-close.log)·[ContentView native 41개](Tests/results/2026-11-10/bug45-visual-native.log)·[앱 빌드](Tests/results/2026-11-10/bug45-build.log) 통과.
-- **실제 앱:** [Computer Use·디스크·종료 감사](Tests/results/2026-11-10/bug45-gui.json)에서 깨끗한 편집 창 닫기, Cancel 후 추가 입력, Don't Save 원문 보존, Save/재열기, 두 창 전환·Quit 취소/저장/폐기를 확인했습니다. 프로세스 종료 코드 0, 새 충돌 보고서·미리보기 잔류 0.
+- **회귀 근거:** [수정 전](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug45-before.log)·[종료 코드 -6](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug45-before-exit.json): 동적 delegate가 종료 중 `windowDidResize:` 광고를 중단하면 같은 미인식 selector 메커니즘으로 SIGABRT. [수정 후 9개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug45-window-close.log)·[ContentView native 41개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug45-visual-native.log)·[앱 빌드](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug45-build.log) 통과.
+- **실제 앱:** [Computer Use·디스크·종료 감사](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug45-gui.json)에서 깨끗한 편집 창 닫기, Cancel 후 추가 입력, Don't Save 원문 보존, Save/재열기, 두 창 전환·Quit 취소/저장/폐기를 확인했습니다. 프로세스 종료 코드 0, 새 충돌 보고서·미리보기 잔류 0.
 - **한계:** [2026-11-08 원래 충돌](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-08/window-close-crashes.json)의 private `windowDidOrderOffScreen:` receiver는 독립 식별하지 못했으며 수정 전 일반 앱의 닫기·폐기에서는 재현되지 않았습니다. 위 회귀는 같은 전달 실패 조건의 통제된 재현입니다. macOS 14 기기·실제 IME·설치본/공개 Release와 26번 Finder 경합은 별도입니다. 정상 Quit cleanup의 현재 검증은 29번을 따릅니다.
 
 ### 29. 앱 메뉴 Quit 후 고유 미리보기 파일 잔류
 
 - **검증 완료 / 2026-11-10.** 최초 미리보기 생성 때 `PreviewFiles`가 `NSApplication.willTerminateNotification`을 직접 등록하고 종료 전에 소유 파일만 동기 삭제하도록 변경했습니다. AppDelegate의 종료 콜백 전달·문서 뷰 해제에 의존하지 않으며, Quit 취소 시에는 삭제하지 않습니다. 기존 파일/다른 세션 파일은 보존하고 삭제 실패의 소유권·재시도 정책은 유지합니다.
-- **회귀 근거:** AppDelegate 종료 cleanup을 전달하지 않는 실제 AppKit 프로세스 3개에서 [수정 전](Tests/results/2026-11-10/bug29-before.log) 잔류 1·2·2개, [수정 후](Tests/results/2026-11-10/bug29-termination.log) 모두 0개. Quit 취소 중 두 파일 유지와 기존 파일 보존도 통과. [native 8개](Tests/results/2026-11-10/bug29-native.log)·[ContentView native 41개](Tests/results/2026-11-10/bug29-visual-native.log)·[앱 빌드](Tests/results/2026-11-10/bug29-build.log) 통과.
-- **실제 앱:** [Computer Use·프로세스/디스크 감사](Tests/results/2026-11-10/bug29-gui.json): 읽기 문서를 연 채 앱 메뉴 Quit, 두 문서 전환/개별 닫기/재열기 후 직접 Quit, 변경된 두 문서의 Quit 취소/추가 입력/Save/Don't Save 확인. 세 프로세스 모두 종료 코드 0·소유 미리보기 잔류 0·새 충돌 보고서 0이며 저장/폐기 원문·사용자/다른 세션 파일 보존 확인.
+- **회귀 근거:** AppDelegate 종료 cleanup을 전달하지 않는 실제 AppKit 프로세스 3개에서 [수정 전](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug29-before.log) 잔류 1·2·2개, [수정 후](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug29-termination.log) 모두 0개. Quit 취소 중 두 파일 유지와 기존 파일 보존도 통과. [native 8개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug29-native.log)·[ContentView native 41개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug29-visual-native.log)·[앱 빌드](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug29-build.log) 통과.
+- **실제 앱:** [Computer Use·프로세스/디스크 감사](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-10/bug29-gui.json): 읽기 문서를 연 채 앱 메뉴 Quit, 두 문서 전환/개별 닫기/재열기 후 직접 Quit, 변경된 두 문서의 Quit 취소/추가 입력/Save/Don't Save 확인. 세 프로세스 모두 종료 코드 0·소유 미리보기 잔류 0·새 충돌 보고서 0이며 저장/폐기 원문·사용자/다른 세션 파일 보존 확인.
 - **한계:** [2026-11-05 잔류 관찰](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-05/bug27-28-gui.json)의 정확한 delegate 호출 경로는 미계측이며 현재 수정 전 정상 앱의 읽기 Quit에서는 재현되지 않았습니다. 콜백 전달 누락 조건은 위 별도 프로세스로 검증했습니다. 강제 종료/충돌·OS 삭제 권한 오류 복구·macOS 14 기기·설치본/공개 Release와 26번 Finder 경합은 별도입니다.
 
 ### 26. GUI 테스트 중 Finder “Bloct is not open anymore”

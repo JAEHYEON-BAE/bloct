@@ -1,5 +1,0 @@
-{
-  "exitCode": 1,
-  "case": "AppKit Quit without app-delegate cleanup",
-  "expectedFailure": true
-}
