@@ -1,0 +1,40 @@
+== before: blocks.js of the installed 2.0.2 app
+A typed code+ascii: {"nodes":["co[code]","ta[]"],"md":"`co`ta","html":"<code>co</code>ta"}
+B typed code+hangul: {"nodes":["co[code]","는 x[]"],"md":"`co`는 x","html":"<code>co</code>는 x"}
+C typed hangul code+hangul: {"nodes":["코드[code]","는 x[]"],"md":"`코드`는 x","html":"<code>코드</code>는 x"}
+D existing code end+ascii: {"nodes":["codeta[code]"],"md":"`codeta`","html":"<code>codeta</code>"}
+E existing code end+hangul: {"nodes":["code는는x[code]"],"md":"`code는는x`","html":"<code>code는는x</code>"}
+F existing bold code end+ascii: {"nodes":["addrta[strong,code]"],"md":"**`addrta`**","html":"<strong><code>addrta</code></strong>"}
+G code, plain x, backspace, type: {"nodes":["co[code]","yz[]"],"md":"`co`yz","html":"<code>co</code>yz"}
+H existing code, backspace inside, type: {"nodes":["codyz[code]"],"md":"`codyz`","html":"<code>codyz</code>"}
+I Mod-e ascii then Mod-e: {"nodes":["starta[]"," cde[code]"," t[]"],"md":"starta` cde` t ","html":"starta<code> cde</code>&nbsp;t"}
+J Mod-e hangul then Mod-e: {"nodes":["a[]"," 코드코드[code]","는x[]"],"md":"a` 코드코드`는x","html":"a<code> 코드코드</code>는x"}
+K bold+ascii: {"nodes":["bota[strong]"],"md":"**bota**","html":"<strong>bota</strong>"}
+L bold+hangul: {"nodes":["bo는 x[strong]"],"md":"**bo는 x**","html":"<strong>bo는 x</strong>"}
+M hangul bold+hangul: {"nodes":["굵은 x[strong]"],"md":"**굵은 x**","html":"<strong>굵은 x</strong>"}
+N em+hangul: {"nodes":["굵은 x[em]"],"md":"*굵은 x*","html":"<em>굵은 x</em>"}
+O existing bold end+ascii (continues): {"nodes":["boldt[strong]"],"md":"**boldt**","html":"<strong>boldt</strong>"}
+P bold inside em: {"nodes":["it [em]","bt[strong,em]"],"md":"*it **bt***","html":"<em>it </em><strong><em>bt</em></strong>"}
+I2 Mod-e ascii no space: {"nodes":["a[]","co[code]","t[]"],"md":"a`co`t","html":"a<code>co</code>t"}
+J2 Mod-e hangul only: {"nodes":["a[]","코드[code]"],"md":"a`코드`","html":"a<code>코드</code>"}
+J3 Mod-b hangul only: {"nodes":["a[]","코드[strong]"],"md":"a**코드**","html":"a<strong>코드</strong>"}
+== after: fixed bundle
+A typed code+ascii: {"nodes":["co[code]","ta[]"],"md":"`co`ta","html":"<code>co</code>ta"}
+B typed code+hangul: {"nodes":["co[code]","는 x[]"],"md":"`co`는 x","html":"<code>co</code>는 x"}
+C typed hangul code+hangul: {"nodes":["코드[code]","는 x[]"],"md":"`코드`는 x","html":"<code>코드</code>는 x"}
+D existing code end+ascii: {"nodes":["code[code]","ta[]"],"md":"`code`ta","html":"<code>code</code>ta"}
+E existing code end+hangul: {"nodes":["code[code]","는는x[]"],"md":"`code`는는x","html":"<code>code</code>는는x"}
+F existing bold code end+ascii: {"nodes":["addr[strong,code]","ta[strong]"],"md":"**`addr`ta**","html":"<strong><code>addr</code>ta</strong>"}
+G code, plain x, backspace, type: {"nodes":["co[code]","yz[]"],"md":"`co`yz","html":"<code>co</code>yz"}
+H existing code, backspace inside, type: {"nodes":["cod[code]","yz[]"],"md":"`cod`yz","html":"<code>cod</code>yz"}
+I Mod-e ascii then Mod-e: {"nodes":["starta[]"," cde[code]"," t[]"],"md":"starta` cde` t ","html":"starta<code> cde</code>&nbsp;t"}
+J Mod-e hangul then Mod-e: {"nodes":["a[]"," 코드코드[code]","는x[]"],"md":"a` 코드코드`는x","html":"a<code> 코드코드</code>는x"}
+K bold+ascii: {"nodes":["bo[strong]","ta[]"],"md":"**bo**ta","html":"<strong>bo</strong>ta"}
+L bold+hangul: {"nodes":["bo[strong]","는 x[]"],"md":"**bo**는 x","html":"<strong>bo</strong>는 x"}
+M hangul bold+hangul: {"nodes":["굵[strong]","은 x[]"],"md":"**굵**은 x","html":"<strong>굵</strong>은 x"}
+N em+hangul: {"nodes":["굵[em]","은 x[]"],"md":"*굵*은 x","html":"<em>굵</em>은 x"}
+O existing bold end+ascii (continues): {"nodes":["boldt[strong]"],"md":"**boldt**","html":"<strong>boldt</strong>"}
+P bold inside em: {"nodes":["it [em]","b[strong,em]","t[em]"],"md":"*it **b**t*","html":"<em>it </em><strong><em>b</em></strong><em>t</em>"}
+I2 Mod-e ascii no space: {"nodes":["a[]","co[code]","t[]"],"md":"a`co`t","html":"a<code>co</code>t"}
+J2 Mod-e hangul only: {"nodes":["a[]","코드[code]"],"md":"a`코드`","html":"a<code>코드</code>"}
+J3 Mod-b hangul only: {"nodes":["a[]","코드[strong]"],"md":"a**코드**","html":"a<strong>코드</strong>"}

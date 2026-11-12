@@ -1,0 +1,278 @@
+[
+[
+"A typed code+ascii",
+"",
+[
+"i:`",
+"i:c",
+"i:o",
+"i:`",
+"i:t",
+"i:a"
+]
+],
+[
+"B typed code+hangul",
+"",
+[
+"i:`",
+"i:c",
+"i:o",
+"i:`",
+"m:ㄴ",
+"m:느",
+"m:는",
+"i:는",
+"i: ",
+"i:x"
+]
+],
+[
+"C typed hangul code+hangul",
+"",
+[
+"i:`",
+"m:ㅋ",
+"m:코",
+"m:콛",
+"i:코",
+"m:드",
+"i:드",
+"i:`",
+"m:ㄴ",
+"m:느",
+"m:는",
+"i:는",
+"i: ",
+"i:x"
+]
+],
+[
+"D existing code end+ascii",
+"`code`",
+[
+"i:t",
+"i:a"
+]
+],
+[
+"E existing code end+hangul",
+"`code`",
+[
+"m:ㄴ",
+"m:느",
+"m:는",
+"i:는",
+"m:ㄴ",
+"m:느",
+"m:는",
+"i:는",
+"i:x"
+]
+],
+[
+"F existing bold code end+ascii",
+"**`addr`**",
+[
+"i:t",
+"i:a"
+]
+],
+[
+"G code, plain x, backspace, type",
+"",
+[
+"i:`",
+"i:c",
+"i:o",
+"i:`",
+"i:x",
+"c:deleteBackward:",
+"i:y",
+"i:z"
+]
+],
+[
+"H existing code, backspace inside, type",
+"`code`",
+[
+"c:deleteBackward:",
+"i:y",
+"i:z"
+]
+],
+[
+"I Mod-e ascii then Mod-e",
+"start ",
+[
+"i:a",
+"i: ",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'e',keyCode:69,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"i:c",
+"i:o",
+"c:deleteBackward:",
+"i:d",
+"i:e",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'e',keyCode:69,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"i: ",
+"i:t"
+]
+],
+[
+"J Mod-e hangul then Mod-e",
+"",
+[
+"i:a",
+"i: ",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'e',keyCode:69,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"m:ㅋ",
+"m:코",
+"m:콛",
+"i:코",
+"m:드",
+"i:드",
+"m:ㅋ",
+"m:코",
+"m:콛",
+"i:코",
+"m:드",
+"i:드",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'e',keyCode:69,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"m:ㄴ",
+"m:느",
+"m:는",
+"i:는",
+"i:x"
+]
+],
+[
+"K bold+ascii",
+"",
+[
+"i:*",
+"i:*",
+"i:b",
+"i:o",
+"i:*",
+"i:*",
+"i:t",
+"i:a"
+]
+],
+[
+"L bold+hangul",
+"",
+[
+"i:*",
+"i:*",
+"i:b",
+"i:o",
+"i:*",
+"i:*",
+"m:ㄴ",
+"m:느",
+"m:는",
+"i:는",
+"i: ",
+"i:x"
+]
+],
+[
+"M hangul bold+hangul",
+"",
+[
+"i:*",
+"i:*",
+"m:ㄱ",
+"m:구",
+"m:굵",
+"i:굵",
+"i:*",
+"i:*",
+"m:ㅇ",
+"m:으",
+"m:은",
+"i:은",
+"i: ",
+"i:x"
+]
+],
+[
+"N em+hangul",
+"",
+[
+"i:*",
+"m:ㄱ",
+"m:구",
+"m:굵",
+"i:굵",
+"i:*",
+"m:ㅇ",
+"m:으",
+"m:은",
+"i:은",
+"i: ",
+"i:x"
+]
+],
+[
+"O existing bold end+ascii (continues)",
+"**bold**",
+[
+"i:t"
+]
+],
+[
+"P bold inside em",
+"*it*",
+[
+"i: ",
+"i:*",
+"i:*",
+"i:b",
+"i:*",
+"i:*",
+"i:t"
+]
+],
+[
+"I2 Mod-e ascii no space",
+"",
+[
+"i:a",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'e',keyCode:69,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"i:c",
+"i:o",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'e',keyCode:69,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"i:t"
+]
+],
+[
+"J2 Mod-e hangul only",
+"",
+[
+"i:a",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'e',keyCode:69,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"m:ㅋ",
+"m:코",
+"m:콛",
+"i:코",
+"m:드",
+"i:드"
+]
+],
+[
+"J3 Mod-b hangul only",
+"",
+[
+"i:a",
+"j:const v=e.view,ev=new KeyboardEvent('keydown',{key:'b',keyCode:66,metaKey:true,bubbles:true,cancelable:true});v.someProp('handleKeyDown',h=>h(v,ev));return true;",
+"m:ㅋ",
+"m:코",
+"m:콛",
+"i:코",
+"m:드",
+"i:드"
+]
+]
+]

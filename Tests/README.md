@@ -65,8 +65,8 @@ rules, H1–H6/code placeholders and unlabelled empty Text/quote/list/task block
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus opt-in trailing Text lines with exact EOF/source preservation, typing/Undo/reload/handoff, attached matrix delimiters, display mode, formula-surface editing and Undo.
-The 338 visual checks simulate DOM events/engine text handlers, including formula
-click/keyboard activation, arrow-selected inline/block math with hover-style highlighting and Enter dialogs, native-selection paint suppression, Read/freeze guards, drag suppression and pointer CSS, formatted inline-code import/edit/Undo and literal typing guards, inline-code termination, input-rule Undo caret
+The 350 visual checks simulate DOM events/engine text handlers, including formula
+click/keyboard activation, arrow-selected inline/block math with hover-style highlighting and Enter dialogs, native-selection paint suppression, Read/freeze guards, drag suppression and pointer CSS, formatted inline-code import/edit/Undo and literal typing guards, inline-code termination, bold/italic ending at the closing marker, plain typing right after an inline code span, Mod-e code typing, input-rule Undo caret
 restoration, same-line Text boundary joining in both directions across quotes/lists, and unsaved handoff/freeze/baseline restoration. Dollar tests cover
 empty/unclosed text, a completed block equation, Enter/Shift-Enter multiline drafts,
 block boundaries, code marks, incomplete snapshot reimport and conversion Undo.

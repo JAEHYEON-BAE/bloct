@@ -1,4 +1,4 @@
-import {TextSelection, type EditorState} from '@tiptap/pm/state';
+import {Plugin, TextSelection, type EditorState} from '@tiptap/pm/state';
 import {InputRule} from '@tiptap/pm/inputrules';
 import {closeHistory} from '@tiptap/pm/history';
 import type {Node as PMNode} from '@tiptap/pm/model';
@@ -39,6 +39,27 @@ function escapedDollar(state:EditorState,pos:number) {
   const before=$pos.parent.textBetween(0,$pos.parentOffset);
   return ((/\\+$/.exec(before)?.[0].length ?? 0)%2)===1;
 }
+
+// Inline code ends where its span ends: a cursor right after one types
+// ordinary text. An edit that began inside code (Mod-e typing, deleting within
+// the span) stays code. Stored marks end a composition, so IME transactions
+// are left alone; the cursor is already settled before one starts.
+const typesCode = (state: EditorState) => {
+  const {$from, $to, empty} = state.selection;
+  return !!schema.marks.code.isInSet(state.storedMarks ?? (empty ? $from.marks() : $from.marksAcross($to)) ?? []);
+};
+export const codeBoundary = new Plugin({
+  appendTransaction(transactions, old, state) {
+    const {$cursor} = state.selection as TextSelection;
+    if (!$cursor || state.storedMarks) return null;
+    const before = $cursor.nodeBefore, after = $cursor.nodeAfter;
+    if (!before || !schema.marks.code.isInSet(before.marks)
+        || (after && schema.marks.code.isInSet(after.marks))) return null;
+    if (transactions.some(tr => tr.getMeta('composition'))) return null;
+    if (transactions.some(tr => tr.docChanged) && typesCode(old)) return null;
+    return state.tr.setStoredMarks(schema.marks.code.removeFromSet($cursor.marks()));
+  },
+});
 
 export function rules(): InputRule[] {
   const blockRule = (pattern: RegExp, kind: string, attributes: (m: RegExpMatchArray) => object = () => ({})) =>
@@ -87,12 +108,14 @@ export function rules(): InputRule[] {
     new InputRule(/(?:^|\s)\*\*([^*]+)\*\*$/, (state, match, start, end) => {
       const prefix = match[0].startsWith(' ') ? 1 : 0;
       return state.tr.insertText(match[1], start + prefix, end)
-        .addMark(start + prefix, start + prefix + match[1].length, schema.marks.strong.create());
+        .addMark(start + prefix, start + prefix + match[1].length, schema.marks.strong.create())
+        .removeStoredMark(schema.marks.strong);
     },{inCodeMark:false}),
     new InputRule(/(?:^|\s)\*([^*]+)\*$/, (state, match, start, end) => {
       const prefix = match[0].startsWith(' ') ? 1 : 0;
       return state.tr.insertText(match[1], start + prefix, end)
-        .addMark(start + prefix, start + prefix + match[1].length, schema.marks.em.create());
+        .addMark(start + prefix, start + prefix + match[1].length, schema.marks.em.create())
+        .removeStoredMark(schema.marks.em);
     },{inCodeMark:false}),
     new InputRule(/`([^`]+)`$/, (state, match, start, end) => state.tr.insertText(match[1], start, end)
       .addMark(start, start + match[1].length, schema.marks.code.create())

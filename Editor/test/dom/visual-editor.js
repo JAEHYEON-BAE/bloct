@@ -480,6 +480,45 @@ await check('closing inline code limits the code mark to the delimited text',()=
   assert(!p.child(1).marks.length);
   assert(serialized()==='`code`tail',serialized());
 });
+await check('closing bold or italic ends that format, alone and inside another format',()=>{
+  for(const [text,markdown] of [['**bold**tail','**bold**tail'],['*em*tail','*em*tail'],['a **b** c *d* e','a **b** c *d* e']]) {
+    fresh();type(text);assert(serialized()===markdown,serialized());
+  }
+  fresh('*it*');const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),2);editor.view.updateState(editor.session.state);
+  type(' **b**t');
+  assert(editor.session.doc.firstChild.lastChild.marks.map(m=>m.type.name).join(',')==='em',serialized());
+  // Bold that is not being closed still extends from its end.
+  fresh('**bold**');editor.session.setSelection(editor.session.reference(editor.session.doc.firstChild.attrs.id),4);
+  editor.view.updateState(editor.session.state);type('er');assert(serialized()==='**bolder**',serialized());
+});
+// The engine leaves deleting one character to the browser; this is its transaction.
+const erase=()=>{const {from}=editor.view.state.selection;editor.view.dispatch(editor.view.state.tr.delete(from-1,from));};
+await check('text typed right after an inline code span is not code',()=>{
+  const end=()=>{const p=editor.session.doc.firstChild;
+    editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);editor.view.updateState(editor.session.state);};
+  fresh('`code`');end();type('tail');assert(serialized()==='`code`tail',serialized());
+  assert(editor.history(false));assert(serialized()==='`code`',serialized());
+  fresh('**`code`**');end();type('x');
+  assert(editor.session.doc.firstChild.lastChild.marks.map(m=>m.type.name).join(',')==='strong',serialized());
+  // Deleting the text after a span leaves the cursor outside it.
+  fresh('`code`x');end();erase();type('yz');assert(serialized()==='`code`yz',serialized());
+  fresh('a `code` b');let p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),6);editor.view.updateState(editor.session.state);
+  type('!');assert(serialized()==='a `code`! b',serialized());
+  // Inside the span, and at its start, typing still edits the code.
+  editor.session.setSelection(editor.session.reference(p.attrs.id),4);editor.view.updateState(editor.session.state);
+  type('X');assert(serialized()==='a `coXde`! b',serialized());
+});
+await check('Mod-e code typing continues until it is switched off',()=>{
+  fresh();type('a');assert(key('e',{metaKey:true}));type('co');erase();type('de');
+  assert(serialized()==='a`cde`',serialized());
+  assert(key('e',{metaKey:true}));type('t');assert(serialized()==='a`cde`t',serialized());
+  // Switching it on right after a span extends that span.
+  fresh('`code`');const p=editor.session.doc.firstChild;
+  editor.session.setSelection(editor.session.reference(p.attrs.id),4);editor.view.updateState(editor.session.state);
+  assert(key('e',{metaKey:true}));type('s');assert(serialized()==='`codes`',serialized());
+});
 await check('separate inline code spans and cancelled conversion keep ordinary typing available',()=>{
   fresh();type('Before `one` and `two` after');
   const codes=[];editor.session.doc.descendants(n=>{if(n.isText&&n.marks.some(m=>m.type.name==='code'))codes.push(n.text);});
@@ -741,7 +780,7 @@ await check('inline dollars remain inline and display drafts protect their body 
   assert(editor.session.doc.firstChild.firstChild.attrs.display===false);
   fresh();type('$$ ');type('$x$');assert(!host.querySelector('.visual-math'));
   fresh('`code`');const p=editor.session.doc.firstChild;
-  editor.session.setSelection(editor.session.reference(p.attrs.id),4);editor.view.updateState(editor.session.state);
+  editor.session.setSelection(editor.session.reference(p.attrs.id),2);editor.view.updateState(editor.session.state);
   type('$$ x $$');assert(!host.querySelector('.visual-math'));
   assert(editor.session.doc.firstChild.firstChild.marks.some(m=>m.type.name==='code'));
 });

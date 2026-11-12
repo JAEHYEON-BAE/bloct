@@ -11,7 +11,7 @@ import katex from 'katex';
 import {BlockSession} from '../model/session.ts';
 import {schema} from '../model/schema.ts';
 import {imageBlockMarkdown} from '../model/serializer.ts';
-import {rules} from './input-rules.ts';
+import {rules, codeBoundary} from './input-rules.ts';
 import {undoTypingRule, joinTextBoundary, afterRoot} from './keymap.ts';
 import {inTable, arrowCell, nextCell, insertTableRow} from './table.ts';
 
@@ -187,7 +187,7 @@ export class VisualEditor {
       if(this.view?.composing)return false;
       return joinTextBoundary(false)(state,dispatch) || baseKeymap.Delete(state,dispatch,view);
     };
-    return [inputRules({rules:rules()}), keymap({
+    return [inputRules({rules:rules()}), codeBoundary, keymap({
       'Mod-z':chainCommands(undoTypingRule,historyCommand(false)),
       'Shift-Mod-z':historyCommand(true), 'Mod-y':historyCommand(true),
       'Mod-b':toggleMark(schema.marks.strong), 'Mod-i':toggleMark(schema.marks.em),

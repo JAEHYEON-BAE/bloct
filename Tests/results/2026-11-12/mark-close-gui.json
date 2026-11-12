@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-12",
+  "change": "BUG_FIXES.md 52: closing ** / * ends bold/italic; text typed right after an inline code span is not code (Editor/src/view/input-rules.ts)",
+  "app": "build/Build/Products/Debug/Bloct.app rebuilt after npm run build; bundled blocks.js contains the codeBoundary plugin",
+  "gui": "Computer Use on a temporary document: '# marks', 'existing `code`', 'existing **bold**'",
+  "checks": [
+    "clicked the end of the 'existing `code`' line and typed 'tail': shown outside the code box",
+    "new line, typed '`co`de **bo**ld *em*it `x`y': code/bold/italic each end at the closing marker; the following letters are plain",
+    "Left to the end of `x`, typed 'z': plain",
+    "typed text after a code span, Backspace back to the span, typed 'end': plain",
+    "Cmd+S: title 'Edited' cleared; file is '# marks\\n\\nexisting `code`tail\\n\\nexisting **bold**\\n\\n`co`de **bo**ld *em*it `x`y'",
+    "relaunched on the saved file: same rendering; clicked the end of the last line, Backspace, typed '한글 **굵게**뒤 `코드`뒤' (injected text, not IME), Cmd+S: last line saved as '`co`de **bo**ld *em*it `x`한글 **굵게**뒤 `코드`뒤'"
+  ],
+  "ime": "The Computer Use key/type tools did not drive the Korean IME (keys under the Korean input source produced control characters, removed before saving). Composition was exercised through the WKWebView text input client instead: mark-close-ime-probe.swift, mark-close-ime-scenarios.json, before/after in mark-close-ime.log",
+  "unrelated": "Clicking File > Save in the menu bar did not write the file in three attempts (two app instances), while Cmd+S did; not investigated. A relaunch after killing an instance with unsaved edits showed 'Edited' before any input",
+  "automated": {
+    "visualInput": "350 passed (3 new checks per boot path), mark-close-visual.log",
+    "webkit": "963 PASS",
+    "hosted": "269 passed",
+    "model": "61 pass",
+    "native": "exit 0"
+  },
+  "limits": "Debug build. Real Korean IME keystrokes and macOS 14 not checked. Test instances were ended with SIGTERM, so Quit exit code and preview cleanup were not checked"
+}
