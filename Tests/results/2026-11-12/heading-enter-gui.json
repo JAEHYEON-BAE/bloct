@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-12",
+  "change": "H1-H6 Enter and Shift-Enter share an explicit heading-to-Text command",
+  "app": "/private/tmp/bloct-heading-enter-build/Build/Products/Debug/Bloct Heading Enter.app",
+  "bundleID": "com.personal.Bloct.HeadingEnter",
+  "method": "Computer Use on temporary Markdown documents; physical Return/Shift-Return, native caret movement/selection and Cmd-Z/Shift-Cmd-Z; disk reads after Save",
+  "checks": [
+    "H1 OneTitle at end + Shift-Return + PlainOne: heading unchanged, new ordinary text. Cmd-Z restored original heading-only state; Shift-Cmd-Z restored the new text.",
+    "H2 TwoTitle at end + Return + PlainTwo: ordinary text outside heading.",
+    "H3 ThreeTitle after Three + Shift-Return + Body: heading Three and separate paragraph BodyTitle.",
+    "Empty H4 + Shift-Return + PlainFour: no Header 4 placeholder or leftover empty heading, ordinary paragraph only.",
+    "H5 FiveTitle: selected prefix Five, Return, typed BeforeFive. Remaining Title stayed H5; new ordinary paragraph appeared before it.",
+    "H6 SixTitle at start + Shift-Return + BeforeSix: heading retained, new ordinary paragraph before it.",
+    "Quoted H2 QuoteTitle at end + Shift-Return + QuoteBody: heading and ordinary paragraph separate within the quote.",
+    "Save, Esc, close and reopen: heading levels and body lines retained. Appended ! to PlainOne after reopening and saved; heading remained unchanged.",
+    "Opened second.md while first document stayed open. Cleared H1 Second, Return, typed PlainEmptyEnter: ordinary paragraph, no empty heading. Close -> Dont Save preserved the second file.",
+    "After second document closed, first retained all content. App menu Quit via session.finish; separate process check found no test PID and no owned preview files."
+  ],
+  "disk": {
+    "original": "# OneTitle\n\n## TwoTitle\n\n### ThreeTitle\n\n#### \n\n##### FiveTitle\n\n###### SixTitle\n\n> ## QuoteTitle\n\nTail\n",
+    "saved": "# OneTitle\nPlainOne!\n\n## TwoTitle\nPlainTwo\n\n### Three\nBodyTitle\n\nPlainFour\n\nBeforeFive\n\n##### Title\nBeforeSix\n\n###### SixTitle\n\n> ## QuoteTitle\n> \n> QuoteBody\n\nTail\n",
+    "second": "# Second\n\nUnchanged\n",
+    "matchesExpected": true,
+    "secondUnchanged": true
+  },
+  "automated": {
+    "before": "12 new checks failed at root empty heading in the original bundle; unrelated checks passed before harness abort",
+    "afterVisualDOM": 380,
+    "browserModel": 18,
+    "nativeContentView": 49,
+    "failures": 0,
+    "xfail": 0,
+    "skip": 0,
+    "typecheck": "passed",
+    "isolatedDebugBuild": "passed"
+  },
+  "limits": [
+    "GUI ASCII input; actual IME, macOS 14 and installed/public Release not tested",
+    "Keyboard scope only; multiline paste/import is not newly restricted",
+    "List-item heading Enter keeps the existing list split/exit policy; the new command and position matrix cover top-level and quoted headings"
+  ]
+}

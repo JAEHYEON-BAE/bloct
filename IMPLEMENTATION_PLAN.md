@@ -69,7 +69,7 @@
 | 본문 클릭 / Esc | 클릭한 글자 위치에 커서를 두고 본문/체크 변경·Undo/Redo 활성화. Esc는 초안·Save·재진입·history·화면 위치를 유지한 읽기 전용. 팝업의 Esc는 취소를 먼저 처리하며 IME 조합 중 Esc는 가로채지 않음 |
 | 문서 열기·편집 진입·끝 빈 영역 클릭 | 문서 끝에 빈 일반 Text 줄 하나를 제공하고 기존 빈 줄은 재사용. 열기만으로 dirty/history/원문을 바꾸지 않으며 입력·타입 변경 후 일반 블록으로 저장. 반복 클릭은 줄을 누적하지 않음 |
 | 빈 문단의 표식 + Space(실제 WebKit NBSP 포함, [43번](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-08/space-markers-gui.json)) | `#`~`######`: 제목; `>`: 인용; `-`/`+`/`*`: 불릿; 숫자+`.`/`)`: 번호; `[]`/`[ ]`/`[x]`: 할 일; 백틱 3개/`~~~`+선택적 언어: 코드; `---`/`***`: 구분선 |
-| 문단·제목 Enter / Shift+Enter | 문단 Enter는 분할, Shift+Enter는 내부 hard break. 제목 Enter는 시작이면 앞 문단, 중간/끝이면 뒤 일반 문단; 제목 Shift+Enter도 Enter와 같음 |
+| 문단·제목 Enter / Shift+Enter | 문단 Enter는 분할, Shift+Enter는 내부 hard break. 제목은 두 키가 같은 명령을 사용: 시작이면 앞 일반 문단, 중간이면 앞 제목/뒤 일반 문단, 끝이면 뒤 빈 일반 문단, 빈 제목이면 일반 문단으로 전환. 선택한 글자만 삭제하고 새 입력 서식은 초기화. 목록 내부는 기존 목록 분할/탈출 정책 유지([55번](BUG_FIXES.md#bug-55)) |
 | 목록·코드 | Enter는 목록 항목 분할·새 체크는 unchecked, 빈 항목은 outdent/문단 전환. 자식 보호를 유지함. Tab/Shift+Tab은 목록 indent/outdent. 코드 시작 표식은 Enter로도 변환, 코드 내부 Enter는 개행, Mod+Enter로 탈출 |
 | Backspace·구조 삭제 | 제목/인용/목록 시작은 타입 해제/outdent를 우선하며 보호 노드·독립 경계를 임의 병합하지 않음. 일반 Text 시작 Backspace / 앞 문장 끝 Delete는 문단·제목·인용·불릿/번호/할 일 목록의 마지막 문장에 개행 없이 병합하고 커서는 경계에 둠. 새 항목/번호를 만들지 않으며 빈 Text 삭제도 유지([42번](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-08/text-boundary-gui.json)). 입력 규칙 취소는 원래 기호 뒤 커서 복원 |
 | `$...$`·`$$...$$` | 닫힌 비어 있지 않은 구문만 수식 변환. 현재 `$...$`는 구분자 안쪽 양끝 중 한쪽이라도 공백이면 열기·입력 모두 텍스트로 남음(2026-11-12 소스·모델 확인, [13번](BUG_FIXES.md#읽기-렌더링탐색)). `$$`+Space는 텍스트. 여러 줄 display 입력은 연속 최상위 일반 문단만 모음. 코드·서식/원자 노드를 넘지 않음 |

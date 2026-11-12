@@ -65,13 +65,14 @@ rules, H1–H6/code placeholders and unlabelled empty Text/quote/list/task block
 Enter/exit behavior, cursor placement, plain Unicode/multiline paste, empty task
 round trips, search, protected source, engine history and snapshot acknowledgements,
 plus opt-in trailing Text lines with exact EOF/source preservation, typing/Undo/reload/handoff, attached matrix delimiters, display mode, formula-surface editing and Undo.
-The 356 visual checks simulate DOM events/engine text handlers, including formula
+The 380 visual checks simulate DOM events/engine text handlers, including formula
 click/keyboard activation, arrow-selected inline/block math with hover-style highlighting and Enter dialogs, native-selection paint suppression, Read/freeze guards, drag suppression and pointer CSS, formatted inline-code import/edit/Undo and literal typing guards, inline-code termination, bold/italic ending at the closing marker, plain typing right after an inline code span, Mod-e code typing, input-rule Undo caret
 restoration, same-line Text boundary joining in both directions across quotes/lists, and unsaved handoff/freeze/baseline restoration. Dollar tests cover
 empty/unclosed text, a completed block equation, Enter/Shift-Enter multiline drafts,
 block boundaries, code marks, incomplete snapshot reimport and conversion Undo.
 Three checks per boot path type URL/address/entity text, bold ending in a space
 (Mod-b) and an edit to a formatted paragraph, and compare the saved Markdown exactly.
+Heading Return checks cover H1–H6 with Enter/Shift-Enter at the start, middle, end, empty content and a selected prefix, both top-level and quoted, including follow-up Text, Undo and Save/reimport.
 They do not verify native physical-pointer hover or continuous dwell. Synthetic composition
 is a guard test, not real Korean IME acceptance. It uses temporary files and does
 not open or replace the installed Bloct app.

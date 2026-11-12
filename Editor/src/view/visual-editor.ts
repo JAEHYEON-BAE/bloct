@@ -12,7 +12,7 @@ import {BlockSession} from '../model/session.ts';
 import {schema} from '../model/schema.ts';
 import {imageBlockMarkdown} from '../model/serializer.ts';
 import {rules, codeBoundary} from './input-rules.ts';
-import {undoTypingRule, joinTextBoundary, afterRoot} from './keymap.ts';
+import {undoTypingRule, exitHeading, joinTextBoundary, afterRoot} from './keymap.ts';
 import {inTable, arrowCell, nextCell, insertTableRow} from './table.ts';
 import {inputHistory} from './input-history.ts';
 
@@ -151,10 +151,7 @@ export class VisualEditor {
         if(!$from.parent.content.size && $from.node(-1).childCount>1) return true;
         return chainCommands(splitListItem(schema.nodes.list_item),liftListItem(schema.nodes.list_item))(state,dispatch,view);
       }
-      if ($from.parent.type === schema.nodes.heading && $from.depth === 1 && empty && $from.parentOffset===0) {
-        const tr=state.tr.insert($from.before(),schema.nodes.paragraph.create());
-        tr.setSelection(TextSelection.create(tr.doc,$from.before()+1)); dispatch?.(closeHistory(tr)); return true;
-      }
+      if (exitHeading(state,dispatch)) return true;
       if ($from.parent.type === schema.nodes.paragraph && !$from.parent.content.size && $from.depth>1) {
         return liftEmptyBlock(state,dispatch,view);
       }

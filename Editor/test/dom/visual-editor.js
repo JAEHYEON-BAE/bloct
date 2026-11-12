@@ -127,6 +127,36 @@ await check('heading Enter creates paragraph; Shift-Enter stays within text bloc
   key('Enter');type('Next');assert(serialized()==='## Title\nBody\\\ncontinued\n\nNext',serialized());
   key('Enter');type('- item');assert(serialized().endsWith('\n\nNext\n- item'),serialized());
 });
+for(let level=1;level<=6;level++)for(const shiftKey of [false,true]) {
+  await check(`H${level} ${shiftKey?'Shift-Enter':'Enter'} creates independent Text at every heading position`,async()=>{
+    for(const context of ['root','quote'])for(const position of ['start','middle','end','empty','selection']) {
+      const title=position==='empty'?'':'AlphaBeta',marker='#'.repeat(level)+' ';
+      const heading=marker+title;
+      const source=(context==='quote'?'> '+heading:heading)+'\n\nTail';
+      fresh(source);let node,pos;
+      editor.session.doc.descendants((n,p)=>{if(n.type.name==='heading'){node=n;pos=p;}});
+      assert(node,'heading imported: '+source);
+      const offset=position==='middle'?5:position==='end'?title.length:0;
+      editor.session.setSelection(editor.session.reference(node.attrs.id),offset);editor.view.updateState(editor.session.state);
+      if(position==='selection')editor.view.dispatch(editor.view.state.tr.setSelection(editor.view.state.selection.constructor.create(editor.session.doc,pos+1,pos+6)));
+      const before=serialized();assert(key('Enter',{shiftKey}),context+' '+position);
+      const state=editor.view.state,paragraph=state.selection.$from.parent,headings=[];
+      state.doc.descendants(n=>{if(n.type.name==='heading')headings.push(n);});
+      assert(paragraph.type.name==='paragraph','cursor outside heading: '+context+' '+position);
+      assert(paragraph.textContent===(position==='middle'?'Beta':''),'new Text suffix');
+      assert(headings.length===(position==='empty'?0:1),'no leftover empty/duplicate heading: '+context+' '+position);
+      if(headings.length)assert(headings[0].textContent===(position==='middle'?'Alpha':position==='selection'?'Beta':title),'unselected heading text kept');
+      assert(state.selection.$from.parentOffset===0 && !state.storedMarks?.length,'new Text starts with plain typing');
+      for(const h of headings)h.forEach(n=>assert(!['hard_break','soft_break'].includes(n.type.name),'no heading line break'));
+      type('Next');assert(editor.view.state.selection.$from.parent.textContent===(position==='middle'?'NextBeta':'Next'));
+      let snapshot;
+      try {snapshot=await editor.snapshot();}catch(error){throw new Error(context+' '+position+': '+error+' / '+JSON.stringify(editor.session.doc.toJSON()));}
+      assert(BloctBlocks.importMarkdown(snapshot.text).doc.lastChild.textContent==='Tail','Save/reimport keeps following block');
+      for(let attempts=0;serialized()!==before && attempts<2;attempts++)assert(editor.history(false));
+      assert(serialized()===before,'Undo restores original heading and surrounding source');
+    }
+  });
+}
 await check('quote Enter and empty quote exit preserve block structure',()=>{
   fresh();type('> Quote');key('Enter');type('second');serialized();
   key('Enter');key('Enter');type('outside');serialized();

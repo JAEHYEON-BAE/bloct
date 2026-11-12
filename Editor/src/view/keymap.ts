@@ -9,6 +9,29 @@ import {schema} from '../model/schema.ts';
 // Keyboard commands that need no editor instance state. The key bindings
 // themselves are in VisualEditor.plugins() (visual-editor.ts).
 
+// Both Return keys leave a heading. Keep its unselected text and container,
+// while putting the caret in a separate plain paragraph. Empty headings become
+// Text rather than leaving an unused Header placeholder behind.
+export const exitHeading: Command = (state, dispatch) => {
+  const {$from, $to} = state.selection;
+  if (!(state.selection instanceof TextSelection) || $from.parent.type !== schema.nodes.heading
+      || !$from.sameParent($to)) return false;
+  if (dispatch) {
+    const tr = state.tr.deleteSelection(), cursor = tr.selection.$from;
+    if (!cursor.parent.content.size) {
+      tr.setNodeMarkup(cursor.before(), schema.nodes.paragraph, cursor.parent.attrs);
+    } else if (!cursor.parentOffset) {
+      tr.insert(cursor.before(), schema.nodes.paragraph.create());
+      tr.setSelection(TextSelection.create(tr.doc, cursor.before() + 1));
+    } else {
+      tr.split(cursor.pos, 1, [{type: schema.nodes.paragraph}]);
+      tr.setSelection(TextSelection.create(tr.doc, cursor.pos + 2));
+    }
+    dispatch(closeHistory(tr).setStoredMarks([]).scrollIntoView());
+  }
+  return true;
+};
+
 // Inverting a structural rule can map the selection into the following block.
 // The input-rules record retains the source insertion position before wrapping.
 export const undoTypingRule: Command = (state, dispatch) => {
