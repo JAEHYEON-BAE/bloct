@@ -1,0 +1,20 @@
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-block-webkit.wTB9FT/BlockModel.app: 1 (Operation not permitted)
+PASS [file]: semantic import and BOM
+PASS [file]: reject forged target
+PASS [file]: task transaction
+PASS [file]: one source character
+PASS [file]: undo exact source
+PASS [file]: redo
+PASS [file]: stale target rejected
+PASS [file]: empty H2 conversion
+PASS [file]: empty heading reimport
+PASS [inline]: semantic import and BOM
+PASS [inline]: reject forged target
+PASS [inline]: task transaction
+PASS [inline]: one source character
+PASS [inline]: undo exact source
+PASS [inline]: redo
+PASS [inline]: stale target rejected
+PASS [inline]: empty H2 conversion
+PASS [inline]: empty heading reimport
+18 passed, 0 failed; browser bundle only, no visual/IME/native-save coverage

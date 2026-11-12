@@ -5,7 +5,7 @@ import {history, undo, redo, closeHistory} from '@tiptap/pm/history';
 import {sinkListItem, liftListItem, splitListItem} from '@tiptap/pm/schema-list';
 import {importMarkdown, type ImportedDocument} from './importer.ts';
 import {schema} from './schema.ts';
-import {serialize} from './serializer.ts';
+import {blankLine, serialize} from './serializer.ts';
 
 export interface BlockReference {
   readonly documentId: string;
@@ -58,7 +58,8 @@ export class BlockSession {
     this.#openingParagraphId=randomID();
     this.#openingTail=doc.attrs.tail;
     const eol=/\r\n|\r|\n/.exec(this.#imported.original)?.[0]??'\n';
-    const before=/\n[\t ]*\n/.test(this.#openingTail.replace(/\r\n|\r/g,'\n'))?this.#openingTail:eol+eol;
+    const before=blankLine(this.#openingTail)?this.#openingTail
+      :!adjoins(last.type.name,'paragraph')?eol+eol:/[\r\n]/.test(this.#openingTail)?this.#openingTail:eol;
     return doc.type.create({...doc.attrs,tail:''},doc.content.append(Fragment.from(
       schema.nodes.paragraph.create({id:this.#openingParagraphId,before}))));
   }
@@ -314,12 +315,29 @@ function normalize(tr: Transaction, previous: PMNode, eol: string) {
     const old = edges.get(node.attrs.id);
     const sameEdge = old?.type === node.type.name && old.previous === previousNode?.attrs.id
       && edges.get(previousNode!.attrs.id)?.type === previousNode!.type.name;
+    // A new pair of neighbours gets a blank line only where Markdown needs
+    // one. Blank lines the file already had, or more than the one a new block
+    // starts with, are kept.
+    const kept = lexicalBefore && (sameEdge
+      || (blankLine(lexicalBefore) && (node.attrs.source || lexicalBefore !== eol + eol)));
     const before = index === 0 ? previous.firstChild!.attrs.before
-      : (!sameEdge && !/\n[\t ]*\n/.test(lexicalBefore.replace(/\r\n|\r/g, '\n')))
-        ? eol + eol : lexicalBefore || eol + eol;
+      : kept ? lexicalBefore : adjoins(previousNode!.type.name, node.type.name) ? eol : eol + eol;
     if (before !== node.attrs.before) tr.setNodeMarkup(pos, undefined, {...node.attrs, before});
     previousNode = node;
   });
+}
+// Whether Markdown reads `next` as a separate block on the line right after
+// `previous`. A heading, code fence, equation or rule ends on its own line;
+// anything else takes a following text line as its continuation, joins a block
+// of its own kind, and turns `---` under text into a heading. Content can
+// still merge a pair this allows; serialize() checks each one.
+const closed = ['heading', 'code_block', 'equation', 'horizontal_rule'];
+const textLine = ['paragraph', 'image_block'];
+function adjoins(previous: string, next: string) {
+  if (previous === 'raw_source' || next === 'raw_source') return false;
+  if (closed.includes(previous)) return true;
+  if (textLine.includes(next) || previous === next) return false;
+  return textLine.includes(previous) ? next !== 'horizontal_rule' : next !== 'table';
 }
 function clone(node: PMNode): PMNode {
   if (node.isText) return node;

@@ -24,7 +24,11 @@ round trips, cursor/ID restoration, snapshot acknowledgements and fail-closed
 unsupported transformations. `Editor/test/serializer.test.ts` pins the written
 form of edited blocks: escaping only where a character would start syntax,
 nested and overlapping formatting, link and autolink forms, URL-like text and
-nested emphasis import. `Editor/test/serializer-fuzz.test.ts` saves seeded
+nested emphasis import. `Editor/test/separators.test.ts` pins where a new pair of neighbouring
+blocks is written without a blank line: Enter and type changes, every pair of
+block types against what the parser reads back, content that merges a pair,
+separators already in the file and the opening Text line.
+`Editor/test/serializer-fuzz.test.ts` saves seeded
 random inline drafts (3 seeds × 700 rounds) and compares what reads back. It leaves out line breaks in
 headings/table cells and link addresses starting with `<`, which Markdown cannot
 hold. These results do not cover native Save, real IME,

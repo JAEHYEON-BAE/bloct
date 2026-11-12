@@ -123,7 +123,9 @@ await check('heading Enter creates paragraph; Shift-Enter stays within text bloc
   fresh();type('## Title');assert(key('Enter'));type('Body');
   assert(editor.session.doc.child(1).type.name==='paragraph');
   key('Enter',{shiftKey:true});type('continued');
-  assert(serialized()==='## Title\n\nBody\\\ncontinued',serialized());
+  assert(serialized()==='## Title\nBody\\\ncontinued',serialized());
+  key('Enter');type('Next');assert(serialized()==='## Title\nBody\\\ncontinued\n\nNext',serialized());
+  key('Enter');type('- item');assert(serialized().endsWith('\n\nNext\n- item'),serialized());
 });
 await check('quote Enter and empty quote exit preserve block structure',()=>{
   fresh();type('> Quote');key('Enter');type('second');serialized();

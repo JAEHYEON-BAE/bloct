@@ -246,9 +246,11 @@ export function imageBlockMarkdown(attrs: PMNode['attrs']) {
     + (attrs.caption ? `\n*[${attrs.caption}]*` : '');
 }
 
+export const blankLine = (text: string) => /\n[\t ]*\n/.test(text.replace(/\r\n|\r/g, '\n'));
+
 export function serialize(imported: ImportedDocument, doc: PMNode, verify = true): string {
   if (doc.eq(imported.doc)) return imported.original;
-  if (!verify) return write(imported, doc, (_, text) => text(styles[0]));
+  if (!verify) return write(imported, doc, (_, text) => text(styles[0]), () => false);
   const read = (node: PMNode) => {
     const context: Meaning = {blocks: 0, links: []};
     return {tree: JSON.stringify(meaning(node, context)), links: context.links};
@@ -259,7 +261,7 @@ export function serialize(imported: ImportedDocument, doc: PMNode, verify = true
   };
   // Each changed top-level block takes the first style that reads back on its
   // own, so one block that needs strict escaping does not change the others.
-  const output = write(imported, doc, (node, text) => {
+  const perBlock = (node: PMNode, text: (style: InlineStyle) => string) => {
     const expected = read(schema.nodes.doc.create(null, node));
     const tried: string[] = [];
     for (const style of styles) {
@@ -269,21 +271,33 @@ export function serialize(imported: ImportedDocument, doc: PMNode, verify = true
       tried.push(candidate);
     }
     return tried[0];
-  });
+  };
+  // Neighbours stored without a blank line are parsed together. Whether that
+  // keeps them apart can depend on their content (a list that starts at 3 or
+  // with an empty item continues the paragraph above it), so each pair is read
+  // back on its own and gets a blank line when it would merge.
+  const merges = (previous: PMNode, node: PMNode, markdown: string) =>
+    !accepts(read(schema.nodes.doc.create(null, [previous, node])), markdown);
   const expected = read(doc);
-  if (accepts(expected, output)) return output;
-  // Neighbouring blocks without a blank line between them are parsed together.
-  for (const style of styles) {
-    const whole = write(imported, doc, (_, text) => text(style));
-    if (whole !== output && accepts(expected, whole)) return whole;
+  const tried = new Set<string>();
+  // The last resort separates every changed pair, as all new blocks once were.
+  for (const widen of [merges, () => true]) {
+    for (const choose of [perBlock, ...styles.map(style => (_: PMNode, text: (style: InlineStyle) => string) => text(style))]) {
+      const output = write(imported, doc, choose, widen);
+      if (tried.has(output)) continue;
+      if (accepts(expected, output)) return output;
+      tried.add(output);
+    }
   }
   throw new Error('Markdown round-trip would change document structure; draft preserved');
 }
 
 // `choose` receives a changed top-level block and a function that writes it
-// in a given style, and returns the text to store.
+// in a given style, and returns the text to store. `widen` receives two
+// neighbours written without a blank line and tells whether they need one.
 function write(imported: ImportedDocument, doc: PMNode,
-    choose: (node: PMNode, text: (style: InlineStyle) => string) => string): string {
+    choose: (node: PMNode, text: (style: InlineStyle) => string) => string,
+    widen: (previous: PMNode, node: PMNode, markdown: string) => boolean): string {
   const eol = /\r\n|\r|\n/.exec(imported.original)?.[0] ?? '\n';
 
   function reused(node: PMNode): string | undefined {
@@ -369,12 +383,24 @@ function write(imported: ImportedDocument, doc: PMNode,
     }
   }
 
+  const precedes = new Map<string, string | null>();
+  let last: string | null = null;
+  imported.doc.forEach(node => {precedes.set(node.attrs.id, last); last = node.attrs.id;});
+
   let output: string = doc.attrs.bom;
+  let previous: {node: PMNode; text: string; reused: boolean} | undefined;
   doc.forEach(node => {
-    output += node.attrs.before;
     const raw = reused(node);
-    output += raw ?? (node.type.name === 'raw_source' ? node.attrs.raw
+    const text = raw ?? (node.type.name === 'raw_source' ? node.attrs.raw
       : choose(node, style => block(node, style)).replace(/\n/g, eol));
+    let before: string = node.attrs.before;
+    // Two unchanged neighbours keep the separator they were read with.
+    const original = raw !== undefined && previous?.reused && precedes.get(node.attrs.id) === previous.node.attrs.id;
+    if (previous && !original && !blankLine(before) && widen(previous.node, node, previous.text + before + text)) {
+      before += /[\r\n]/.test(before) ? eol : eol + eol;
+    }
+    output += before + text;
+    previous = {node, text, reused: raw !== undefined};
   });
   return output + doc.attrs.tail;
 }

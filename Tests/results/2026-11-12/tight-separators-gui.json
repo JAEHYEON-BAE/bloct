@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-12",
+  "change": "New neighbouring blocks get a blank line only where Markdown needs one (F5 contract 2)",
+  "app": "build/Build/Products/Debug/Bloct.app (xcodegen generate; xcodebuild Debug), bundle com.personal.Bloct, launched by absolute path with temporary documents",
+  "gui": "Computer Use: real clicks, key input, File/Edit/app menus and screenshot inspection; saved files read from disk after each Save",
+  "newDocument": {
+    "start": "# Title\n",
+    "input": "click heading, Cmd-Right, Enter, text; Enter, text; Enter, '## Section'; Enter, '- item one', Enter, 'item two', Enter Enter, text; Enter, '> quoted'; Save. Then click the end line, text; Enter, '3. third', Enter Enter, '---End'; Enter, '```' Enter, code; Save",
+    "savedFirst": "# TitleB\nody under title\n\nSecond paragraph\n## Section\n- item one\n- item two\n\nAfter list\n> quoted\n",
+    "savedFinal": "# TitleB\nody under title\n\nSecond paragraph\n## Section\n- item one\n- item two\n\nAfter list\n> quoted\n\nTail text\n\n3. third\n\n\\---End\n```\nCode\n```",
+    "observed": [
+      "no blank line after a heading, before a heading, list, quote or code block that follows text",
+      "blank line kept between two paragraphs and after a list or quote before text",
+      "a numbered list starting at 3 under text got its blank line back on Save (content check); neighbours stayed tight",
+      "literal '---End' text was escaped and separated",
+      "reopened document rendered the same blocks, numbering from 3 included"
+    ],
+    "note": "The first typed letter raced the Enter key in the automation batch ('TitleB' / 'ody'); later batches waited after each click. Not related to the change."
+  },
+  "existingDocument": {
+    "original": "# Kept\nIntro line\n\n\n## Part\n\n- a\n- b\n\nEnd paragraph\n",
+    "input": "append ' edited' to 'Intro line'; Enter after '## Part', text; Enter after 'End paragraph', '## New heading', Enter, text; Save",
+    "saved": "# Kept\nIntro line edited\n\n\n## Part\nUnder part\n\n- a\n- b\n\nEnd paragraph\n## New heading\nLast line here.\n",
+    "diff": "three pure insertions; the file's own tight line, double blank line, blank lines around the list and the final newline were unchanged",
+    "afterSave": "title not Edited; Esc to reading; Close without a prompt; preview file removed"
+  },
+  "draftAndUndo": {
+    "dontSave": "reopened tight-new.md, Enter after '## Section' + text, Close -> Unsaved Changes -> Don't Save; file checksum unchanged",
+    "undo": "reopened tight-existing.md, Enter after 'Under part' + '## Temp', Edit > Undo x4 restored the blocks; Close without a prompt; file checksum unchanged",
+    "twoDocuments": "both documents open at once; closing one left the other intact"
+  },
+  "exit": "app menu Quit; no Bloct process afterwards; no .mv_preview files left in the document folder",
+  "foundUnrelated": {
+    "bug49": "macOS autocorrection replaced 'code' with 'Code' inside a code block when editing ended after Save, leaving the saved document dirty (Unsaved Changes on Close). Save-and-close wrote only that one-word difference.",
+    "bug50": "After undoing back to the saved text the title still shows Edited although Close does not prompt. Reproduced with the same steps in the installed 2.0.1 app, so it predates this change."
+  },
+  "limits": [
+    "Save was sent from the File menu: the Cmd-S key event from the automation tool selected the whole document instead of saving (keyboard-layout artefact of the tool, not investigated)",
+    "ASCII input only; real IME composition, tables, equations and images next to new blocks were not exercised in the GUI (covered by the model matrix test)",
+    "Debug build on the development machine; macOS 14 device and Release build not exercised"
+  ],
+  "automated": {
+    "model": "tight-separators-model.log (58 tests)",
+    "engine": "tight-separators-engine.log (18)",
+    "visual": "tight-separators-visual.log (338)",
+    "native": "tight-separators-native.log",
+    "webkit": "tight-separators-webkit.log",
+    "hosted": "tight-separators-hosted.log (269)",
+    "visualNative": "tight-separators-visual-native.log (41)"
+  }
+}
