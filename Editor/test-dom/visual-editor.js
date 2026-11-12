@@ -697,11 +697,12 @@ await check('only closing double dollars convert a complete standalone expressio
   type('$');assert(!host.querySelector('.visual-math'));
   type('$');
   assert(editor.session.doc.firstChild.type.name==='equation');
-  assert(editor.session.doc.firstChild.attrs.value==='x^2');
+  assert(editor.session.doc.firstChild.attrs.value===' x^2 ');
   assert(host.querySelector('.katex-display'));
   assert(!editor.session.doc.firstChild.isInline);
   assert(editor.view.state.selection.$from.parent.type.name==='paragraph');
   type('After');assert(editor.session.doc.lastChild.textContent==='After');
+  assert(serialized().startsWith('$$ x^2 $$\n'),'typed spelling: '+serialized());
   assert(BloctBlocks.importMarkdown(serialized()).doc.firstChild.type.name==='equation');
 });
 await check('multiline double-dollar drafts close as one equation and preserve surrounding blocks and Undo',()=>{
@@ -731,7 +732,7 @@ await check('an unfinished math snapshot remains editable after reimport and com
   fresh(snapshot.text);const p=editor.session.doc.firstChild;
   editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);editor.view.updateState(editor.session.state);
   type('x $$');assert(editor.session.doc.firstChild.type.name==='equation');
-  assert(editor.session.doc.firstChild.attrs.value==='x');serialized();
+  assert(editor.session.doc.firstChild.attrs.value===' x ');serialized();
   key('Backspace');assert(editor.session.doc.firstChild.type.name==='paragraph');
   assert(editor.session.doc.firstChild.textContent==='$$ x $$');
 });
@@ -743,6 +744,26 @@ await check('inline dollars remain inline and display drafts protect their body 
   editor.session.setSelection(editor.session.reference(p.attrs.id),4);editor.view.updateState(editor.session.state);
   type('$$ x $$');assert(!host.querySelector('.visual-math'));
   assert(editor.session.doc.firstChild.firstChild.marks.some(m=>m.type.name==='code'));
+});
+await check('line breaks typed inside math stay line breaks of the TeX, never object characters',()=>{
+  fresh();type('See $$a = 1');key('Enter',{shiftKey:true});type('b = 2$$ done');
+  let math=editor.session.doc.firstChild.child(1);
+  assert(math.type.name==='inline_math' && math.attrs.display===true,JSON.stringify(editor.session.doc.toJSON()));
+  assert(math.attrs.value==='a = 1\nb = 2','TeX: '+JSON.stringify(math.attrs.value));
+  assert(!host.querySelector('.katex-error') && !serialized().includes('\uFFFC'));
+  assert(serialized()==='See $$a = 1\nb = 2$$ done','saved: '+JSON.stringify(serialized()));
+  fresh();type('Inline $a');key('Enter',{shiftKey:true});type('b$');
+  math=editor.session.doc.firstChild.child(1);
+  assert(math.type.name==='inline_math' && math.attrs.value==='a\nb','inline TeX: '+JSON.stringify(math.attrs.value));
+  assert(serialized()==='Inline $a\nb$');
+});
+await check('display math typed with TeX on the delimiter lines is saved the same way',()=>{
+  fresh();type('$$a = b');key('Enter');type('  c = d$$');
+  const eq=editor.session.doc.firstChild;
+  assert(eq.type.name==='equation' && eq.attrs.value==='a = b\n  c = d','TeX: '+JSON.stringify(eq.attrs.value));
+  assert(serialized().startsWith('$$a = b\n  c = d$$\n'),'saved: '+JSON.stringify(serialized()));
+  fresh();type('$$');key('Enter');type('a = b');key('Enter');type('$$');
+  assert(serialized().startsWith('$$\na = b\n$$\n'),'own lines: '+JSON.stringify(serialized()));
 });
 await check('double-dollar typing in text retains display mode and editable-root wrapping cannot affect math',()=>{
   fresh();type('Before $$x^2$$ after');

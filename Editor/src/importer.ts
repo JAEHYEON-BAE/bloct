@@ -22,6 +22,9 @@ function parse(text: string): Root {
   });
 }
 
+// Math keeps its line breaks as `\n`; the serializer writes the file's own.
+const lines = (value: string) => value.replace(/\r\n|\r/g, '\n');
+
 function walkAST(node: {type: string; children?: unknown[]}, visit: (n: typeof node) => void) {
   visit(node);
   for (const child of node.children ?? []) walkAST(child as typeof node, visit);
@@ -90,7 +93,11 @@ export function importMarkdown(original: string): ImportedDocument {
           const display = source.startsWith('$$');
           const inner = source.replace(/^\$+|\$+$/g, '');
           if (!display && /^\s|\s$/.test(inner)) return [schema.text(source, marks)];
-          return [schema.nodes.inline_math.create({value: display ? n.value.trim() : n.value, display}, null, marks)];
+          // The value keeps the author's line breaks and inner spacing. The
+          // parser drops one space or line break at each end when both ends
+          // have one (`$$ x $$`); `pad` remembers it.
+          const pad = display && /^[ \r\n]/.test(inner) && /[ \r\n]$/.test(inner) && /[^ \r\n]/.test(inner);
+          return [schema.nodes.inline_math.create({value: lines(n.value), display, pad}, null, marks)];
         }
         default: return raw(n, base) ? [schema.text(raw(n, base), marks)] : [];
       }
@@ -142,7 +149,13 @@ export function importMarkdown(original: string): ImportedDocument {
       case 'blockquote': return schema.nodes.blockquote.create(a, n.children.length
         ? n.children.map(child => block(child as RootContent, base)) : [schema.nodes.paragraph.create({id:id()})]);
       case 'code': return schema.nodes.code_block.create({...a, language: n.lang ?? ''}, n.value ? schema.text(n.value) : null);
-      case 'math': return schema.nodes.equation.create({...a, value: n.value});
+      case 'math': {
+        // `$$x$$` and `$$`/x/`$$` are both written as read (math-syntax.ts).
+        const closing = /(?:^|\r\n|\r|\n)([^\r\n]*?)\$\$+[\t ]*$/.exec(source);
+        return schema.nodes.equation.create({...a, value: lines(n.value),
+          openLine: /^\$\$+[\t ]*(?:\r\n|\r|\n|$)/.test(source),
+          closeLine: !closing || /^[\t >]*$/.test(closing[1]) && /[\r\n]/.test(source)});
+      }
       case 'thematicBreak': return schema.nodes.horizontal_rule.create(a);
       case 'table': return schema.nodes.table.create({...a, align: n.align ?? []}, n.children.map(row =>
         schema.nodes.table_row.create(attrs(row, base), row.children.map(cell =>

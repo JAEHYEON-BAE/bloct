@@ -48,7 +48,8 @@ export const schema = new Schema({
     },
     equation: {
       group: 'block', atom: true,
-      attrs: {...blockAttrs, value: {default: ''}},
+      // openLine/closeLine: each `$$` sits on a line of its own (serializer.ts).
+      attrs: {...blockAttrs, value: {default: ''}, openLine: {default: true}, closeLine: {default: true}},
       toDOM: node => ['div', {'data-equation': ''}, node.attrs.value],
     },
     image_block: {
@@ -79,7 +80,8 @@ export const schema = new Schema({
     hard_break: {group: 'inline', inline: true, selectable: false, toDOM: () => ['br'], parseDOM:[{tag:'br'}]},
     inline_math: {
       group: 'inline', inline: true, atom: true,
-      attrs: {value: {default: ''}, display: {default:false}}, toDOM: node => ['span', node.attrs.value],
+      // pad: written with one space inside each delimiter (`$$ x $$`).
+      attrs: {value: {default: ''}, display: {default:false}, pad: {default:false}}, toDOM: node => ['span', node.attrs.value],
     },
     inline_image: {
       group: 'inline', inline: true, atom: true,

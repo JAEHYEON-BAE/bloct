@@ -87,6 +87,15 @@ function displayDraft(doc:PMNode, pos:number, closing=false) {
   }
   return null;
 }
+// TeX typed between `$` delimiters. A line break inside it stays a line break
+// of the TeX; any other inline node ends the match.
+function mathText(doc:PMNode,from:number,to:number) {
+  let plain=true;
+  doc.nodesBetween(from,to,node=>{
+    if(node.isInline && !node.isText && node.type!==schema.nodes.hard_break && node.type!==schema.nodes.soft_break)plain=false;
+  });
+  return plain?doc.textBetween(from,to,'\n','\n'):null;
+}
 function escapedDollar(state:EditorState,pos:number) {
   const $pos=state.doc.resolve(pos);
   const before=$pos.parent.textBetween(0,$pos.parentOffset);
@@ -155,23 +164,37 @@ function rules(): InputRule[] {
       const cursor=start+match[0].length,$cursor=tr.doc.resolve(cursor);
       if(cursor!==$cursor.end())return null;
       const draft=displayDraft(tr.doc,cursor,true);
-      const value=draft && /^\$\$(?!\$)([\s\S]*?)\$\$$/.exec(draft.raw)?.[1].trim();
-      if(!draft || !value || /(?<!\\)\$\$/.test(value))return null;
+      const inner=draft && /^\$\$(?!\$)([\s\S]*?)\$\$$/.exec(draft.raw)?.[1];
+      if(!draft || !inner?.trim() || /(?<!\\)\$\$/.test(inner))return null;
+      // Keep the lines as typed, and the delimiters on the TeX lines when
+      // they were typed there.
+      const openLine=/^[\t \u00a0]*\n/.test(inner), closeLine=/\n[\t \u00a0]*$/.test(inner);
+      let value=inner;
+      if(openLine)value=value.replace(/^[\t \u00a0]*\n/,'');
+      if(closeLine)value=value.replace(/\n[\t \u00a0]*$/,'');
       const first=tr.doc.nodeAt(draft.from)!;
-      const equation=schema.nodes.equation.create({...first.attrs,value});
+      const equation=schema.nodes.equation.create({...first.attrs,value,openLine,closeLine});
       tr.replaceWith(draft.from,draft.to,[equation,schema.nodes.paragraph.create()]);
       return tr.setSelection(TextSelection.create(tr.doc,draft.from+equation.nodeSize+1));
     },{inCodeMark:false}),
     new InputRule(/\$\$([^$\n]+)\$\$$/, (state,match,start,end) => {
       if(!match[1].trim() || escapedDollar(state,start) || (start>0 && state.doc.textBetween(start-1,start)==='$'))return null;
-      return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1].trim(),display:true}));
+      // The closing `$` being typed is not in the document yet.
+      const inner=mathText(state.doc,start+2,end-1);
+      if(inner==null)return null;
+      // As the importer reads `$$ x $$`: one space each side is the delimiter's.
+      const pad=/^ /.test(inner) && / $/.test(inner) && /[^ \n]/.test(inner);
+      const value=pad?inner.slice(1,-1):inner;
+      return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value,display:true,pad}));
     },{inCodeMark:false}),
     new InputRule(/\$([^$\n]+)\$$/, (state,match,start,end) => {
       if(escapedDollar(state,start) || (start>0 && state.doc.textBetween(start-1,start)==='$'))return null;
       const draft=displayDraft(state.doc,end);
       if(draft && !/(?<!\\)\$\$/.test(draft.raw.slice(2)))return null;
       if(/^\s|\s$/.test(match[1]))return null;
-      return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value:match[1]}));
+      const value=mathText(state.doc,start+1,end);
+      if(value==null || /^\s|\s$/.test(value))return null;
+      return state.tr.replaceWith(start,end,schema.nodes.inline_math.create({value}));
     },{inCodeMark:false}),
     new InputRule(/!\[([^\]]*)\]\(([^)\s]+)\)$/, (state,match,start,end) => {
       const $from=state.doc.resolve(start);

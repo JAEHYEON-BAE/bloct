@@ -4,6 +4,7 @@ import {gfmToMarkdown} from 'mdast-util-gfm';
 import type {Nodes, PhrasingContent} from 'mdast';
 import {importMarkdown, type ImportedDocument, type SourceSpan} from './importer.ts';
 import {schema} from './schema.ts';
+import {merge} from './preserve.ts';
 
 // Inline content is compared and written through one normalized leaf list.
 // Whitespace and line breaks have no visible bold/italic state, and Markdown
@@ -65,7 +66,8 @@ export function semantics(node: PMNode): unknown {return meaning(node, {blocks: 
 // `links` records where each one sits, so a written link is never lost or moved.
 interface Meaning {blocks: number; links: string[]}
 function meaning(node: PMNode, context: Meaning): unknown {
-  const {id, source, before, taskOffset, tail, bom, ...attrs} = node.attrs;
+  // Delimiter layout is spelling (`$$x$$` or `$$`/x/`$$` on their own lines).
+  const {id, source, before, taskOffset, tail, bom, openLine, closeLine, pad, ...attrs} = node.attrs;
   if (node.isTextblock && !node.type.spec.code) {
     type Item = {text: string; marks: readonly Mark[]} | {type: string; attrs: unknown; text?: string; marks: unknown[]};
     const block = context.blocks++;
@@ -145,9 +147,12 @@ const bloctMarkdown = {
   // Bloct reads `$…$` and `$$…$$` as math (math-syntax.ts).
   unsafe: [{character: '$', inConstruct: 'phrasing' as const}],
   handlers: {
-    bloctMath: (node: {value: string; display: boolean}) => {
+    bloctMath: (node: {value: string; display: boolean; pad: boolean}) => {
       const delimiter = node.display ? '$$' : '$';
-      return delimiter + node.value + delimiter;
+      // The parser drops one space or line break at each end when both ends
+      // have one; write it back so the value reads back unchanged.
+      const pad = node.pad || (/^[ \n]|[ \n]$/.test(node.value) && /[^ \n]/.test(node.value)) ? ' ' : '';
+      return delimiter + pad + node.value + pad + delimiter;
     },
     bloctRaw: (node: {value: string}) => node.value,
   },
@@ -215,7 +220,7 @@ function phrasing(list: Leaf[], from: number, to: number, active: readonly Mark[
     else if (node.type.name === 'soft_break') text('\n');
     else if (node.type.name === 'hard_break') output.push({type: 'break'});
     else if (node.isText) output.push({type: 'inlineCode', value: leaf.text});
-    else if (node.type.name === 'inline_math') output.push({type: 'bloctMath', value: node.attrs.value, display: node.attrs.display});
+    else if (node.type.name === 'inline_math') output.push({type: 'bloctMath', value: node.attrs.value, display: node.attrs.display, pad: node.attrs.pad});
     else if (node.type.name === 'inline_image') output.push(imageNode(node.attrs));
     else throw new Error(`Unsupported inline node: ${node.type.name}`);
     i++;
@@ -261,16 +266,17 @@ export function serialize(imported: ImportedDocument, doc: PMNode, verify = true
   };
   // Each changed top-level block takes the first style that reads back on its
   // own, so one block that needs strict escaping does not change the others.
-  const perBlock = (node: PMNode, text: (style: InlineStyle) => string) => {
+  const perBlock = (node: PMNode, text: (style: InlineStyle) => string, kept?: (style: InlineStyle) => string[]) => {
     const expected = read(schema.nodes.doc.create(null, node));
     const tried: string[] = [];
     for (const style of styles) {
-      const candidate = text(style);
-      if (tried.includes(candidate)) continue;
-      if (accepts(expected, candidate)) return candidate;
-      tried.push(candidate);
+      for (const candidate of [...kept?.(style) ?? [], text(style)]) {
+        if (tried.includes(candidate)) continue;
+        if (accepts(expected, candidate)) return candidate;
+        tried.push(candidate);
+      }
     }
-    return tried[0];
+    return text(styles[0]);
   };
   // Neighbours stored without a blank line are parsed together. Whether that
   // keeps them apart can depend on their content (a list that starts at 3 or
@@ -296,7 +302,7 @@ export function serialize(imported: ImportedDocument, doc: PMNode, verify = true
 // in a given style, and returns the text to store. `widen` receives two
 // neighbours written without a blank line and tells whether they need one.
 function write(imported: ImportedDocument, doc: PMNode,
-    choose: (node: PMNode, text: (style: InlineStyle) => string) => string,
+    choose: (node: PMNode, text: (style: InlineStyle) => string, kept?: (style: InlineStyle) => string[]) => string,
     widen: (previous: PMNode, node: PMNode, markdown: string) => boolean): string {
   const eol = /\r\n|\r|\n/.exec(imported.original)?.[0] ?? '\n';
 
@@ -339,7 +345,14 @@ function write(imported: ImportedDocument, doc: PMNode,
         const fence = '`'.repeat(max + 1);
         return `${fence}${node.attrs.language}\n${node.textContent}\n${fence}`;
       }
-      case 'equation': return `$$\n${node.attrs.value}\n$$`;
+      case 'equation': {
+        const value: string = node.attrs.value;
+        // Delimiters share a line with TeX only where the author wrote them so
+        // and the TeX cannot read as part of the delimiter.
+        const open = node.attrs.openLine || !value || value.startsWith('$') ? '\n' : '';
+        const close = node.attrs.closeLine || !value || /(?:^|[^\\])(?:\\\\)*\\$|\$$/.test(value) ? '\n' : '';
+        return `$$${open}${value}${close}$$`;
+      }
       case 'image_block': return imageBlockMarkdown(node.attrs);
       case 'blockquote': {
         const contents: string[] = [];
@@ -383,6 +396,17 @@ function write(imported: ImportedDocument, doc: PMNode,
     }
   }
 
+  // The changed block in the file's own spelling: the edit between the block
+  // as read and as it is now, applied to its source text (preserve.ts).
+  function kept(node: PMNode, style: InlineStyle): string[] {
+    const old = imported.blocks.get(node.attrs.id);
+    const span = old?.attrs.source as SourceSpan | undefined;
+    if (!old || !span) return [];
+    try {
+      return merge(block(old, style), imported.original.slice(span.from, span.to).replace(/\r\n|\r/g, '\n'), block(node, style));
+    } catch {return [];}
+  }
+
   const precedes = new Map<string, string | null>();
   let last: string | null = null;
   imported.doc.forEach(node => {precedes.set(node.attrs.id, last); last = node.attrs.id;});
@@ -392,7 +416,7 @@ function write(imported: ImportedDocument, doc: PMNode,
   doc.forEach(node => {
     const raw = reused(node);
     const text = raw ?? (node.type.name === 'raw_source' ? node.attrs.raw
-      : choose(node, style => block(node, style)).replace(/\n/g, eol));
+      : choose(node, style => block(node, style), style => kept(node, style)).replace(/\n/g, eol));
     let before: string = node.attrs.before;
     // Two unchanged neighbours keep the separator they were read with.
     const original = raw !== undefined && previous?.reused && precedes.get(node.attrs.id) === previous.node.attrs.id;

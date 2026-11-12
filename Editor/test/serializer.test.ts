@@ -130,8 +130,8 @@ test('a trailing line break and outer cell spaces do not block saving', () => {
   assert.equal(saved(s), 'line\n');
   s.dispatch(s.state.tr.insertText('next', firstText(s).pos + firstText(s).node.content.size));
   assert.equal(saved(s), 'line\\\nnext\n');
-  assert.equal(edited('| A | B |\n|---|---|\n| a | b |\n', ' '), '| A&#x20; | B |\n| --- | --- |\n| a | b |\n');
-  assert.equal(edited('| a\\|b | `x\\|y` |\n|---|---|\n| c | d |\n'), '| a\\|bZ | `x\\|y` |\n| --- | --- |\n| c | d |\n');
+  assert.equal(edited('| A | B |\n|---|---|\n| a | b |\n', ' '), '| A&#x20; | B |\n|---|---|\n| a | b |\n');
+  assert.equal(edited('| a\\|b | `x\\|y` |\n|---|---|\n| c | d |\n'), '| a\\|bZ | `x\\|y` |\n|---|---|\n| c | d |\n');
 });
 
 test('a block that needs strict escaping does not change how other edited blocks are written', () => {
@@ -153,4 +153,27 @@ test('nested emphasis of one kind imports as a single mark', () => {
     assert.equal(paragraph.textContent, text);
     new BlockSession(source, source, true);
   }
+});
+
+test('an edited block keeps the author spelling of the parts the edit did not touch', () => {
+  for (const [source, expected] of [
+    ['some _em_ and __strong__ text\n', 'some _em_ and __strong__ textZ\n'],
+    ['line one  \nline two\n', 'line one  \nline twoZ\n'],
+    ['Title\n=====\n', 'TitleZ\n=====\n'],
+    ['x &amp; y\n', 'x &amp; yZ\n'],
+    ['* star\n* list\n', '* starZ\n* list\n'],
+    ['Text $$ a = b\n  c $$ end\n', 'Text $$ a = b\n  c $$ endZ\n'],
+    ['- item $$p\n    q$$\n- two\n', '- item $$p\n    q$$Z\n- two\n'],
+    ['|a|b|\n|:-|-:|\n|1|2|\n', '|aZ|b|\n|:-|-:|\n|1|2|\n'],
+  ]) assert.equal(edited(source), expected, source);
+  // Typed text that starts with a space the old spelling did not have.
+  assert.equal(edited('|a|b|\n|:-|-:|\n|1|2|\n', ' // ok'), '|a // ok|b|\n|:-|-:|\n|1|2|\n');
+  // Inside an emphasis run the delimiters stay as written as well.
+  const s = new BlockSession('a _bc_ d\n', 'a _bc_ d\n', true);
+  s.dispatch(s.state.tr.insertText('X', firstText(s).pos + 4));
+  assert.equal(saved(s), 'a _bcX_ d\n');
+  // A code fence keeps its characters when its code changes.
+  const code = new BlockSession('~~~js\ncode\n~~~\n', '~~~js\ncode\n~~~\n', true);
+  code.dispatch(code.state.tr.insertText('Z', firstText(code).pos + 4));
+  assert.equal(saved(code), '~~~js\ncodeZ\n~~~\n');
 });

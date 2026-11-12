@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-12",
+  "change": "Bug 51: math line breaks and the author's Markdown spelling are kept when blocks are edited or math is typed",
+  "app": "build/Build/Products/Debug/Bloct.app (xcodegen generate; xcodebuild Debug), bundle com.personal.Bloct, launched with temporary documents",
+  "gui": "Computer Use: real clicks, key input (Shift+Enter, Enter, Esc, Cmd-S/W/Z/Q), equation dialog, Unsaved Changes sheet; saved files read from disk after each Save",
+  "beforeFix": {
+    "typed": "'See $$a = 1' Shift+Enter 'b = 2$$ done' in the unpatched build",
+    "rendered": "KaTeX showed an 'OBJ' box between the lines",
+    "saved": "See $$a = 1￼b = 2$$ done  (U+FFFC object replacement character instead of the line break)",
+    "alsoObserved": "equations typed as '$$a' Enter 'b$$' were saved with the delimiters moved to their own lines; editing an existing paragraph/heading/fence/table rewrote _em_ as *em*, setext as ATX, ~~~ as ```, table padding, '$$ a $$' as '$$a$$' (model probe)"
+  },
+  "afterFix": {
+    "original": "# Math spelling\n\nFormula $$ a = b\n  c + d $$ inline and _emphasis_ with __strong__ text.\n\n$$ \\begin{aligned}\n  x &= 1 \\\\\n  y &= 2\n\\end{aligned} $$\n\nSetext title\n============\n\n~~~js\nlet v = 1;\n~~~\n\n|a|b|\n|:-|-:|\n|1|2|\n",
+    "input": [
+      "append ' Edited' to the paragraph holding '$$ a = b\\n  c + d $$', _emphasis_ and __strong__",
+      "append ' // ok' to table cell 'a' of '|a|b|/|:-|-:|'",
+      "append ' H' to the setext heading, ' // X' to the ~~~ fence code",
+      "new line: 'See $$a = 1' Shift+Enter '  b = 2$$ done' Enter '$$c = 3' Enter '  d = 4$$'",
+      "Save"
+    ],
+    "saved": "# Math spelling\n\nFormula $$ a = b\n  c + d $$ inline and _emphasis_ with __strong__ text. Edited\n\n$$ \\begin{aligned}\n  x &= 1 \\\\\n  y &= 2\n\\end{aligned} $$\n\nSetext title H\n============\n\n~~~js\nlet v = 1; // X\n~~~\n\n|a // ok|b|\n|:-|-:|\n|1|2|\n\nSee $$a = 1\n  b = 2$$ done\n$$c = 3\n  d = 4$$\n",
+    "diff": "pure insertions only: paragraph, inline/block math, emphasis delimiters, setext underline, ~~~ fence and compact table kept their spelling; typed math kept its line break, indentation and same-line delimiters; no U+FFFC",
+    "rendering": "both typed formulas rendered by KaTeX without an OBJ box; reading mode (Esc) and reopened document matched"
+  },
+  "equationDialog": "inline math dialog showed 'a = 1\\n  b = 2'; adding a line kept the break and indentation on disk. macOS text substitution in the dialog textarea turned the typed 'e = 5' into 'e =2.718 5' (system input substitution, not app code)",
+  "undo": "Cmd-Z after the dialog change then Save: file byte-identical to the previous save",
+  "dontSave": "second.md edited, Close -> Unsaved Changes -> Don't Save: file unchanged",
+  "multiWindow": "spelling.md and second.md open together; closing one left the other intact; Close after Save had no prompt",
+  "exit": "app menu Quit: no Bloct process; the session's .mv_preview files removed. Two older previews came from repro sessions ended with pkill and were deleted by hand",
+  "limits": "Debug build, ASCII input only, no real IME; macOS 14 device not tested"
+}
