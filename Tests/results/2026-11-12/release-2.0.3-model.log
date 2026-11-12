@@ -1,0 +1,89 @@
+
+> check
+> tsc --noEmit
+
+
+> test
+> node --test test/unit/*.test.ts
+
+✔ B01: adjacent semantic blocks and independent list item IDs (13.336417ms)
+✔ B02: physical soft lines and explicit hard breaks stay inside paragraphs (2.158708ms)
+✔ B03: existing B/C policy fixture keeps list groups and separate indented code (20.343959ms)
+✔ B04: nested/quoted duplicate labels have exact parents and source spans (4.4005ms)
+✔ B05: code protects blank lines, longer fences, unclosed fences and indented syntax (2.212708ms)
+✔ B06: block math protects blanks; code and currency never become equations (1.910709ms)
+✔ B07: Setext precedence, GFM table, inline images and block image metadata (3.433417ms)
+✔ B08: HTML, comments and reference syntax are accessible protected source (3.427542ms)
+✔ B09: BOM, CRLF, CR, tabs, spaces and UTF-16 positions survive import (2.493209ms)
+✔ B12: empty input, whitespace gaps, trailing newlines and empty headings (3.165625ms)
+✔ a changed tree is serialized instead of returning the initial source (2.376125ms)
+✔ same-line display delimiters keep the matrix first line, rows and following document (28.126792ms)
+✔ attached/display-only delimiters protect blank lines and exact UTF-16 source positions (4.777583ms)
+✔ quoted/list math uses container-aware tokens while code and escaped delimiters stay literal (2.559125ms)
+✔ double-dollar math in a paragraph stays display math through surrounding edits and Undo (5.650459ms)
+✔ literal pending or empty math delimiters save without becoming math on reimport (5.451375ms)
+✔ edited math keeps its line breaks, delimiter lines and padding as written (8.571458ms)
+✔ inline math keeps line breaks and padding, and CRLF math edits save (2.33025ms)
+✔ Enter after a heading writes the next line directly below it (18.260042ms)
+✔ a block typed under text is separated according to the type it becomes (19.6565ms)
+✔ every pair of new blocks is stored as tightly as it reads back (248.216125ms)
+✔ a pair whose content would merge gets its blank line back, and only that pair (3.908958ms)
+✔ blank lines and tight lines already in the file stay as written (2.526625ms)
+✔ a tight pair from the file is separated when an edit would merge it (0.679542ms)
+✔ the opening Text line follows the same separator rule (4.51175ms)
+✔ an empty line between new blocks is one blank line where Markdown allows it (1.700834ms)
+✔ random inline drafts save and read back (seed 1) (601.698041ms)
+✔ random inline drafts save and read back (seed 2) (426.139208ms)
+✔ random inline drafts save and read back (seed 3) (426.515041ms)
+✔ ordinary punctuation is written as typed (29.549833ms)
+✔ characters are escaped only where they would start Markdown syntax (22.29975ms)
+✔ text the block parser keeps literal is written back unchanged (6.505166ms)
+✔ spaces beside formatting stay spaces (3.406292ms)
+✔ nested and overlapping formatting is written once and reads back (11.070125ms)
+✔ formatting next to punctuation and Korean text still reads back as formatting (2.370375ms)
+✔ URL and address text saves, and links keep the form they were written in (10.17625ms)
+✔ a literal autolink is never widened by text typed against it (4.117667ms)
+✔ a trailing line break and outer cell spaces do not block saving (6.279583ms)
+✔ a block that needs strict escaping does not change how other edited blocks are written (1.442125ms)
+✔ nested emphasis of one kind imports as a single mark (1.606833ms)
+✔ an edited block keeps the author spelling of the parts the edit did not touch (15.63925ms)
+✔ formatted inline code imports, edits, saves and undoes without dropping surrounding marks (43.113458ms)
+✔ editing an image URL preserves caption Markdown, dimensions and unrelated source (4.911375ms)
+✔ B10: paragraph split/join preserve identity, selection, source and history (9.496333ms)
+✔ B10: list split, indent and outdent use real schema-list transactions (7.383084ms)
+✔ B10: duplicate allocates descendant IDs; move preserves them; delete restores on Undo (7.87475ms)
+✔ B10: type conversion and empty heading preserve ID and are separate Undo steps (1.985167ms)
+✔ B10: splitting at a heading start preserves heading identity and creates a paragraph before it (0.55125ms)
+✔ B10: invalid positions, surrogate splits, parent cycles and unsupported merges fail without changes (0.561ms)
+✔ B11: exact one-character task patch across duplicate, quoted, nested and CRLF cases (10.93925ms)
+✔ B11: line-count changes before a task rebase by tree identity, not an old source offset (5.852792ms)
+✔ B11: forged, cross-session and old-generation references cannot edit (1.320291ms)
+✔ B12: selection alone, deleting the last block and Save snapshots track actual content (4.34575ms)
+✔ source-preserving serializer keeps unrelated lexical styles after text edits (2.620875ms)
+✔ B10: moving selected content preserves its relative cursor and raw CRLF source (1.857ms)
+✔ save acknowledgements reject forged, consumed, older and previous-generation snapshots (1.406709ms)
+✔ B10: changed adjacency widens only the affected source boundary (1.706208ms)
+✔ unsupported mixed-source restructuring fails closed and Undo retains the exact source (0.921667ms)
+✔ a mode handoff imports an unsaved draft against the disk baseline (0.682833ms)
+✔ opening an editing document supplies one trailing Text line without dirtying or rewriting EOF (9.282625ms)
+✔ the opening Text line reuses EOF gaps, saves typed content, and Undo restores exact original source (7.4715ms)
+ℹ tests 61
+ℹ suites 0
+ℹ pass 61
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1665.908542
+
+> build
+> esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js && esbuild src/math-runtime.ts --bundle --format=iife --platform=browser --target=safari17 --outfile=dist/math.js && node build-resources.mjs
+
+
+  dist/blocks.js  1.4mb ⚠️
+
+⚡ Done in 27ms
+
+  dist/math.js  506.7kb
+
+⚡ Done in 12ms

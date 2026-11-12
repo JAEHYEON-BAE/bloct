@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-12",
+  "scope": "Current source importer and bundled KaTeX dependencies; no GUI or live typing test",
+  "results": [
+    {
+      "name": "both edge spaces",
+      "source": "$ 270{,}822 \\text{ bps} \\div 8 = 33{,}854 \\text{ bps} $",
+      "parserType": "inlineMath",
+      "importedTypes": [
+        "text"
+      ],
+      "mathValues": []
+    },
+    {
+      "name": "opening edge space",
+      "source": "$ 270{,}822 \\text{ bps} \\div 8 = 33{,}854 \\text{ bps}$",
+      "parserType": "inlineMath",
+      "importedTypes": [
+        "text"
+      ],
+      "mathValues": []
+    },
+    {
+      "name": "closing edge space",
+      "source": "$270{,}822 \\text{ bps} \\div 8 = 33{,}854 \\text{ bps} $",
+      "parserType": "inlineMath",
+      "importedTypes": [
+        "text"
+      ],
+      "mathValues": []
+    },
+    {
+      "name": "no edge spaces",
+      "source": "$270{,}822 \\text{ bps} \\div 8 = 33{,}854 \\text{ bps}$",
+      "parserType": "inlineMath",
+      "importedTypes": [
+        "inline_math"
+      ],
+      "mathValues": [
+        "270{,}822 \\text{ bps} \\div 8 = 33{,}854 \\text{ bps}"
+      ]
+    },
+    {
+      "name": "internal spaces only",
+      "source": "$a + b$",
+      "parserType": "inlineMath",
+      "importedTypes": [
+        "inline_math"
+      ],
+      "mathValues": [
+        "a + b"
+      ]
+    }
+  ],
+  "katexWithAndWithoutEdgeSpaces": "PASS"
+}
