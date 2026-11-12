@@ -919,5 +919,20 @@ await check('editing a formatted paragraph keeps its punctuation, spacing, nesti
   editor.session.setSelection(editor.session.reference(p.attrs.id),p.content.size);editor.view.updateState(editor.session.state);
   type('!');assert(serialized()===source+'!',serialized());
 });
+await check('the equation dialog has a fixed-size field without a focus ring',async()=>{
+  fresh('$$x^2$$\n\nTail');
+  host.querySelector('.visual-math').click();
+  const dialog=document.querySelector('dialog'),input=dialog?.querySelector('textarea');
+  assert(input && document.activeElement===input,'dialog field focused');
+  const field=getComputedStyle(input),frame=getComputedStyle(dialog);
+  assert(field.resize==='none','resize: '+field.resize);
+  assert(field.height==='140px' && field.minHeight!=='140px','height: '+field.height+' / '+field.minHeight);
+  assert(field.outlineStyle==='none' && frame.outlineStyle==='none','outline: '+field.outlineStyle+' / '+frame.outlineStyle);
+  const before=input.getBoundingClientRect().height;
+  input.value=Array.from({length:40},(_,i)=>'line '+i).join('\n');
+  assert(input.getBoundingClientRect().height===before && input.scrollHeight>input.clientHeight,'long TeX scrolls inside the fixed field');
+  dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,50));
+  assert(!document.querySelector('dialog') && editor.session.doc.firstChild.attrs.value==='x^2','dialog closed without changing TeX');
+});
 if(editor){editor.destroy();host.remove();}
 return JSON.stringify({results});

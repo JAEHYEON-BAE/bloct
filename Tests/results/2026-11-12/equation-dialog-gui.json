@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-12",
+  "change": "Equation dialog field: no focus ring, no resize handle, fixed 140px height (Editor/src/styles/visual.css)",
+  "app": "build/Build/Products/Debug/Bloct.app rebuilt after npm run build; bundled visual.css contains resize:none",
+  "gui": "Computer Use on a temporary document with inline $x^2$ and an aligned block equation",
+  "checks": [
+    "clicked the block equation: dialog opened with focus in the field, no blue focus ring, no resize handle (zoomed screenshot)",
+    "dragged the field's bottom-right corner 66x135 px outward: field size unchanged",
+    "typed 8 more lines: field height unchanged, text scrolled inside it",
+    "Cancel: equation unchanged; Save: file byte-identical to the original; Esc to reading; open + Esc without typing left the title clean",
+    "Quit: no process, no preview files"
+  ],
+  "unrelated": "Typing in the dialog then Cancel leaves 'Edited' in the title although the document is unchanged; Save clears it. Same symptom family as BUG_FIXES.md 50; the CSS change cannot set the document's edited state",
+  "automated": {
+    "visualInput": "344 passed (2 new dialog checks)",
+    "webkit": "963 PASS",
+    "hosted": "269 passed",
+    "model": "61 pass"
+  },
+  "limits": "Debug build; dark mode and zoom levels not checked"
+}
