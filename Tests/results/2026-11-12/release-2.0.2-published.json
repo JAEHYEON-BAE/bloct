@@ -1,0 +1,89 @@
+{
+  "date": "2026-11-12",
+  "releaseURL": "https://github.com/JAEHYEON-BAE/bloct/releases/tag/v2.0.2",
+  "tag": "v2.0.2",
+  "tagCommit": "a1b384123e99bff3857752cd026a40cd5bd3bcdf",
+  "releaseWorkflow": {
+    "id": 43125195671,
+    "url": "https://github.com/JAEHYEON-BAE/bloct/actions/runs/43125195671",
+    "conclusion": "success"
+  },
+  "download": "anonymous curl -q without authentication",
+  "version": "2.0.2",
+  "sha256": "cd6c1fde61d465222d352b23c0d028a9fef1f11d0676ae33267342f4f9546d03",
+  "digestMatchesGitHub": true,
+  "resourcesMatched": 11,
+  "resourceSHA256": {
+    "editor-switch.js": "13adb194bbf57404a6485cb3e89b4694a4ff9f95c143629af257d7e3b641a2c3",
+    "task-lists.js": "f789b586a4e5df85768e564b75aa60a9e9eb896d48353278587abda06036b256",
+    "marked.min.js": "3e7e7d7feb3e5d58cb6c804f68ab5c24cc7e5eb6270fd6e5cbb9124739217d0c",
+    "purify.min.js": "cd37898f9782adf54820c413191b5691803f0f137c799d6edcfd38523b4c2c31",
+    "style.css": "96618152f1e16a07695b807cb068848a75bf9827075fb796f24932db94fed108",
+    "DOMPurify-LICENSE.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "blocks.js": "dac61eeeead1ef72884ae61c7714a3788d1c26a58995ad65d3c8d35a0623853b",
+    "math.js": "4130e6d9125a43eb3151e0fdddeb930fb4ed8680a80815f235a4fd44a0dc29a7",
+    "math.css": "8f3acc279cc96d65314ab697903b9412f8936c6d0b043d9b9dfdd37f3163775c",
+    "visual.css": "8445c9d3676c68174a40ded5832b2c27bdf983889364731a222dc9dc652a25c7",
+    "editor-licenses.txt": "c68c2a915ad0e7b111ec30e2fb14189ecf2fc631f07e4119b14a4fbfd4f4a5ce"
+  },
+  "binaryVerification": {
+    "artifact": "/private/tmp/bloct-public-2.0.2/Bloct.zip",
+    "document_role": "Editor",
+    "slices": [
+      {
+        "architecture": "x86_64",
+        "minimum_macos": [
+          14,
+          0,
+          0
+        ],
+        "sdk": [
+          27,
+          0,
+          0
+        ]
+      },
+      {
+        "architecture": "arm64",
+        "minimum_macos": [
+          14,
+          0,
+          0
+        ],
+        "sdk": [
+          27,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "homebrew": {
+    "workflow": {
+      "conclusion": "success",
+      "databaseId": 43125492404,
+      "headSha": "3ab318816ecdce3cc47c1b84b3ee31d5f6e7209f",
+      "status": "completed",
+      "url": "https://github.com/JAEHYEON-BAE/homebrew-tap/actions/runs/43125492404"
+    },
+    "caskVersion": "2.0.2",
+    "caskSHA256": "cd6c1fde61d465222d352b23c0d028a9fef1f11d0676ae33267342f4f9546d03",
+    "caskCommit": {
+      "commit": "Sync Bloct with latest stable release",
+      "html_url": "https://github.com/JAEHYEON-BAE/homebrew-tap/commit/89cb9e98d766ce66d3f1727e0f16c71144a1c73e",
+      "sha": "89cb9e98d766ce66d3f1727e0f16c71144a1c73e"
+    },
+    "anonymousRawCaskVerified": true
+  },
+  "remoteRefs": {
+    "refs/heads/main": "a1b384123e99bff3857752cd026a40cd5bd3bcdf",
+    "refs/tags/v2.0.2": "e14630dfddcf787f431601051924a1a043b1b91f",
+    "refs/tags/v2.0.2^{}": "a1b384123e99bff3857752cd026a40cd5bd3bcdf"
+  },
+  "GUIAndRegressionEvidence": "../2026-11-11/review-gui.json",
+  "limits": [
+    "Real IME and macOS 14 hardware acceptance gates remain.",
+    "No installed app replacement or public ZIP GUI run in this release task.",
+    "Existing menu polling runner 3 missing-resource failures remain outside the passed scope."
+  ]
+}
