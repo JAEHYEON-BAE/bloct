@@ -1,10 +1,12 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
-output_dir=$(mktemp -d "${TMPDIR:-/tmp}/bloct-tests.XXXXXX")
-trap 'rm -rf "$output_dir"' EXIT
-xcrun swiftc -swift-version 6 -parse-as-library -module-cache-path "$output_dir/module-cache" \
-    Sources/Bloct/MarkdownDocument.swift Sources/Bloct/DocumentState.swift \
-    Sources/Bloct/DocumentDisk.swift Sources/Bloct/DocumentSaveOperation.swift Sources/Bloct/PreviewFiles.swift \
-    Tests/NativeRegression.swift -o "$output_dir/native-regression"
+. Tests/lib/harness.sh
+harness_output bloct-tests
+harness_swiftc \
+    Sources/Bloct/Document/MarkdownDocument.swift Sources/Bloct/Document/DocumentWriteProtection.swift \
+    Sources/Bloct/Document/DocumentState.swift Sources/Bloct/Document/DocumentDisk.swift \
+    Sources/Bloct/Document/DocumentSaveOperation.swift Sources/Bloct/Document/StagedDocumentSave.swift \
+    Sources/Bloct/WebView/PreviewFiles.swift \
+    Tests/Native/NativeRegression.swift -o "$output_dir/native-regression"
 "$output_dir/native-regression"

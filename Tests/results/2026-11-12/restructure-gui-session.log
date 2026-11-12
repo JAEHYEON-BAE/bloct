@@ -1,0 +1,12 @@
+✔ a pending Quit blocks concurrent and later observations before they reach CUA (1.171209ms)
+✔ a lost Quit response never retries or reactivates the possibly exited process (0.166125ms)
+✔ a fresh binding has independent lifetime and does not revive saved handles (0.079541ms)
+✔ ambiguous app names are rejected before launch (0.049917ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 67.946834

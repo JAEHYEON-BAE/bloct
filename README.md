@@ -5,8 +5,8 @@ A native macOS Markdown editor with continuous block editing and a rendered read
 Current source version: **2.0.2**. Public release status is available on [GitHub Releases](https://github.com/JAEHYEON-BAE/bloct/releases).
 
 <p>
-  <img src="Bloct_1.png" alt="Bloct editing a Markdown math block with rendered equations" width="49%">
-  <img src="Bloct_2.png" alt="Bloct editing a Markdown table above rendered charts" width="49%">
+  <img src="docs/images/Bloct_1.png" alt="Bloct editing a Markdown math block with rendered equations" width="49%">
+  <img src="docs/images/Bloct_2.png" alt="Bloct editing a Markdown table above rendered charts" width="49%">
 </p>
 
 ## Requirements

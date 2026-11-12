@@ -1,6 +1,6 @@
 # Bloct 작업 지침
 
-macOS 14+용 SwiftUI·WKWebView Markdown 편집기. 본문 클릭/Esc로 편집·읽기를 전환한다. Swift 소스와 웹 리소스는 `Sources/Bloct/`, 프로젝트 설정은 `project.yml`에 있다. 공통 작업 지침은 [AGENTS.md](AGENTS.md)를 따른다.
+macOS 14+용 SwiftUI·WKWebView Markdown 편집기. 본문 클릭/Esc로 편집·읽기를 전환한다. Swift 소스는 `Sources/Bloct/`의 `App/`·`Document/`·`Window/`·`WebView/`, 페이지 템플릿·CSS·외부 라이브러리는 `Sources/Bloct/Resources/`, 편집 엔진과 페이지 스크립트는 `Editor/src/`(`model/`·`view/`·`host/`·`styles/`), 프로젝트 설정은 `project.yml`에 있다. 공통 작업 지침은 [AGENTS.md](AGENTS.md)를 따른다.
 
 ## 문서 관리
 
@@ -30,7 +30,7 @@ sh Tests/run-hosted.sh
 - 새 기능 구현·버그 수정의 각 구현 단위는 **코드 수정 → Computer Use를 이용한 실사용 테스트 → 문제 해결 확인 → 문서 최신화 → 로컬 커밋**을 모두 마쳐야 완료다. 실제 앱에서 새 기능의 요청 동작 또는 버그 재현 증상의 해결을 확인한다.
 - 자동 회귀 검사는 Computer Use 실사용 테스트를 대체하지 않는다. 문제가 발견되면 코드 수정부터 반복한다. 실사용 테스트를 수행하지 못했거나 문제가 남으면 검증 대기·미해결로 기록하고 완료로 보고하지 않는다. XFAIL·SKIP·GUI 미검증을 전체 통과로 표현하지 않는다. 문서만 수정할 때는 앱 빌드·실행을 생략한다.
 - 릴리스는 `sh scripts/build-release.sh`를 사용한다. SDK 27.0·최소 macOS 14·Universal 검증 등 배포 절차는 [README.md](README.md)를 따른다.
-- 버전·문서 타입은 `project.yml`을 원본으로 수정한 뒤 `xcodegen generate`로 `Sources/Bloct/Info.plist`를 맞춘다. Markdown·일반 텍스트의 역할은 `Editor`, 연결 우선순위는 `Alternate`이며 `scripts/verify-release.py`가 배포 앱의 역할과 CPU/OS 구성을 검사한다.
+- 버전·문서 타입은 `project.yml`을 원본으로 수정한 뒤 `xcodegen generate`로 `Sources/Bloct/Resources/Info.plist`를 맞춘다. Markdown·일반 텍스트의 역할은 `Editor`, 연결 우선순위는 `Alternate`이며 `scripts/verify-release.py`가 배포 앱의 역할과 CPU/OS 구성을 검사한다.
 
 ## 변경 원칙
 

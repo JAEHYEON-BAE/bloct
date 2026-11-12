@@ -2,8 +2,8 @@
 # Focused image regression. Exits 1 on a failed load or isolation expectation.
 set -eu
 cd "$(dirname "$0")/.."
-output_dir=$(mktemp -d "${TMPDIR:-/tmp}/bloct-relative-image-tests.XXXXXX")
-trap 'rm -rf "$output_dir"' EXIT
+. Tests/lib/harness.sh
+harness_output bloct-relative-image-tests
 fixture_dir=${1:-"$output_dir/fixtures"}
 mkdir -p "$fixture_dir"
 python3 - "$fixture_dir" <<'PY'
@@ -16,16 +16,10 @@ raw = b''.join(b'\x00' + bytes([36, 180, 92]) * w for _ in range(h))
 png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
 (Path(sys.argv[1]) / 'pixel.png').write_bytes(png)
 PY
-app_dir="$output_dir/RelativeImageRegression.app/Contents"
-mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp Sources/Bloct/page.html Sources/Bloct/reader.js Sources/Bloct/page-host.js Sources/Bloct/page-start.js Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
-cp Editor/dist/math.js Editor/dist/math.css Editor/dist/blocks.js Editor/dist/visual.css "$app_dir/Resources/"
-sed '/^@main$/d' Sources/Bloct/BloctApp.swift > "$output_dir/BloctApp.swift"
-set --
-for source in Sources/Bloct/*.swift; do
-    case "$source" in */BloctApp.swift) ;; *) set -- "$@" "$source" ;; esac
-done
-xcrun swiftc -swift-version 6 -parse-as-library -module-cache-path /private/tmp/bloct-regression-module-cache \
-    "$@" "$output_dir/BloctApp.swift" Tests/RelativeImageRegression.swift \
+harness_app RelativeImageRegression
+harness_page_resources
+harness_app_without_main "$output_dir/BloctApp.swift"
+# shellcheck disable=SC2046
+harness_swiftc $(harness_sources BloctApp.swift) "$output_dir/BloctApp.swift" Tests/Native/RelativeImageRegression.swift \
     -o "$app_dir/MacOS/RelativeImageRegression"
 "$app_dir/MacOS/RelativeImageRegression" "$fixture_dir"

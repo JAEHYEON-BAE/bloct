@@ -41,7 +41,7 @@
 ### 51. 수식 줄바꿈·작성자 표기가 저장 때 바뀜
 
 - **검증 완료 / 2026-11-12.** 수정 전 실제 앱에서 `See $$a = 1` Shift+Enter `b = 2$$`를 입력하면 줄바꿈이 U+FFFC(화면의 `OBJ` 상자)로 바뀌어 저장됐습니다(입력 규칙이 줄바꿈 노드를 대체 문자로 읽음). `$$a` Enter `b$$`는 구분자를 별도 줄로 옮겨 저장했고, 기존 블록을 편집하면 `_em_`→`*em*`, setext→ATX, `~~~`→```` ``` ````, 표 간격, `$$ a $$`→`$$a$$`처럼 블록 전체가 표준 표기로 바뀌었습니다(모델 재현).
-- **수정:** 수식 입력 규칙은 줄바꿈을 TeX의 `\n`으로 넣고 다른 인라인 노드가 끼면 변환하지 않습니다. 수식 값은 줄바꿈·안쪽 공백을 그대로 두고(CRLF는 `\n`으로 읽어 파일의 줄 끝으로 씀), 블록 수식의 구분자 줄 배치(`openLine`/`closeLine`)와 `$$ x $$`의 여백(`pad`)을 표기 속성으로 저장합니다. 파일에 있던 블록을 다시 쓸 때는 이전/현재 블록의 표준 표기 차이(편집)를 원문에 3방향 병합한 후보를 먼저 쓰고([preserve.ts](Editor/src/preserve.ts)), 재파싱 의미가 같을 때만 채택합니다. 아니면 기존 표준 표기로 씁니다([F5 계약 3](IMPLEMENTATION_PLAN.md#유지할-설계보존-계약)).
+- **수정:** 수식 입력 규칙은 줄바꿈을 TeX의 `\n`으로 넣고 다른 인라인 노드가 끼면 변환하지 않습니다. 수식 값은 줄바꿈·안쪽 공백을 그대로 두고(CRLF는 `\n`으로 읽어 파일의 줄 끝으로 씀), 블록 수식의 구분자 줄 배치(`openLine`/`closeLine`)와 `$$ x $$`의 여백(`pad`)을 표기 속성으로 저장합니다. 파일에 있던 블록을 다시 쓸 때는 이전/현재 블록의 표준 표기 차이(편집)를 원문에 3방향 병합한 후보를 먼저 쓰고([preserve.ts](Editor/src/model/preserve.ts)), 재파싱 의미가 같을 때만 채택합니다. 아니면 기존 표준 표기로 씁니다([F5 계약 3](IMPLEMENTATION_PLAN.md#유지할-설계보존-계약)).
 - **검증:** [Computer Use](Tests/results/2026-11-12/math-spelling-gui.json)에서 문단·인라인/블록 수식·setext·`~~~`·압축 표에 실제 입력 후 Save한 디스크 차이가 순수 삽입뿐임을 확인했습니다. 새로 입력한 두 수식은 줄바꿈·들여쓰기·같은 줄 구분자를 유지했고 U+FFFC가 없으며 KaTeX 렌더링·Esc 읽기·재열기 동일. 수식 창의 줄 추가·Undo 후 원문 복원·Don't Save·두 문서·Quit 종료와 미리보기 정리 확인. [모델 61·번들](Tests/results/2026-11-12/math-spelling-model.log)·[브라우저 모델 18](Tests/results/2026-11-12/math-spelling-engine.log)·[시각 입력 342](Tests/results/2026-11-12/math-spelling-visual.log)·[native 8](Tests/results/2026-11-12/math-spelling-native.log)·[WebKit 963](Tests/results/2026-11-12/math-spelling-webkit.log)·[Hosted 269](Tests/results/2026-11-12/math-spelling-hosted.log)·[visual native 41](Tests/results/2026-11-12/math-spelling-visual-native.log) 통과, 실패/XFAIL/SKIP 0.
 - **한계:** 새로 만든 블록·분할로 생긴 뒤쪽 블록은 표준 표기로 씁니다(수식의 구분자 배치·여백만 유지). 편집과 작성자 표기가 같은 글자에 겹치면 그 구간은 표준 표기가 되며, 차이가 2000 편집을 넘는 블록은 병합하지 않습니다. 수식 안 줄바꿈 뒤 줄이 `+ `·`- `·`#`처럼 블록 시작으로 읽히면 Markdown 구조가 바뀌므로 저장이 거절되고 초안이 유지됩니다. `$ x $` 양끝 공백은 [13번](#읽기-렌더링탐색) 범위입니다. 실제 IME·macOS 14 기기는 미검증입니다.
 
@@ -49,7 +49,7 @@
 
 ### 48. 같은 종류의 강조가 중첩된 문서에서 편집 엔진 생성 실패
 
-- **검증 완료 / 2026-11-11.** `*a *b* c*`, `**a **b** c**`의 중첩 강조를 배열에 중복 추가해 `Invalid collection of marks for node text: em,em`으로 엔진 생성이 실패했습니다. importer에서 mark를 집합으로 추가하도록 수정했습니다([모델 검사](Editor/test/serializer.test.ts)).
+- **검증 완료 / 2026-11-11.** `*a *b* c*`, `**a **b** c**`의 중첩 강조를 배열에 중복 추가해 `Invalid collection of marks for node text: em,em`으로 엔진 생성이 실패했습니다. importer에서 mark를 집합으로 추가하도록 수정했습니다([모델 검사](Editor/test/unit/serializer.test.ts)).
 - **실제 앱:** [Computer Use](Tests/results/2026-11-11/review-gui.json)에서 위 두 형태와 `*a **b *c* d** e*`가 함께 있는 문서를 열고 각 문단에 실제 입력·Save·Esc·닫기/재열기를 확인했습니다. [화면](Tests/results/2026-11-11/review-gui-formatting.png)·[저장 원문 비교](Tests/results/2026-11-11/review-gui-disk.json) 통과. 수정 전 GUI 증상은 독립 재현하지 않았으며 수정 전 모델 예외와 수정 후 실제 앱 동작을 구분합니다.
 
 ## 종료·파일 정리
@@ -72,7 +72,7 @@
 
 ### 26. GUI 테스트 중 Finder “Bloct is not open anymore”
 
-- **검증 완료(확인된 자동화 경합 방지) / 2026-11-11.** Quit 직후 이전 앱 핸들의 `getAXState()`가 종료 중인 프로세스로 재활성화 이벤트를 보내는 흐름에서 `-600 procNotFound`가 기록됐습니다. 당시 주 프로세스 종료 5회는 정상입니다([2026-10-26 원시 로그](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-10-26/finder-quit-race.log)). 앱의 종료 코드를 바꾸지 않고 [GUI 세션 도구](Tests/gui-session.mjs)가 최종 Quit 동작을 보내기 **전에** 핸들을 폐기하도록 수정했습니다. 대기 중·응답 오류·저장된 옛 핸들의 후속 조회/입력은 CUA 호출 전에 거절합니다. 새 연결은 별도 PID 종료 확인 후 명시적 앱 경로로 만듭니다([사용법](Tests/README.md#gui-session-lifetime)).
+- **검증 완료(확인된 자동화 경합 방지) / 2026-11-11.** Quit 직후 이전 앱 핸들의 `getAXState()`가 종료 중인 프로세스로 재활성화 이벤트를 보내는 흐름에서 `-600 procNotFound`가 기록됐습니다. 당시 주 프로세스 종료 5회는 정상입니다([2026-10-26 원시 로그](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-10-26/finder-quit-race.log)). 앱의 종료 코드를 바꾸지 않고 [GUI 세션 도구](Tests/GUI/gui-session.mjs)가 최종 Quit 동작을 보내기 **전에** 핸들을 폐기하도록 수정했습니다. 대기 중·응답 오류·저장된 옛 핸들의 후속 조회/입력은 CUA 호출 전에 거절합니다. 새 연결은 별도 PID 종료 확인 후 명시적 앱 경로로 만듭니다([사용법](Tests/README.md#gui-session-lifetime)).
 - **검증:** [자동 회귀 4개](Tests/results/2026-11-11/bug26-session.log)와 [Computer Use 3회](Tests/results/2026-11-11/bug26-gui.json). 두 문서의 편집 창 닫기 후 남은 창 응답, Quit 취소/추가 입력/저장/폐기, 종료 후 새 세션·Finder 재실행, 저장 문서 재열기를 확인했습니다. 세 번 모두 옛 핸들 접근 차단, [실제 PID 종료·미리보기 잔류 0](Tests/results/2026-11-11/bug26-process.json), [주 프로세스 정상 종료 `(0,0,0)`·관련 `procNotFound` 0](Tests/results/2026-11-11/bug26-system.log), Finder 오류 팝업 관찰 0입니다.
 - **창 없음과 한계:** 마지막 창 닫기 후 `noWindowsAvailable`은 현재 재현했으며 같은 PID에서 ⌘N으로 정상 복귀했습니다. 이를 앱 종료·deadlock으로 처리하지 않습니다. [2026-11-07 지속 `timeoutReached`·잔류](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-07/aa-only-gui.json)와 [idle 샘플](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-07/aa-only-process-sample.txt)의 정확한 CUA 원인은 미확정이고 이번에는 재현되지 않았습니다. 원래 Finder 팝업 자체의 독립 재현·캡처도 없으므로 모든 CUA/LaunchServices 오류 해결을 의미하지 않습니다. 도구 밖의 raw 핸들은 보호하지 않으며 재발 시 PID·남은 창·CUA 호스트 오류를 함께 수집해 이 항목을 다시 엽니다. 45번의 native 충돌과 구분합니다.
 - 별도 설치 제한: 당시 설치본은 ad-hoc 서명·quarantine으로 Gatekeeper에 차단됐으며, 사용자 승인으로 격리 속성만 제거해 Open 창 실행을 확인했습니다. 재다운로드 시 같은 제한이 생길 수 있습니다. [근거](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-10-26/finder-launch-investigation.json).

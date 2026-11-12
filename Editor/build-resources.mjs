@@ -15,7 +15,12 @@ for(const match of [...css.matchAll(/url\((fonts\/[^)]+)\)/g)]) {
 // own no-wrap/internal positioning rules still take precedence below it.
 css+='\n.katex { white-space:normal; overflow-wrap:normal; text-indent:0; }\n';
 await writeFile('dist/math.css',css);
-await writeFile('dist/visual.css',css+'\n'+await readFile('../Sources/Bloct/style.css','utf8')+'\n'+await readFile('src/visual.css','utf8'));
+await writeFile('dist/visual.css',css+'\n'+await readFile('../Sources/Bloct/Resources/Web/style.css','utf8')+'\n'+await readFile('src/styles/visual.css','utf8'));
+// Page scripts run as one classic script, in this order, and share globals
+// (reader.js's _mvPage and _mvRenderOneBlock, task-lists.js's _mvTasks).
+// They are joined, not bundled, so those top-level names stay global.
+const hostScripts=['task-lists','reader','toc','scroll','editor-switch','start'];
+await writeFile('dist/host.js',(await Promise.all(hostScripts.map(name=>readFile(`src/host/${name}.js`,'utf8')))).join('\n'));
 const lock=JSON.parse(await readFile('package-lock.json','utf8'));
 let notices='Bloct visual editor — dependency license notices\n';
 for(const [path,entry] of Object.entries(lock.packages)) {

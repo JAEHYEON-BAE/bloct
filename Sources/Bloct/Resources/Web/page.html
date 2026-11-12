@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--
+  Document page template. PageTemplate.swift replaces each double-braced name
+  once: nonce, styles (style.css), editor-styles (visual.css, or math.css when
+  the editor bundle is missing), editor-bundle (blocks.js), purify, marked,
+  math (math.js), config (JSON read by reader.js and start.js) and
+  page-script (host.js: Editor/src/host/*.js joined by build-resources.mjs).
+-->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-{{nonce}}'; script-src-attr 'none'; style-src 'unsafe-inline'; font-src data:; img-src file: bloct-image: data: https: http:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta name="color-scheme" content="light dark">
+    <style>{{styles}}</style>
+    <style>
+        .mv-block { display: contents; }
+        .mv-block:has(> hr:only-child) { display: block; min-height: 2em; }
+        #mv-append-zone { height: 1.5em; }
+    </style>
+    <style>{{editor-styles}}</style>
+    <script nonce="{{nonce}}">{{editor-bundle}}</script>
+    <script nonce="{{nonce}}">{{purify}}</script>
+    <script nonce="{{nonce}}">{{marked}}</script>
+    <script nonce="{{nonce}}">{{math}}</script>
+    <script type="application/json" id="mv-page-config">{{config}}</script>
+</head>
+<body>
+    <article class="markdown-body">
+        <div id="content"></div>
+    </article>
+    <script nonce="{{nonce}}">{{page-script}}</script>
+</body>
+</html>

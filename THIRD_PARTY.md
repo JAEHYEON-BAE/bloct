@@ -19,8 +19,8 @@ indirect KaTeX is pinned to the same version. The same locked version and option
 
 - Project: https://github.com/cure53/DOMPurify
 - Distribution: https://registry.npmjs.org/dompurify/-/dompurify-3.4.17.tgz
-- Vendored file: `Sources/Bloct/purify.min.js` (unmodified distribution file).
-- License: Apache-2.0; complete text in `Sources/Bloct/DOMPurify-LICENSE.txt`, bundled with the app.
+- Vendored file: `Sources/Bloct/Resources/Vendor/purify.min.js` (unmodified distribution file).
+- License: Apache-2.0; complete text in `Sources/Bloct/Resources/Vendor/DOMPurify-LICENSE.txt`, bundled with the app.
 - npm archive integrity, checked before extraction:
   `sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==`
 
@@ -29,5 +29,5 @@ When upgrading it, review upstream security notes and run `sh Tests/run-webkit.s
 
 ## Existing renderer assets
 
-`Sources/Bloct/marked.min.js` retains its upstream license header. The former
+`Sources/Bloct/Resources/Vendor/marked.min.js` retains its upstream license header. The former
 KaTeX 0.16.11 CDN script/stylesheet are replaced by the shared bundled assets.

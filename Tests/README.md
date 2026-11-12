@@ -1,5 +1,21 @@
 # Regression checks
 
+## Layout
+
+| Folder | Contents |
+|---|---|
+| `Tests/run-*.sh` | Runners. Each builds a temporary app-shaped bundle or binary and runs one harness |
+| `Tests/lib/harness.sh` | Shared runner steps: temporary output, app bundle, page resources, Swift sources, `swiftc` |
+| `Tests/Native/` | Swift harnesses compiled with the production sources |
+| `Tests/Page/` | Page suites evaluated in WKWebView; `Page/hosted/` is loaded whole by `run-hosted.sh` |
+| `Tests/GUI/` | Computer Use app-session helper and its regression |
+| `Tests/fixtures/` | Markdown fixtures shared by the model and WebKit checks |
+| `Tests/results/` | Raw evidence, latest two dates only ([AGENTS.md](../AGENTS.md)) |
+
+Editor model/DOM tests live in `Editor/test/unit/` and `Editor/test/dom/`.
+Page resources come from `Sources/Bloct/Resources/` and `Editor/dist/` (`npm run build`),
+including `host.js`, the page scripts of `Editor/src/host/` joined in order.
+
 ## New block model (F5)
 
 Use Node.js 22.18 or later. Install the locked development dependencies once:
@@ -17,18 +33,18 @@ license notices for Safari 17/WKWebView. Native runners require these built asse
 Production uses `automaticEditing: true`: one EditorView starts read-only, a body
 click activates editing at its coordinates, and Esc returns to reading. There is
 no editing toggle button or formatting toolbar. The default component configuration retains
-manual switching for compatibility harnesses. `Editor/test/importer.test.ts` covers B01–B09 and B12, including
+manual switching for compatibility harnesses. `Editor/test/unit/importer.test.ts` covers B01–B09 and B12, including
 the existing #16 policy fixture and exact UTF-16 source offsets.
-`Editor/test/session.test.ts` covers B10/B11 and source-preserving command/history
+`Editor/test/unit/session.test.ts` covers B10/B11 and source-preserving command/history
 round trips, cursor/ID restoration, snapshot acknowledgements and fail-closed
-unsupported transformations. `Editor/test/serializer.test.ts` pins the written
+unsupported transformations. `Editor/test/unit/serializer.test.ts` pins the written
 form of edited blocks: escaping only where a character would start syntax,
 nested and overlapping formatting, link and autolink forms, URL-like text and
-nested emphasis import. `Editor/test/separators.test.ts` pins where a new pair of neighbouring
+nested emphasis import. `Editor/test/unit/separators.test.ts` pins where a new pair of neighbouring
 blocks is written without a blank line: Enter and type changes, every pair of
 block types against what the parser reads back, content that merges a pair,
 separators already in the file and the opening Text line.
-`Editor/test/serializer-fuzz.test.ts` saves seeded
+`Editor/test/unit/serializer-fuzz.test.ts` saves seeded
 random inline drafts (3 seeds × 700 rounds) and compares what reads back. It leaves out line breaks in
 headings/table cells and link addresses starting with `<`, which Markdown cannot
 hold. These results do not cover native Save, real IME,
@@ -84,12 +100,12 @@ conflict buttons, permission dialogs, real clipboard/IME, PDF, accessibility and
 performance require separate validation. CUA evidence and current limitations are
 linked in F5. All harnesses leave the installed app untouched.
 
-`sh Tests/run-webkit.sh` also runs [EditorSwitchLayout.js](EditorSwitchLayout.js):
+`sh Tests/run-webkit.sh` also runs [EditorSwitchLayout.js](Page/EditorSwitchLayout.js):
 54 renderer/security/math/new-document/layout checks at 900/640px with TOC on/off.
 It compares common block geometry and fonts, unchanged visible heading position without a toolbar,
 source/page identity and repeated roundtrip drift. Intermediate coordinates use a
 16ms timer because offscreen WebKit suspends rAF; this is not painted-frame video. The same runner also executes
-[EditorAppearance.js](EditorAppearance.js): 864 appearance/interaction checks across
+[EditorAppearance.js](Page/EditorAppearance.js): 864 appearance/interaction checks across
 15 element groups at 900/640px, light/dark, 100/125% page zoom and TOC on/off.
 It checks checkboxes, nested/ordered lists, headings, inline styles and whitespace,
 code, quotes, aligned/striped tables, rules, block/inline/sized/captioned images,
@@ -99,7 +115,7 @@ Image editing/Undo/snapshots, blank clicks after images and inert author inputs 
 also exercised. Set `BLOCT_APPEARANCE_SNAPSHOTS=/absolute/path/prefix` to save
 optional before/after paragraph PNG crops; these are not a pixel-identity assertion.
 
-The same runner loads [ClickFocus.js](ClickFocus.js) with automatic editing enabled:
+The same runner loads [ClickFocus.js](Page/ClickFocus.js) with automatic editing enabled:
 45 checks cover exact clicked text positions in paragraphs/headings/quotes/lists/tables,
 immediate input, persistent EditorView/history/draft, read-only mutation guards,
 scrolled and empty documents, end padding, modifier/composition guards, one-click
@@ -185,6 +201,10 @@ mode, resumes external reloads, preserves drafts, and stops/cleans previews on c
 It requires the same Swift compiler-plugin and WebKit permissions as the other GUI
 harnesses. These counters cover the menu invalidation path; continuous menu visuals
 and real pointer dwell still need a separate GUI check.
+Since 2026-11-12 the runner copies the full page resources like the others; one check
+still fails: "draft survives unchanged disk polling" drives the legacy `commitEdit`
+message, which the block editor no longer sends. The same failure appears on the
+previous commit with resources added (PROJECT_REVIEW.md 4.2, 7.3).
 
 ```sh
 sh Tests/run-hosted.sh
@@ -207,7 +227,7 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
   Real navigation identities are used to inject stale/duplicate completion and failure
   callbacks, retry a failed bootstrap, and close while loading. These callback-order
   checks are controlled tests, not a reproduction of every runtime I/O failure.
-- Compatibility page suites in `Tests/js`, run with manual mode switching inside
+- Compatibility page suites in `Tests/Page/hosted`, run with manual mode switching inside
   a hosted page that includes the scripts injected on `didFinish`:
   - `aa-editing.js`: ten source types, read-only clicks/typing, absence of old
     edit APIs, one block editor engine, unsaved handoff/reentry, and unapplied property-dialog
@@ -218,7 +238,7 @@ SwiftUI drives the real `makeNSView` / `updateNSView` / `dismantleNSView`. It co
   - `sanitizer.js`: further attack patterns, legitimate Markdown/HTML that must
     survive sanitizing, KaTeX fonts and CSP violations.
 
-Every file in `Tests/js` returns `JSON.stringify({ results: [{ name, pass, detail, skip }] })`.
+Every file in `Tests/Page/hosted` returns `JSON.stringify({ results: [{ name, pass, detail, skip }] })`.
 Missing bundled KaTeX is a test failure; math checks do not depend on a CDN.
 
 Known defects are listed in `knownFailures` at the top of `HostedRegression.swift`
@@ -255,7 +275,7 @@ Hosted task checks exercise read-only and editing permissions in the compatibili
 
 ### GUI session lifetime
 
-Use [gui-session.mjs](gui-session.mjs) for CUA app sessions. Paste its factory
+Use [gui-session.mjs](GUI/gui-session.mjs) for CUA app sessions. Paste its factory
 without `export` into `cua_repl`, then bind the isolated app by absolute path:
 
 ```javascript
@@ -283,7 +303,7 @@ Closing the last document can leave a live macOS app with no windows.
 PID and use a known app action such as New Document or Quit; do not repeatedly
 capture nonexistent windows or force-relaunch the process.
 
-Run the session regression with `node --test Tests/gui-session.test.mjs`.
+Run the session regression with `node --test Tests/GUI/gui-session.test.mjs`.
 Its four cases cover concurrent observation during Quit, a lost Quit response,
 independent fresh sessions and rejection of ambiguous app names. See
 [bug 26](../BUG_FIXES.md#26-gui-테스트-중-finder-bloct-is-not-open-anymore) for

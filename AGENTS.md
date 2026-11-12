@@ -24,7 +24,7 @@
 ## GUI 테스트
 
 - `cua_repl`에서 대상 앱을 명시한 백그라운드 조작을 우선하고, 임시 문서로 스크린샷·편집·저장·다중 문서 열기/전환/닫기를 확인한다.
-- 앱 핸들은 [GUI 세션 도구](Tests/gui-session.mjs)로 감싸고 [세션 수명 절차](Tests/README.md#gui-session-lifetime)를 따른다. 최종 Quit 동작은 `session.finish(...)`로 보내 이전 핸들을 먼저 폐기하며, 이후 조회 대신 별도 PID로 종료를 확인한 뒤 새 세션을 만든다. 마지막 창 닫기의 `noWindowsAvailable`만으로 앱 종료·멈춤을 판정하지 않는다.
+- 앱 핸들은 [GUI 세션 도구](Tests/GUI/gui-session.mjs)로 감싸고 [세션 수명 절차](Tests/README.md#gui-session-lifetime)를 따른다. 최종 Quit 동작은 `session.finish(...)`로 보내 이전 핸들을 먼저 폐기하며, 이후 조회 대신 별도 PID로 종료를 확인한 뒤 새 세션을 만든다. 마지막 창 닫기의 `noWindowsAvailable`만으로 앱 종료·멈춤을 판정하지 않는다.
 - 사용자의 병행 작업 중 포커스·입력 간섭이 발생하면 알리고 조작을 줄이거나 중단한다. 테스트 완료 후 해당 테스트 앱을 종료하고 종료 상태를 확인한다.
 
 ## 최우선 개발 목표

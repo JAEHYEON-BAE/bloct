@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-12",
+  "change": "Project layout per PROJECT_REVIEW.md 8.2: Swift in Sources/Bloct/{App,Document,Window,WebView}, resources in Sources/Bloct/Resources/{Web,Vendor}; Editor/src/{model,view,host,styles} with input rules, keyboard commands and table navigation split out of visual-editor.ts; page scripts joined into Editor/dist/host.js; tests in Tests/{Native,Page,GUI,lib}, Editor/test/{unit,dom}; screenshots in docs/images",
+  "app": "xcodegen generate; xcodebuild Debug, BUILD SUCCEEDED without Swift warnings; bundle Resources contain host.js, page.html, style.css, marked/purify, blocks/math/visual",
+  "gui": "Computer Use on the rebuilt Debug app with temporary documents",
+  "checks": [
+    "layout.md: table cell typing, Tab to next cell, Shift+Enter inserts a row, Tab past the last cell leaves the table (view/table.ts); '## ' heading rule and $a+b$ inline math rule (view/input-rules.ts); Backspace at a Text start joins the previous line, Cmd-Z undoes it (view/keymap.ts)",
+    "Save: disk diff = edited rows, new row, heading and math line; compact table delimiter row kept; Esc to reading; TOC lists the new heading (host/toc.js)",
+    "close window: preview removed; reopen layout.md and page.md together in one instance: both clean, page.md scroll restored (host/scroll.js), TOC hidden",
+    "Quit: no process, no preview files, layout.md unchanged (md5 921e44b3...)"
+  ],
+  "notes": [
+    "macOS autocorrect capitalized 'done' to 'Done' and its bubble took one click (system input, not app code)",
+    "A second instance launched with open -n while the first was still running showed the window title 'Edited' for a document the first instance had closed; Quit asked nothing and a single fresh instance opened the same file clean. Test setup artefact, not reproduced in one instance"
+  ],
+  "automated": {
+    "model": "61 pass",
+    "browserModel": "18 passed",
+    "visualInput": "342 passed",
+    "native": "8 PASS",
+    "windowClose": "9 PASS",
+    "previewTermination": "10 PASS",
+    "webkit": "963 PASS",
+    "hosted": "269 passed",
+    "visualNative": "41 passed",
+    "relativeImages": "69 passed",
+    "guiSession": "4 pass",
+    "menuPolling": "9 PASS, 1 FAIL ('draft survives unchanged disk polling'); previously 3 FAIL from missing resources. Previous commit 00f116b with the resources added gives the same single failure: the check drives the unused commitEdit message"
+  },
+  "limits": "Debug build; real IME, macOS 14 and window-edge drag not exercised; node views remain in view/visual-editor.ts; DocumentController (4.4) not extracted"
+}

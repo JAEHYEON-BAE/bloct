@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.ts",
+    "test": "node --test test/unit/*.test.ts",
     "check": "tsc --noEmit",
     "build": "esbuild src/index.ts --bundle --format=iife --global-name=BloctBlocks --platform=browser --target=safari17 --outfile=dist/blocks.js && esbuild src/math-runtime.ts --bundle --format=iife --platform=browser --target=safari17 --outfile=dist/math.js && node build-resources.mjs"
   },

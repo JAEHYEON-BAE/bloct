@@ -1,18 +1,15 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
-output_dir=$(mktemp -d "${TMPDIR:-/tmp}/bloct-visual-native.XXXXXX")
-trap 'rm -rf "$output_dir"' EXIT
-app_dir="$output_dir/VisualEditorNative.app/Contents"
-mkdir -p "$app_dir/MacOS" "$app_dir/Resources"
-cp Sources/Bloct/page.html Sources/Bloct/reader.js Sources/Bloct/page-host.js Sources/Bloct/page-start.js Sources/Bloct/editor-switch.js Sources/Bloct/task-lists.js Sources/Bloct/marked.min.js Sources/Bloct/purify.min.js Sources/Bloct/style.css "$app_dir/Resources/"
-cp Editor/dist/math.js Editor/dist/math.css "$app_dir/Resources/"
-cp Editor/dist/blocks.js Editor/dist/visual.css Editor/dist/editor-licenses.txt "$app_dir/Resources/"
+. Tests/lib/harness.sh
+harness_output bloct-visual-native
+harness_app VisualEditorNative
+harness_page_resources
 python3 - "$output_dir" <<'PY'
 from pathlib import Path
 import sys
 out=Path(sys.argv[1])
-s=Path('Sources/Bloct/ContentView.swift').read_text()
+s=Path('Sources/Bloct/Window/ContentView.swift').read_text()
 s=s.replace('@State private var visualEditing = false', '@State private var visualEditing = true')
 s=s.replace('_originalText = State(initialValue: text)', '_originalText = State(initialValue: text)\n        _visualEditing = State(initialValue: fileURL?.lastPathComponent != "legacy-start.md")')
 needle='var body: some View {\n        MarkdownWebView('
@@ -24,18 +21,15 @@ s=s.replace('NSApp.presentError(', 'VisualProbe.presentError(')
 s=s.replace('self.showCloseWarning = true', 'VisualProbe.closeWarnings += 1')
 s=s.replace('showCloseWarning = true', 'VisualProbe.closeWarnings += 1')
 (out/'ContentView.swift').write_text(s)
-s=Path('Sources/Bloct/DocumentDisk.swift').read_text()
+s=Path('Sources/Bloct/Document/DocumentDisk.swift').read_text()
 needle='static func saveAsync(_ text: String, to url: URL, replacing expected: String) async throws {\n'
 assert s.count(needle)==1
 s=s.replace(needle,needle+'        await VisualProbe.beforeSave()\n')
 (out/'DocumentDisk.swift').write_text(s)
-(out/'BloctApp.swift').write_text(Path('Sources/Bloct/BloctApp.swift').read_text().replace('@main\n',''))
+(out/'BloctApp.swift').write_text(Path('Sources/Bloct/App/BloctApp.swift').read_text().replace('@main\n',''))
 PY
-set --
-for source in Sources/Bloct/*.swift; do
-    case "$source" in */BloctApp.swift|*/ContentView.swift|*/DocumentDisk.swift) ;; *) set -- "$@" "$source" ;; esac
-done
-xcrun swiftc -swift-version 6 -parse-as-library -module-cache-path /private/tmp/bloct-regression-module-cache \
-    "$@" "$output_dir/BloctApp.swift" "$output_dir/ContentView.swift" "$output_dir/DocumentDisk.swift" \
-    Tests/VisualEditorNative.swift -o "$app_dir/MacOS/VisualEditorNative"
+# shellcheck disable=SC2046
+harness_swiftc $(harness_sources BloctApp.swift ContentView.swift DocumentDisk.swift) \
+    "$output_dir/BloctApp.swift" "$output_dir/ContentView.swift" "$output_dir/DocumentDisk.swift" \
+    Tests/Native/VisualEditorNative.swift -o "$app_dir/MacOS/VisualEditorNative"
 "$app_dir/MacOS/VisualEditorNative"

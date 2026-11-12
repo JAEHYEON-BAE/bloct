@@ -14,9 +14,9 @@ cat > "$app_dir/Resources/index.html" <<'HTML'
 <script nonce="block-model-test" src="blocks.js"></script><body>Block model test</body>
 HTML
 xcrun swiftc -swift-version 6 -parse-as-library -module-cache-path /private/tmp/bloct-regression-module-cache \
-    Tests/BlockModelWebKit.swift -o "$app_dir/MacOS/BlockModel"
+    Tests/Native/BlockModelWebKit.swift -o "$app_dir/MacOS/BlockModel"
 if [ "${1:-}" = "--visual" ]; then
-    "$app_dir/MacOS/BlockModel" "$app_dir/Resources" "$PWD/Editor/test-dom/visual-editor.js"
+    "$app_dir/MacOS/BlockModel" "$app_dir/Resources" "$PWD/Editor/test/dom/visual-editor.js"
 else
     "$app_dir/MacOS/BlockModel" "$app_dir/Resources"
 fi
