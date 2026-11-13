@@ -1,4 +1,12 @@
-sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-visual-native.dfrF28/VisualEditorNative.app: 1 (Operation not permitted)
+sandbox_extension_issue_file_to_process failed for /var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T//bloct-visual-native.yw0PgE/VisualEditorNative.app: 1 (Operation not permitted)
+PASS: empty dialog history consumes native commands before engine and checkpoint fallback
+PASS: native Undo restores only the dialog draft and selection
+PASS: native Redo restores only the dialog draft
+PASS: Apply publishes the formula change to the document
+PASS: one native Undo after Apply restores the original formula with body typing intact
+PASS: native Redo after Apply restores the entire formula change
+PASS: reopened dialog has no prior draft history
+PASS: Cancel preserves document history for subsequent native Undo
 PASS: dirty visual mode hands off to Markdown without saving or dropping text
 PASS: mode switch retains native WebView, page URL and live JS document
 PASS: Aa off is read-only with no legacy edit API or textarea
@@ -34,11 +42,11 @@ PASS: native Save writes the exact engine snapshot and acknowledges clean
 PASS: visual Save freezes a snapshot before asynchronous disk I/O
 PASS: later typing/toggle survives Save acknowledgement as dirty
 PASS: a later explicit visual Save becomes clean
-PROBE ERROR: Error Domain=NSCocoaErrorDomain Code=260 "The file “first.md” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native-7BE8E7BE-B522-402F-80BE-197FF23BACD9/first.md, NSURL=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native-7BE8E7BE-B522-402F-80BE-197FF23BACD9/first.md, NSUnderlyingError=0x7b353ca100 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+PROBE ERROR: Error Domain=NSCocoaErrorDomain Code=260 "The file “first.md” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native-F9EC4B8B-4BD8-4694-A0E3-4572CEDA14A4/first.md, NSURL=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native-F9EC4B8B-4BD8-4694-A0E3-4572CEDA14A4/first.md, NSUnderlyingError=0x785ff0e130 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
 PASS: failed visual Save preserves draft and does not close
 PASS: failed visual Save can be retried without lost draft
 PASS: clean external change reloads the visual engine and history boundary
 PASS: Don't Save keeps last disk contents and closes the visual draft
 PASS: visual Save-and-close waits for acknowledged snapshot
 PASS: visual document previews are cleaned
-41 passed, 0 failed; controlled native document/revert and disk delay, real GUI panels/IME separate
+49 passed, 0 failed; controlled native document/revert and disk delay, real GUI panels/IME separate

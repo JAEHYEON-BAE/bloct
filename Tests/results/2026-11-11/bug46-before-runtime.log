@@ -1,4 +1,0 @@
-ESC_PROBE installed
-2026-11-11 14:32:10.943 Bloct[6970:484882] TSM AdjustCapsLockLEDForKeyTransitionHandling - _ISSetPhysicalKeyboardCapsLockLED Inhibit
-ESC_PROBE noResponderFor:keyDown: receiver=SwiftUI.AppDelegate
-ESC_PROBE noResponderFor:keyDown: receiver=SwiftUI.AppDelegate

@@ -378,13 +378,20 @@ export class VisualEditor {
       const input=document.createElement('textarea'); input.value=current.attrs.raw??current.attrs.src??current.attrs.value??'';
       input.readOnly=current.type===schema.nodes.raw_source; label.append(input);form.append(label);
       const cancel=document.createElement('button');cancel.textContent='Cancel';cancel.value='cancel';form.append(cancel);
-      if(!input.readOnly){const save=document.createElement('button');save.textContent='Apply';save.value='apply';form.append(save);}
+      let apply:HTMLButtonElement|undefined;
+      if(!input.readOnly){apply=document.createElement('button');apply.textContent='Apply';apply.value='apply';form.append(apply);}
+      if(isMath)apply?.setAttribute('aria-keyshortcuts','Meta+Enter');
       dialog.append(form);document.body.append(dialog);
       this.#dialog=dialog;
       this.#dialogHistory=inputHistory(input);
       // WebKit can close a dialog with its default Escape action and still
       // report the key as unhandled to AppKit. Handle cancellation explicitly.
       dialog.addEventListener('keydown',event=>{
+        if(isMath && event.key==='Enter' && event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+          event.preventDefault();event.stopPropagation();
+          if(!event.repeat && !event.isComposing && !view.composing && !this.#frozen)apply?.click();
+          return;
+        }
         if ((event.metaKey || event.ctrlKey) && !event.altKey
           && (event.key.toLowerCase()==='z' || (event.key.toLowerCase()==='y' && !event.shiftKey))) {
           event.preventDefault();event.stopPropagation();

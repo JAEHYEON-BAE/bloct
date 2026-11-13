@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-13",
+  "automatedDate": "2026-11-12",
+  "change": "Cmd-Enter in an equation dialog activates the same Apply button",
+  "app": "/private/tmp/bloct-equation-key-build/Build/Products/Debug/Bloct Equation Key.app",
+  "bundleID": "com.personal.Bloct.EquationKey",
+  "checks": [
+    "Created prior body edit Tail body. Opened inline x^2, typed y^3 and pressed physical Cmd-Return: dialog closed, formula applied, editor focused.",
+    "Cmd-Z reverted only formula to x^2, keeping Tail body; Cmd-Shift-Z restored y^3.",
+    "Block equation ordinary Return kept the dialog open and inserted a newline. Replaced draft with c = d / z = f, Cmd-Return applied the exact multiline draft; Save matched disk.",
+    "Esc canceled another inline draft, preserving the applied source. Closed/reopened first.md: inline y^3 and multiline block source persisted.",
+    "Opened block dialog again: exact c = d / z = f displayed. Cmd-Return with no changes closed it and left the document intact.",
+    "Opened second.md while first stayed open. Changed x + y -> y + z via Cmd-Return, then Cmd-Z and Close: second.md unchanged on disk. First document retained formulas and body.",
+    "Final screenshot verified formula rendering and editor focus. Quit through session.finish; PID absent, preview residue 0."
+  ],
+  "original": "# Apply key\n\nInline $x^2$ text.\n\n$$a = b$$\n\nTail\n",
+  "saved": "# Apply key\n\nInline $y^3$ text.\n\n$$c = d\nz = f$$\n\nTail body\n",
+  "secondUnchanged": true,
+  "appExited": true,
+  "previewResidue": [],
+  "automated": {
+    "visualDOM": 388,
+    "browserModel": 18,
+    "nativeContentView": 49,
+    "failures": 0,
+    "xfail": 0,
+    "skip": 0,
+    "typecheck": "passed",
+    "isolatedDebugBuild": "passed"
+  },
+  "limits": [
+    "GUI ASCII and default light appearance; actual IME, macOS 14 and installed/public Release untested",
+    "Composition/repeat/other-modifier guards and image-dialog exclusion checked by synthetic DOM events",
+    "The initial e = f draft triggered existing macOS text substitution (e =2.718 f); it was replaced before Apply and the saved text was independently verified."
+  ]
+}

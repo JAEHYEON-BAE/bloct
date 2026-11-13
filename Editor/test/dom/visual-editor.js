@@ -1054,6 +1054,42 @@ await check('dialog keyboard and beforeinput Undo/Redo share local history; Appl
   assert(editor.history(false) && serialized()===source,'next Undo reverts prior body typing');
   editor.history(true);editor.history(true);assert(serialized()===applied);
 });
+for(const source of ['Before $x^2$ after','$$x^2$$\n\nTail']) {
+  await check('Cmd-Enter in equation dialog follows Apply, restores focus and one-step Undo: '+source,async()=>{
+    fresh(source);host.querySelector('.visual-math').click();
+    const dialog=document.querySelector('dialog[open]'),input=dialog.querySelector('textarea');
+    input.setSelectionRange(0,input.value.length);fieldEdit(input,'y^3');
+    const plainEnter=new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true});
+    input.dispatchEvent(plainEnter);assert(!plainEnter.defaultPrevented && dialog.open,'ordinary Enter remains textarea input');
+    if(source.startsWith('$$'))fieldEdit(input,'\n  z^4','insertLineBreak');
+    const tex=input.value,event=new KeyboardEvent('keydown',{key:'Enter',metaKey:true,bubbles:true,cancelable:true});
+    input.dispatchEvent(event);assert(event.defaultPrevented && !dialog.open,'Cmd-Enter activates Apply');
+    await new Promise(resolve=>setTimeout(resolve,0));
+    assert(!document.querySelector('dialog') && editor.view.hasFocus(),'Apply removes dialog and restores document focus');
+    const math=[];editor.session.doc.descendants(n=>{if(['equation','inline_math'].includes(n.type.name))math.push(n);});
+    assert(math.length===1 && math[0].attrs.value===tex,'exact textarea draft applied');
+    const snapshot=await editor.snapshot();assert(BloctBlocks.importMarkdown(snapshot.text).doc);
+    assert(editor.history(false) && serialized()===source,'Apply is one document Undo step');
+    assert(editor.history(true) && serialized()===snapshot.text,'document Redo restores applied formula');
+  });
+}
+await check('equation Cmd-Enter ignores composition, repeat and other modifiers without leaking to body',async()=>{
+  const source='$$x^2$$';fresh(source);host.querySelector('.visual-math').click();
+  const dialog=document.querySelector('dialog'),input=dialog.querySelector('textarea');
+  for(const extra of [{isComposing:true},{repeat:true},{shiftKey:true},{ctrlKey:true},{altKey:true}]) {
+    input.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',metaKey:true,bubbles:true,cancelable:true,...extra}));
+    assert(dialog.open && serialized()===source,'guard: '+JSON.stringify(extra));
+  }
+  editor.view.input.composing=true;
+  input.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',metaKey:true,bubbles:true,cancelable:true}));
+  assert(dialog.open && serialized()===source);editor.view.input.composing=false;
+  dialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,0));
+  fresh('![alt](image.png)');host.querySelector('.visual-image').click();
+  const imageDialog=document.querySelector('dialog');assert(imageDialog?.open);
+  imageDialog.querySelector('textarea').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',metaKey:true,bubbles:true,cancelable:true}));
+  assert(imageDialog.open,'shortcut is limited to equation editing');
+  imageDialog.close('cancel');await new Promise(resolve=>setTimeout(resolve,0));
+});
 await check('code caret line boxes stay inside the block for empty, multiline and overflowing code',()=>{
   for(const text of ['', 'first\nsecond', 'first\nsecond\n', 'x'.repeat(180)+'\nlast']) {
     const source='```\n'+text+'\n```';fresh(source);

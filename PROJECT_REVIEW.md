@@ -48,7 +48,7 @@
 
 ### 권장 다음 순서
 
-이번 변경의 직렬화기·중첩 강조 열기·미사용 코드 제거는 2026-11-11 [Computer Use·자동 회귀](Tests/results/2026-11-11/review-gui.json)와 [저장 원문 비교](Tests/results/2026-11-11/review-gui-disk.json)를 통과했습니다. 상세·남은 한계는 [47·48번](BUG_FIXES.md#bug-47)을 따릅니다.
+이번 변경의 직렬화기·중첩 강조 열기·미사용 코드 제거는 2026-11-11 [Computer Use·자동 회귀](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui.json)와 [저장 원문 비교](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui-disk.json)를 통과했습니다. 상세·남은 한계는 [47·48번](BUG_FIXES.md#bug-47)을 따릅니다.
 
 1. **저장 경로(2.1, 2.4).** BOM 보존과 `replaceItemAt` 교체. 변경 범위가 `DocumentDisk`에 머뭅니다.
 2. **직렬화 후속(3.6, 3.3, 3.5).** 코드 펜스 정보 보존, 목록 항목 단위 원문 재사용, 취소선 mark 지원 순서입니다.

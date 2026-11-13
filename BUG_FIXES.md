@@ -1,6 +1,6 @@
 # Bloct 알려진 버그와 권장 수정 순서
 
-- 정리: **2026-11-12**. 미해결·조사 중 12개와 보류 1개, 최근 검증 완료 26·29·45·46·47·48·51·52·53·55·56번을 유지합니다. 이전 완료·제거된 경로의 기록은 Git 이력에 있고, 2026-11-10까지의 원시 증거는 `v2.0.1` 태그의 `Tests/results/`에 있습니다(저장소에는 최근 두 날짜 폴더만 유지).
+- 정리: **2026-11-13**. 미해결·조사 중 12개와 보류 1개, 최근 검증 완료 26·29·45·46·47·48·51·52·53·55·56번을 유지합니다. 이전 완료·제거된 경로의 기록은 Git 이력에 있고, 2026-11-10까지의 원시 증거는 `v2.0.1`, 2026-11-11 근거는 `v2.0.4` 태그의 `Tests/results/`에 있습니다(저장소에는 최근 두 날짜 폴더만 유지).
 - 기존 번호를 유지하며 다음 새 번호는 **57번**입니다. 검증 날짜·범위는 항목별 근거를 따르며 자동 검사와 실제 앱 검증을 구분합니다.
 - 기능 계약·남은 수용 검증은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 검사 방법은 [Tests/README.md](Tests/README.md)를 따릅니다. 블록 편집 검사의 통과를 읽기 렌더러 버그의 해결 근거로 사용하지 않습니다.
 
@@ -46,10 +46,10 @@
 
 ### 46. Esc 입력 시 macOS 경고음
 
-- **검증 완료 / 2026-11-11.** 읽기 상태의 Esc와 수식 팝업의 기본 Esc 취소가 WebKit에서 미처리 키로 전달되어 AppKit의 `noResponderFor:keyDown:` 경고음 경로에 도달했습니다. 최소 재현은 문서를 열고 Esc 반복, 또는 수식 클릭 → Esc입니다. 편집 종료 자체의 Esc와 구분했습니다. [읽기 재현](Tests/results/2026-11-11/bug46-before-runtime.log)·[팝업 키 코드 53/호출 스택](Tests/results/2026-11-11/bug46-fixed-keys.log). 경고음 동작은 [Apple 이벤트 처리 문서](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/EventArchitecture/EventArchitecture.html)를 따릅니다.
+- **검증 완료 / 2026-11-11.** 읽기 상태의 Esc와 수식 팝업의 기본 Esc 취소가 WebKit에서 미처리 키로 전달되어 AppKit의 `noResponderFor:keyDown:` 경고음 경로에 도달했습니다. 최소 재현은 문서를 열고 Esc 반복, 또는 수식 클릭 → Esc입니다. 편집 종료 자체의 Esc와 구분했습니다. [읽기 재현](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-before-runtime.log)·[팝업 키 코드 53/호출 스택](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-fixed-keys.log). 경고음 동작은 [Apple 이벤트 처리 문서](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/EventArchitecture/EventArchitecture.html)를 따릅니다.
 - **수정:** 읽기에서도 Esc 기본 동작을 막되 모드 전환을 추가 요청하지 않습니다. 공통 수식/이미지/보호 원문 팝업은 Esc를 명시적으로 소비하고 Cancel로 닫습니다. 다음 Esc의 읽기 복귀, 초안·Undo·Save·viewport 보존과 조합/수정자 키 보호는 유지합니다.
-- **검증:** [실제 앱·디스크·종료 감사](Tests/results/2026-11-11/bug46-gui.json)에서 Computer Use로 읽기 반복, 팝업 초안 폐기, 편집 종료, 검색창 닫기, Undo/저장/재열기, 두 문서 전환·닫기와 빈 문서를 확인했습니다. [최종 실제 Esc 19회](Tests/results/2026-11-11/bug46-final-keys.log)의 미처리 `keyDown` 0회, 종료 코드 0·미리보기 잔류 0·fixture 원문 복원. [모델/빌드 36개](Tests/results/2026-11-11/bug46-model.log)·[WebKit 963개](Tests/results/2026-11-11/bug46-webkit.log)·[시각 입력 332개/브라우저 모델 18개](Tests/results/2026-11-11/bug46-visual.log)·[native 41개](Tests/results/2026-11-11/bug46-native.log) 통과, 실패/SKIP 0.
-- **한계:** 오디오 녹음 대신 원래 AppKit 동작을 유지하는 [계측](Tests/results/2026-11-11/bug46-event-probe.m)으로 재현된 경고음 경로의 차단을 확인했습니다. 2026-11-11 [공개 2.0.1 설치본](Tests/results/2026-11-11/release-2.0.1-installed.json)에서도 편집/읽기 Esc·수식 팝업 취소·Save/Undo를 확인했습니다. 실제 IME 조합·macOS 14 기기는 별도입니다.
+- **검증:** [실제 앱·디스크·종료 감사](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-gui.json)에서 Computer Use로 읽기 반복, 팝업 초안 폐기, 편집 종료, 검색창 닫기, Undo/저장/재열기, 두 문서 전환·닫기와 빈 문서를 확인했습니다. [최종 실제 Esc 19회](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-final-keys.log)의 미처리 `keyDown` 0회, 종료 코드 0·미리보기 잔류 0·fixture 원문 복원. [모델/빌드 36개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-model.log)·[WebKit 963개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-webkit.log)·[시각 입력 332개/브라우저 모델 18개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-visual.log)·[native 41개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-native.log) 통과, 실패/SKIP 0.
+- **한계:** 오디오 녹음 대신 원래 AppKit 동작을 유지하는 [계측](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug46-event-probe.m)으로 재현된 경고음 경로의 차단을 확인했습니다. 2026-11-11 [공개 2.0.1 설치본](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/release-2.0.1-installed.json)에서도 편집/읽기 Esc·수식 팝업 취소·Save/Undo를 확인했습니다. 실제 IME 조합·macOS 14 기기는 별도입니다.
 
 <a id="bug-52"></a>
 
@@ -68,7 +68,7 @@
 
 - **검증 완료 / 2026-11-11.** 수정 전 URL·이메일·문자 참조 입력, 중첩/겹친 서식 편집에서 Save·Esc가 거절되고 문장부호·공백이 과도하게 이스케이프됐습니다([PROJECT_REVIEW.md](PROJECT_REVIEW.md) 2.2·2.3·3.1·3.2·3.4).
 - **수정:** 인라인을 `mdast-util-to-markdown` 2.2.1로 쓰고 mark 구간을 함께 감쌉니다. 블록 뼈대·미변경 원문 재사용·체크 한 글자 패치·왕복 검증은 유지합니다. URL 텍스트는 GFM 재파싱 시 자동 링크가 되므로 이를 같은 의미로 비교하되 기존 링크의 위치·주소를 보존합니다. 공백·줄바꿈의 정규화와 블록별 표기 선택은 [F5 계약 3](IMPLEMENTATION_PLAN.md#유지할-설계보존-계약)을 따릅니다.
-- **검증:** [Computer Use·자동 회귀](Tests/results/2026-11-11/review-gui.json)에서 URL/이메일/문자 참조 실제 입력, 서식 뒤 공백·겹친 굵게/기울임 적용, 중첩 서식·코드·링크 편집, 리터럴 취소선/참조/통화 표기, CRLF 제목/목록/체크/표의 Save·Esc·재열기와 Undo/Redo를 확인했습니다. [저장 원문 비교](Tests/results/2026-11-11/review-gui-disk.json) 통과. 미사용 검색·복사 코드 제거 후 읽기/편집 검색과 실제 서식 복사/붙여넣기도 통과했습니다. 같은 소스의 격리 앱 빌드·모델 50개(시드 3개×700회 무작위 초안 포함)·브라우저 모델 18개/시각 입력 338개·WebKit 963개·Hosted 269개·native 41개·이미지 69개 통과, 실패/SKIP 0. 새 문서 최초 저장·다중 문서 전환/닫기·[Quit 종료 코드 0/미리보기 잔류 0/새 충돌 0](Tests/results/2026-11-11/review-gui-exit.json) 확인.
+- **검증:** [Computer Use·자동 회귀](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui.json)에서 URL/이메일/문자 참조 실제 입력, 서식 뒤 공백·겹친 굵게/기울임 적용, 중첩 서식·코드·링크 편집, 리터럴 취소선/참조/통화 표기, CRLF 제목/목록/체크/표의 Save·Esc·재열기와 Undo/Redo를 확인했습니다. [저장 원문 비교](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui-disk.json) 통과. 미사용 검색·복사 코드 제거 후 읽기/편집 검색과 실제 서식 복사/붙여넣기도 통과했습니다. 같은 소스의 격리 앱 빌드·모델 50개(시드 3개×700회 무작위 초안 포함)·브라우저 모델 18개/시각 입력 338개·WebKit 963개·Hosted 269개·native 41개·이미지 69개 통과, 실패/SKIP 0. 새 문서 최초 저장·다중 문서 전환/닫기·[Quit 종료 코드 0/미리보기 잔류 0/새 충돌 0](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui-exit.json) 확인.
 - **한계:** `<`로 시작하는 링크 주소와 표 셀·제목 안의 줄바꿈은 여전히 저장이 거절됩니다. `**한글(영어)**은`처럼 문장부호로 끝나는 강조 뒤에 글자가 붙으면 CommonMark 규칙상 뒤 글자를 `&#x…;` 참조로 씁니다. 취소선 안의 다른 서식은 이스케이프됩니다. 목록·표 전체를 표준 표기로 다시 쓰던 한계는 [51번](#bug-51)에서 원문 표기 유지로 대체했습니다. 실제 IME·macOS 14 기기는 미검증입니다. `run-menu-polling.sh`의 수정 전부터 알려진 3건 실패(리소스 누락)는 이번 검사에서 제외했습니다.
 
 <a id="bug-51"></a>
@@ -85,7 +85,7 @@
 ### 48. 같은 종류의 강조가 중첩된 문서에서 편집 엔진 생성 실패
 
 - **검증 완료 / 2026-11-11.** `*a *b* c*`, `**a **b** c**`의 중첩 강조를 배열에 중복 추가해 `Invalid collection of marks for node text: em,em`으로 엔진 생성이 실패했습니다. importer에서 mark를 집합으로 추가하도록 수정했습니다([모델 검사](Editor/test/unit/serializer.test.ts)).
-- **실제 앱:** [Computer Use](Tests/results/2026-11-11/review-gui.json)에서 위 두 형태와 `*a **b *c* d** e*`가 함께 있는 문서를 열고 각 문단에 실제 입력·Save·Esc·닫기/재열기를 확인했습니다. [화면](Tests/results/2026-11-11/review-gui-formatting.png)·[저장 원문 비교](Tests/results/2026-11-11/review-gui-disk.json) 통과. 수정 전 GUI 증상은 독립 재현하지 않았으며 수정 전 모델 예외와 수정 후 실제 앱 동작을 구분합니다.
+- **실제 앱:** [Computer Use](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui.json)에서 위 두 형태와 `*a **b *c* d** e*`가 함께 있는 문서를 열고 각 문단에 실제 입력·Save·Esc·닫기/재열기를 확인했습니다. [화면](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui-formatting.png)·[저장 원문 비교](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/review-gui-disk.json) 통과. 수정 전 GUI 증상은 독립 재현하지 않았으며 수정 전 모델 예외와 수정 후 실제 앱 동작을 구분합니다.
 
 ## 종료·파일 정리
 
@@ -108,7 +108,7 @@
 ### 26. GUI 테스트 중 Finder “Bloct is not open anymore”
 
 - **검증 완료(확인된 자동화 경합 방지) / 2026-11-11.** Quit 직후 이전 앱 핸들의 `getAXState()`가 종료 중인 프로세스로 재활성화 이벤트를 보내는 흐름에서 `-600 procNotFound`가 기록됐습니다. 당시 주 프로세스 종료 5회는 정상입니다([2026-10-26 원시 로그](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-10-26/finder-quit-race.log)). 앱의 종료 코드를 바꾸지 않고 [GUI 세션 도구](Tests/GUI/gui-session.mjs)가 최종 Quit 동작을 보내기 **전에** 핸들을 폐기하도록 수정했습니다. 대기 중·응답 오류·저장된 옛 핸들의 후속 조회/입력은 CUA 호출 전에 거절합니다. 새 연결은 별도 PID 종료 확인 후 명시적 앱 경로로 만듭니다([사용법](Tests/README.md#gui-session-lifetime)).
-- **검증:** [자동 회귀 4개](Tests/results/2026-11-11/bug26-session.log)와 [Computer Use 3회](Tests/results/2026-11-11/bug26-gui.json). 두 문서의 편집 창 닫기 후 남은 창 응답, Quit 취소/추가 입력/저장/폐기, 종료 후 새 세션·Finder 재실행, 저장 문서 재열기를 확인했습니다. 세 번 모두 옛 핸들 접근 차단, [실제 PID 종료·미리보기 잔류 0](Tests/results/2026-11-11/bug26-process.json), [주 프로세스 정상 종료 `(0,0,0)`·관련 `procNotFound` 0](Tests/results/2026-11-11/bug26-system.log), Finder 오류 팝업 관찰 0입니다.
+- **검증:** [자동 회귀 4개](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug26-session.log)와 [Computer Use 3회](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug26-gui.json). 두 문서의 편집 창 닫기 후 남은 창 응답, Quit 취소/추가 입력/저장/폐기, 종료 후 새 세션·Finder 재실행, 저장 문서 재열기를 확인했습니다. 세 번 모두 옛 핸들 접근 차단, [실제 PID 종료·미리보기 잔류 0](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug26-process.json), [주 프로세스 정상 종료 `(0,0,0)`·관련 `procNotFound` 0](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.4/Tests/results/2026-11-11/bug26-system.log), Finder 오류 팝업 관찰 0입니다.
 - **창 없음과 한계:** 마지막 창 닫기 후 `noWindowsAvailable`은 현재 재현했으며 같은 PID에서 ⌘N으로 정상 복귀했습니다. 이를 앱 종료·deadlock으로 처리하지 않습니다. [2026-11-07 지속 `timeoutReached`·잔류](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-07/aa-only-gui.json)와 [idle 샘플](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-11-07/aa-only-process-sample.txt)의 정확한 CUA 원인은 미확정이고 이번에는 재현되지 않았습니다. 원래 Finder 팝업 자체의 독립 재현·캡처도 없으므로 모든 CUA/LaunchServices 오류 해결을 의미하지 않습니다. 도구 밖의 raw 핸들은 보호하지 않으며 재발 시 PID·남은 창·CUA 호스트 오류를 함께 수집해 이 항목을 다시 엽니다. 45번의 native 충돌과 구분합니다.
 - 별도 설치 제한: 당시 설치본은 ad-hoc 서명·quarantine으로 Gatekeeper에 차단됐으며, 사용자 승인으로 격리 속성만 제거해 Open 창 실행을 확인했습니다. 재다운로드 시 같은 제한이 생길 수 있습니다. [근거](https://github.com/JAEHYEON-BAE/bloct/blob/v2.0.1/Tests/results/2026-10-26/finder-launch-investigation.json).
 
