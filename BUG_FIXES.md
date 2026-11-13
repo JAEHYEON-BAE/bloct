@@ -1,6 +1,6 @@
 # Bloct 알려진 버그와 권장 수정 순서
 
-- 정리: **2026-11-13**. 미해결·조사 중 12개와 보류 1개, 최근 검증 완료 26·29·45·46·47·48·51·52·53·55·56번을 유지합니다. 이전 완료·제거된 경로의 기록은 Git 이력에 있고, 2026-11-10까지의 원시 증거는 `v2.0.1`, 2026-11-11 근거는 `v2.0.4` 태그의 `Tests/results/`에 있습니다(저장소에는 최근 두 날짜 폴더만 유지).
+- 정리: **2026-11-13**. 미해결·조사 중 13개와 보류 1개, 최근 검증 완료 26·29·45·46·47·48·51·52·53·55·56번을 유지합니다. 이전 완료·제거된 경로의 기록은 Git 이력에 있고, 2026-11-10까지의 원시 증거는 `v2.0.1`, 2026-11-11 근거는 `v2.0.4` 태그의 `Tests/results/`에 있습니다(저장소에는 최근 두 날짜 폴더만 유지).
 - 기존 번호를 유지하며 다음 새 번호는 **57번**입니다. 검증 날짜·범위는 항목별 근거를 따르며 자동 검사와 실제 앱 검증을 구분합니다.
 - 기능 계약·남은 수용 검증은 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), 검사 방법은 [Tests/README.md](Tests/README.md)를 따릅니다. 블록 편집 검사의 통과를 읽기 렌더러 버그의 해결 근거로 사용하지 않습니다.
 
@@ -32,6 +32,14 @@
 - **수정:** [keymap.ts](Editor/src/view/keymap.ts)의 `exitHeading`을 두 키가 공유합니다. 기본 `splitBlock`의 제목 타입 추론 대신 위치에 따라 명시적으로 일반 문단을 만들고 Undo 경계를 둡니다. 목록 내부 제목은 기존 목록 분할/탈출 정책을 유지합니다.
 - **검증:** [수정 전 새 검사 12건 실패](Tests/results/2026-11-12/heading-enter-before.log)(빈 제목 잔류), 수정 후 [시각 입력 380·브라우저 모델 18](Tests/results/2026-11-12/heading-enter-visual.log)·[ContentView native 49](Tests/results/2026-11-12/heading-enter-native.log)·[격리 Debug 빌드](Tests/results/2026-11-12/heading-enter-build.log) 통과, 실패/XFAIL/SKIP 0. 새 검사는 H1~H6×두 키×시작/중간/끝/빈 제목/선택×최상위/인용의 후속 입력·Undo·Save/reimport를 확인합니다. [Computer Use·디스크·종료 감사](Tests/results/2026-11-12/heading-enter-gui.json)에서 H1~H6의 실제 키/선택·빈 H4 Shift+Enter/빈 H1 Enter·후속 일반 입력·Undo/Redo·Save/Esc/닫기/재열기·인용·두 문서/Don't Save를 확인했고, 저장 원문 일치·두 번째 파일 보존·앱 종료·미리보기 잔류 0입니다.
 - **한계:** GUI는 ASCII이며 실제 IME·macOS 14·설치본/공개 Release는 미검증입니다. 이번 변경은 Enter/Shift+Enter 경로이며 여러 줄 붙여넣기/가져오기 정책은 바꾸지 않습니다.
+
+<a id="bug-54"></a>
+
+### 54. 빈 줄에 직접 입력한 Markdown 표가 표로 변환되지 않음
+
+- **미해결 / 2026-11-12 실제 앱 재현.** 빈 문서에서 `| A | B |` Enter `| --- | --- |` Enter `|1 | 2 |`처럼 입력하면 표 대신 일반 문단 3개가 남습니다. [Computer Use·저장 원문·모델 결과](Tests/results/2026-11-12/table-input-probe.json)에서는 사용자가 제시한 5열 머리글/구분 행/숫자 행을 빈 줄에 직접 입력했습니다. 같은 세 줄을 미리 기록한 `.md`를 열면 2행 5열 표로 렌더링됐습니다.
+- **원인:** [input-rules.ts](Editor/src/view/input-rules.ts)에 표 변환 규칙이 없고 일반 Enter는 문단을 분할합니다. 가져오기 파서는 GFM 표를 지원하므로 파일 열기와 직접 입력의 동작이 다릅니다. Save는 일반 문단을 유지하기 위해 머리글·구분 행 선두의 `|`를 `\|`로 쓰고 문단 사이 빈 줄도 저장했습니다. 따라서 저장된 `\|`만으로 사용자 입력 오류라고 판단하지 않습니다. 원래 Markdown 파일에 `\|`를 쓰면 제시된 문법은 표가 아닌 일반 문단으로 파싱됩니다([일회성 프로브](Tests/results/2026-11-12/table-input-probe.mjs)).
+- **다음 조치:** 머리글+구분 행 완성 시 표로 전환하는 입력 계약을 정하고 기존 문단 경계·직접 입력/붙여넣기·셀 선택·Undo/Save/재열기를 함께 구현·검증합니다. 당시 조사는 문서 갱신만 수행했으며 코드 수정은 없었습니다. 실제 GUI는 Enter/ASCII·격리 Debug 앱이며 Shift+Enter·IME·설치본/공개 Release는 미검증입니다.
 
 <a id="bug-53"></a>
 

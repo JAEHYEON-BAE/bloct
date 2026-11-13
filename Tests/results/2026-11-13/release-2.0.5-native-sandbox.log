@@ -1,0 +1,2 @@
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: Error Domain=NSCocoaErrorDomain Code=256 "The file “source.md” couldn’t be opened." UserInfo={NSURL=file:///var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-native-6588D597-C191-4AEB-B6D4-49C3EB67507C/source.md}
+Tests/run-native.sh: line 12: 79092 Trace/BPT trap: 5       "$output_dir/native-regression"

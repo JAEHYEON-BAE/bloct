@@ -1,0 +1,228 @@
+sandbox-exec: sandbox_apply: Operation not permitted
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:18:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 16 |     @Binding var document: MarkdownDocument
+ 17 |     let fileURL: URL?
+ 18 |     @State private var lastKnownFileURL: URL?
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 19 |     private var sourceURL: URL? { fileURL ?? lastKnownFileURL }
+ 20 |     @StateObject private var docState: DocumentState
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:21:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 19 |     private var sourceURL: URL? { fileURL ?? lastKnownFileURL }
+ 20 |     @StateObject private var docState: DocumentState
+ 21 |     @State private var zoomLevel: Double = 1.0
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 22 |     @State private var showTOC: Bool = false
+ 23 |     @State private var showSearch: Bool = false
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:22:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 20 |     @StateObject private var docState: DocumentState
+ 21 |     @State private var zoomLevel: Double = 1.0
+ 22 |     @State private var showTOC: Bool = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 23 |     @State private var showSearch: Bool = false
+ 24 |     @State private var searchText: String = ""
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:23:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 21 |     @State private var zoomLevel: Double = 1.0
+ 22 |     @State private var showTOC: Bool = false
+ 23 |     @State private var showSearch: Bool = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 24 |     @State private var searchText: String = ""
+ 25 |     @State private var originalText: String
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:24:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 22 |     @State private var showTOC: Bool = false
+ 23 |     @State private var showSearch: Bool = false
+ 24 |     @State private var searchText: String = ""
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 25 |     @State private var originalText: String
+ 26 |     @State private var showCloseWarning: Bool = false
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:25:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 23 |     @State private var showSearch: Bool = false
+ 24 |     @State private var searchText: String = ""
+ 25 |     @State private var originalText: String
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 26 |     @State private var showCloseWarning: Bool = false
+ 27 |     @State private var closeProxy: CloseProxy? = nil
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:26:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 24 |     @State private var searchText: String = ""
+ 25 |     @State private var originalText: String
+ 26 |     @State private var showCloseWarning: Bool = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 27 |     @State private var closeProxy: CloseProxy? = nil
+ 28 |     @State private var isBlockEditorDirty: Bool = false
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:27:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 25 |     @State private var originalText: String
+ 26 |     @State private var showCloseWarning: Bool = false
+ 27 |     @State private var closeProxy: CloseProxy? = nil
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 28 |     @State private var isBlockEditorDirty: Bool = false
+ 29 |     @State private var isSaving = false
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:28:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 26 |     @State private var showCloseWarning: Bool = false
+ 27 |     @State private var closeProxy: CloseProxy? = nil
+ 28 |     @State private var isBlockEditorDirty: Bool = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 29 |     @State private var isSaving = false
+ 30 |     @State private var stagedSave: StagedDocumentSave?
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:29:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 27 |     @State private var closeProxy: CloseProxy? = nil
+ 28 |     @State private var isBlockEditorDirty: Bool = false
+ 29 |     @State private var isSaving = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 30 |     @State private var stagedSave: StagedDocumentSave?
+ 31 |     @State private var isClosed = false
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:30:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 28 |     @State private var isBlockEditorDirty: Bool = false
+ 29 |     @State private var isSaving = false
+ 30 |     @State private var stagedSave: StagedDocumentSave?
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 31 |     @State private var isClosed = false
+ 32 |     @State private var diskCheck = DiskCheckState()
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:31:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 29 |     @State private var isSaving = false
+ 30 |     @State private var stagedSave: StagedDocumentSave?
+ 31 |     @State private var isClosed = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 32 |     @State private var diskCheck = DiskCheckState()
+ 33 |     @State private var reloadGeneration = 0
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:32:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 30 |     @State private var stagedSave: StagedDocumentSave?
+ 31 |     @State private var isClosed = false
+ 32 |     @State private var diskCheck = DiskCheckState()
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 33 |     @State private var reloadGeneration = 0
+ 34 |     @State private var ignoredExternalText: String?
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:33:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 31 |     @State private var isClosed = false
+ 32 |     @State private var diskCheck = DiskCheckState()
+ 33 |     @State private var reloadGeneration = 0
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 34 |     @State private var ignoredExternalText: String?
+ 35 |     // Background polling can wait until menu/control tracking and modal panels end.
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:34:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 32 |     @State private var diskCheck = DiskCheckState()
+ 33 |     @State private var reloadGeneration = 0
+ 34 |     @State private var ignoredExternalText: String?
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 35 |     // Background polling can wait until menu/control tracking and modal panels end.
+ 36 |     // Explicit Reload / before-edit checks still read the current source directly.
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:38:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 36 |     // Explicit Reload / before-edit checks still read the current source directly.
+ 37 |     private let diskTimer = Timer.publish(every: 0.6, on: .main, in: .default).autoconnect()
+ 38 |     @State private var webViewStore = WebViewStore()
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 39 |     @State private var visualEditing = true
+ 40 |     @State private var isCheckingVisualClose = false
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:39:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 37 |     private let diskTimer = Timer.publish(every: 0.6, on: .main, in: .default).autoconnect()
+ 38 |     @State private var webViewStore = WebViewStore()
+ 39 |     @State private var visualEditing = true
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 40 |     @State private var isCheckingVisualClose = false
+ 41 |     @State private var isSwitchingEditor = false
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:40:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 38 |     @State private var webViewStore = WebViewStore()
+ 39 |     @State private var visualEditing = true
+ 40 |     @State private var isCheckingVisualClose = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 41 |     @State private var isSwitchingEditor = false
+ 42 | 
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here
+
+/var/folders/mw/_4_tsnyn5bzbs54b11btqg8h0000gn/T/bloct-visual-native.bU0P6O/ContentView.swift:41:24: error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 39 |     @State private var visualEditing = true
+ 40 |     @State private var isCheckingVisualClose = false
+ 41 |     @State private var isSwitchingEditor = false
+    |                        `- error: external macro implementation type 'SwiftUIMacros.StateMacro' could not be found for macro 'State()'; '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' produced malformed response
+ 42 | 
+ 43 |     // State is seeded here rather than in onAppear so the web view's first load already
+
+SwiftUI.State:1:145: note: 'State()' declared here
+1 | @attached(accessor, names: named(init), named(get), named(set)) @attached(peer, names: prefixed(`_`), prefixed(__), prefixed(`$`)) public macro State() = #externalMacro(module: "SwiftUIMacros", type: "StateMacro")
+  |                                                                                                                                                 `- note: 'State()' declared here

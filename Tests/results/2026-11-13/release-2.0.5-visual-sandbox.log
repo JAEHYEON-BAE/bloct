@@ -1,0 +1,1 @@
+Tests/run-block-model-webkit.sh: line 22: 78888 Abort trap: 6           "$app_dir/MacOS/BlockModel" "$app_dir/Resources" "$PWD/Editor/test/dom/visual-editor.js"
